@@ -1,2 +1,171 @@
-# DualTrackOS
-you can do it all.
+# DualTrack OS
+
+**The operating system for perimenopausal women running dual careers without burning out.**
+
+## 🎯 What It Does
+
+DualTrack OS helps you:
+- Track your Non-Negotiable Daily Minimums (NDM)
+- Manage dual careers (corporate + consultancy/side business)
+- Monitor health vitals and prevent burnout
+- Optimize exercise for perimenopause + ADHD
+- Track nutrition with blood sugar stability
+- Get AI-powered insights on your patterns
+- Infer cycle phase without knowing "what day" you're on
+- Receive adaptive recommendations based on hormonal state
+
+## 🚀 Quick Start
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+
+# Build for production
+npm run build
+
+# Deploy to Vercel
+npm run deploy
+```
+
+## 📱 Features
+
+### Dashboard
+- Real-time daily score (0-100)
+- Streak tracking for motivation
+- Energy level monitoring
+- Burnout alert system (green/yellow/red)
+- Apple Health integration
+- Voice check-ins with AI transcription
+
+### Exercise Library
+- HIIT workouts optimized for hormonal health
+- Live workout timer with audio cues
+- Strength training circuits
+- Recovery yoga
+- Completion tracking
+
+### Nutrition Tracking
+- Quick meal logging
+- Protein tracking (critical for perimenopause)
+- Pre-made meal templates
+- Blood sugar optimization tips
+
+### Perimenopause Intelligence
+- 16 symptom tracking categories
+- 14 evidence-based interventions
+- AI cycle phase inference (no cycle day needed!)
+- Adaptive recommendations by phase
+- Pattern detection and prediction
+
+### Weekly Intelligence
+- Pattern detection (energy, sleep, productivity)
+- AI coaching insights
+- Burnout risk assessment
+- Progress tracking across all domains
+
+## 🛠️ Tech Stack
+
+**Frontend:**
+- React 18
+- Lucide React (icons)
+- Tailwind CSS (styling via CDN)
+- LocalStorage (data persistence)
+
+**Future:**
+- Node.js + Express (API)
+- PostgreSQL (database)
+- OpenAI API (AI coaching)
+- Stripe (payments)
+- React Native (mobile apps)
+
+## 📊 Project Structure
+```
+dualtrack-os/
+├── public/
+│   ├── index.html
+│   └── manifest.json
+├── src/
+│   ├── App.jsx              # Main app component
+│   ├── index.js
+│   └── index.css
+├── docs/
+│   ├── ARCHITECTURE.md
+│   ├── BUSINESS-PLAN.md
+│   └── LAUNCH-GUIDE.md
+├── package.json
+└── README.md
+```
+
+## 🎯 Roadmap
+
+**Phase 1: MVP (Current)**
+- ✅ Core dashboard
+- ✅ NDM tracking
+- ✅ Exercise library
+- ✅ Food logging
+- ✅ Perimenopause intelligence
+- ✅ Weekly insights
+- ✅ Data persistence
+
+**Phase 2: Backend (Weeks 2-4)**
+- [ ] User authentication
+- [ ] Cloud data sync
+- [ ] Real AI coaching
+- [ ] Apple Health API integration
+- [ ] Google Fit integration
+
+**Phase 3: Mobile Apps (Weeks 5-8)**
+- [ ] Convert to React Native
+- [ ] iOS App Store submission
+- [ ] Android Play Store submission
+- [ ] Push notifications
+- [ ] HealthKit/Google Fit native integration
+
+**Phase 4: Monetization (Month 3)**
+- [ ] Free tier (basic tracking)
+- [ ] Premium tier ($9.99/mo)
+- [ ] Pro tier ($29.99/mo)
+- [ ] Enterprise white-label
+
+## 💰 Business Model
+
+**Target Market:**
+- Women 40-55, perimenopausal
+- Corporate leaders building side businesses
+- ADHD/neurodivergent high-performers
+- 1.3M women enter perimenopause annually (US)
+
+**Revenue Streams:**
+1. Consumer subscriptions (B2C)
+2. Corporate wellness programs (B2B)
+3. Coaching certification program
+4. API licensing
+
+## 🤝 Contributing
+
+This is currently a solo founder project. Contributions welcome after MVP launch.
+
+## �� License
+
+Proprietary - All rights reserved
+
+## ��‍💻 About the Founder
+
+Built by a 50-year-old perimenopausal woman who's:
+- Head of Solution Design at a major financial institution
+- Building an AI automation consultancy
+- Managing ADHD
+- Refusing to burn out
+- Living proof the system works
+
+## �� Contact
+
+- Website: https://dualtrack.app (coming soon)
+- LinkedIn: [Your LinkedIn]
+- Email: [Your Email]
+
+---
+
+**You're not failing at work-life balance. The system is broken. Let's build a better one.**
