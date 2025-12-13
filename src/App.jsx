@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Calendar, Apple, Plus, Award, Activity, AlertTriangle } from 'lucide-react';
+import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, AlertTriangle, Download, Trash2, Settings } from 'lucide-react';
 
 const DualTrackOS = () => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [dailyScore, setDailyScore] = useState(0);
-  const [streak, setStreak] = useState(12);
-  const [energyLevel, setEnergyLevel] = useState(7);
+  const [streak] = useState(12);
+  const [energyLevel] = useState(7);
   const [isRecording, setIsRecording] = useState(false);
-  
+
   const [ndm, setNdm] = useState({ nutrition: false, movement: false, mindfulness: false, brainDump: false });
   const [careers, setCareers] = useState({ corporate: { wins: 0 }, consultancy: { wins: 0 } });
-  const [vitals, setVitals] = useState({
+  const [vitals] = useState({
     sleep: { hours: 7.2, trend: 'up' },
     hrv: { value: 48, trend: 'stable' },
     rhr: { value: 61, trend: 'down' },
     steps: { value: 8234 },
     activeCalories: { value: 342 }
   });
-  const [alertLevel, setAlertLevel] = useState('green');
+  const [alertLevel] = useState('green');
   const [meals, setMeals] = useState([]);
   const [proteinToday, setProteinToday] = useState(0);
   const [workouts, setWorkouts] = useState([]);
@@ -78,6 +78,29 @@ const DualTrackOS = () => {
   };
   const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
   const handleVoiceCheckin = () => { setIsRecording(true); setTimeout(() => { setIsRecording(false); alert('Voice captured!'); }, 2000); };
+
+  const exportData = () => {
+    const data = { ndm, careers, meals, workouts, proteinToday, vitals, energyLevel, streak, dailyScore, exportDate: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `dualtrack-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const resetData = () => {
+    if (window.confirm('⚠️ This will DELETE ALL your data. Are you sure?')) {
+      localStorage.removeItem('dualtrack-data');
+      setNdm({ nutrition: false, movement: false, mindfulness: false, brainDump: false });
+      setCareers({ corporate: { wins: 0 }, consultancy: { wins: 0 } });
+      setMeals([]);
+      setWorkouts([]);
+      setProteinToday(0);
+      alert('✅ All data cleared!');
+    }
+  };
 
   const NDMItem = ({ icon, label, completed, onClick }) => (
     <div onClick={onClick} className={`flex items-center justify-between p-4 rounded-lg cursor-pointer ${completed ? 'bg-green-50 border-2 border-green-500' : 'bg-gray-50 border-2 border-gray-200'}`}>
@@ -288,6 +311,23 @@ const DualTrackOS = () => {
                 <StatRow label="Workouts" value={`${weeklyData.workoutCount} sessions`} color="text-orange-600" />
                 <StatRow label="Corporate Wins" value={weeklyData.corporateWins} color="text-blue-600" />
                 <StatRow label="Consultancy Wins" value={weeklyData.consultancyWins} color="text-purple-600" />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-md border-2 border-gray-100">
+              <h3 className="font-bold mb-4 flex items-center"><Settings className="mr-2 text-gray-600" size={20} />Settings & Data</h3>
+              <div className="space-y-3">
+                <button onClick={exportData} className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 py-3 rounded-lg font-medium flex items-center justify-center space-x-2">
+                  <Download size={20} />
+                  <span>Export All Data</span>
+                </button>
+                <button onClick={resetData} className="w-full bg-red-50 hover:bg-red-100 text-red-700 py-3 rounded-lg font-medium flex items-center justify-center space-x-2">
+                  <Trash2 size={20} />
+                  <span>Reset All Data</span>
+                </button>
+                <div className="pt-3 border-t border-gray-200">
+                  <p className="text-xs text-gray-500 text-center">Version 1.0.0 • Made with 💜 for perimenopausal warriors</p>
+                </div>
               </div>
             </div>
           </div>
