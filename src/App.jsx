@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, User, TrendingUp } from 'lucide-react';
+import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, User } from 'lucide-react';
 import { supabase, isSupabaseConfigured, signInWithGoogle, signOut as supabaseSignOut, saveUserData, loadUserData } from './supabaseClient';
 import Onboarding from './Onboarding';
 import SpiritAnimalCard from './components/SpiritAnimalCard';
@@ -243,6 +243,7 @@ const DualTrackOS = () => {
   useEffect(() => {
     const newScore = calculateBalanceScore();
     setSpiritAnimalScore(newScore);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [energyTracking, currentMood, ndm, proteinToday, meals.length, voiceDiary.length, userProfile.weight]);
 
   useEffect(() => {
@@ -731,7 +732,6 @@ const DualTrackOS = () => {
     let maxPossible = 0;
 
     // Factor 1: Energy-Action Alignment (0-20 points)
-    const currentEnergy = getCurrentEnergy();
     const currentPeriodEnergy = getCurrentPeriodEnergy();
     if (currentPeriodEnergy !== null) {
       maxPossible += 20;
