@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, AlertTriangle, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, User } from 'lucide-react';
 import { supabase, isSupabaseConfigured, signInWithGoogle, signOut as supabaseSignOut, saveUserData, loadUserData } from './supabaseClient';
+import Onboarding from './Onboarding';
 
 const DualTrackOS = () => {
   // Auth state
@@ -8,9 +9,39 @@ const DualTrackOS = () => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [dailyScore, setDailyScore] = useState(0);
   const [streak] = useState(0); // No mock data
-  const [energyLevel] = useState(0); // No mock data
   const [isRecording, setIsRecording] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
+
+  // User Profile (for personalization)
+  const [userProfile, setUserProfile] = useState({
+    name: '',
+    preferredName: '',
+    age: null,
+    weight: null, // in lbs, for protein calculation
+    avatar: '👩‍💼',
+    hasCompletedOnboarding: false,
+    disclaimerAccepted: false
+  });
+
+  // Energy tracking (3x per day)
+  const [energyTracking, setEnergyTracking] = useState({
+    morning: null,    // 1-5
+    afternoon: null,  // 1-5
+    evening: null     // 1-5
+  });
+
+  // Mood tracking
+  const [currentMood, setCurrentMood] = useState(null); // 'energized', 'focused', 'calm', 'tired', 'anxious', 'overwhelmed'
+
+  // Detail view (which tile is expanded)
+  const [expandedTile, setExpandedTile] = useState(null);
+
+  // Modals for actionable NDMs
+  const [showBrainDumpModal, setShowBrainDumpModal] = useState(false);
+  const [showMindfulMomentModal, setShowMindfulMomentModal] = useState(false);
+  const [brainDumpText, setBrainDumpText] = useState('');
+  const [mindfulTimer, setMindfulTimer] = useState(300); // 5 minutes
+  const [mindfulRunning, setMindfulRunning] = useState(false);
 
   // Real-time clock state
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -87,6 +118,9 @@ const DualTrackOS = () => {
             if (userData.notificationsEnabled !== undefined) setNotificationsEnabled(userData.notificationsEnabled);
             if (userData.careerSections) setCareerSections(userData.careerSections);
             if (userData.voiceDiary) setVoiceDiary(userData.voiceDiary);
+            if (userData.userProfile) setUserProfile(userData.userProfile);
+            if (userData.energyTracking) setEnergyTracking(userData.energyTracking);
+            if (userData.currentMood) setCurrentMood(userData.currentMood);
           }
         }
 
@@ -116,6 +150,9 @@ const DualTrackOS = () => {
             if (data.notificationsEnabled !== undefined) setNotificationsEnabled(data.notificationsEnabled);
             if (data.careerSections) setCareerSections(data.careerSections);
             if (data.voiceDiary) setVoiceDiary(data.voiceDiary);
+            if (data.userProfile) setUserProfile(data.userProfile);
+            if (data.energyTracking) setEnergyTracking(data.energyTracking);
+            if (data.currentMood) setCurrentMood(data.currentMood);
           } catch (e) { console.error(e); }
         }
       }
@@ -129,7 +166,7 @@ const DualTrackOS = () => {
     const dataToSave = {
       ndm, careers, meals, workouts, proteinToday, darkMode,
       gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled,
-      careerSections, voiceDiary
+      careerSections, voiceDiary, userProfile, energyTracking, currentMood
     };
 
     // Always save to localStorage as backup
@@ -139,7 +176,7 @@ const DualTrackOS = () => {
     if (user && isSupabaseConfigured()) {
       saveUserData(user.id, dataToSave);
     }
-  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled, careerSections, voiceDiary, user]);
+  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled, careerSections, voiceDiary, userProfile, energyTracking, currentMood, user]);
 
   // Real-time clock update every second
   useEffect(() => {
@@ -165,6 +202,23 @@ const DualTrackOS = () => {
     return () => clearInterval(interval);
   }, [pomodoroRunning, pomodoroSeconds, notificationsEnabled]);
 
+  // Mindful timer countdown
+  useEffect(() => {
+    let interval;
+    if (mindfulRunning && mindfulTimer > 0) {
+      interval = setInterval(() => {
+        setMindfulTimer(prev => prev - 1);
+      }, 1000);
+    } else if (mindfulTimer === 0 && mindfulRunning) {
+      setMindfulRunning(false);
+      setNdm(prev => ({ ...prev, mindfulness: true }));
+      if (notificationsEnabled) {
+        new Notification('Mindful moment complete!', { body: '5 minutes of meditation done. 🧘' });
+      }
+    }
+    return () => clearInterval(interval);
+  }, [mindfulRunning, mindfulTimer, notificationsEnabled]);
+
   useEffect(() => {
     let score = 0;
     if (ndm.nutrition) score += 10;
@@ -183,6 +237,50 @@ const DualTrackOS = () => {
   }, [isWorkoutRunning]);
 
   const toggleNDM = (key) => setNdm(p => ({ ...p, [key]: !p[key] }));
+
+  // Handle Brain Dump modal
+  const openBrainDump = () => {
+    setBrainDumpText('');
+    setShowBrainDumpModal(true);
+  };
+
+  const saveBrainDump = () => {
+    if (brainDumpText.trim()) {
+      // Add to voice diary or create new brain dump array
+      const entry = {
+        id: Date.now(),
+        type: 'brain-dump',
+        text: brainDumpText,
+        timestamp: new Date().toISOString()
+      };
+      setVoiceDiary(prev => [...prev, entry]);
+      setNdm(prev => ({ ...prev, brainDump: true }));
+      setShowBrainDumpModal(false);
+      setBrainDumpText('');
+    }
+  };
+
+  // Handle Mindful Moment modal
+  const openMindfulMoment = () => {
+    setMindfulTimer(300); // Reset to 5 minutes
+    setShowMindfulMomentModal(true);
+  };
+
+  const startMindfulSession = () => {
+    setMindfulRunning(true);
+  };
+
+  const pauseMindfulSession = () => {
+    setMindfulRunning(false);
+  };
+
+  const completeMindfulSession = () => {
+    setNdm(prev => ({ ...prev, mindfulness: true }));
+    setShowMindfulMomentModal(false);
+    setMindfulTimer(300);
+    setMindfulRunning(false);
+  };
+
   const addMeal = (name, protein) => {
     setMeals(p => [...p, { id: Date.now(), name, protein, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }]);
     setProteinToday(p => p + protein);
@@ -281,7 +379,7 @@ const DualTrackOS = () => {
   };
 
   const exportData = () => {
-    const data = { ndm, careers, meals, workouts, proteinToday, vitals, energyLevel, streak, dailyScore, exportDate: new Date().toISOString() };
+    const data = { ndm, careers, meals, workouts, proteinToday, vitals, streak, dailyScore, userProfile, energyTracking, currentMood, exportDate: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -301,6 +399,113 @@ const DualTrackOS = () => {
       setProteinToday(0);
       alert('✅ All data cleared!');
     }
+  };
+
+  // Handle onboarding completion
+  const handleOnboardingComplete = (profile) => {
+    setUserProfile(profile);
+  };
+
+  // Calculate current energy level (average of tracked times)
+  const getCurrentEnergy = () => {
+    const values = Object.values(energyTracking).filter(v => v !== null);
+    if (values.length === 0) return 0;
+    return Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+  };
+
+  // Get protein target based on user weight (0.8-1g per lb)
+  const getProteinTarget = () => {
+    if (!userProfile.weight) return 120; // Default if no weight set
+    return Math.round(userProfile.weight * 0.9); // 0.9g per lb as middle ground
+  };
+
+  // Set energy for current time of day
+  const setCurrentEnergy = (level) => {
+    const hour = currentTime.getHours();
+    if (hour >= 5 && hour < 12) {
+      setEnergyTracking(prev => ({ ...prev, morning: level }));
+    } else if (hour >= 12 && hour < 18) {
+      setEnergyTracking(prev => ({ ...prev, afternoon: level }));
+    } else {
+      setEnergyTracking(prev => ({ ...prev, evening: level }));
+    }
+  };
+
+  // Get time of day label
+  const getTimeOfDay = () => {
+    const hour = currentTime.getHours();
+    if (hour >= 5 && hour < 12) return 'morning';
+    if (hour >= 12 && hour < 18) return 'afternoon';
+    return 'evening';
+  };
+
+  // Get current time period energy
+  const getCurrentPeriodEnergy = () => {
+    const period = getTimeOfDay();
+    return energyTracking[period];
+  };
+
+  // Get smart suggestions based on energy + mood
+  const getSmartSuggestions = () => {
+    const energy = getCurrentEnergy();
+    const mood = currentMood;
+
+    // High energy scenarios
+    if (energy >= 4) {
+      return {
+        message: "You're energized! Perfect time for your hardest tasks.",
+        tasks: ["Complex problem-solving", "Important calls", "Strategic planning", "Deep work sessions"],
+        color: "orange"
+      };
+    }
+
+    // Low energy + overwhelmed = GENTLE MODE
+    if (energy <= 2 && mood === 'overwhelmed') {
+      return {
+        message: "🌸 GENTLE MODE: Your only job is self-care right now.",
+        tasks: ["Take a 10-min walk", "Eat protein + healthy fat", "Light stretching", "Call a friend"],
+        warning: "Skip hard tasks today. Rest is productive.",
+        color: "rose"
+      };
+    }
+
+    // Low energy general
+    if (energy <= 2) {
+      return {
+        message: "Low energy detected. Time for gentle, easy wins.",
+        tasks: ["Email responses", "Light organizing", "Delete old files", "Watch inspiring video"],
+        proteinPrompt: true,
+        color: "purple"
+      };
+    }
+
+    // Medium energy + anxious
+    if (energy === 3 && mood === 'anxious') {
+      return {
+        message: "Feeling anxious? Start with one small, simple task.",
+        tasks: ["Organize one drawer", "5-min meditation", "Brain dump to paper", "Light admin work"],
+        color: "blue"
+      };
+    }
+
+    // Default medium energy
+    return {
+      message: "Steady energy. Great for consistent progress.",
+      tasks: ["Routine meetings", "Email responses", "Project updates", "Admin tasks"],
+      color: "cyan"
+    };
+  };
+
+  // Check if protein reminder needed
+  const needsProteinReminder = () => {
+    if (meals.length === 0) return true;
+    const lastMeal = meals[meals.length - 1];
+    if (!lastMeal) return true;
+    // Parse time (format: "2:47 PM")
+    const now = new Date();
+    const lastMealTime = new Date();
+    // Simplified: if more than 3 hours since last log, remind
+    return meals.length < 3; // Simple heuristic
   };
 
   // Daily Planning Functions
@@ -488,6 +693,11 @@ const DualTrackOS = () => {
     </button>
   );
 
+  // Show onboarding if not completed
+  if (!userProfile.hasCompletedOnboarding) {
+    return <Onboarding onComplete={handleOnboardingComplete} darkMode={darkMode} />;
+  }
+
   return (
     <div className={`min-h-screen transition-colors duration-500 ${
       darkMode
@@ -496,151 +706,475 @@ const DualTrackOS = () => {
     }`}>
       <GeometricBg />
 
+      {/* Redesigned Header - Massive Time Focus */}
       <div className={`sticky top-0 z-20 backdrop-blur-xl transition-all duration-300 ${
         darkMode
-          ? 'bg-gray-900/80 border-b border-gray-800/50 shadow-xl shadow-purple-500/5'
-          : 'bg-white/80 border-b border-gray-200/50 shadow-md'
+          ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
+          : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
-        <div className="max-w-2xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className={`text-2xl font-bold transition-all ${
-                darkMode
-                  ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
-                  : 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'
-              }`}>
-                DualTrack OS
-              </h1>
-              <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>Your Life Operating System</p>
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          {/* Top Row: Greeting + Settings + Score */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <span className="text-4xl">{userProfile.avatar}</span>
+              <div>
+                <h2 className={`text-lg font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                  Hey {userProfile.preferredName || userProfile.name || 'there'}! 👋
+                </h2>
+                <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                  {currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                </p>
+              </div>
             </div>
+            <div className="flex items-center space-x-3">
+              {/* Compact Score Badge */}
+              <div className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
+                darkMode
+                  ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-purple-300'
+                  : 'bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-300 text-purple-700'
+              }`}>
+                {dailyScore} pts {streak > 0 && `🔥${streak}`}
+              </div>
+              {/* Settings Icon */}
+              <button
+                onClick={() => setCurrentView('insights')}
+                className={`p-2 rounded-lg transition-all ${
+                  darkMode
+                    ? 'hover:bg-gray-800 text-gray-400 hover:text-gray-300'
+                    : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Settings size={20} />
+              </button>
+            </div>
+          </div>
 
-            {/* User Auth Status */}
-            {isSupabaseConfigured() && (
-              <div className="flex items-center space-x-2">
-                {user ? (
-                  <div className={`flex items-center space-x-1 text-xs ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                    <User size={14} />
-                    <span className="hidden sm:inline">Synced</span>
+          {/* Massive Time Display */}
+          <div className="text-center">
+            {!isPomodoroMode ? (
+              <div>
+                <div onClick={togglePomodoroMode} className="cursor-pointer group inline-block">
+                  <div className={`font-mono font-bold leading-none mb-1 transition-all ${
+                    darkMode
+                      ? 'text-6xl sm:text-7xl bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent group-hover:from-cyan-300 group-hover:via-purple-300 group-hover:to-pink-400'
+                      : 'text-6xl sm:text-7xl text-gray-900 group-hover:text-purple-600'
+                  }`}>
+                    {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                   </div>
-                ) : (
-                  <div className={`flex items-center space-x-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                    <span className="hidden sm:inline">Local</span>
+                  <div className={`text-xs ${darkMode ? 'text-gray-600 group-hover:text-gray-500' : 'text-gray-500 group-hover:text-gray-600'}`}>
+                    Tap for 20-min Focus Mode
                   </div>
-                )}
+                </div>
+              </div>
+            ) : (
+              // Pomodoro Timer Mode
+              <div className="space-y-3">
+                <div className={`font-mono text-6xl sm:text-7xl font-bold ${
+                  darkMode
+                    ? pomodoroRunning
+                      ? 'bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent'
+                      : 'text-gray-600'
+                    : pomodoroRunning ? 'text-orange-600' : 'text-gray-400'
+                }`}>
+                  {formatTime(pomodoroSeconds)}
+                </div>
+                <div className="flex items-center justify-center space-x-3">
+                  {!pomodoroRunning ? (
+                    <button onClick={startPomodoro} className={`px-6 py-2 rounded-lg font-medium flex items-center space-x-2 transition-all ${
+                      darkMode
+                        ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30'
+                        : 'bg-green-100 hover:bg-green-200 text-green-700 border border-green-300'
+                    }`}>
+                      <Play size={18} />
+                      <span>Start</span>
+                    </button>
+                  ) : (
+                    <button onClick={pausePomodoro} className={`px-6 py-2 rounded-lg font-medium flex items-center space-x-2 transition-all ${
+                      darkMode
+                        ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/30'
+                        : 'bg-orange-100 hover:bg-orange-200 text-orange-700 border border-orange-300'
+                    }`}>
+                      <Pause size={18} />
+                      <span>Pause</span>
+                    </button>
+                  )}
+                  <button onClick={resetPomodoro} className={`p-2 rounded-lg transition-all ${
+                    darkMode
+                      ? 'bg-gray-800 hover:bg-gray-700 text-gray-400'
+                      : 'bg-gray-200 hover:bg-gray-300 text-gray-600'
+                  }`}>
+                    <RotateCcw size={18} />
+                  </button>
+                  <button onClick={togglePomodoroMode} className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                    darkMode
+                      ? 'bg-gray-800 hover:bg-gray-700 text-gray-400'
+                      : 'bg-gray-200 hover:bg-gray-300 text-gray-600'
+                  }`}>
+                    Exit
+                  </button>
+                </div>
+                <div className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                  {pomodoroRunning ? '🎯 Deep Focus Mode Active' : 'Paused'}
+                </div>
               </div>
             )}
-
-            {/* Clock / Pomodoro Timer Toggle */}
-            <div className="text-right">
-              {!isPomodoroMode ? (
-                // Clock Mode
-                <div onClick={togglePomodoroMode} className="cursor-pointer group">
-                  <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'} group-hover:${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </div>
-                  <div className={`font-mono text-lg font-bold flex items-center space-x-1 ${
-                    darkMode
-                      ? 'bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent'
-                      : 'text-purple-600'
-                  }`}>
-                    <Clock size={16} className={darkMode ? 'text-cyan-400' : 'text-purple-600'} />
-                    <span>{currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
-                  </div>
-                  <div className={`text-xs ${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>
-                    Click for Focus Mode
-                  </div>
-                </div>
-              ) : (
-                // Pomodoro Mode
-                <div className="space-y-1">
-                  <div className={`font-mono text-2xl font-bold ${
-                    darkMode
-                      ? pomodoroRunning
-                        ? 'bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent'
-                        : 'text-gray-400'
-                      : pomodoroRunning ? 'text-orange-600' : 'text-gray-400'
-                  }`}>
-                    {formatTime(pomodoroSeconds)}
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {!pomodoroRunning ? (
-                      <button onClick={startPomodoro} className={`p-1 rounded ${darkMode ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400' : 'bg-green-100 hover:bg-green-200 text-green-600'}`}>
-                        <Play size={14} />
-                      </button>
-                    ) : (
-                      <button onClick={pausePomodoro} className={`p-1 rounded ${darkMode ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-400' : 'bg-orange-100 hover:bg-orange-200 text-orange-600'}`}>
-                        <Pause size={14} />
-                      </button>
-                    )}
-                    <button onClick={resetPomodoro} className={`p-1 rounded ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-400' : 'bg-gray-200 hover:bg-gray-300 text-gray-600'}`}>
-                      <RotateCcw size={14} />
-                    </button>
-                    <button onClick={togglePomodoroMode} className={`p-1 rounded ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-400' : 'bg-gray-200 hover:bg-gray-300 text-gray-600'}`}>
-                      <X size={14} />
-                    </button>
-                  </div>
-                  <div className={`text-xs ${darkMode ? 'text-gray-600' : 'text-gray-500'}`}>
-                    {pomodoroRunning ? '20-min Focus' : 'Paused'}
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </div>
       
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-4xl mx-auto px-4 py-6">
         {currentView === 'dashboard' && (
-          <div className="space-y-4 pb-24 relative z-10">
+          <div className="space-y-6 pb-24 relative z-10">
+
+            {/* CURRENT HOUR FOCUS */}
             <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
               darkMode
-                ? 'bg-gradient-to-r from-purple-900/50 via-pink-900/50 to-purple-900/50 border-2 border-purple-500/30 backdrop-blur-xl'
-                : 'bg-gradient-to-r from-purple-600 to-pink-600'
+                ? 'bg-gradient-to-r from-cyan-900/50 via-blue-900/50 to-cyan-900/50 border-2 border-cyan-500/30 backdrop-blur-xl'
+                : 'bg-gradient-to-r from-cyan-600 to-blue-600'
             }`}>
-              <div className="flex justify-between items-center mb-2">
-                <div>
-                  <div className={`text-sm ${darkMode ? 'text-purple-300' : 'opacity-90 text-white'}`}>TODAY'S SCORE</div>
-                  <div className={`text-5xl font-bold ${darkMode ? 'bg-gradient-to-r from-cyan-300 to-pink-400 bg-clip-text text-transparent' : 'text-white'}`}>{dailyScore}/100</div>
+              <h2 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-white'}`}>
+                🎯 RIGHT NOW
+              </h2>
+              <p className={`text-sm mb-4 ${darkMode ? 'text-cyan-300' : 'text-white opacity-90'}`}>
+                {formatHour(currentTime.getHours())} - {formatHour(currentTime.getHours() + 1)}
+              </p>
+
+              {/* Current hour tasks */}
+              <div className="space-y-2">
+                {(hourlyTasks[currentTime.getHours()] || []).map(task => (
+                  <div key={task.id} className={`flex items-center justify-between p-3 rounded-lg ${
+                    darkMode
+                      ? task.completed
+                        ? 'bg-emerald-500/20 border border-emerald-500/40'
+                        : 'bg-white/10 border border-white/20'
+                      : task.completed
+                        ? 'bg-green-100 border border-green-300'
+                        : 'bg-white/40 border border-white/60'
+                  }`}>
+                    <div className="flex items-center space-x-3 flex-1">
+                      <button
+                        onClick={() => toggleHourlyTask(currentTime.getHours(), task.id)}
+                        className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
+                          darkMode
+                            ? task.completed
+                              ? 'bg-emerald-500 shadow-lg shadow-emerald-500/50'
+                              : 'bg-white/20 hover:bg-white/30'
+                            : task.completed
+                              ? 'bg-green-500'
+                              : 'bg-white/60 hover:bg-white/80'
+                        }`}
+                      >
+                        {task.completed && <Check className="text-white" size={14} />}
+                      </button>
+                      <span className={`text-sm font-medium ${
+                        darkMode
+                          ? task.completed
+                            ? 'text-emerald-300 line-through'
+                            : 'text-white'
+                          : task.completed
+                            ? 'text-green-700 line-through'
+                            : 'text-white'
+                      }`}>
+                        {task.text}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => deleteHourlyTask(currentTime.getHours(), task.id)}
+                      className={`ml-2 ${darkMode ? 'text-white/40 hover:text-red-400' : 'text-white/60 hover:text-red-600'}`}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add task for this hour */}
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const input = e.target.elements.currentHourTask;
+                addHourlyTask(currentTime.getHours(), input.value);
+                input.value = '';
+              }} className="mt-3">
+                <input
+                  name="currentHourTask"
+                  type="text"
+                  placeholder="+ Add task for this hour..."
+                  className={`w-full px-4 py-3 rounded-lg transition-all ${
+                    darkMode
+                      ? 'bg-white/10 border-2 border-white/20 text-white placeholder-white/60 focus:border-cyan-400/50'
+                      : 'bg-white/40 border-2 border-white/60 text-white placeholder-white/80 focus:border-white'
+                  }`}
+                />
+              </form>
+            </div>
+
+            {/* ENERGY & MOOD TRACKING */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Energy Selector */}
+              <div onClick={() => setExpandedTile(expandedTile === 'energy' ? null : 'energy')} className={`rounded-xl p-4 cursor-pointer transition-all duration-300 ${
+                darkMode
+                  ? 'bg-gray-800/50 border-2 border-gray-700/50 hover:border-yellow-500/50 shadow-lg backdrop-blur-sm'
+                  : 'bg-white border-2 border-gray-100 hover:border-yellow-400 shadow-md'
+              }`}>
+                <div className="flex items-center justify-between mb-3">
+                  <Zap className={darkMode ? 'text-yellow-400' : 'text-yellow-500'} size={20} />
+                  <span className={`text-lg font-bold ${darkMode ? 'bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent' : 'text-gray-900'}`}>
+                    {getCurrentPeriodEnergy() || '?'}/5
+                  </span>
                 </div>
-                <div className="text-right">
-                  <div className={`text-sm ${darkMode ? 'text-purple-300' : 'opacity-90 text-white'}`}>STREAK</div>
-                  <div className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-white'}`}>🔥 {streak}</div>
+                <div className={`text-xs uppercase mb-2 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                  Energy ({getTimeOfDay()})
+                </div>
+                {/* Energy level selector */}
+                <div className="flex justify-between mt-2">
+                  {[1, 2, 3, 4, 5].map(level => (
+                    <button
+                      key={level}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentEnergy(level);
+                      }}
+                      className={`w-8 h-8 rounded-full transition-all ${
+                        getCurrentPeriodEnergy() === level
+                          ? darkMode
+                            ? 'bg-gradient-to-r from-yellow-400 to-orange-500 shadow-lg shadow-yellow-500/50'
+                            : 'bg-yellow-500'
+                          : darkMode
+                            ? 'bg-gray-700 hover:bg-gray-600'
+                            : 'bg-gray-200 hover:bg-gray-300'
+                      }`}
+                    >
+                      <span className={`text-xs font-bold ${
+                        getCurrentPeriodEnergy() === level ? 'text-white' : darkMode ? 'text-gray-400' : 'text-gray-600'
+                      }`}>
+                        {level}
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
-              <div className={`mt-4 rounded-full h-3 overflow-hidden ${darkMode ? 'bg-gray-800/50' : 'bg-white/20'}`}>
-                <div className={`h-full rounded-full transition-all duration-500 ${
-                  darkMode
-                    ? 'bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500'
-                    : 'bg-white'
-                }`} style={{ width: `${dailyScore}%` }} />
+
+              {/* Mood Selector */}
+              <div onClick={() => setExpandedTile(expandedTile === 'mood' ? null : 'mood')} className={`rounded-xl p-4 cursor-pointer transition-all duration-300 ${
+                darkMode
+                  ? 'bg-gray-800/50 border-2 border-gray-700/50 hover:border-purple-500/50 shadow-lg backdrop-blur-sm'
+                  : 'bg-white border-2 border-gray-100 hover:border-purple-400 shadow-md'
+              }`}>
+                <div className="flex items-center justify-between mb-3">
+                  <Heart className={darkMode ? 'text-pink-400' : 'text-pink-500'} size={20} />
+                  <span className="text-2xl">
+                    {currentMood === 'energized' && '😊'}
+                    {currentMood === 'focused' && '🎯'}
+                    {currentMood === 'calm' && '😌'}
+                    {currentMood === 'tired' && '😴'}
+                    {currentMood === 'anxious' && '😰'}
+                    {currentMood === 'overwhelmed' && '😫'}
+                    {!currentMood && '😐'}
+                  </span>
+                </div>
+                <div className={`text-xs uppercase mb-2 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                  {currentMood || 'Set Mood'}
+                </div>
+                {/* Mood selector grid */}
+                {expandedTile === 'mood' && (
+                  <div className="grid grid-cols-3 gap-2 mt-2">
+                    {[
+                      { mood: 'energized', emoji: '😊' },
+                      { mood: 'focused', emoji: '🎯' },
+                      { mood: 'calm', emoji: '😌' },
+                      { mood: 'tired', emoji: '😴' },
+                      { mood: 'anxious', emoji: '😰' },
+                      { mood: 'overwhelmed', emoji: '😫' }
+                    ].map(({ mood, emoji }) => (
+                      <button
+                        key={mood}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentMood(mood);
+                          setExpandedTile(null);
+                        }}
+                        className={`p-2 rounded-lg text-2xl transition-all ${
+                          currentMood === mood
+                            ? darkMode
+                              ? 'bg-purple-500/30 border border-purple-500/50'
+                              : 'bg-purple-100 border border-purple-300'
+                            : darkMode
+                              ? 'bg-gray-700/30 hover:bg-gray-700/50'
+                              : 'bg-gray-100 hover:bg-gray-200'
+                        }`}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className={`rounded-xl p-4 transition-all duration-300 ${
-                darkMode
-                  ? 'bg-gray-800/50 border-2 border-gray-700/50 shadow-lg shadow-yellow-500/5 backdrop-blur-sm'
-                  : 'bg-white border-2 border-gray-100 shadow-md'
-              }`}>
-                <div className="flex items-center justify-between mb-2">
-                  <Zap className={darkMode ? 'text-yellow-400' : 'text-yellow-500'} size={24} />
-                  <span className={`text-2xl font-bold ${darkMode ? 'bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent' : 'text-gray-900'}`}>{energyLevel}/10</span>
+            {/* SMART SUGGESTIONS - Based on Energy + Mood */}
+            {(getCurrentEnergy() > 0 || currentMood) && (() => {
+              const suggestions = getSmartSuggestions();
+              return (
+                <div className={`rounded-xl p-6 transition-all duration-300 shadow-lg backdrop-blur-sm ${
+                  darkMode
+                    ? suggestions.color === 'orange'
+                      ? 'bg-gradient-to-br from-orange-900/50 via-amber-900/50 to-orange-900/50 border-2 border-orange-500/40'
+                      : suggestions.color === 'rose'
+                        ? 'bg-gradient-to-br from-rose-900/50 via-pink-900/50 to-rose-900/50 border-2 border-rose-500/40'
+                        : suggestions.color === 'purple'
+                          ? 'bg-gradient-to-br from-purple-900/50 via-violet-900/50 to-purple-900/50 border-2 border-purple-500/40'
+                          : suggestions.color === 'blue'
+                            ? 'bg-gradient-to-br from-blue-900/50 via-indigo-900/50 to-blue-900/50 border-2 border-blue-500/40'
+                            : 'bg-gradient-to-br from-cyan-900/50 via-teal-900/50 to-cyan-900/50 border-2 border-cyan-500/40'
+                    : suggestions.color === 'orange'
+                      ? 'bg-gradient-to-br from-orange-100 to-amber-100 border-2 border-orange-300'
+                      : suggestions.color === 'rose'
+                        ? 'bg-gradient-to-br from-rose-100 to-pink-100 border-2 border-rose-300'
+                        : suggestions.color === 'purple'
+                          ? 'bg-gradient-to-br from-purple-100 to-violet-100 border-2 border-purple-300'
+                          : suggestions.color === 'blue'
+                            ? 'bg-gradient-to-br from-blue-100 to-indigo-100 border-2 border-blue-300'
+                            : 'bg-gradient-to-br from-cyan-100 to-teal-100 border-2 border-cyan-300'
+                }`}>
+                  <div className="flex items-center mb-3">
+                    <Lightbulb className={`mr-2 ${
+                      darkMode
+                        ? suggestions.color === 'orange' ? 'text-orange-400'
+                          : suggestions.color === 'rose' ? 'text-rose-400'
+                          : suggestions.color === 'purple' ? 'text-purple-400'
+                          : suggestions.color === 'blue' ? 'text-blue-400'
+                          : 'text-cyan-400'
+                        : suggestions.color === 'orange' ? 'text-orange-600'
+                          : suggestions.color === 'rose' ? 'text-rose-600'
+                          : suggestions.color === 'purple' ? 'text-purple-600'
+                          : suggestions.color === 'blue' ? 'text-blue-600'
+                          : 'text-cyan-600'
+                    }`} size={24} />
+                    <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      💡 Smart Suggestion
+                    </h3>
+                  </div>
+                  <p className={`text-sm mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {suggestions.message}
+                  </p>
+
+                  {suggestions.warning && (
+                    <div className={`p-3 rounded-lg mb-4 ${
+                      darkMode
+                        ? 'bg-rose-500/20 border border-rose-500/40'
+                        : 'bg-rose-100 border border-rose-300'
+                    }`}>
+                      <p className={`text-sm font-semibold ${darkMode ? 'text-rose-300' : 'text-rose-700'}`}>
+                        ⚠️ {suggestions.warning}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    {suggestions.tasks.map((task, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          // Add to current hour tasks
+                          addHourlyTask(currentTime.getHours(), task);
+                        }}
+                        className={`w-full text-left p-3 rounded-lg transition-all ${
+                          darkMode
+                            ? 'bg-white/10 hover:bg-white/20 border border-white/20 text-gray-200'
+                            : 'bg-white/60 hover:bg-white border border-white/40 text-gray-800'
+                        }`}
+                      >
+                        <span className="text-sm">✓ {task}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {suggestions.proteinPrompt && proteinToday < getProteinTarget() * 0.5 && (
+                    <div className={`mt-4 p-3 rounded-lg ${
+                      darkMode
+                        ? 'bg-purple-500/20 border border-purple-500/40'
+                        : 'bg-purple-100 border border-purple-300'
+                    }`}>
+                      <p className={`text-sm ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+                        💪 Have you eaten protein today? You're at {proteinToday}g / {getProteinTarget()}g
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <div className={`text-xs uppercase ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>Energy Level</div>
+              );
+            })()}
+
+            {/* PROTEIN TRACKER */}
+            <div onClick={() => setExpandedTile(expandedTile === 'protein' ? null : 'protein')} className={`rounded-xl p-6 cursor-pointer transition-all duration-300 ${
+              darkMode
+                ? 'bg-gradient-to-br from-emerald-900/50 via-green-900/50 to-emerald-900/50 border-2 border-emerald-500/40 hover:border-emerald-500/60 shadow-lg backdrop-blur-sm'
+                : 'bg-gradient-to-br from-emerald-100 to-green-100 border-2 border-emerald-300 hover:border-emerald-400 shadow-md'
+            }`}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <Activity className={darkMode ? 'text-emerald-400 mr-2' : 'text-emerald-600 mr-2'} size={24} />
+                  <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Daily Protein
+                  </h3>
+                </div>
+                <div className={`text-2xl font-bold ${
+                  proteinToday >= getProteinTarget()
+                    ? darkMode ? 'text-emerald-400' : 'text-emerald-600'
+                    : darkMode ? 'text-gray-400' : 'text-gray-600'
+                }`}>
+                  {proteinToday}g
+                </div>
               </div>
-              <div className={`rounded-xl p-4 transition-all duration-300 ${
-                darkMode
-                  ? 'bg-gray-800/50 border-2 border-gray-700/50 shadow-lg shadow-emerald-500/5 backdrop-blur-sm'
-                  : 'bg-white border-2 border-gray-100 shadow-md'
-              }`}>
-                <div className="flex items-center justify-between mb-2">
-                  <div className={`w-4 h-4 rounded-full ${alertLevel === 'green' ? (darkMode ? 'bg-emerald-500 shadow-lg shadow-emerald-500/50' : 'bg-green-500') : 'bg-gray-300'}`} />
-                  <AlertTriangle className={darkMode ? 'text-gray-600' : 'text-gray-400'} size={20} />
+
+              {/* Protein Progress Bar */}
+              <div className="mb-3">
+                <div className={`h-3 rounded-full overflow-hidden ${darkMode ? 'bg-gray-800/50' : 'bg-white/50'}`}>
+                  <div
+                    className="h-full bg-gradient-to-r from-emerald-500 to-green-500 transition-all duration-500"
+                    style={{ width: `${Math.min((proteinToday / getProteinTarget()) * 100, 100)}%` }}
+                  />
                 </div>
-                <div className={`text-xs uppercase ${darkMode ? (alertLevel === 'green' ? 'text-emerald-400' : 'text-gray-500') : 'text-gray-600'}`}>
-                  {alertLevel === 'green' ? 'Thriving' : 'Monitor'}
+                <div className="flex justify-between mt-1">
+                  <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                    0g
+                  </span>
+                  <span className={`text-xs font-semibold ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                    Target: {getProteinTarget()}g
+                  </span>
                 </div>
               </div>
+
+              {expandedTile === 'protein' && (
+                <div className="space-y-2 mt-4">
+                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Based on your weight ({userProfile.weight || '?'} lbs), aim for {getProteinTarget()}g daily
+                  </p>
+                  <div className={`p-3 rounded-lg ${darkMode ? 'bg-emerald-500/10' : 'bg-white/60'}`}>
+                    <p className={`text-xs font-semibold mb-2 ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>
+                      💡 Quick Protein Sources:
+                    </p>
+                    <ul className={`text-xs space-y-1 ${darkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                      <li>• Chicken breast (3oz) = 26g</li>
+                      <li>• Greek yogurt (1 cup) = 20g</li>
+                      <li>• Eggs (2 large) = 12g</li>
+                      <li>• Protein shake = 20-30g</li>
+                    </ul>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCurrentView('food');
+                    }}
+                    className={`w-full mt-2 py-2 rounded-lg font-semibold transition-all ${
+                      darkMode
+                        ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
+                        : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                    }`}
+                  >
+                    Log Food →
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className={`rounded-xl p-6 transition-all duration-300 ${
@@ -653,10 +1187,10 @@ const DualTrackOS = () => {
                 Daily Non-Negotiables
               </h3>
               <div className="space-y-3">
-                <NDMItem icon="🥗" label="Protein Breakfast" completed={ndm.nutrition} onClick={() => toggleNDM('nutrition')} />
-                <NDMItem icon="⚡" label="HIIT Burst" completed={ndm.movement} onClick={() => toggleNDM('movement')} />
-                <NDMItem icon="🧘" label="Mindful Moment" completed={ndm.mindfulness} onClick={() => toggleNDM('mindfulness')} />
-                <NDMItem icon="🧠" label="Brain Dump" completed={ndm.brainDump} onClick={() => toggleNDM('brainDump')} />
+                <NDMItem icon="🥗" label="Protein Breakfast" completed={ndm.nutrition} onClick={() => setCurrentView('food')} />
+                <NDMItem icon="⚡" label="HIIT Burst" completed={ndm.movement} onClick={() => setCurrentView('movement')} />
+                <NDMItem icon="🧘" label="Mindful Moment" completed={ndm.mindfulness} onClick={openMindfulMoment} />
+                <NDMItem icon="🧠" label="Brain Dump" completed={ndm.brainDump} onClick={openBrainDump} />
               </div>
             </div>
             
@@ -1110,10 +1644,10 @@ const DualTrackOS = () => {
                 Settings & Data
               </h3>
               <div className="space-y-3">
-                {/* Upgrade to Elite */}
-                {process.env.REACT_APP_STRIPE_ELITE_PAYMENT_LINK && (
+                {/* Upgrade to Starter */}
+                {process.env.REACT_APP_STRIPE_STARTER_PAYMENT_LINK && (
                   <a
-                    href={process.env.REACT_APP_STRIPE_ELITE_PAYMENT_LINK}
+                    href={process.env.REACT_APP_STRIPE_STARTER_PAYMENT_LINK}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`w-full py-4 rounded-lg font-bold text-center block transition-all ${
@@ -1122,7 +1656,7 @@ const DualTrackOS = () => {
                         : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
                     }`}
                   >
-                    ⭐ Upgrade to Elite - $97/month
+                    ✨ Upgrade to Starter - $19/month
                   </a>
                 )}
 
@@ -1608,6 +2142,210 @@ const DualTrackOS = () => {
           </div>
         </div>
       </div>
+
+      {/* BRAIN DUMP MODAL */}
+      {showBrainDumpModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className={`max-w-2xl w-full rounded-2xl p-6 shadow-2xl ${
+            darkMode
+              ? 'bg-gray-900 border-2 border-purple-500/30'
+              : 'bg-white border-2 border-gray-200'
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className={`text-2xl font-bold flex items-center ${
+                darkMode
+                  ? 'bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent'
+                  : 'text-gray-900'
+              }`}>
+                <Brain className={`mr-2 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} size={28} />
+                Brain Dump
+              </h2>
+              <button
+                onClick={() => setShowBrainDumpModal(false)}
+                className={`p-2 rounded-lg transition-all ${
+                  darkMode
+                    ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                    : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <p className={`text-sm mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Get everything out of your head and onto paper. No filter, no judgment.
+            </p>
+
+            <textarea
+              value={brainDumpText}
+              onChange={(e) => setBrainDumpText(e.target.value)}
+              placeholder="What's on your mind? Type or paste anything here..."
+              className={`w-full h-64 px-4 py-3 rounded-lg transition-all resize-none ${
+                darkMode
+                  ? 'bg-gray-800/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
+                  : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
+              }`}
+              autoFocus
+            />
+
+            <div className={`mt-4 p-3 rounded-lg ${darkMode ? 'bg-purple-500/10' : 'bg-purple-50'}`}>
+              <p className={`text-xs ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+                💡 Tip: This is your safe space. Write worries, ideas, random thoughts - anything taking up mental space.
+              </p>
+            </div>
+
+            <div className="flex space-x-3 mt-6">
+              <button
+                onClick={() => setShowBrainDumpModal(false)}
+                className={`flex-1 py-3 rounded-xl font-semibold transition-all ${
+                  darkMode
+                    ? 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                }`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveBrainDump}
+                disabled={!brainDumpText.trim()}
+                className={`flex-1 py-3 rounded-xl font-semibold transition-all ${
+                  !brainDumpText.trim()
+                    ? darkMode
+                      ? 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : darkMode
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white'
+                      : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+                }`}
+              >
+                Save Brain Dump ✓
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MINDFUL MOMENT MODAL */}
+      {showMindfulMomentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className={`max-w-lg w-full rounded-2xl p-8 shadow-2xl ${
+            darkMode
+              ? 'bg-gray-900 border-2 border-cyan-500/30'
+              : 'bg-white border-2 border-gray-200'
+          }`}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className={`text-2xl font-bold flex items-center ${
+                darkMode
+                  ? 'bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent'
+                  : 'text-gray-900'
+              }`}>
+                🧘 Mindful Moment
+              </h2>
+              <button
+                onClick={() => {
+                  setShowMindfulMomentModal(false);
+                  setMindfulRunning(false);
+                  setMindfulTimer(300);
+                }}
+                className={`p-2 rounded-lg transition-all ${
+                  darkMode
+                    ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                    : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="text-center mb-8">
+              <div className={`font-mono text-6xl font-bold mb-4 ${
+                darkMode
+                  ? mindfulRunning
+                    ? 'bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent'
+                    : 'text-gray-600'
+                  : mindfulRunning ? 'text-cyan-600' : 'text-gray-400'
+              }`}>
+                {formatTime(mindfulTimer)}
+              </div>
+
+              <p className={`text-sm mb-6 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                {mindfulRunning
+                  ? 'Breathe deeply. You are here, now.'
+                  : 'Take 5 minutes to reset your mind'}
+              </p>
+
+              <div className="flex items-center justify-center space-x-3 mb-6">
+                {!mindfulRunning ? (
+                  <button
+                    onClick={startMindfulSession}
+                    className={`px-8 py-3 rounded-xl font-semibold flex items-center space-x-2 transition-all ${
+                      darkMode
+                        ? 'bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white border-2 border-cyan-500/30'
+                        : 'bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-700 hover:to-purple-700 text-white'
+                    }`}
+                  >
+                    <Play size={20} />
+                    <span>Start</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={pauseMindfulSession}
+                    className={`px-8 py-3 rounded-xl font-semibold flex items-center space-x-2 transition-all ${
+                      darkMode
+                        ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border-2 border-orange-500/30'
+                        : 'bg-orange-100 hover:bg-orange-200 text-orange-700 border-2 border-orange-300'
+                    }`}
+                  >
+                    <Pause size={20} />
+                    <span>Pause</span>
+                  </button>
+                )}
+              </div>
+
+              <div className={`p-4 rounded-lg ${darkMode ? 'bg-cyan-500/10' : 'bg-cyan-50'}`}>
+                <p className={`text-xs font-semibold mb-2 ${darkMode ? 'text-cyan-300' : 'text-cyan-700'}`}>
+                  💡 Guided Meditation Tips:
+                </p>
+                <ul className={`text-xs space-y-1 text-left ${darkMode ? 'text-gray-400' : 'text-gray-700'}`}>
+                  <li>• Focus on your breath - in through nose, out through mouth</li>
+                  <li>• If your mind wanders, gently bring it back</li>
+                  <li>• Notice sensations in your body without judgment</li>
+                  <li>• You can close your eyes or gaze softly downward</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowMindfulMomentModal(false);
+                  setMindfulRunning(false);
+                  setMindfulTimer(300);
+                }}
+                className={`flex-1 py-3 rounded-xl font-semibold transition-all ${
+                  darkMode
+                    ? 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                }`}
+              >
+                Close
+              </button>
+              {mindfulTimer < 300 && (
+                <button
+                  onClick={completeMindfulSession}
+                  className={`flex-1 py-3 rounded-xl font-semibold transition-all ${
+                    darkMode
+                      ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white'
+                      : 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white'
+                  }`}
+                >
+                  Mark Complete ✓
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
