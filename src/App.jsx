@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, User, TrendingUp } from 'lucide-react';
 import { supabase, isSupabaseConfigured, signInWithGoogle, signOut as supabaseSignOut, saveUserData, loadUserData } from './supabaseClient';
 import Onboarding from './Onboarding';
+import SpiritAnimalCard from './components/SpiritAnimalCard';
+import NDMStatusBar from './components/NDMStatusBar';
 
 const DualTrackOS = () => {
   // Auth state
@@ -1108,79 +1110,12 @@ const DualTrackOS = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               {/* Spirit Animal - Gamified Display */}
-              <button
+              <SpiritAnimalCard
+                spiritAnimalScore={spiritAnimalScore}
+                darkMode={darkMode}
                 onClick={() => setShowSpiritAnimalModal(true)}
-                className={`relative group transition-all duration-300 ${
-                  darkMode
-                    ? 'hover:bg-purple-900/20 border-2 border-purple-500/30 hover:border-purple-400/60'
-                    : 'hover:bg-purple-50 border-2 border-purple-200 hover:border-purple-400'
-                } rounded-xl p-2 cursor-pointer`}
-                title="Click to view spirit animal details"
-              >
-                <div className="flex items-center space-x-2">
-                  {/* Emoji with pulse animation */}
-                  <div className="relative">
-                    <span className="text-3xl group-hover:scale-110 transition-transform duration-300 inline-block">
-                      {getSpiritAnimalStage(spiritAnimalScore).emoji}
-                    </span>
-                    {/* Level indicator dot */}
-                    <div className={`absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ${
-                      spiritAnimalScore >= 80 ? 'bg-yellow-400 animate-pulse shadow-lg shadow-yellow-400/50' :
-                      spiritAnimalScore >= 60 ? 'bg-purple-400 animate-pulse shadow-lg shadow-purple-400/50' :
-                      spiritAnimalScore >= 40 ? 'bg-orange-400 shadow-lg shadow-orange-400/50' :
-                      spiritAnimalScore >= 20 ? 'bg-green-400' : 'bg-gray-400'
-                    }`} />
-                  </div>
-
-                  {/* Spirit Name & Progress */}
-                  <div className="text-left">
-                    <div className={`text-xs font-bold ${
-                      darkMode ? 'text-purple-300' : 'text-purple-700'
-                    }`}>
-                      {getSpiritAnimalStage(spiritAnimalScore).japanese} ({getSpiritAnimalStage(spiritAnimalScore).romanji})
-                    </div>
-                    <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                      {getSpiritAnimalStage(spiritAnimalScore).description}
-                    </div>
-                    {/* Points to next level */}
-                    {spiritAnimalScore < 100 && (
-                      <div className="flex items-center space-x-1 mt-0.5">
-                        <div className={`h-1 rounded-full flex-1 ${darkMode ? 'bg-gray-800' : 'bg-gray-200'}`} style={{ width: '60px' }}>
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ${
-                              getSpiritAnimalStage(spiritAnimalScore).color === 'gold'
-                                ? 'bg-gradient-to-r from-yellow-400 to-orange-400'
-                                : getSpiritAnimalStage(spiritAnimalScore).color === 'purple'
-                                  ? 'bg-gradient-to-r from-purple-500 to-pink-500'
-                                  : getSpiritAnimalStage(spiritAnimalScore).color === 'orange'
-                                    ? 'bg-gradient-to-r from-orange-400 to-pink-500'
-                                    : getSpiritAnimalStage(spiritAnimalScore).color === 'yellow'
-                                      ? 'bg-gradient-to-r from-yellow-300 to-orange-400'
-                                      : 'bg-gradient-to-r from-gray-400 to-gray-500'
-                            }`}
-                            style={{
-                              width: `${(() => {
-                                const nextThreshold = spiritAnimalScore < 20 ? 20 : spiritAnimalScore < 40 ? 40 : spiritAnimalScore < 60 ? 60 : spiritAnimalScore < 80 ? 80 : 100;
-                                const prevThreshold = spiritAnimalScore < 20 ? 0 : spiritAnimalScore < 40 ? 20 : spiritAnimalScore < 60 ? 40 : spiritAnimalScore < 80 ? 60 : 80;
-                                return ((spiritAnimalScore - prevThreshold) / (nextThreshold - prevThreshold)) * 100;
-                              })()}%`
-                            }}
-                          />
-                        </div>
-                        <span className={`text-xs font-medium ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
-                          {(() => {
-                            const nextThreshold = spiritAnimalScore < 20 ? 20 : spiritAnimalScore < 40 ? 40 : spiritAnimalScore < 60 ? 60 : spiritAnimalScore < 80 ? 80 : 100;
-                            return `${nextThreshold - spiritAnimalScore}%`;
-                          })()}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Click affordance */}
-                  <Sparkles className={`${darkMode ? 'text-purple-400' : 'text-purple-600'} group-hover:animate-spin`} size={14} />
-                </div>
-              </button>
+                getSpiritAnimalStage={getSpiritAnimalStage}
+              />
               <div>
                 <h2 className={`text-lg font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
                   {userProfile.preferredName || userProfile.name || 'there'}
@@ -1326,129 +1261,13 @@ const DualTrackOS = () => {
             )}
 
             {/* NDM Status Bar - Shows Outstanding Tasks */}
-            <div className="mt-4 max-w-sm mx-auto">
-              <div className={`rounded-lg p-2 ${
-                darkMode
-                  ? 'bg-gray-800/50 border border-gray-700/50'
-                  : 'bg-white/50 border border-gray-200'
-              }`}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className={`text-xs font-semibold uppercase tracking-wide ${
-                    darkMode ? 'text-gray-500' : 'text-gray-600'
-                  }`}>
-                    Today's Non-Negotiables
-                  </span>
-                  <span className={`text-xs font-bold ${
-                    darkMode ? 'text-purple-400' : 'text-purple-600'
-                  }`}>
-                    {[ndm.nutrition, ndm.movement, ndm.mindfulness, ndm.brainDump].filter(Boolean).length}/4
-                  </span>
-                </div>
-
-                {/* Progress Bar */}
-                <div className={`h-1.5 rounded-full overflow-hidden mb-2 ${
-                  darkMode ? 'bg-gray-900/50' : 'bg-gray-200'
-                }`}>
-                  <div
-                    className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 transition-all duration-500"
-                    style={{
-                      width: `${([ndm.nutrition, ndm.movement, ndm.mindfulness, ndm.brainDump].filter(Boolean).length / 4) * 100}%`
-                    }}
-                  />
-                </div>
-
-                {/* Outstanding Items - Clickable */}
-                <div className="grid grid-cols-4 gap-1.5">
-                  <button
-                    onClick={() => setCurrentView('food')}
-                    className={`text-center p-1.5 rounded transition-all cursor-pointer ${
-                      ndm.nutrition
-                        ? darkMode
-                          ? 'bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30'
-                          : 'bg-emerald-100 border border-emerald-300 hover:bg-emerald-200'
-                        : darkMode
-                          ? 'bg-gray-700/30 border border-gray-700/50 hover:bg-gray-700/50'
-                          : 'bg-gray-100 border border-gray-200 hover:bg-gray-200'
-                    }`}
-                  >
-                    <div className="text-base">{ndm.nutrition ? '✅' : '🍽️'}</div>
-                    <div className={`text-xs mt-0.5 ${
-                      ndm.nutrition
-                        ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
-                        : darkMode ? 'text-gray-600' : 'text-gray-500'
-                    }`}>
-                      Nutrition
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => setCurrentView('exercise')}
-                    className={`text-center p-1.5 rounded transition-all cursor-pointer ${
-                      ndm.movement
-                        ? darkMode
-                          ? 'bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30'
-                          : 'bg-emerald-100 border border-emerald-300 hover:bg-emerald-200'
-                        : darkMode
-                          ? 'bg-gray-700/30 border border-gray-700/50 hover:bg-gray-700/50'
-                          : 'bg-gray-100 border border-gray-200 hover:bg-gray-200'
-                    }`}
-                  >
-                    <div className="text-base">{ndm.movement ? '✅' : '🏃'}</div>
-                    <div className={`text-xs mt-0.5 ${
-                      ndm.movement
-                        ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
-                        : darkMode ? 'text-gray-600' : 'text-gray-500'
-                    }`}>
-                      Movement
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={openMindfulMoment}
-                    className={`text-center p-1.5 rounded transition-all cursor-pointer ${
-                      ndm.mindfulness
-                        ? darkMode
-                          ? 'bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30'
-                          : 'bg-emerald-100 border border-emerald-300 hover:bg-emerald-200'
-                        : darkMode
-                          ? 'bg-gray-700/30 border border-gray-700/50 hover:bg-gray-700/50'
-                          : 'bg-gray-100 border border-gray-200 hover:bg-gray-200'
-                    }`}
-                  >
-                    <div className="text-base">{ndm.mindfulness ? '✅' : '🧘'}</div>
-                    <div className={`text-xs mt-0.5 ${
-                      ndm.mindfulness
-                        ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
-                        : darkMode ? 'text-gray-600' : 'text-gray-500'
-                    }`}>
-                      Mindful
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={openBrainDump}
-                    className={`text-center p-1.5 rounded transition-all cursor-pointer ${
-                      ndm.brainDump
-                        ? darkMode
-                          ? 'bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30'
-                          : 'bg-emerald-100 border border-emerald-300 hover:bg-emerald-200'
-                        : darkMode
-                          ? 'bg-gray-700/30 border border-gray-700/50 hover:bg-gray-700/50'
-                          : 'bg-gray-100 border border-gray-200 hover:bg-gray-200'
-                    }`}
-                  >
-                    <div className="text-base">{ndm.brainDump ? '✅' : '📝'}</div>
-                    <div className={`text-xs mt-0.5 ${
-                      ndm.brainDump
-                        ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
-                        : darkMode ? 'text-gray-600' : 'text-gray-500'
-                    }`}>
-                      Brain Dump
-                    </div>
-                  </button>
-                </div>
-              </div>
-            </div>
+            <NDMStatusBar
+              ndm={ndm}
+              darkMode={darkMode}
+              setCurrentView={setCurrentView}
+              openMindfulMoment={openMindfulMoment}
+              openBrainDump={openBrainDump}
+            />
           </div>
         </div>
       </div>
