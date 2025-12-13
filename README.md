@@ -15,17 +15,52 @@ DualTrack OS helps you:
 - Receive adaptive recommendations based on hormonal state
 
 ## 🚀 Quick Start
+
+### 1. Install Dependencies
 ```bash
-# Install dependencies
 npm install
+```
 
-# Start development server
+### 2. Set Up Environment Variables (Optional - for Supabase/Stripe features)
+
+**IMPORTANT: Never commit `.env` or `.env.local` files to git!**
+
+Create a `.env.local` file in the root directory:
+```bash
+# Copy the example file
+cp .env.example .env.local
+```
+
+Then edit `.env.local` with your actual API keys:
+```bash
+# Supabase Configuration
+# Get these from: https://app.supabase.com/project/YOUR_PROJECT/settings/api
+REACT_APP_SUPABASE_URL=https://your-project.supabase.co
+REACT_APP_SUPABASE_ANON_KEY=your-actual-anon-key-here
+
+# Stripe Configuration
+# Get these from: https://dashboard.stripe.com/apikeys
+REACT_APP_STRIPE_STARTER_PAYMENT_LINK=https://buy.stripe.com/your-actual-link
+```
+
+**Security Notes:**
+- ✅ `.env.local` is in `.gitignore` and will never be committed
+- ✅ `.env.example` contains placeholder values (safe to commit)
+- ❌ Never commit real API keys or secrets to git
+- ❌ Never share your `.env.local` file
+
+### 3. Start Development Server
+```bash
 npm start
+```
 
-# Build for production
+### 4. Build for Production
+```bash
 npm run build
+```
 
-# Deploy to Vercel
+### 5. Deploy to Vercel
+```bash
 npm run deploy
 ```
 
@@ -72,13 +107,14 @@ npm run deploy
 - Lucide React (icons)
 - Tailwind CSS (styling via CDN)
 - LocalStorage (data persistence)
+- Supabase (authentication + cloud sync)
+- Stripe (payments via payment links)
 
 **Future:**
-- Node.js + Express (API)
-- PostgreSQL (database)
 - OpenAI API (AI coaching)
-- Stripe (payments)
+- Supabase PostgreSQL (advanced queries)
 - React Native (mobile apps)
+- Real-time notifications
 
 ## 📊 Project Structure
 ```
@@ -110,8 +146,9 @@ dualtrack-os/
 - ✅ Data persistence
 
 **Phase 2: Backend (Weeks 2-4)**
-- [ ] User authentication
-- [ ] Cloud data sync
+- ✅ User authentication (Supabase Google OAuth)
+- ✅ Cloud data sync (Supabase)
+- ✅ Payment integration (Stripe)
 - [ ] Real AI coaching
 - [ ] Apple Health API integration
 - [ ] Google Fit integration
