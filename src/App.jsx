@@ -18,7 +18,7 @@ const DualTrackOS = () => {
     preferredName: '',
     age: null,
     weight: null, // in lbs, for protein calculation
-    avatar: '👩‍💼',
+    avatar: '🐉',
     hasCompletedOnboarding: false,
     disclaimerAccepted: false
   });
@@ -756,8 +756,8 @@ const DualTrackOS = () => {
                 <div onClick={togglePomodoroMode} className="cursor-pointer group inline-block">
                   <div className={`font-mono font-bold leading-none mb-1 transition-all ${
                     darkMode
-                      ? 'text-6xl sm:text-7xl bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent group-hover:from-cyan-300 group-hover:via-purple-300 group-hover:to-pink-400'
-                      : 'text-6xl sm:text-7xl text-gray-900 group-hover:text-purple-600'
+                      ? 'text-3xl sm:text-4xl bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent group-hover:from-cyan-300 group-hover:via-purple-300 group-hover:to-pink-400'
+                      : 'text-3xl sm:text-4xl text-gray-900 group-hover:text-purple-600'
                   }`}>
                     {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                   </div>
@@ -769,7 +769,7 @@ const DualTrackOS = () => {
             ) : (
               // Pomodoro Timer Mode
               <div className="space-y-3">
-                <div className={`font-mono text-6xl sm:text-7xl font-bold ${
+                <div className={`font-mono text-3xl sm:text-4xl font-bold ${
                   darkMode
                     ? pomodoroRunning
                       ? 'bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent'
@@ -1510,17 +1510,23 @@ const DualTrackOS = () => {
                   form.reset();
                 }
               }} className="space-y-3">
-                <input
-                  type="file"
-                  name="image"
-                  accept="image/*"
-                  capture="environment"
-                  className={`w-full px-4 py-3 rounded-lg transition-all ${
-                    darkMode
-                      ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-500 file:text-white file:cursor-pointer'
-                      : 'bg-gray-50 border-2 border-gray-200 text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-500 file:text-white file:cursor-pointer'
-                  }`}
-                />
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <Camera className="inline mr-2" size={16} />
+                    Upload Photos (Optional)
+                  </label>
+                  <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    capture="environment"
+                    className={`w-full px-4 py-3 rounded-lg transition-all ${
+                      darkMode
+                        ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-500/20 file:text-blue-400 file:cursor-pointer file:font-medium hover:file:bg-blue-500/30'
+                        : 'bg-gray-50 border-2 border-gray-200 text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-500 file:text-white file:cursor-pointer hover:file:bg-blue-600'
+                    }`}
+                  />
+                </div>
                 <input
                   name="description"
                   type="text"
@@ -1739,7 +1745,7 @@ const DualTrackOS = () => {
                 </button>
                 <div className={`pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                   <p className={`text-xs text-center ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                    Version 1.0.0 • Made with 💜 for perimenopausal warriors
+                    Version 1.0.0 • Made with 💜 for busy professionals
                   </p>
                 </div>
               </div>
