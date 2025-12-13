@@ -1152,7 +1152,7 @@ const DualTrackOS = () => {
               </button>
               <div>
                 <h2 className={`text-lg font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                  Hey {userProfile.preferredName || userProfile.name || 'there'}! 👋
+                  {userProfile.preferredName || userProfile.name || 'there'}
                 </h2>
                 <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
                   {currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
@@ -1160,13 +1160,13 @@ const DualTrackOS = () => {
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              {/* Compact Score Badge */}
-              <div className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
+              {/* Time Display (Top Right) */}
+              <div className={`font-mono font-semibold ${
                 darkMode
-                  ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-purple-300'
-                  : 'bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-300 text-purple-700'
+                  ? 'text-2xl bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+                  : 'text-2xl text-gray-900'
               }`}>
-                {dailyScore} pts {streak > 0 && `🔥${streak}`}
+                {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
               </div>
 
               {/* Google Auth Button */}
@@ -1239,24 +1239,9 @@ const DualTrackOS = () => {
             </div>
           </div>
 
-          {/* Massive Time Display */}
+          {/* Pomodoro Timer */}
           <div className="text-center">
-            {!isPomodoroMode ? (
-              <div>
-                <div onClick={togglePomodoroMode} className="cursor-pointer group inline-block">
-                  <div className={`font-mono font-bold leading-none mb-1 transition-all ${
-                    darkMode
-                      ? 'text-3xl sm:text-4xl bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent group-hover:from-cyan-300 group-hover:via-purple-300 group-hover:to-pink-400'
-                      : 'text-3xl sm:text-4xl text-gray-900 group-hover:text-purple-600'
-                  }`}>
-                    {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-                  </div>
-                  <div className={`text-xs ${darkMode ? 'text-gray-600 group-hover:text-gray-500' : 'text-gray-500 group-hover:text-gray-600'}`}>
-                    Tap for 20-min Focus Mode
-                  </div>
-                </div>
-              </div>
-            ) : (
+            {isPomodoroMode && (
               // Pomodoro Timer Mode
               <div className="space-y-3">
                 <div className={`font-mono text-3xl sm:text-4xl font-bold ${
@@ -1310,13 +1295,13 @@ const DualTrackOS = () => {
             )}
 
             {/* NDM Status Bar - Shows Outstanding Tasks */}
-            <div className="mt-6 max-w-md mx-auto">
-              <div className={`rounded-lg p-3 ${
+            <div className="mt-4 max-w-sm mx-auto">
+              <div className={`rounded-lg p-2 ${
                 darkMode
                   ? 'bg-gray-800/50 border border-gray-700/50'
                   : 'bg-white/50 border border-gray-200'
               }`}>
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1.5">
                   <span className={`text-xs font-semibold uppercase tracking-wide ${
                     darkMode ? 'text-gray-500' : 'text-gray-600'
                   }`}>
@@ -1330,7 +1315,7 @@ const DualTrackOS = () => {
                 </div>
 
                 {/* Progress Bar */}
-                <div className={`h-2 rounded-full overflow-hidden mb-3 ${
+                <div className={`h-1.5 rounded-full overflow-hidden mb-2 ${
                   darkMode ? 'bg-gray-900/50' : 'bg-gray-200'
                 }`}>
                   <div
@@ -1342,8 +1327,8 @@ const DualTrackOS = () => {
                 </div>
 
                 {/* Outstanding Items */}
-                <div className="grid grid-cols-4 gap-2">
-                  <div className={`text-center p-2 rounded transition-all ${
+                <div className="grid grid-cols-4 gap-1.5">
+                  <div className={`text-center p-1.5 rounded transition-all ${
                     ndm.nutrition
                       ? darkMode
                         ? 'bg-emerald-500/20 border border-emerald-500/30'
@@ -1352,8 +1337,8 @@ const DualTrackOS = () => {
                         ? 'bg-gray-700/30 border border-gray-700/50'
                         : 'bg-gray-100 border border-gray-200'
                   }`}>
-                    <div className="text-lg">{ndm.nutrition ? '✅' : '🍽️'}</div>
-                    <div className={`text-xs mt-1 ${
+                    <div className="text-base">{ndm.nutrition ? '✅' : '🍽️'}</div>
+                    <div className={`text-xs mt-0.5 ${
                       ndm.nutrition
                         ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
                         : darkMode ? 'text-gray-600' : 'text-gray-500'
@@ -1362,7 +1347,7 @@ const DualTrackOS = () => {
                     </div>
                   </div>
 
-                  <div className={`text-center p-2 rounded transition-all ${
+                  <div className={`text-center p-1.5 rounded transition-all ${
                     ndm.movement
                       ? darkMode
                         ? 'bg-emerald-500/20 border border-emerald-500/30'
@@ -1371,8 +1356,8 @@ const DualTrackOS = () => {
                         ? 'bg-gray-700/30 border border-gray-700/50'
                         : 'bg-gray-100 border border-gray-200'
                   }`}>
-                    <div className="text-lg">{ndm.movement ? '✅' : '🏃'}</div>
-                    <div className={`text-xs mt-1 ${
+                    <div className="text-base">{ndm.movement ? '✅' : '🏃'}</div>
+                    <div className={`text-xs mt-0.5 ${
                       ndm.movement
                         ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
                         : darkMode ? 'text-gray-600' : 'text-gray-500'
@@ -1381,7 +1366,7 @@ const DualTrackOS = () => {
                     </div>
                   </div>
 
-                  <div className={`text-center p-2 rounded transition-all ${
+                  <div className={`text-center p-1.5 rounded transition-all ${
                     ndm.mindfulness
                       ? darkMode
                         ? 'bg-emerald-500/20 border border-emerald-500/30'
@@ -1390,8 +1375,8 @@ const DualTrackOS = () => {
                         ? 'bg-gray-700/30 border border-gray-700/50'
                         : 'bg-gray-100 border border-gray-200'
                   }`}>
-                    <div className="text-lg">{ndm.mindfulness ? '✅' : '🧘'}</div>
-                    <div className={`text-xs mt-1 ${
+                    <div className="text-base">{ndm.mindfulness ? '✅' : '🧘'}</div>
+                    <div className={`text-xs mt-0.5 ${
                       ndm.mindfulness
                         ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
                         : darkMode ? 'text-gray-600' : 'text-gray-500'
@@ -1400,7 +1385,7 @@ const DualTrackOS = () => {
                     </div>
                   </div>
 
-                  <div className={`text-center p-2 rounded transition-all ${
+                  <div className={`text-center p-1.5 rounded transition-all ${
                     ndm.brainDump
                       ? darkMode
                         ? 'bg-emerald-500/20 border border-emerald-500/30'
@@ -1409,8 +1394,8 @@ const DualTrackOS = () => {
                         ? 'bg-gray-700/30 border border-gray-700/50'
                         : 'bg-gray-100 border border-gray-200'
                   }`}>
-                    <div className="text-lg">{ndm.brainDump ? '✅' : '📝'}</div>
-                    <div className={`text-xs mt-1 ${
+                    <div className="text-base">{ndm.brainDump ? '✅' : '📝'}</div>
+                    <div className={`text-xs mt-0.5 ${
                       ndm.brainDump
                         ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
                         : darkMode ? 'text-gray-600' : 'text-gray-500'
