@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, AlertTriangle, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, User } from 'lucide-react';
+import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, User, TrendingUp } from 'lucide-react';
 import { supabase, isSupabaseConfigured, signInWithGoogle, signOut as supabaseSignOut, saveUserData, loadUserData } from './supabaseClient';
 import Onboarding from './Onboarding';
 
@@ -69,7 +69,6 @@ const DualTrackOS = () => {
     steps: { value: 0 },
     activeCalories: { value: 0 }
   });
-  const [alertLevel] = useState('green');
   const [meals, setMeals] = useState([]);
   const [proteinToday, setProteinToday] = useState(0);
   const [workouts, setWorkouts] = useState([]);
@@ -249,8 +248,6 @@ const DualTrackOS = () => {
     if (isWorkoutRunning) interval = setInterval(() => setWorkoutTimer(p => p + 1), 1000);
     return () => clearInterval(interval);
   }, [isWorkoutRunning]);
-
-  const toggleNDM = (key) => setNdm(p => ({ ...p, [key]: !p[key] }));
 
   // Handle Brain Dump modal
   const openBrainDump = () => {
@@ -712,18 +709,6 @@ const DualTrackOS = () => {
     };
   };
 
-  // Check if protein reminder needed
-  const needsProteinReminder = () => {
-    if (meals.length === 0) return true;
-    const lastMeal = meals[meals.length - 1];
-    if (!lastMeal) return true;
-    // Parse time (format: "2:47 PM")
-    const now = new Date();
-    const lastMealTime = new Date();
-    // Simplified: if more than 3 hours since last log, remind
-    return meals.length < 3; // Simple heuristic
-  };
-
   /**
    * Spirit Animal Balance Algorithm (PhD-level behavioral psychology)
    *
@@ -832,18 +817,6 @@ const DualTrackOS = () => {
     // Convert to percentage
     const balancePercent = maxPossible > 0 ? Math.round((score / maxPossible) * 100) : 0;
     return Math.min(100, Math.max(0, balancePercent));
-  };
-
-  // Record a balance decision for history
-  const recordBalanceDecision = (decision, points) => {
-    const entry = {
-      timestamp: new Date().toISOString(),
-      decision,
-      points,
-      energy: getCurrentPeriodEnergy(),
-      mood: currentMood
-    };
-    setBalanceHistory(prev => [...prev.slice(-19), entry]); // Keep last 20
   };
 
   /**
@@ -1134,28 +1107,86 @@ const DualTrackOS = () => {
           {/* Top Row: Greeting + Settings + Score */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              {/* Spirit Animal - Clickable */}
+              {/* Spirit Animal - Gamified Display */}
               <button
                 onClick={() => setShowSpiritAnimalModal(true)}
-                className={`relative group cursor-pointer transition-all duration-300 hover:scale-110 ${
-                  darkMode ? 'hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]' : 'hover:drop-shadow-lg'
-                }`}
-                title="View your spirit animal"
+                className={`relative group transition-all duration-300 ${
+                  darkMode
+                    ? 'hover:bg-purple-900/20 border-2 border-purple-500/30 hover:border-purple-400/60'
+                    : 'hover:bg-purple-50 border-2 border-purple-200 hover:border-purple-400'
+                } rounded-xl p-2 cursor-pointer`}
+                title="Click to view spirit animal details"
               >
-                <span className="text-4xl">{getSpiritAnimalStage(spiritAnimalScore).emoji}</span>
-                {/* Pulse animation when balance score increases */}
-                <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${
-                  spiritAnimalScore >= 80 ? 'bg-yellow-400 animate-pulse' :
-                  spiritAnimalScore >= 60 ? 'bg-purple-400 animate-pulse' :
-                  spiritAnimalScore >= 40 ? 'bg-orange-400' : 'hidden'
-                }`} />
+                <div className="flex items-center space-x-2">
+                  {/* Emoji with pulse animation */}
+                  <div className="relative">
+                    <span className="text-3xl group-hover:scale-110 transition-transform duration-300 inline-block">
+                      {getSpiritAnimalStage(spiritAnimalScore).emoji}
+                    </span>
+                    {/* Level indicator dot */}
+                    <div className={`absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ${
+                      spiritAnimalScore >= 80 ? 'bg-yellow-400 animate-pulse shadow-lg shadow-yellow-400/50' :
+                      spiritAnimalScore >= 60 ? 'bg-purple-400 animate-pulse shadow-lg shadow-purple-400/50' :
+                      spiritAnimalScore >= 40 ? 'bg-orange-400 shadow-lg shadow-orange-400/50' :
+                      spiritAnimalScore >= 20 ? 'bg-green-400' : 'bg-gray-400'
+                    }`} />
+                  </div>
+
+                  {/* Spirit Name & Progress */}
+                  <div className="text-left">
+                    <div className={`text-xs font-bold ${
+                      darkMode ? 'text-purple-300' : 'text-purple-700'
+                    }`}>
+                      {getSpiritAnimalStage(spiritAnimalScore).japanese} ({getSpiritAnimalStage(spiritAnimalScore).romanji})
+                    </div>
+                    <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                      {getSpiritAnimalStage(spiritAnimalScore).description}
+                    </div>
+                    {/* Points to next level */}
+                    {spiritAnimalScore < 100 && (
+                      <div className="flex items-center space-x-1 mt-0.5">
+                        <div className={`h-1 rounded-full flex-1 ${darkMode ? 'bg-gray-800' : 'bg-gray-200'}`} style={{ width: '60px' }}>
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              getSpiritAnimalStage(spiritAnimalScore).color === 'gold'
+                                ? 'bg-gradient-to-r from-yellow-400 to-orange-400'
+                                : getSpiritAnimalStage(spiritAnimalScore).color === 'purple'
+                                  ? 'bg-gradient-to-r from-purple-500 to-pink-500'
+                                  : getSpiritAnimalStage(spiritAnimalScore).color === 'orange'
+                                    ? 'bg-gradient-to-r from-orange-400 to-pink-500'
+                                    : getSpiritAnimalStage(spiritAnimalScore).color === 'yellow'
+                                      ? 'bg-gradient-to-r from-yellow-300 to-orange-400'
+                                      : 'bg-gradient-to-r from-gray-400 to-gray-500'
+                            }`}
+                            style={{
+                              width: `${(() => {
+                                const nextThreshold = spiritAnimalScore < 20 ? 20 : spiritAnimalScore < 40 ? 40 : spiritAnimalScore < 60 ? 60 : spiritAnimalScore < 80 ? 80 : 100;
+                                const prevThreshold = spiritAnimalScore < 20 ? 0 : spiritAnimalScore < 40 ? 20 : spiritAnimalScore < 60 ? 40 : spiritAnimalScore < 80 ? 60 : 80;
+                                return ((spiritAnimalScore - prevThreshold) / (nextThreshold - prevThreshold)) * 100;
+                              })()}%`
+                            }}
+                          />
+                        </div>
+                        <span className={`text-xs font-medium ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
+                          {(() => {
+                            const nextThreshold = spiritAnimalScore < 20 ? 20 : spiritAnimalScore < 40 ? 40 : spiritAnimalScore < 60 ? 60 : spiritAnimalScore < 80 ? 80 : 100;
+                            return `${nextThreshold - spiritAnimalScore}%`;
+                          })()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Click affordance */}
+                  <Sparkles className={`${darkMode ? 'text-purple-400' : 'text-purple-600'} group-hover:animate-spin`} size={14} />
+                </div>
               </button>
               <div>
                 <h2 className={`text-lg font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
                   {userProfile.preferredName || userProfile.name || 'there'}
                 </h2>
                 <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                  {currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                  {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {currentTime.toLocaleDateString('en-US', { weekday: 'short' })}
                 </p>
               </div>
             </div>
@@ -1326,17 +1357,20 @@ const DualTrackOS = () => {
                   />
                 </div>
 
-                {/* Outstanding Items */}
+                {/* Outstanding Items - Clickable */}
                 <div className="grid grid-cols-4 gap-1.5">
-                  <div className={`text-center p-1.5 rounded transition-all ${
-                    ndm.nutrition
-                      ? darkMode
-                        ? 'bg-emerald-500/20 border border-emerald-500/30'
-                        : 'bg-emerald-100 border border-emerald-300'
-                      : darkMode
-                        ? 'bg-gray-700/30 border border-gray-700/50'
-                        : 'bg-gray-100 border border-gray-200'
-                  }`}>
+                  <button
+                    onClick={() => setCurrentView('food')}
+                    className={`text-center p-1.5 rounded transition-all cursor-pointer ${
+                      ndm.nutrition
+                        ? darkMode
+                          ? 'bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30'
+                          : 'bg-emerald-100 border border-emerald-300 hover:bg-emerald-200'
+                        : darkMode
+                          ? 'bg-gray-700/30 border border-gray-700/50 hover:bg-gray-700/50'
+                          : 'bg-gray-100 border border-gray-200 hover:bg-gray-200'
+                    }`}
+                  >
                     <div className="text-base">{ndm.nutrition ? '✅' : '🍽️'}</div>
                     <div className={`text-xs mt-0.5 ${
                       ndm.nutrition
@@ -1345,17 +1379,20 @@ const DualTrackOS = () => {
                     }`}>
                       Nutrition
                     </div>
-                  </div>
+                  </button>
 
-                  <div className={`text-center p-1.5 rounded transition-all ${
-                    ndm.movement
-                      ? darkMode
-                        ? 'bg-emerald-500/20 border border-emerald-500/30'
-                        : 'bg-emerald-100 border border-emerald-300'
-                      : darkMode
-                        ? 'bg-gray-700/30 border border-gray-700/50'
-                        : 'bg-gray-100 border border-gray-200'
-                  }`}>
+                  <button
+                    onClick={() => setCurrentView('exercise')}
+                    className={`text-center p-1.5 rounded transition-all cursor-pointer ${
+                      ndm.movement
+                        ? darkMode
+                          ? 'bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30'
+                          : 'bg-emerald-100 border border-emerald-300 hover:bg-emerald-200'
+                        : darkMode
+                          ? 'bg-gray-700/30 border border-gray-700/50 hover:bg-gray-700/50'
+                          : 'bg-gray-100 border border-gray-200 hover:bg-gray-200'
+                    }`}
+                  >
                     <div className="text-base">{ndm.movement ? '✅' : '🏃'}</div>
                     <div className={`text-xs mt-0.5 ${
                       ndm.movement
@@ -1364,17 +1401,20 @@ const DualTrackOS = () => {
                     }`}>
                       Movement
                     </div>
-                  </div>
+                  </button>
 
-                  <div className={`text-center p-1.5 rounded transition-all ${
-                    ndm.mindfulness
-                      ? darkMode
-                        ? 'bg-emerald-500/20 border border-emerald-500/30'
-                        : 'bg-emerald-100 border border-emerald-300'
-                      : darkMode
-                        ? 'bg-gray-700/30 border border-gray-700/50'
-                        : 'bg-gray-100 border border-gray-200'
-                  }`}>
+                  <button
+                    onClick={openMindfulMoment}
+                    className={`text-center p-1.5 rounded transition-all cursor-pointer ${
+                      ndm.mindfulness
+                        ? darkMode
+                          ? 'bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30'
+                          : 'bg-emerald-100 border border-emerald-300 hover:bg-emerald-200'
+                        : darkMode
+                          ? 'bg-gray-700/30 border border-gray-700/50 hover:bg-gray-700/50'
+                          : 'bg-gray-100 border border-gray-200 hover:bg-gray-200'
+                    }`}
+                  >
                     <div className="text-base">{ndm.mindfulness ? '✅' : '🧘'}</div>
                     <div className={`text-xs mt-0.5 ${
                       ndm.mindfulness
@@ -1383,17 +1423,20 @@ const DualTrackOS = () => {
                     }`}>
                       Mindful
                     </div>
-                  </div>
+                  </button>
 
-                  <div className={`text-center p-1.5 rounded transition-all ${
-                    ndm.brainDump
-                      ? darkMode
-                        ? 'bg-emerald-500/20 border border-emerald-500/30'
-                        : 'bg-emerald-100 border border-emerald-300'
-                      : darkMode
-                        ? 'bg-gray-700/30 border border-gray-700/50'
-                        : 'bg-gray-100 border border-gray-200'
-                  }`}>
+                  <button
+                    onClick={openBrainDump}
+                    className={`text-center p-1.5 rounded transition-all cursor-pointer ${
+                      ndm.brainDump
+                        ? darkMode
+                          ? 'bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30'
+                          : 'bg-emerald-100 border border-emerald-300 hover:bg-emerald-200'
+                        : darkMode
+                          ? 'bg-gray-700/30 border border-gray-700/50 hover:bg-gray-700/50'
+                          : 'bg-gray-100 border border-gray-200 hover:bg-gray-200'
+                    }`}
+                  >
                     <div className="text-base">{ndm.brainDump ? '✅' : '📝'}</div>
                     <div className={`text-xs mt-0.5 ${
                       ndm.brainDump
@@ -1402,7 +1445,7 @@ const DualTrackOS = () => {
                     }`}>
                       Brain Dump
                     </div>
-                  </div>
+                  </button>
                 </div>
               </div>
             </div>
