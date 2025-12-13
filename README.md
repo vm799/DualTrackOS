@@ -8,11 +8,11 @@ DualTrack OS helps you:
 - Track your Non-Negotiable Daily Minimums (NDM)
 - Manage dual careers (corporate + consultancy/side business)
 - Monitor health vitals and prevent burnout
-- Optimize exercise for perimenopause + ADHD
+- Optimize exercise and wellness routines
 - Track nutrition with blood sugar stability
 - Get AI-powered insights on your patterns
-- Infer cycle phase without knowing "what day" you're on
-- Receive adaptive recommendations based on hormonal state
+- Receive adaptive recommendations based on energy and mood
+- Grow your personal spirit animal avatar as you practice self-care
 
 ## 🚀 Quick Start
 
@@ -82,17 +82,17 @@ npm run deploy
 - Completion tracking
 
 ### Nutrition Tracking
-- Quick meal logging
-- Protein tracking (critical for perimenopause)
+- Quick meal logging with photo upload
+- Protein tracking (personalized to your weight)
 - Pre-made meal templates
 - Blood sugar optimization tips
 
-### Perimenopause Intelligence
-- 16 symptom tracking categories
-- 14 evidence-based interventions
-- AI cycle phase inference (no cycle day needed!)
-- Adaptive recommendations by phase
+### Health & Wellness Intelligence
+- Energy and mood tracking (3x daily)
+- Smart suggestions based on energy + mood combinations
+- Adaptive recommendations for your current state
 - Pattern detection and prediction
+- Spirit animal avatar that grows with your self-care
 
 ### Weekly Intelligence
 - Pattern detection (energy, sleep, productivity)
@@ -137,11 +137,12 @@ dualtrack-os/
 ## 🎯 Roadmap
 
 **Phase 1: MVP (Current)**
-- ✅ Core dashboard
-- ✅ NDM tracking
+- ✅ Core dashboard with spirit animal
+- ✅ NDM tracking with actionable modals
 - ✅ Exercise library
-- ✅ Food logging
-- ✅ Perimenopause intelligence
+- ✅ Food logging with photo upload
+- ✅ Energy + mood intelligence
+- ✅ Smart suggestions engine
 - ✅ Weekly insights
 - ✅ Data persistence
 
@@ -172,10 +173,11 @@ dualtrack-os/
 - Women 
 - Corporate leaders building side businesses
 - ADHD/neurodivergent high-performers
-- 1.3M women enter perimenopause annually (US)
+- Health-conscious individuals seeking work-life balance
+- Professionals navigating career transitions and health changes
 
 **Revenue Streams:**
-1. Consumer subscriptions (B2C)
+1. Consumer subscriptions (B2C) - $19/month Starter plan
 2. Corporate wellness programs (B2B)
 3. Coaching certification program
 4. API licensing
@@ -190,8 +192,8 @@ Proprietary - All rights reserved
 
 ## ��‍💻 About the Founder
 
-Built by a badass woman trying to do it all !! 
-- AI Lead at a leading Asset Management Firm
+Built by a busy professional who's
+- AI Lead at a major financial institution
 - Building an AI automation consultancy
 - Managing ADHD and slave to hormonal mood and energy changes every day !!
 - Refusing to burn out

@@ -8,10 +8,10 @@ const Onboarding = ({ onComplete, darkMode }) => {
     preferredName: '',
     age: '',
     weight: '',
-    avatar: '👩‍💼'
+    avatar: '🐉'
   });
 
-  const avatarOptions = ['👩‍💼', '👩', '👱‍♀️', '👩‍🦰', '👩‍🦱', '👩‍🦳', '🧑‍💼', '💃', '🌟', '💪', '🦋', '🌸'];
+  const avatarOptions = ['🐉', '🔥', '⚡', '🌙', '✨', '🏔️', '🌊', '🌸', '🦋', '⭐', '💎', '🌿'];
 
   const handleComplete = () => {
     onComplete({
@@ -69,7 +69,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
               </p>
 
               <ul className="list-disc pl-6 space-y-1">
-                <li>Are experiencing perimenopause or menopause symptoms</li>
+                <li>Are experiencing hormonal changes or health transitions</li>
                 <li>Have any pre-existing medical conditions</li>
                 <li>Are taking any medications or supplements</li>
                 <li>Are pregnant or nursing</li>
