@@ -460,54 +460,256 @@ const DualTrackOS = () => {
     return energyTracking[period];
   };
 
-  // Get smart suggestions based on energy + mood
-  const getSmartSuggestions = () => {
-    const energy = getCurrentEnergy();
-    const mood = currentMood;
-
-    // High energy scenarios
-    if (energy >= 4) {
-      return {
-        message: "You're energized! Perfect time for your hardest tasks.",
-        tasks: ["Complex problem-solving", "Important calls", "Strategic planning", "Deep work sessions"],
-        color: "orange"
-      };
-    }
-
-    // Low energy + overwhelmed = GENTLE MODE
-    if (energy <= 2 && mood === 'overwhelmed') {
-      return {
-        message: "🌸 GENTLE MODE: Your only job is self-care right now.",
-        tasks: ["Take a 10-min walk", "Eat protein + healthy fat", "Light stretching", "Call a friend"],
-        warning: "Skip hard tasks today. Rest is productive.",
+  /**
+   * Get Energy-Based Suggestions (Research-Backed)
+   * Based on circadian rhythm research, cognitive load theory, and energy management studies
+   */
+  const getEnergyBasedSuggestions = (energyLevel) => {
+    const energySuggestions = {
+      1: {
+        // Very Low Energy (Depletion State)
+        title: "Critical Rest Needed",
+        message: "Your body is signaling depletion. Honor it with rest.",
+        tasks: [
+          "Take a 20-min power nap (proven to restore alertness)",
+          "Go for a gentle 10-min walk (boosts endorphins without strain)",
+          "Do 5 minutes of deep breathing (activates parasympathetic nervous system)",
+          "Listen to calming music while resting",
+        ],
+        snacks: [
+          "Greek yogurt with berries (protein + quick energy)",
+          "Apple with almond butter (slow-release energy)",
+          "Hard-boiled eggs (sustained protein)",
+          "Banana with handful of nuts (potassium + healthy fats)"
+        ],
+        warning: "⚠️ Working through this exhaustion damages your health. Rest is not optional.",
         color: "rose"
-      };
-    }
-
-    // Low energy general
-    if (energy <= 2) {
-      return {
-        message: "Low energy detected. Time for gentle, easy wins.",
-        tasks: ["Email responses", "Light organizing", "Delete old files", "Watch inspiring video"],
+      },
+      2: {
+        // Low Energy (Recovery Mode)
+        title: "Gentle Mode Active",
+        message: "Low energy requires light tasks and self-nourishment.",
+        tasks: [
+          "Clear inbox (low cognitive load, feels productive)",
+          "Organize one drawer or desktop folder",
+          "Watch an educational video (passive learning)",
+          "Journal for 10 minutes (therapeutic, no pressure)",
+        ],
+        snacks: [
+          "Hummus with veggies (sustained energy)",
+          "Trail mix with dark chocolate (magnesium boost)",
+          "Cheese and whole grain crackers (protein + complex carbs)",
+          "Smoothie with protein powder (easy to digest)"
+        ],
         proteinPrompt: true,
         color: "purple"
-      };
-    }
+      },
+      3: {
+        // Medium Energy (Steady State)
+        title: "Steady Progress Mode",
+        message: "Perfect energy for consistent, sustainable work.",
+        tasks: [
+          "Routine meetings and check-ins",
+          "Email responses and communication",
+          "Project planning and organization",
+          "Administrative tasks and documentation"
+        ],
+        snacks: [
+          "Cottage cheese with pineapple (protein + energy)",
+          "Turkey roll-ups with avocado (lean protein + healthy fat)",
+          "Oatmeal with nuts (sustained release)",
+          "Protein bar with <5g sugar"
+        ],
+        color: "cyan"
+      },
+      4: {
+        // High Energy (Peak Performance)
+        title: "Peak Performance Window",
+        message: "Your cognitive peak! Tackle your hardest challenges now.",
+        tasks: [
+          "Complex problem-solving (prefrontal cortex at peak)",
+          "Important negotiations or difficult conversations",
+          "Creative work requiring deep thinking",
+          "Strategic planning for major decisions"
+        ],
+        snacks: [
+          "Salmon with leafy greens (omega-3 for brain function)",
+          "Blueberries with almonds (antioxidants + focus)",
+          "Green tea + dark chocolate (L-theanine + polyphenols)",
+          "Chicken breast with quinoa (complete protein + energy)"
+        ],
+        color: "orange"
+      },
+      5: {
+        // Very High Energy (Flow State Potential)
+        title: "Flow State Activated",
+        message: "You're in the zone! This is your superpower hour.",
+        tasks: [
+          "Your ONE most important task (deep work, 90-min block)",
+          "High-stakes presentations or pitches",
+          "Breakthrough creative work",
+          "Learning new complex skills"
+        ],
+        snacks: [
+          "Smoked salmon on whole grain (brain-boosting omega-3)",
+          "Matcha latte with MCT oil (sustained focus)",
+          "Beet juice + walnuts (nitric oxide + DHA)",
+          "Steak with sweet potato (iron + stable glucose)"
+        ],
+        warning: "⚡ Protect this energy! Minimize distractions, close unnecessary tabs.",
+        color: "yellow"
+      }
+    };
 
-    // Medium energy + anxious
-    if (energy === 3 && mood === 'anxious') {
-      return {
-        message: "Feeling anxious? Start with one small, simple task.",
-        tasks: ["Organize one drawer", "5-min meditation", "Brain dump to paper", "Light admin work"],
+    return energySuggestions[energyLevel] || energySuggestions[3];
+  };
+
+  /**
+   * Get Mood-Based Wellness Recommendations (Evidence-Based Psychology)
+   * Based on CBT, mindfulness research, and nutritional psychiatry
+   */
+  const getMoodBasedWellness = (moodState) => {
+    const moodWellness = {
+      energized: {
+        title: "Channel Your Energy Wisely",
+        message: "Great mood! Direct this energy into meaningful action.",
+        activities: [
+          "Tackle a challenge you've been avoiding",
+          "Connect with colleagues or friends (social energy peak)",
+          "Start a new project or initiative",
+          "Exercise (capitalize on natural motivation)"
+        ],
+        snacks: [
+          "Protein smoothie (maintain the momentum)",
+          "Mixed berries with Greek yogurt (antioxidants)",
+          "Energy balls (dates, nuts, cacao)",
+          "Green juice with ginger (sustained vitality)"
+        ],
+        color: "orange"
+      },
+      focused: {
+        title: "Deep Work Opportunity",
+        message: "Your attention is sharp. Protect this focused state.",
+        activities: [
+          "90-minute deep work block (no interruptions)",
+          "Complex analytical work requiring concentration",
+          "Learning or skill development",
+          "Writing or detailed planning"
+        ],
+        snacks: [
+          "Blueberries (improve cognitive function)",
+          "Dark chocolate 70%+ (flavonoids for focus)",
+          "Walnuts (omega-3 for sustained attention)",
+          "Green tea with honey (L-theanine + stable energy)"
+        ],
         color: "blue"
+      },
+      calm: {
+        title: "Reflective State",
+        message: "Beautiful calm. Perfect for thoughtful, intentional work.",
+        activities: [
+          "Strategic thinking and big-picture planning",
+          "Journaling or reflective writing",
+          "Gentle yoga or stretching",
+          "Meaningful conversations (listening mode)"
+        ],
+        snacks: [
+          "Chamomile tea with honey (maintain calm)",
+          "Avocado toast (healthy fats for sustained calm)",
+          "Warm oatmeal with cinnamon (grounding)",
+          "Sliced pear with cheese (balanced satisfaction)"
+        ],
+        color: "cyan"
+      },
+      tired: {
+        title: "Rest & Recovery Mode",
+        message: "Your body needs restoration. Self-care is your priority.",
+        activities: [
+          "20-minute power nap (research-proven restoration)",
+          "Gentle walk in nature (cortisol reduction)",
+          "Passive learning (podcast, audiobook)",
+          "Light stretching or restorative yoga"
+        ],
+        snacks: [
+          "Tart cherry juice (melatonin, aids rest)",
+          "Banana with almond butter (tryptophan + magnesium)",
+          "Whole grain toast with turkey (sleep-promoting)",
+          "Warm milk with honey (traditional rest aid)"
+        ],
+        warning: "💤 Pushing through exhaustion backfires. Rest is productive.",
+        color: "purple"
+      },
+      anxious: {
+        title: "Grounding & Soothing",
+        message: "Anxiety needs grounding. These activities calm your nervous system.",
+        activities: [
+          "Box breathing (4-4-4-4 proven to reduce cortisol)",
+          "5-minute meditation or body scan",
+          "Write down worries (externalization reduces rumination)",
+          "Call a trusted friend (social support regulates nervous system)"
+        ],
+        snacks: [
+          "Complex carbs (whole grain) - serotonin boost",
+          "Chamomile or lavender tea (calming compounds)",
+          "Dark leafy greens (magnesium for relaxation)",
+          "Pumpkin seeds (zinc for anxiety reduction)"
+        ],
+        supplement: "Consider: Magnesium glycinate, L-theanine, or ashwagandha (consult provider)",
+        color: "blue"
+      },
+      overwhelmed: {
+        title: "🌸 GENTLE MODE ACTIVATED",
+        message: "You're doing too much. Simplify everything. Your only job: survive with grace.",
+        activities: [
+          "ONE tiny task only (build back confidence)",
+          "10-minute walk outside (perspective shift)",
+          "Brain dump all worries to paper (cognitive offload)",
+          "Ask for help (vulnerability is strength)"
+        ],
+        snacks: [
+          "Comfort food that nourishes: soup, oatmeal",
+          "Herbal tea (lemon balm, passionflower)",
+          "Dark chocolate (proven mood elevator)",
+          "Whatever you can manage - no judgment"
+        ],
+        warning: "🌸 PERMISSION TO PAUSE: Rest is not quitting. It's regrouping.",
+        color: "rose"
+      }
+    };
+
+    return moodWellness[moodState] || null;
+  };
+
+  // Get combined smart suggestions
+  const getSmartSuggestions = () => {
+    const energyLevel = getCurrentPeriodEnergy() || getCurrentEnergy() || 3;
+    const mood = currentMood;
+
+    // Get energy-based suggestions
+    const energySuggestion = getEnergyBasedSuggestions(energyLevel);
+
+    // Get mood-based wellness if mood is set
+    const moodWellness = mood ? getMoodBasedWellness(mood) : null;
+
+    // Special case: Low energy + overwhelmed = ULTIMATE GENTLE MODE
+    if (energyLevel <= 2 && mood === 'overwhelmed') {
+      return {
+        message: "🌸 ULTIMATE GENTLE MODE: Rest is your only job today.",
+        tasks: ["Take a bath or shower", "Nap for 20-30 minutes", "Watch comfort TV", "Order takeout (no cooking)"],
+        snacks: ["Whatever brings comfort - no rules today", "Warm soup", "Herbal tea", "Dark chocolate"],
+        warning: "🌸 You are enough. Rest is productive. Healing takes time.",
+        color: "rose",
+        type: "crisis"
       };
     }
 
-    // Default medium energy
+    // Combine energy and mood suggestions
     return {
-      message: "Steady energy. Great for consistent progress.",
-      tasks: ["Routine meetings", "Email responses", "Project updates", "Admin tasks"],
-      color: "cyan"
+      ...energySuggestion,
+      moodWellness: moodWellness,
+      combinedMessage: mood && moodWellness ?
+        `Energy: ${energySuggestion.title} | Mood: ${moodWellness.title}` :
+        energySuggestion.title
     };
   };
 
@@ -872,14 +1074,71 @@ const DualTrackOS = () => {
               }`}>
                 {dailyScore} pts {streak > 0 && `🔥${streak}`}
               </div>
+
+              {/* Google Auth Button */}
+              {isSupabaseConfigured() ? (
+                user ? (
+                  <div className="flex items-center space-x-2">
+                    {/* User Profile */}
+                    <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg ${
+                      darkMode
+                        ? 'bg-emerald-500/10 border border-emerald-500/30'
+                        : 'bg-emerald-50 border border-emerald-200'
+                    }`}>
+                      <User size={14} className={darkMode ? 'text-emerald-400' : 'text-emerald-600'} />
+                      <span className={`text-xs font-medium ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>
+                        {user.user_metadata?.name?.split(' ')[0] || userProfile.preferredName || 'User'}
+                      </span>
+                    </div>
+                    {/* Sign Out Button */}
+                    <button
+                      onClick={async () => {
+                        await supabaseSignOut();
+                        setUser(null);
+                      }}
+                      className={`p-2 rounded-lg transition-all ${
+                        darkMode
+                          ? 'hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30'
+                          : 'hover:bg-rose-100 text-rose-600 hover:text-rose-700 border border-rose-300'
+                      }`}
+                      title="Sign out"
+                    >
+                      <LogOut size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={async () => {
+                      const { error } = await signInWithGoogle();
+                      if (error) {
+                        console.error('Sign in error:', error);
+                      }
+                    }}
+                    className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg transition-all ${
+                      darkMode
+                        ? 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30'
+                        : 'bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200'
+                    }`}
+                  >
+                    <LogIn size={16} />
+                    <span className="text-xs font-medium">Sign in with Google</span>
+                  </button>
+                )
+              ) : null}
+
               {/* Settings Icon */}
               <button
-                onClick={() => setCurrentView('insights')}
+                onClick={() => setCurrentView(currentView === 'insights' ? 'dashboard' : 'insights')}
                 className={`p-2 rounded-lg transition-all ${
-                  darkMode
-                    ? 'hover:bg-gray-800 text-gray-400 hover:text-gray-300'
-                    : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                  currentView === 'insights'
+                    ? darkMode
+                      ? 'bg-purple-500/20 border-2 border-purple-500/40 text-purple-300'
+                      : 'bg-purple-100 border-2 border-purple-400 text-purple-700'
+                    : darkMode
+                      ? 'hover:bg-gray-800 text-gray-400 hover:text-gray-300 border-2 border-transparent'
+                      : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900 border-2 border-transparent'
                 }`}
+                title={currentView === 'insights' ? 'Close Settings' : 'Open Settings'}
               >
                 <Settings size={20} />
               </button>
@@ -955,6 +1214,119 @@ const DualTrackOS = () => {
                 </div>
               </div>
             )}
+
+            {/* NDM Status Bar - Shows Outstanding Tasks */}
+            <div className="mt-6 max-w-md mx-auto">
+              <div className={`rounded-lg p-3 ${
+                darkMode
+                  ? 'bg-gray-800/50 border border-gray-700/50'
+                  : 'bg-white/50 border border-gray-200'
+              }`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`text-xs font-semibold uppercase tracking-wide ${
+                    darkMode ? 'text-gray-500' : 'text-gray-600'
+                  }`}>
+                    Today's Non-Negotiables
+                  </span>
+                  <span className={`text-xs font-bold ${
+                    darkMode ? 'text-purple-400' : 'text-purple-600'
+                  }`}>
+                    {[ndm.nutrition, ndm.movement, ndm.mindfulness, ndm.brainDump].filter(Boolean).length}/4
+                  </span>
+                </div>
+
+                {/* Progress Bar */}
+                <div className={`h-2 rounded-full overflow-hidden mb-3 ${
+                  darkMode ? 'bg-gray-900/50' : 'bg-gray-200'
+                }`}>
+                  <div
+                    className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 transition-all duration-500"
+                    style={{
+                      width: `${([ndm.nutrition, ndm.movement, ndm.mindfulness, ndm.brainDump].filter(Boolean).length / 4) * 100}%`
+                    }}
+                  />
+                </div>
+
+                {/* Outstanding Items */}
+                <div className="grid grid-cols-4 gap-2">
+                  <div className={`text-center p-2 rounded transition-all ${
+                    ndm.nutrition
+                      ? darkMode
+                        ? 'bg-emerald-500/20 border border-emerald-500/30'
+                        : 'bg-emerald-100 border border-emerald-300'
+                      : darkMode
+                        ? 'bg-gray-700/30 border border-gray-700/50'
+                        : 'bg-gray-100 border border-gray-200'
+                  }`}>
+                    <div className="text-lg">{ndm.nutrition ? '✅' : '🍽️'}</div>
+                    <div className={`text-xs mt-1 ${
+                      ndm.nutrition
+                        ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
+                        : darkMode ? 'text-gray-600' : 'text-gray-500'
+                    }`}>
+                      Nutrition
+                    </div>
+                  </div>
+
+                  <div className={`text-center p-2 rounded transition-all ${
+                    ndm.movement
+                      ? darkMode
+                        ? 'bg-emerald-500/20 border border-emerald-500/30'
+                        : 'bg-emerald-100 border border-emerald-300'
+                      : darkMode
+                        ? 'bg-gray-700/30 border border-gray-700/50'
+                        : 'bg-gray-100 border border-gray-200'
+                  }`}>
+                    <div className="text-lg">{ndm.movement ? '✅' : '🏃'}</div>
+                    <div className={`text-xs mt-1 ${
+                      ndm.movement
+                        ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
+                        : darkMode ? 'text-gray-600' : 'text-gray-500'
+                    }`}>
+                      Movement
+                    </div>
+                  </div>
+
+                  <div className={`text-center p-2 rounded transition-all ${
+                    ndm.mindfulness
+                      ? darkMode
+                        ? 'bg-emerald-500/20 border border-emerald-500/30'
+                        : 'bg-emerald-100 border border-emerald-300'
+                      : darkMode
+                        ? 'bg-gray-700/30 border border-gray-700/50'
+                        : 'bg-gray-100 border border-gray-200'
+                  }`}>
+                    <div className="text-lg">{ndm.mindfulness ? '✅' : '🧘'}</div>
+                    <div className={`text-xs mt-1 ${
+                      ndm.mindfulness
+                        ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
+                        : darkMode ? 'text-gray-600' : 'text-gray-500'
+                    }`}>
+                      Mindful
+                    </div>
+                  </div>
+
+                  <div className={`text-center p-2 rounded transition-all ${
+                    ndm.brainDump
+                      ? darkMode
+                        ? 'bg-emerald-500/20 border border-emerald-500/30'
+                        : 'bg-emerald-100 border border-emerald-300'
+                      : darkMode
+                        ? 'bg-gray-700/30 border border-gray-700/50'
+                        : 'bg-gray-100 border border-gray-200'
+                  }`}>
+                    <div className="text-lg">{ndm.brainDump ? '✅' : '📝'}</div>
+                    <div className={`text-xs mt-1 ${
+                      ndm.brainDump
+                        ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
+                        : darkMode ? 'text-gray-600' : 'text-gray-500'
+                    }`}>
+                      Brain Dump
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1166,90 +1538,227 @@ const DualTrackOS = () => {
             {/* SMART SUGGESTIONS - Based on Energy + Mood */}
             {(getCurrentEnergy() > 0 || currentMood) && (() => {
               const suggestions = getSmartSuggestions();
+              const isUltimateGentle = suggestions.type === 'crisis';
+
               return (
-                <div className={`rounded-xl p-6 transition-all duration-300 shadow-lg backdrop-blur-sm ${
-                  darkMode
-                    ? suggestions.color === 'orange'
-                      ? 'bg-gradient-to-br from-orange-900/50 via-amber-900/50 to-orange-900/50 border-2 border-orange-500/40'
-                      : suggestions.color === 'rose'
-                        ? 'bg-gradient-to-br from-rose-900/50 via-pink-900/50 to-rose-900/50 border-2 border-rose-500/40'
-                        : suggestions.color === 'purple'
-                          ? 'bg-gradient-to-br from-purple-900/50 via-violet-900/50 to-purple-900/50 border-2 border-purple-500/40'
-                          : suggestions.color === 'blue'
-                            ? 'bg-gradient-to-br from-blue-900/50 via-indigo-900/50 to-blue-900/50 border-2 border-blue-500/40'
-                            : 'bg-gradient-to-br from-cyan-900/50 via-teal-900/50 to-cyan-900/50 border-2 border-cyan-500/40'
-                    : suggestions.color === 'orange'
-                      ? 'bg-gradient-to-br from-orange-100 to-amber-100 border-2 border-orange-300'
-                      : suggestions.color === 'rose'
-                        ? 'bg-gradient-to-br from-rose-100 to-pink-100 border-2 border-rose-300'
-                        : suggestions.color === 'purple'
-                          ? 'bg-gradient-to-br from-purple-100 to-violet-100 border-2 border-purple-300'
-                          : suggestions.color === 'blue'
-                            ? 'bg-gradient-to-br from-blue-100 to-indigo-100 border-2 border-blue-300'
-                            : 'bg-gradient-to-br from-cyan-100 to-teal-100 border-2 border-cyan-300'
-                }`}>
-                  <div className="flex items-center mb-3">
-                    <Lightbulb className={`mr-2 ${
-                      darkMode
-                        ? suggestions.color === 'orange' ? 'text-orange-400'
-                          : suggestions.color === 'rose' ? 'text-rose-400'
-                          : suggestions.color === 'purple' ? 'text-purple-400'
-                          : suggestions.color === 'blue' ? 'text-blue-400'
-                          : 'text-cyan-400'
-                        : suggestions.color === 'orange' ? 'text-orange-600'
-                          : suggestions.color === 'rose' ? 'text-rose-600'
-                          : suggestions.color === 'purple' ? 'text-purple-600'
-                          : suggestions.color === 'blue' ? 'text-blue-600'
-                          : 'text-cyan-600'
-                    }`} size={24} />
-                    <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                      💡 Smart Suggestion
-                    </h3>
-                  </div>
-                  <p className={`text-sm mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    {suggestions.message}
-                  </p>
-
-                  {suggestions.warning && (
-                    <div className={`p-3 rounded-lg mb-4 ${
-                      darkMode
-                        ? 'bg-rose-500/20 border border-rose-500/40'
-                        : 'bg-rose-100 border border-rose-300'
-                    }`}>
-                      <p className={`text-sm font-semibold ${darkMode ? 'text-rose-300' : 'text-rose-700'}`}>
-                        ⚠️ {suggestions.warning}
-                      </p>
+                <div className="space-y-4">
+                  {/* Energy-Based Suggestions */}
+                  <div className={`rounded-xl p-6 transition-all duration-300 shadow-lg backdrop-blur-sm ${
+                    darkMode
+                      ? suggestions.color === 'orange'
+                        ? 'bg-gradient-to-br from-orange-900/50 via-amber-900/50 to-orange-900/50 border-2 border-orange-500/40'
+                        : suggestions.color === 'rose'
+                          ? 'bg-gradient-to-br from-rose-900/50 via-pink-900/50 to-rose-900/50 border-2 border-rose-500/40'
+                          : suggestions.color === 'purple'
+                            ? 'bg-gradient-to-br from-purple-900/50 via-violet-900/50 to-purple-900/50 border-2 border-purple-500/40'
+                            : suggestions.color === 'blue'
+                              ? 'bg-gradient-to-br from-blue-900/50 via-indigo-900/50 to-blue-900/50 border-2 border-blue-500/40'
+                              : 'bg-gradient-to-br from-cyan-900/50 via-teal-900/50 to-cyan-900/50 border-2 border-cyan-500/40'
+                      : suggestions.color === 'orange'
+                        ? 'bg-gradient-to-br from-orange-100 to-amber-100 border-2 border-orange-300'
+                        : suggestions.color === 'rose'
+                          ? 'bg-gradient-to-br from-rose-100 to-pink-100 border-2 border-rose-300'
+                          : suggestions.color === 'purple'
+                            ? 'bg-gradient-to-br from-purple-100 to-violet-100 border-2 border-purple-300'
+                            : suggestions.color === 'blue'
+                              ? 'bg-gradient-to-br from-blue-100 to-indigo-100 border-2 border-blue-300'
+                              : 'bg-gradient-to-br from-cyan-100 to-teal-100 border-2 border-cyan-300'
+                  }`}>
+                    <div className="flex items-center mb-3">
+                      <Lightbulb className={`mr-2 ${
+                        darkMode
+                          ? suggestions.color === 'orange' ? 'text-orange-400'
+                            : suggestions.color === 'rose' ? 'text-rose-400'
+                            : suggestions.color === 'purple' ? 'text-purple-400'
+                            : suggestions.color === 'blue' ? 'text-blue-400'
+                            : 'text-cyan-400'
+                          : suggestions.color === 'orange' ? 'text-orange-600'
+                            : suggestions.color === 'rose' ? 'text-rose-600'
+                            : suggestions.color === 'purple' ? 'text-purple-600'
+                            : suggestions.color === 'blue' ? 'text-blue-600'
+                            : 'text-cyan-600'
+                      }`} size={24} />
+                      <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {isUltimateGentle ? '🌸 Ultimate Gentle Mode' : `⚡ Energy: ${suggestions.title}`}
+                      </h3>
                     </div>
-                  )}
+                    <p className={`text-sm mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      {suggestions.message}
+                    </p>
 
-                  <div className="space-y-2">
-                    {suggestions.tasks.map((task, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => {
-                          // Add to current hour tasks
-                          addHourlyTask(currentTime.getHours(), task);
-                        }}
-                        className={`w-full text-left p-3 rounded-lg transition-all ${
-                          darkMode
-                            ? 'bg-white/10 hover:bg-white/20 border border-white/20 text-gray-200'
-                            : 'bg-white/60 hover:bg-white border border-white/40 text-gray-800'
-                        }`}
-                      >
-                        <span className="text-sm">✓ {task}</span>
-                      </button>
-                    ))}
+                    {suggestions.warning && (
+                      <div className={`p-3 rounded-lg mb-4 ${
+                        darkMode
+                          ? 'bg-rose-500/20 border border-rose-500/40'
+                          : 'bg-rose-100 border border-rose-300'
+                      }`}>
+                        <p className={`text-sm font-semibold ${darkMode ? 'text-rose-300' : 'text-rose-700'}`}>
+                          {suggestions.warning}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Task Suggestions */}
+                    {suggestions.tasks && suggestions.tasks.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className={`text-xs font-bold mb-2 uppercase tracking-wide ${
+                          darkMode ? 'text-gray-400' : 'text-gray-600'
+                        }`}>
+                          Recommended Actions
+                        </h4>
+                        <div className="space-y-2">
+                          {suggestions.tasks.map((task, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => {
+                                addHourlyTask(currentTime.getHours(), task);
+                              }}
+                              className={`w-full text-left p-3 rounded-lg transition-all ${
+                                darkMode
+                                  ? 'bg-white/10 hover:bg-white/20 border border-white/20 text-gray-200'
+                                  : 'bg-white/60 hover:bg-white border border-white/40 text-gray-800'
+                              }`}
+                            >
+                              <span className="text-sm">✓ {task}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Snack Recommendations */}
+                    {suggestions.snacks && suggestions.snacks.length > 0 && (
+                      <div>
+                        <h4 className={`text-xs font-bold mb-2 uppercase tracking-wide ${
+                          darkMode ? 'text-gray-400' : 'text-gray-600'
+                        }`}>
+                          Fuel Your Energy
+                        </h4>
+                        <div className="grid grid-cols-1 gap-2">
+                          {suggestions.snacks.map((snack, idx) => (
+                            <div
+                              key={idx}
+                              className={`p-2 rounded-lg text-xs ${
+                                darkMode
+                                  ? 'bg-white/5 border border-white/10 text-gray-300'
+                                  : 'bg-white/40 border border-white/30 text-gray-700'
+                              }`}
+                            >
+                              🍽️ {snack}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  {suggestions.proteinPrompt && proteinToday < getProteinTarget() * 0.5 && (
-                    <div className={`mt-4 p-3 rounded-lg ${
+                  {/* Mood-Based Wellness Recommendations (Separate Section) */}
+                  {suggestions.moodWellness && !isUltimateGentle && (
+                    <div className={`rounded-xl p-6 transition-all duration-300 shadow-lg backdrop-blur-sm ${
                       darkMode
-                        ? 'bg-purple-500/20 border border-purple-500/40'
-                        : 'bg-purple-100 border border-purple-300'
+                        ? suggestions.moodWellness.color === 'orange'
+                          ? 'bg-gradient-to-br from-orange-900/50 via-amber-900/50 to-orange-900/50 border-2 border-orange-500/40'
+                          : suggestions.moodWellness.color === 'rose'
+                            ? 'bg-gradient-to-br from-rose-900/50 via-pink-900/50 to-rose-900/50 border-2 border-rose-500/40'
+                            : suggestions.moodWellness.color === 'purple'
+                              ? 'bg-gradient-to-br from-purple-900/50 via-violet-900/50 to-purple-900/50 border-2 border-purple-500/40'
+                              : suggestions.moodWellness.color === 'blue'
+                                ? 'bg-gradient-to-br from-blue-900/50 via-indigo-900/50 to-blue-900/50 border-2 border-blue-500/40'
+                                : 'bg-gradient-to-br from-cyan-900/50 via-teal-900/50 to-cyan-900/50 border-2 border-cyan-500/40'
+                        : suggestions.moodWellness.color === 'orange'
+                          ? 'bg-gradient-to-br from-orange-100 to-amber-100 border-2 border-orange-300'
+                          : suggestions.moodWellness.color === 'rose'
+                            ? 'bg-gradient-to-br from-rose-100 to-pink-100 border-2 border-rose-300'
+                            : suggestions.moodWellness.color === 'purple'
+                              ? 'bg-gradient-to-br from-purple-100 to-violet-100 border-2 border-purple-300'
+                              : suggestions.moodWellness.color === 'blue'
+                                ? 'bg-gradient-to-br from-blue-100 to-indigo-100 border-2 border-blue-300'
+                                : 'bg-gradient-to-br from-cyan-100 to-teal-100 border-2 border-cyan-300'
                     }`}>
-                      <p className={`text-sm ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
-                        💪 Have you eaten protein today? You're at {proteinToday}g / {getProteinTarget()}g
+                      <div className="flex items-center mb-3">
+                        <Sparkles className={`mr-2 ${
+                          darkMode
+                            ? suggestions.moodWellness.color === 'orange' ? 'text-orange-400'
+                              : suggestions.moodWellness.color === 'rose' ? 'text-rose-400'
+                              : suggestions.moodWellness.color === 'purple' ? 'text-purple-400'
+                              : suggestions.moodWellness.color === 'blue' ? 'text-blue-400'
+                              : 'text-cyan-400'
+                            : suggestions.moodWellness.color === 'orange' ? 'text-orange-600'
+                              : suggestions.moodWellness.color === 'rose' ? 'text-rose-600'
+                              : suggestions.moodWellness.color === 'purple' ? 'text-purple-600'
+                              : suggestions.moodWellness.color === 'blue' ? 'text-blue-600'
+                              : 'text-cyan-600'
+                        }`} size={24} />
+                        <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                          🎭 Mood: {suggestions.moodWellness.title}
+                        </h3>
+                      </div>
+                      <p className={`text-sm mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {suggestions.moodWellness.message}
                       </p>
+
+                      {/* Mood Activities */}
+                      {suggestions.moodWellness.activities && suggestions.moodWellness.activities.length > 0 && (
+                        <div className="mb-4">
+                          <h4 className={`text-xs font-bold mb-2 uppercase tracking-wide ${
+                            darkMode ? 'text-gray-400' : 'text-gray-600'
+                          }`}>
+                            Wellness Activities
+                          </h4>
+                          <div className="space-y-2">
+                            {suggestions.moodWellness.activities.map((activity, idx) => (
+                              <div
+                                key={idx}
+                                className={`p-3 rounded-lg text-sm ${
+                                  darkMode
+                                    ? 'bg-white/10 border border-white/20 text-gray-200'
+                                    : 'bg-white/60 border border-white/40 text-gray-800'
+                                }`}
+                              >
+                                ✨ {activity}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Mood Snacks */}
+                      {suggestions.moodWellness.snacks && suggestions.moodWellness.snacks.length > 0 && (
+                        <div>
+                          <h4 className={`text-xs font-bold mb-2 uppercase tracking-wide ${
+                            darkMode ? 'text-gray-400' : 'text-gray-600'
+                          }`}>
+                            Mood-Boosting Nutrition
+                          </h4>
+                          <div className="grid grid-cols-1 gap-2">
+                            {suggestions.moodWellness.snacks.map((snack, idx) => (
+                              <div
+                                key={idx}
+                                className={`p-2 rounded-lg text-xs ${
+                                  darkMode
+                                    ? 'bg-white/5 border border-white/10 text-gray-300'
+                                    : 'bg-white/40 border border-white/30 text-gray-700'
+                                }`}
+                              >
+                                🍽️ {snack}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Supplement suggestion if available */}
+                      {suggestions.moodWellness.supplement && (
+                        <div className={`mt-4 p-3 rounded-lg ${
+                          darkMode
+                            ? 'bg-purple-500/20 border border-purple-500/40'
+                            : 'bg-purple-100 border border-purple-300'
+                        }`}>
+                          <p className={`text-xs ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+                            💊 {suggestions.moodWellness.supplement}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1340,7 +1849,7 @@ const DualTrackOS = () => {
               </h3>
               <div className="space-y-3">
                 <NDMItem icon="🥗" label="Protein Breakfast" completed={ndm.nutrition} onClick={() => setCurrentView('food')} />
-                <NDMItem icon="⚡" label="HIIT Burst" completed={ndm.movement} onClick={() => setCurrentView('movement')} />
+                <NDMItem icon="⚡" label="HIIT Burst" completed={ndm.movement} onClick={() => setCurrentView('exercise')} />
                 <NDMItem icon="🧘" label="Mindful Moment" completed={ndm.mindfulness} onClick={openMindfulMoment} />
                 <NDMItem icon="🧠" label="Brain Dump" completed={ndm.brainDump} onClick={openBrainDump} />
               </div>
