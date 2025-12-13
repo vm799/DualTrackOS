@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, AlertTriangle, Download, Trash2, Settings } from 'lucide-react';
+import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, AlertTriangle, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff } from 'lucide-react';
 
 const DualTrackOS = () => {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -27,6 +27,20 @@ const DualTrackOS = () => {
   const [isWorkoutRunning, setIsWorkoutRunning] = useState(false);
   const [weeklyData] = useState({ ndmStreak: 6, avgEnergy: 7.2, avgSleep: 7.1, workoutCount: 5, corporateWins: 12, consultancyWins: 8 });
 
+  // Daily Planning State
+  const [gratitude, setGratitude] = useState(['', '', '']);
+  const [mantras, setMantras] = useState(['', '', '']);
+  const [hourlyTasks, setHourlyTasks] = useState(() => {
+    const tasks = {};
+    for (let hour = 5; hour <= 22; hour++) {
+      tasks[hour] = [];
+    }
+    return tasks;
+  });
+  const [foodDiary, setFoodDiary] = useState([]);
+  const [learningLibrary, setLearningLibrary] = useState([]);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
   useEffect(() => {
     const saved = localStorage.getItem('dualtrack-data');
     if (saved) {
@@ -38,13 +52,22 @@ const DualTrackOS = () => {
         if (data.workouts) setWorkouts(data.workouts);
         if (data.proteinToday) setProteinToday(data.proteinToday);
         if (data.darkMode !== undefined) setDarkMode(data.darkMode);
+        if (data.gratitude) setGratitude(data.gratitude);
+        if (data.mantras) setMantras(data.mantras);
+        if (data.hourlyTasks) setHourlyTasks(data.hourlyTasks);
+        if (data.foodDiary) setFoodDiary(data.foodDiary);
+        if (data.learningLibrary) setLearningLibrary(data.learningLibrary);
+        if (data.notificationsEnabled !== undefined) setNotificationsEnabled(data.notificationsEnabled);
       } catch (e) { console.error(e); }
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('dualtrack-data', JSON.stringify({ ndm, careers, meals, workouts, proteinToday, darkMode }));
-  }, [ndm, careers, meals, workouts, proteinToday, darkMode]);
+    localStorage.setItem('dualtrack-data', JSON.stringify({
+      ndm, careers, meals, workouts, proteinToday, darkMode,
+      gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled
+    }));
+  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled]);
 
   useEffect(() => {
     let score = 0;
@@ -102,6 +125,83 @@ const DualTrackOS = () => {
       setProteinToday(0);
       alert('✅ All data cleared!');
     }
+  };
+
+  // Daily Planning Functions
+  const updateGratitude = (index, value) => {
+    const newGratitude = [...gratitude];
+    newGratitude[index] = value;
+    setGratitude(newGratitude);
+  };
+
+  const updateMantra = (index, value) => {
+    const newMantras = [...mantras];
+    newMantras[index] = value;
+    setMantras(newMantras);
+  };
+
+  const addHourlyTask = (hour, taskText) => {
+    if (!taskText.trim()) return;
+    const newTasks = { ...hourlyTasks };
+    newTasks[hour] = [...(newTasks[hour] || []), { id: Date.now(), text: taskText, completed: false, type: 'task' }];
+    setHourlyTasks(newTasks);
+  };
+
+  const toggleHourlyTask = (hour, taskId) => {
+    const newTasks = { ...hourlyTasks };
+    newTasks[hour] = newTasks[hour].map(task =>
+      task.id === taskId ? { ...task, completed: !task.completed } : task
+    );
+    setHourlyTasks(newTasks);
+  };
+
+  const deleteHourlyTask = (hour, taskId) => {
+    const newTasks = { ...hourlyTasks };
+    newTasks[hour] = newTasks[hour].filter(task => task.id !== taskId);
+    setHourlyTasks(newTasks);
+  };
+
+  const addFoodDiaryEntry = (imageData, description, calories) => {
+    setFoodDiary(prev => [...prev, {
+      id: Date.now(),
+      image: imageData,
+      description,
+      calories: calories || 0,
+      time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+    }]);
+  };
+
+  const addLearningItem = (url, title, type, notes) => {
+    setLearningLibrary(prev => [...prev, {
+      id: Date.now(),
+      url,
+      title,
+      type, // 'book', 'article', 'youtube', 'instagram'
+      notes: notes || '',
+      actionItems: [],
+      dateAdded: new Date().toLocaleDateString()
+    }]);
+  };
+
+  const addActionItemToLearning = (learningId, actionText) => {
+    setLearningLibrary(prev => prev.map(item =>
+      item.id === learningId
+        ? { ...item, actionItems: [...item.actionItems, { id: Date.now(), text: actionText, done: false }] }
+        : item
+    ));
+  };
+
+  const requestNotificationPermission = async () => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      const permission = await Notification.requestPermission();
+      setNotificationsEnabled(permission === 'granted');
+    }
+  };
+
+  const formatHour = (hour) => {
+    const suffix = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+    return `${displayHour}${suffix}`;
   };
 
   // Geometric Background Pattern Component
@@ -545,6 +645,113 @@ const DualTrackOS = () => {
                 <QuickMealButton emoji="🐟" name="Salmon + Veggies" protein={40} onClick={addMeal} />
               </div>
             </div>
+
+            {/* Food Diary with Images */}
+            <div className={`rounded-xl p-6 transition-all duration-300 ${
+              darkMode
+                ? 'bg-gray-800/50 border-2 border-gray-700/50 shadow-lg backdrop-blur-sm'
+                : 'bg-white border-2 border-gray-100 shadow-md'
+            }`}>
+              <h3 className={`font-bold mb-4 flex items-center ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                <Camera className={`mr-2 ${darkMode ? 'text-blue-400' : 'text-blue-500'}`} size={20} />
+                Food Diary (with Photos)
+              </h3>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const form = e.target;
+                const file = form.image.files[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    addFoodDiaryEntry(
+                      reader.result,
+                      form.description.value,
+                      parseInt(form.calories.value) || 0
+                    );
+                    form.reset();
+                  };
+                  reader.readAsDataURL(file);
+                } else {
+                  addFoodDiaryEntry(
+                    null,
+                    form.description.value,
+                    parseInt(form.calories.value) || 0
+                  );
+                  form.reset();
+                }
+              }} className="space-y-3">
+                <input
+                  type="file"
+                  name="image"
+                  accept="image/*"
+                  capture="environment"
+                  className={`w-full px-4 py-3 rounded-lg transition-all ${
+                    darkMode
+                      ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-500 file:text-white file:cursor-pointer'
+                      : 'bg-gray-50 border-2 border-gray-200 text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-500 file:text-white file:cursor-pointer'
+                  }`}
+                />
+                <input
+                  name="description"
+                  type="text"
+                  placeholder="What did you eat?"
+                  required
+                  className={`w-full px-4 py-3 rounded-lg transition-all ${
+                    darkMode
+                      ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-emerald-500/50'
+                      : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-emerald-500'
+                  }`}
+                />
+                <input
+                  name="calories"
+                  type="number"
+                  placeholder="Calories (approx)"
+                  className={`w-full px-4 py-3 rounded-lg transition-all ${
+                    darkMode
+                      ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-emerald-500/50'
+                      : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-emerald-500'
+                  }`}
+                />
+                <button
+                  type="submit"
+                  className={`w-full py-3 rounded-lg font-medium transition-all ${
+                    darkMode
+                      ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-2 border-emerald-500/30'
+                      : 'bg-green-50 hover:bg-green-100 text-green-700 border-2 border-green-200'
+                  }`}
+                >
+                  Add to Diary
+                </button>
+              </form>
+
+              {/* Food Diary Entries */}
+              {foodDiary.length > 0 && (
+                <div className="mt-6 space-y-3">
+                  <h4 className={`font-semibold text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Today's Diary</h4>
+                  {foodDiary.slice(-5).reverse().map(entry => (
+                    <div key={entry.id} className={`rounded-lg p-3 ${
+                      darkMode ? 'bg-gray-900/50 border border-gray-700' : 'bg-gray-50 border border-gray-200'
+                    }`}>
+                      {entry.image && (
+                        <img src={entry.image} alt={entry.description} className="w-full h-32 object-cover rounded-lg mb-2" />
+                      )}
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className={`font-medium ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>{entry.description}</p>
+                          <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>{entry.time}</p>
+                        </div>
+                        {entry.calories > 0 && (
+                          <span className={`text-sm font-bold ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}>
+                            {entry.calories} cal
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {meals.length > 0 && (
               <div className={`rounded-xl p-6 transition-all duration-300 ${
                 darkMode
@@ -652,19 +859,399 @@ const DualTrackOS = () => {
             </div>
           </div>
         )}
+
+        {currentView === 'plan' && (
+          <div className="space-y-4 pb-24 relative z-10">
+            {/* Morning Ritual */}
+            <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
+              darkMode
+                ? 'bg-gradient-to-r from-amber-900/50 via-orange-900/50 to-amber-900/50 border-2 border-amber-500/30 backdrop-blur-xl'
+                : 'bg-gradient-to-r from-amber-500 to-orange-500'
+            }`}>
+              <h2 className={`text-2xl font-bold mb-2 flex items-center ${darkMode ? 'text-white' : 'text-white'}`}>
+                <Sparkles className="mr-2" size={24} />
+                Morning Ritual
+              </h2>
+              <p className={`text-sm ${darkMode ? 'text-amber-300' : 'text-white opacity-90'}`}>Start your day with intention</p>
+            </div>
+
+            {/* 3 Gratitudes */}
+            <div className={`rounded-xl p-6 transition-all duration-300 ${
+              darkMode
+                ? 'bg-gray-800/50 border-2 border-gray-700/50 shadow-lg backdrop-blur-sm'
+                : 'bg-white border-2 border-gray-100 shadow-md'
+            }`}>
+              <h3 className={`font-bold mb-4 flex items-center ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                <Sparkles className={`mr-2 ${darkMode ? 'text-yellow-400' : 'text-yellow-500'}`} size={20} />
+                3 Gratitudes Today
+              </h3>
+              <div className="space-y-3">
+                {gratitude.map((item, idx) => (
+                  <input
+                    key={idx}
+                    type="text"
+                    value={item}
+                    onChange={(e) => updateGratitude(idx, e.target.value)}
+                    placeholder={`Gratitude #${idx + 1}...`}
+                    className={`w-full px-4 py-3 rounded-lg transition-all ${
+                      darkMode
+                        ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-yellow-500/50'
+                        : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-yellow-500'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* 3 Mantras/Reminders */}
+            <div className={`rounded-xl p-6 transition-all duration-300 ${
+              darkMode
+                ? 'bg-gray-800/50 border-2 border-gray-700/50 shadow-lg backdrop-blur-sm'
+                : 'bg-white border-2 border-gray-100 shadow-md'
+            }`}>
+              <h3 className={`font-bold mb-4 flex items-center ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                <Lightbulb className={`mr-2 ${darkMode ? 'text-purple-400' : 'text-purple-500'}`} size={20} />
+                3 Reminders (When I Fall)
+              </h3>
+              <div className="space-y-3">
+                {mantras.map((item, idx) => (
+                  <input
+                    key={idx}
+                    type="text"
+                    value={item}
+                    onChange={(e) => updateMantra(idx, e.target.value)}
+                    placeholder={`Reminder #${idx + 1}...`}
+                    className={`w-full px-4 py-3 rounded-lg transition-all ${
+                      darkMode
+                        ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
+                        : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Hourly Planner */}
+            <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
+              darkMode
+                ? 'bg-gradient-to-r from-blue-900/50 via-cyan-900/50 to-blue-900/50 border-2 border-blue-500/30 backdrop-blur-xl'
+                : 'bg-gradient-to-r from-blue-500 to-cyan-500'
+            }`}>
+              <h2 className={`text-2xl font-bold mb-2 flex items-center ${darkMode ? 'text-white' : 'text-white'}`}>
+                <Calendar className="mr-2" size={24} />
+                Today's Schedule
+              </h2>
+              <p className={`text-sm ${darkMode ? 'text-blue-300' : 'text-white opacity-90'}`}>5AM - 10PM Hourly Planner</p>
+            </div>
+
+            {/* Hourly Time Blocks */}
+            <div className="space-y-3">
+              {Object.keys(hourlyTasks).sort((a, b) => Number(a) - Number(b)).map(hour => {
+                const hourNum = Number(hour);
+                const currentHour = new Date().getHours();
+                const isCurrentHour = hourNum === currentHour;
+                const tasks = hourlyTasks[hour] || [];
+
+                return (
+                  <div key={hour} className={`rounded-xl p-4 transition-all duration-300 ${
+                    darkMode
+                      ? isCurrentHour
+                        ? 'bg-blue-500/20 border-2 border-blue-500/50 shadow-lg shadow-blue-500/20'
+                        : 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-sm'
+                      : isCurrentHour
+                        ? 'bg-blue-50 border-2 border-blue-500'
+                        : 'bg-white border-2 border-gray-100 shadow-md'
+                  }`}>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-2">
+                        <Clock className={darkMode ? (isCurrentHour ? 'text-blue-400' : 'text-gray-400') : (isCurrentHour ? 'text-blue-600' : 'text-gray-600')} size={20} />
+                        <span className={`font-bold ${darkMode ? (isCurrentHour ? 'text-blue-300' : 'text-gray-300') : (isCurrentHour ? 'text-blue-700' : 'text-gray-700')}`}>
+                          {formatHour(hourNum)}
+                        </span>
+                        {isCurrentHour && (
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            darkMode ? 'bg-blue-500/30 text-blue-300' : 'bg-blue-200 text-blue-700'
+                          }`}>
+                            NOW
+                          </span>
+                        )}
+                      </div>
+                      <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                        {tasks.length} task{tasks.length !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+
+                    {/* Tasks for this hour */}
+                    <div className="space-y-2 mb-3">
+                      {tasks.map(task => (
+                        <div key={task.id} className={`flex items-center justify-between p-2 rounded-lg ${
+                          darkMode
+                            ? task.completed
+                              ? 'bg-emerald-500/10 border border-emerald-500/30'
+                              : 'bg-gray-900/30 border border-gray-700'
+                            : task.completed
+                              ? 'bg-green-50 border border-green-200'
+                              : 'bg-gray-50 border border-gray-200'
+                        }`}>
+                          <div className="flex items-center space-x-2 flex-1">
+                            <button
+                              onClick={() => toggleHourlyTask(hour, task.id)}
+                              className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${
+                                darkMode
+                                  ? task.completed
+                                    ? 'bg-emerald-500 shadow-lg shadow-emerald-500/50'
+                                    : 'bg-gray-700 hover:bg-gray-600'
+                                  : task.completed
+                                    ? 'bg-green-500'
+                                    : 'bg-gray-300 hover:bg-gray-400'
+                              }`}
+                            >
+                              {task.completed && <Check className="text-white" size={12} />}
+                            </button>
+                            <span className={`text-sm ${
+                              darkMode
+                                ? task.completed
+                                  ? 'text-emerald-300 line-through'
+                                  : 'text-gray-300'
+                                : task.completed
+                                  ? 'text-green-700 line-through'
+                                  : 'text-gray-900'
+                            }`}>
+                              {task.text}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => deleteHourlyTask(hour, task.id)}
+                            className={`ml-2 ${darkMode ? 'text-gray-600 hover:text-red-400' : 'text-gray-400 hover:text-red-600'}`}
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add task input */}
+                    <form onSubmit={(e) => {
+                      e.preventDefault();
+                      const input = e.target.elements.taskInput;
+                      addHourlyTask(hour, input.value);
+                      input.value = '';
+                    }}>
+                      <input
+                        name="taskInput"
+                        type="text"
+                        placeholder="+ Add task..."
+                        className={`w-full px-3 py-2 text-sm rounded-lg transition-all ${
+                          darkMode
+                            ? 'bg-gray-900/50 border border-gray-700 text-gray-200 placeholder-gray-500 focus:border-blue-500/50'
+                            : 'bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-500'
+                        }`}
+                      />
+                    </form>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Notifications Toggle */}
+            <div className={`rounded-xl p-6 transition-all duration-300 ${
+              darkMode
+                ? 'bg-gray-800/50 border-2 border-gray-700/50 shadow-lg backdrop-blur-sm'
+                : 'bg-white border-2 border-gray-100 shadow-md'
+            }`}>
+              <button
+                onClick={requestNotificationPermission}
+                className={`w-full py-3 rounded-lg font-medium flex items-center justify-between px-4 transition-all ${
+                  darkMode
+                    ? notificationsEnabled
+                      ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-2 border-emerald-500/30'
+                      : 'bg-gray-700/50 hover:bg-gray-700 text-gray-400 border-2 border-gray-700'
+                    : notificationsEnabled
+                      ? 'bg-green-50 hover:bg-green-100 text-green-700 border-2 border-green-200'
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border-2 border-gray-300'
+                }`}
+              >
+                <span className="flex items-center space-x-2">
+                  {notificationsEnabled ? <Bell size={20} /> : <BellOff size={20} />}
+                  <span>{notificationsEnabled ? 'Reminders Enabled' : 'Enable Task Reminders'}</span>
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {currentView === 'library' && (
+          <div className="space-y-4 pb-24 relative z-10">
+            <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
+              darkMode
+                ? 'bg-gradient-to-r from-violet-900/50 via-purple-900/50 to-violet-900/50 border-2 border-violet-500/30 backdrop-blur-xl'
+                : 'bg-gradient-to-r from-violet-600 to-purple-600'
+            }`}>
+              <h2 className={`text-2xl font-bold mb-2 flex items-center ${darkMode ? 'text-white' : 'text-white'}`}>
+                <BookOpen className="mr-2" size={24} />
+                Learning Library
+              </h2>
+              <p className={`text-sm ${darkMode ? 'text-violet-300' : 'text-white opacity-90'}`}>Track what you consume, extract what matters</p>
+            </div>
+
+            {/* Add New Content */}
+            <div className={`rounded-xl p-6 transition-all duration-300 ${
+              darkMode
+                ? 'bg-gray-800/50 border-2 border-gray-700/50 shadow-lg backdrop-blur-sm'
+                : 'bg-white border-2 border-gray-100 shadow-md'
+            }`}>
+              <h3 className={`font-bold mb-4 flex items-center ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                <Plus className={`mr-2 ${darkMode ? 'text-purple-400' : 'text-purple-500'}`} size={20} />
+                Add Content
+              </h3>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const form = e.target;
+                addLearningItem(
+                  form.url.value,
+                  form.title.value,
+                  form.type.value,
+                  form.notes.value
+                );
+                form.reset();
+              }} className="space-y-3">
+                <input
+                  name="url"
+                  type="url"
+                  placeholder="URL (YouTube, Instagram, article, etc.)"
+                  required
+                  className={`w-full px-4 py-3 rounded-lg transition-all ${
+                    darkMode
+                      ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
+                      : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
+                  }`}
+                />
+                <input
+                  name="title"
+                  type="text"
+                  placeholder="Title"
+                  required
+                  className={`w-full px-4 py-3 rounded-lg transition-all ${
+                    darkMode
+                      ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
+                      : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
+                  }`}
+                />
+                <select
+                  name="type"
+                  className={`w-full px-4 py-3 rounded-lg transition-all ${
+                    darkMode
+                      ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 focus:border-purple-500/50'
+                      : 'bg-gray-50 border-2 border-gray-200 text-gray-900 focus:border-purple-500'
+                  }`}
+                >
+                  <option value="article">Article</option>
+                  <option value="youtube">YouTube</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="book">Book</option>
+                </select>
+                <textarea
+                  name="notes"
+                  placeholder="Notes/Summary..."
+                  rows="3"
+                  className={`w-full px-4 py-3 rounded-lg transition-all ${
+                    darkMode
+                      ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
+                      : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
+                  }`}
+                />
+                <button
+                  type="submit"
+                  className={`w-full py-3 rounded-lg font-medium transition-all ${
+                    darkMode
+                      ? 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border-2 border-purple-500/30'
+                      : 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-2 border-purple-200'
+                  }`}
+                >
+                  Save to Library
+                </button>
+              </form>
+            </div>
+
+            {/* Library Items */}
+            <div className="space-y-3">
+              {learningLibrary.map(item => (
+                <div key={item.id} className={`rounded-xl p-4 transition-all duration-300 ${
+                  darkMode
+                    ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-sm'
+                    : 'bg-white border-2 border-gray-100 shadow-md'
+                }`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start space-x-3 flex-1">
+                      {item.type === 'youtube' && <Youtube className={darkMode ? 'text-red-400' : 'text-red-600'} size={20} />}
+                      {item.type === 'book' && <BookOpen className={darkMode ? 'text-blue-400' : 'text-blue-600'} size={20} />}
+                      {item.type === 'article' && <BookOpen className={darkMode ? 'text-green-400' : 'text-green-600'} size={20} />}
+                      {item.type === 'instagram' && <Camera className={darkMode ? 'text-pink-400' : 'text-pink-600'} size={20} />}
+                      <div className="flex-1">
+                        <h4 className={`font-bold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>{item.title}</h4>
+                        <a href={item.url} target="_blank" rel="noopener noreferrer" className={`text-xs ${darkMode ? 'text-blue-400' : 'text-blue-600'} hover:underline`}>
+                          {item.url}
+                        </a>
+                        {item.notes && (
+                          <p className={`text-sm mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{item.notes}</p>
+                        )}
+                        <p className={`text-xs mt-1 ${darkMode ? 'text-gray-600' : 'text-gray-500'}`}>Added: {item.dateAdded}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Items */}
+                  {item.actionItems.length > 0 && (
+                    <div className="mt-3 space-y-1">
+                      {item.actionItems.map(action => (
+                        <div key={action.id} className={`text-sm flex items-center space-x-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          <span className={darkMode ? 'text-purple-400' : 'text-purple-600'}>→</span>
+                          <span>{action.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Add Action Item */}
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const input = e.target.elements.actionInput;
+                    if (input.value.trim()) {
+                      addActionItemToLearning(item.id, input.value);
+                      input.value = '';
+                    }
+                  }} className="mt-3">
+                    <input
+                      name="actionInput"
+                      type="text"
+                      placeholder="+ Add action item..."
+                      className={`w-full px-3 py-2 text-sm rounded-lg transition-all ${
+                        darkMode
+                          ? 'bg-gray-900/50 border border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
+                          : 'bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
+                      }`}
+                    />
+                  </form>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-      
+
       <div className={`fixed bottom-0 left-0 right-0 z-20 backdrop-blur-xl transition-all duration-300 ${
         darkMode
           ? 'bg-gray-900/80 border-t border-gray-800/50 shadow-xl shadow-purple-500/5'
           : 'bg-white/80 border-t border-gray-200/50 shadow-lg'
       }`}>
         <div className="max-w-2xl mx-auto px-2 py-2">
-          <div className="flex justify-around">
-            <NavButton icon={<Brain size={20} />} label="Home" active={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
-            <NavButton icon={<Zap size={20} />} label="Exercise" active={currentView === 'exercise'} onClick={() => setCurrentView('exercise')} />
-            <NavButton icon={<Utensils size={20} />} label="Food" active={currentView === 'food'} onClick={() => setCurrentView('food')} />
-            <NavButton icon={<BarChart3 size={20} />} label="Insights" active={currentView === 'insights'} onClick={() => setCurrentView('insights')} />
+          <div className="grid grid-cols-6 gap-1">
+            <NavButton icon={<Brain size={18} />} label="Home" active={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
+            <NavButton icon={<Calendar size={18} />} label="Plan" active={currentView === 'plan'} onClick={() => setCurrentView('plan')} />
+            <NavButton icon={<Zap size={18} />} label="Exercise" active={currentView === 'exercise'} onClick={() => setCurrentView('exercise')} />
+            <NavButton icon={<Utensils size={18} />} label="Food" active={currentView === 'food'} onClick={() => setCurrentView('food')} />
+            <NavButton icon={<BookOpen size={18} />} label="Library" active={currentView === 'library'} onClick={() => setCurrentView('library')} />
+            <NavButton icon={<BarChart3 size={18} />} label="Insights" active={currentView === 'insights'} onClick={() => setCurrentView('insights')} />
           </div>
         </div>
       </div>
