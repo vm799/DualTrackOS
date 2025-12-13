@@ -8,9 +8,32 @@ const DualTrackOS = () => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [dailyScore, setDailyScore] = useState(0);
   const [streak] = useState(0); // No mock data
-  const [energyLevel] = useState(0); // No mock data
   const [isRecording, setIsRecording] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
+
+  // User Profile (for personalization)
+  const [userProfile, setUserProfile] = useState({
+    name: '',
+    preferredName: '',
+    age: null,
+    weight: null, // in lbs, for protein calculation
+    avatar: '👩‍💼',
+    hasCompletedOnboarding: false,
+    disclaimerAccepted: false
+  });
+
+  // Energy tracking (3x per day)
+  const [energyTracking, setEnergyTracking] = useState({
+    morning: null,    // 1-5
+    afternoon: null,  // 1-5
+    evening: null     // 1-5
+  });
+
+  // Mood tracking
+  const [currentMood, setCurrentMood] = useState(null); // 'energized', 'focused', 'calm', 'tired', 'anxious', 'overwhelmed'
+
+  // Detail view (which tile is expanded)
+  const [expandedTile, setExpandedTile] = useState(null);
 
   // Real-time clock state
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -87,6 +110,9 @@ const DualTrackOS = () => {
             if (userData.notificationsEnabled !== undefined) setNotificationsEnabled(userData.notificationsEnabled);
             if (userData.careerSections) setCareerSections(userData.careerSections);
             if (userData.voiceDiary) setVoiceDiary(userData.voiceDiary);
+            if (userData.userProfile) setUserProfile(userData.userProfile);
+            if (userData.energyTracking) setEnergyTracking(userData.energyTracking);
+            if (userData.currentMood) setCurrentMood(userData.currentMood);
           }
         }
 
@@ -116,6 +142,9 @@ const DualTrackOS = () => {
             if (data.notificationsEnabled !== undefined) setNotificationsEnabled(data.notificationsEnabled);
             if (data.careerSections) setCareerSections(data.careerSections);
             if (data.voiceDiary) setVoiceDiary(data.voiceDiary);
+            if (data.userProfile) setUserProfile(data.userProfile);
+            if (data.energyTracking) setEnergyTracking(data.energyTracking);
+            if (data.currentMood) setCurrentMood(data.currentMood);
           } catch (e) { console.error(e); }
         }
       }
@@ -129,7 +158,7 @@ const DualTrackOS = () => {
     const dataToSave = {
       ndm, careers, meals, workouts, proteinToday, darkMode,
       gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled,
-      careerSections, voiceDiary
+      careerSections, voiceDiary, userProfile, energyTracking, currentMood
     };
 
     // Always save to localStorage as backup
@@ -139,7 +168,7 @@ const DualTrackOS = () => {
     if (user && isSupabaseConfigured()) {
       saveUserData(user.id, dataToSave);
     }
-  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled, careerSections, voiceDiary, user]);
+  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled, careerSections, voiceDiary, userProfile, energyTracking, currentMood, user]);
 
   // Real-time clock update every second
   useEffect(() => {
