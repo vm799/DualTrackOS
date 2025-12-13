@@ -6,6 +6,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
   const [profile, setProfile] = useState({
     name: '',
     preferredName: '',
+    initials: '',
     age: '',
     weight: '',
     avatar: '🥚' // Everyone starts with an egg that hatches as they practice balance
@@ -226,6 +227,29 @@ const Onboarding = ({ onComplete, darkMode }) => {
             />
             <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
               This is how the app will address you in messages
+            </p>
+          </div>
+
+          {/* Initials */}
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              <User size={16} className="inline mr-2" />
+              Your Initials
+            </label>
+            <input
+              type="text"
+              value={profile.initials}
+              onChange={(e) => setProfile({ ...profile, initials: e.target.value.toUpperCase().slice(0, 3) })}
+              placeholder="e.g., SJ or ABC"
+              maxLength="3"
+              className={`w-full px-4 py-3 rounded-lg transition-all text-center text-2xl font-bold tracking-wider ${
+                darkMode
+                  ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
+                  : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
+              }`}
+            />
+            <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+              Will be displayed in the header (2-3 letters max)
             </p>
           </div>
 

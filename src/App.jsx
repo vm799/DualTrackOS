@@ -21,6 +21,7 @@ const DualTrackOS = () => {
   const [userProfile, setUserProfile] = useState({
     name: '',
     preferredName: '',
+    initials: '',
     age: null,
     weight: null, // in lbs, for protein calculation
     avatar: '🥚', // Everyone starts with an egg that grows into a Kitsune
@@ -1121,7 +1122,7 @@ const DualTrackOS = () => {
           : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
         <div className="max-w-4xl mx-auto px-4 py-6">
-          {/* Top Row: Greeting + Settings + Score */}
+          {/* Top Row: Spirit Animal + User Info + Time/Date + Settings */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               {/* Spirit Animal - Gamified Display */}
@@ -1131,23 +1132,49 @@ const DualTrackOS = () => {
                 onClick={() => setShowSpiritAnimalModal(true)}
                 getSpiritAnimalStage={getSpiritAnimalStage}
               />
-              <div>
-                <h2 className={`text-lg font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                  {userProfile.preferredName || userProfile.name || 'there'}
-                </h2>
-                <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                  {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {currentTime.toLocaleDateString('en-US', { weekday: 'short' })}
-                </p>
+
+              {/* User Initials + Animal Info */}
+              <div className="flex items-center space-x-3">
+                {/* User Initials Circle */}
+                {userProfile.initials && (
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg border-2 ${
+                    darkMode
+                      ? 'bg-purple-900/30 border-purple-500/50 text-purple-300'
+                      : 'bg-purple-100 border-purple-300 text-purple-700'
+                  }`}>
+                    {userProfile.initials}
+                  </div>
+                )}
+
+                {/* Name + Animal Stage */}
+                <div>
+                  <h2 className={`text-lg font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                    {userProfile.preferredName || userProfile.name || 'there'}
+                  </h2>
+                  <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                    {getSpiritAnimalStage(spiritAnimalScore).name} • {getSpiritAnimalStage(spiritAnimalScore).romanji}
+                  </p>
+                </div>
               </div>
             </div>
+
             <div className="flex items-center space-x-3">
-              {/* Time Display (Top Right) */}
-              <div className={`font-mono font-semibold ${
+              {/* Time & Date Card */}
+              <div className={`px-4 py-2 rounded-xl border-2 ${
                 darkMode
-                  ? 'text-2xl bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
-                  : 'text-2xl text-gray-900'
+                  ? 'bg-gray-800/50 border-gray-700/50'
+                  : 'bg-white border-gray-200'
               }`}>
-                {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                <div className={`font-mono font-bold text-xl ${
+                  darkMode
+                    ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+                    : 'text-gray-900'
+                }`}>
+                  {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                </div>
+                <div className={`text-xs text-center mt-0.5 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                  {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {currentTime.toLocaleDateString('en-US', { weekday: 'short' })}
+                </div>
               </div>
 
               {/* Google Auth Button */}
