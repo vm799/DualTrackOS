@@ -8,10 +8,12 @@ const Onboarding = ({ onComplete, darkMode }) => {
     preferredName: '',
     age: '',
     weight: '',
-    avatar: '🐉'
+    avatar: '🥚' // Everyone starts with an egg that hatches as they practice balance
   });
 
-  const avatarOptions = ['🐉', '🔥', '⚡', '🌙', '✨', '🏔️', '🌊', '🌸', '🦋', '⭐', '💎', '🌿'];
+  // Note: Avatar will evolve automatically based on your balance score
+  // No need to choose - your spirit animal will grow with you!
+  const avatarOptions = ['🥚']; // Starting point for everyone
 
   const handleComplete = () => {
     onComplete({
@@ -158,30 +160,34 @@ const Onboarding = ({ onComplete, darkMode }) => {
         </div>
 
         <div className="space-y-6">
-          {/* Avatar Selection */}
-          <div>
-            <label className={`block text-sm font-medium mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              Choose Your Avatar
-            </label>
-            <div className="grid grid-cols-6 gap-3">
-              {avatarOptions.map((emoji) => (
-                <button
-                  key={emoji}
-                  onClick={() => setProfile({ ...profile, avatar: emoji })}
-                  className={`text-4xl p-3 rounded-xl transition-all ${
-                    profile.avatar === emoji
-                      ? darkMode
-                        ? 'bg-purple-500/20 border-2 border-purple-500/50 scale-110'
-                        : 'bg-purple-100 border-2 border-purple-500 scale-110'
-                      : darkMode
-                        ? 'bg-gray-700/30 border-2 border-gray-700/50 hover:bg-gray-700/50'
-                        : 'bg-gray-100 border-2 border-gray-200 hover:bg-gray-200'
-                  }`}
-                >
-                  {emoji}
-                </button>
-              ))}
+          {/* Spirit Animal Introduction */}
+          <div className={`p-6 rounded-2xl ${
+            darkMode
+              ? 'bg-gradient-to-r from-purple-900/30 to-pink-900/30 border-2 border-purple-500/30'
+              : 'bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200'
+          }`}>
+            <div className="text-center mb-4">
+              <div className="text-6xl mb-3">🥚✨</div>
+              <h3 className={`font-bold text-lg mb-2 ${
+                darkMode
+                  ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+                  : 'text-purple-700'
+              }`}>
+                Your Spirit Animal Awaits
+              </h3>
             </div>
+            <p className={`text-sm text-center leading-relaxed ${
+              darkMode ? 'text-gray-300' : 'text-gray-700'
+            }`}>
+              Everyone begins with an <span className="font-semibold">egg</span> that will hatch and grow into a
+              mystical <span className="font-semibold">Kitsune (fox spirit)</span> as you practice balance and self-care.
+              Your spirit animal evolves based on how well you honor your energy, emotions, and body.
+            </p>
+            <p className={`text-xs text-center mt-3 italic ${
+              darkMode ? 'text-gray-500' : 'text-gray-600'
+            }`}>
+              🥚 → 🐣 → 🦊 → ✨🦊 → 🌟🦊✨
+            </p>
           </div>
 
           {/* Name */}
