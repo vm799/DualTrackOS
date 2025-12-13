@@ -1,6 +1,6 @@
 # DualTrack OS
 
-**The operating system for perimenopausal women running dual careers without burning out.**
+**The operating system for women running multiple careers without burning out.**
 
 ## 🎯 What It Does
 
@@ -169,7 +169,7 @@ dualtrack-os/
 ## 💰 Business Model
 
 **Target Market:**
-- Women 40-55, perimenopausal
+- Women 
 - Corporate leaders building side businesses
 - ADHD/neurodivergent high-performers
 - 1.3M women enter perimenopause annually (US)
@@ -190,10 +190,10 @@ Proprietary - All rights reserved
 
 ## ��‍💻 About the Founder
 
-Built by a 50-year-old perimenopausal woman who's:
-- Head of Solution Design at a major financial institution
+Built by a badass woman trying to do it all !! 
+- AI Lead at a leading Asset Management Firm
 - Building an AI automation consultancy
-- Managing ADHD
+- Managing ADHD and slave to hormonal mood and energy changes every day !!
 - Refusing to burn out
 - Living proof the system works
 
