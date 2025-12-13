@@ -1,6 +1,6 @@
 # DualTrack OS
 
-**The operating system for busy professionals running dual careers without burning out.**
+**The operating system for women running multiple careers without burning out.**
 
 ## 🎯 What It Does
 
@@ -170,7 +170,7 @@ dualtrack-os/
 ## 💰 Business Model
 
 **Target Market:**
-- Busy professionals managing dual careers
+- Women 
 - Corporate leaders building side businesses
 - ADHD/neurodivergent high-performers
 - Health-conscious individuals seeking work-life balance
@@ -192,10 +192,10 @@ Proprietary - All rights reserved
 
 ## ��‍💻 About the Founder
 
-Built by a busy professional who's:
-- Head of Solution Design at a major financial institution
+Built by a busy professional who's
+- AI Lead at a major financial institution
 - Building an AI automation consultancy
-- Managing ADHD
+- Managing ADHD and slave to hormonal mood and energy changes every day !!
 - Refusing to burn out
 - Living proof the system works
 
