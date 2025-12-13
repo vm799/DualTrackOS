@@ -5,6 +5,8 @@ import Onboarding from './Onboarding';
 import SpiritAnimalCard from './components/SpiritAnimalCard';
 import NDMStatusBar from './components/NDMStatusBar';
 import SmartSuggestions from './components/SmartSuggestions';
+import EnergyModal from './components/EnergyModal';
+import MoodModal from './components/MoodModal';
 
 const DualTrackOS = () => {
   // Auth state
@@ -45,6 +47,10 @@ const DualTrackOS = () => {
   const [brainDumpText, setBrainDumpText] = useState('');
   const [mindfulTimer, setMindfulTimer] = useState(300); // 5 minutes
   const [mindfulRunning, setMindfulRunning] = useState(false);
+
+  // Energy & Mood Modals
+  const [showEnergyModal, setShowEnergyModal] = useState(false);
+  const [showMoodModal, setShowMoodModal] = useState(false);
 
   // Spirit Animal State (心の成長 - Growth of the Heart)
   const [spiritAnimalScore, setSpiritAnimalScore] = useState(0); // 0-100 balance score
@@ -300,6 +306,14 @@ const DualTrackOS = () => {
     setMeals(p => [...p, { id: Date.now(), name, protein, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }]);
     setProteinToday(p => p + protein);
   };
+
+  // Add food from Energy/Mood modals (simplified - adds to meals without protein tracking)
+  const addFoodFromModal = (foodName) => {
+    setMeals(p => [...p, { id: Date.now(), name: foodName, protein: 0, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }]);
+    // Optional: Mark nutrition NDM as complete
+    setNdm(prev => ({ ...prev, nutrition: true }));
+  };
+
   const startWorkout = (workout) => { setActiveWorkout(workout); setWorkoutTimer(0); setIsWorkoutRunning(true); setCurrentView('workout-active'); };
   const completeWorkout = () => {
     setWorkouts(p => [...p, { id: Date.now(), ...activeWorkout, duration: workoutTimer }]);
@@ -1361,8 +1375,14 @@ const DualTrackOS = () => {
 
             {/* ENERGY & MOOD TRACKING */}
             <div className="grid grid-cols-2 gap-4">
-              {/* Energy Selector */}
-              <div onClick={() => setExpandedTile(expandedTile === 'energy' ? null : 'energy')} className={`rounded-xl p-4 cursor-pointer transition-all duration-300 ${
+              {/* Energy Selector - Click to open modal */}
+              <div onClick={() => {
+                if (getCurrentPeriodEnergy()) {
+                  setShowEnergyModal(true);
+                } else {
+                  setExpandedTile(expandedTile === 'energy' ? null : 'energy');
+                }
+              }} className={`rounded-xl p-4 cursor-pointer transition-all duration-300 ${
                 darkMode
                   ? 'bg-gray-800/50 border-2 border-gray-700/50 hover:border-yellow-500/50 shadow-lg backdrop-blur-sm'
                   : 'bg-white border-2 border-gray-100 hover:border-yellow-400 shadow-md'
@@ -1375,6 +1395,7 @@ const DualTrackOS = () => {
                 </div>
                 <div className={`text-xs uppercase mb-2 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
                   Energy ({getTimeOfDay()})
+                  {getCurrentPeriodEnergy() && <span className="ml-1 text-xs">(Click for tips)</span>}
                 </div>
                 {/* Energy level selector */}
                 <div className="flex justify-between mt-2">
@@ -1405,8 +1426,14 @@ const DualTrackOS = () => {
                 </div>
               </div>
 
-              {/* Mood Selector */}
-              <div onClick={() => setExpandedTile(expandedTile === 'mood' ? null : 'mood')} className={`rounded-xl p-4 cursor-pointer transition-all duration-300 ${
+              {/* Mood Selector - Click to open modal */}
+              <div onClick={() => {
+                if (currentMood) {
+                  setShowMoodModal(true);
+                } else {
+                  setExpandedTile(expandedTile === 'mood' ? null : 'mood');
+                }
+              }} className={`rounded-xl p-4 cursor-pointer transition-all duration-300 ${
                 darkMode
                   ? 'bg-gray-800/50 border-2 border-gray-700/50 hover:border-purple-500/50 shadow-lg backdrop-blur-sm'
                   : 'bg-white border-2 border-gray-100 hover:border-purple-400 shadow-md'
@@ -1424,7 +1451,8 @@ const DualTrackOS = () => {
                   </span>
                 </div>
                 <div className={`text-xs uppercase mb-2 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                  {currentMood || 'Set Mood'}
+                  MOOD {currentMood && `(current: ${currentMood})`}
+                  {currentMood && <div className="text-xs normal-case mt-1">(Click for wellness tips)</div>}
                 </div>
                 {/* Mood selector grid */}
                 {expandedTile === 'mood' && (
@@ -2516,6 +2544,30 @@ const DualTrackOS = () => {
           </div>
         </div>
       </div>
+
+      {/* ENERGY MODAL */}
+      <EnergyModal
+        isOpen={showEnergyModal}
+        onClose={() => setShowEnergyModal(false)}
+        energyLevel={getCurrentPeriodEnergy() || getCurrentEnergy()}
+        suggestions={getSmartSuggestions()}
+        darkMode={darkMode}
+        onAddTask={addHourlyTask}
+        onAddToFoodDiary={addFoodFromModal}
+        currentHour={currentTime.getHours()}
+      />
+
+      {/* MOOD MODAL */}
+      <MoodModal
+        isOpen={showMoodModal}
+        onClose={() => setShowMoodModal(false)}
+        currentMood={currentMood}
+        moodWellness={getSmartSuggestions().moodWellness}
+        darkMode={darkMode}
+        onAddTask={addHourlyTask}
+        onAddToFoodDiary={addFoodFromModal}
+        currentHour={currentTime.getHours()}
+      />
 
       {/* BRAIN DUMP MODAL */}
       {showBrainDumpModal && (
