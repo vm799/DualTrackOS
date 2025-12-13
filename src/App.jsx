@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, AlertTriangle, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff } from 'lucide-react';
+import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, AlertTriangle, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, User } from 'lucide-react';
+import { supabase, isSupabaseConfigured, signInWithGoogle, signOut as supabaseSignOut, saveUserData, loadUserData } from './supabaseClient';
 
 const DualTrackOS = () => {
+  // Auth state
+  const [user, setUser] = useState(null);
   const [currentView, setCurrentView] = useState('dashboard');
   const [dailyScore, setDailyScore] = useState(0);
   const [streak] = useState(0); // No mock data
@@ -57,36 +60,86 @@ const DualTrackOS = () => {
   const [voiceDiary, setVoiceDiary] = useState([]);
   const [recordingStartTime, setRecordingStartTime] = useState(null);
 
+  // Initialize auth and load data
   useEffect(() => {
-    const saved = localStorage.getItem('dualtrack-data');
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        if (data.ndm) setNdm(data.ndm);
-        if (data.careers) setCareers(data.careers);
-        if (data.meals) setMeals(data.meals);
-        if (data.workouts) setWorkouts(data.workouts);
-        if (data.proteinToday) setProteinToday(data.proteinToday);
-        if (data.darkMode !== undefined) setDarkMode(data.darkMode);
-        if (data.gratitude) setGratitude(data.gratitude);
-        if (data.mantras) setMantras(data.mantras);
-        if (data.hourlyTasks) setHourlyTasks(data.hourlyTasks);
-        if (data.foodDiary) setFoodDiary(data.foodDiary);
-        if (data.learningLibrary) setLearningLibrary(data.learningLibrary);
-        if (data.notificationsEnabled !== undefined) setNotificationsEnabled(data.notificationsEnabled);
-        if (data.careerSections) setCareerSections(data.careerSections);
-        if (data.voiceDiary) setVoiceDiary(data.voiceDiary);
-      } catch (e) { console.error(e); }
-    }
+    // Check auth status
+    const initAuth = async () => {
+      if (isSupabaseConfigured() && supabase) {
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
+
+        // If user is logged in, load from Supabase
+        if (session?.user) {
+          const { data: userData } = await loadUserData(session.user.id);
+          if (userData) {
+            // Hydrate state from cloud
+            if (userData.ndm) setNdm(userData.ndm);
+            if (userData.careers) setCareers(userData.careers);
+            if (userData.meals) setMeals(userData.meals);
+            if (userData.workouts) setWorkouts(userData.workouts);
+            if (userData.proteinToday) setProteinToday(userData.proteinToday);
+            if (userData.darkMode !== undefined) setDarkMode(userData.darkMode);
+            if (userData.gratitude) setGratitude(userData.gratitude);
+            if (userData.mantras) setMantras(userData.mantras);
+            if (userData.hourlyTasks) setHourlyTasks(userData.hourlyTasks);
+            if (userData.foodDiary) setFoodDiary(userData.foodDiary);
+            if (userData.learningLibrary) setLearningLibrary(userData.learningLibrary);
+            if (userData.notificationsEnabled !== undefined) setNotificationsEnabled(userData.notificationsEnabled);
+            if (userData.careerSections) setCareerSections(userData.careerSections);
+            if (userData.voiceDiary) setVoiceDiary(userData.voiceDiary);
+          }
+        }
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+          setUser(session?.user ?? null);
+        });
+
+        return () => subscription.unsubscribe();
+      } else {
+        // No Supabase, load from localStorage
+        const saved = localStorage.getItem('dualtrack-data');
+        if (saved) {
+          try {
+            const data = JSON.parse(saved);
+            if (data.ndm) setNdm(data.ndm);
+            if (data.careers) setCareers(data.careers);
+            if (data.meals) setMeals(data.meals);
+            if (data.workouts) setWorkouts(data.workouts);
+            if (data.proteinToday) setProteinToday(data.proteinToday);
+            if (data.darkMode !== undefined) setDarkMode(data.darkMode);
+            if (data.gratitude) setGratitude(data.gratitude);
+            if (data.mantras) setMantras(data.mantras);
+            if (data.hourlyTasks) setHourlyTasks(data.hourlyTasks);
+            if (data.foodDiary) setFoodDiary(data.foodDiary);
+            if (data.learningLibrary) setLearningLibrary(data.learningLibrary);
+            if (data.notificationsEnabled !== undefined) setNotificationsEnabled(data.notificationsEnabled);
+            if (data.careerSections) setCareerSections(data.careerSections);
+            if (data.voiceDiary) setVoiceDiary(data.voiceDiary);
+          } catch (e) { console.error(e); }
+        }
+      }
+    };
+
+    initAuth();
   }, []);
 
+  // Save data to localStorage and Supabase
   useEffect(() => {
-    localStorage.setItem('dualtrack-data', JSON.stringify({
+    const dataToSave = {
       ndm, careers, meals, workouts, proteinToday, darkMode,
       gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled,
       careerSections, voiceDiary
-    }));
-  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled, careerSections, voiceDiary]);
+    };
+
+    // Always save to localStorage as backup
+    localStorage.setItem('dualtrack-data', JSON.stringify(dataToSave));
+
+    // If user is logged in, also save to Supabase
+    if (user && isSupabaseConfigured()) {
+      saveUserData(user.id, dataToSave);
+    }
+  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled, careerSections, voiceDiary, user]);
 
   // Real-time clock update every second
   useEffect(() => {
@@ -460,6 +513,22 @@ const DualTrackOS = () => {
               </h1>
               <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>Your Life Operating System</p>
             </div>
+
+            {/* User Auth Status */}
+            {isSupabaseConfigured() && (
+              <div className="flex items-center space-x-2">
+                {user ? (
+                  <div className={`flex items-center space-x-1 text-xs ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                    <User size={14} />
+                    <span className="hidden sm:inline">Synced</span>
+                  </div>
+                ) : (
+                  <div className={`flex items-center space-x-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                    <span className="hidden sm:inline">Local</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Clock / Pomodoro Timer Toggle */}
             <div className="text-right">
@@ -1041,6 +1110,63 @@ const DualTrackOS = () => {
                 Settings & Data
               </h3>
               <div className="space-y-3">
+                {/* Upgrade to Elite */}
+                {process.env.REACT_APP_STRIPE_ELITE_PAYMENT_LINK && (
+                  <a
+                    href={process.env.REACT_APP_STRIPE_ELITE_PAYMENT_LINK}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`w-full py-4 rounded-lg font-bold text-center block transition-all ${
+                      darkMode
+                        ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
+                        : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+                    }`}
+                  >
+                    ⭐ Upgrade to Elite - $97/month
+                  </a>
+                )}
+
+                {/* Auth Section */}
+                {isSupabaseConfigured() && (
+                  <>
+                    {!user ? (
+                      <button
+                        onClick={signInWithGoogle}
+                        className={`w-full py-3 rounded-lg font-medium flex items-center justify-center space-x-2 transition-all ${
+                          darkMode
+                            ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-2 border-emerald-500/30'
+                            : 'bg-green-50 hover:bg-green-100 text-green-700 border-2 border-green-200'
+                        }`}
+                      >
+                        <LogIn size={20} />
+                        <span>Sign In with Google (Cloud Sync)</span>
+                      </button>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className={`p-3 rounded-lg ${darkMode ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-green-50 border border-green-200'}`}>
+                          <div className={`text-sm font-medium ${darkMode ? 'text-emerald-400' : 'text-green-700'}`}>
+                            ✓ Signed in as {user.email}
+                          </div>
+                          <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                            Data syncing to cloud
+                          </div>
+                        </div>
+                        <button
+                          onClick={supabaseSignOut}
+                          className={`w-full py-2 rounded-lg font-medium flex items-center justify-center space-x-2 transition-all ${
+                            darkMode
+                              ? 'bg-gray-700/50 hover:bg-gray-700 text-gray-400 border border-gray-700'
+                              : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300'
+                          }`}
+                        >
+                          <LogOut size={18} />
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+
                 <button
                   onClick={() => setDarkMode(!darkMode)}
                   className={`w-full py-3 rounded-lg font-medium flex items-center justify-between px-4 transition-all duration-300 ${
