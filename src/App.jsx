@@ -4,19 +4,31 @@ import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utens
 const DualTrackOS = () => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [dailyScore, setDailyScore] = useState(0);
-  const [streak] = useState(12);
-  const [energyLevel] = useState(7);
+  const [streak] = useState(0); // No mock data
+  const [energyLevel] = useState(0); // No mock data
   const [isRecording, setIsRecording] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
+
+  // Real-time clock state
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [isPomodoroMode, setIsPomodoroMode] = useState(false);
+  const [pomodoroSeconds, setPomodoroSeconds] = useState(20 * 60); // 20 minutes
+  const [pomodoroRunning, setPomodoroRunning] = useState(false);
+
+  // Customizable career sections
+  const [careerSections, setCareerSections] = useState([
+    { id: 1, label: 'Work', wins: 0 },
+    { id: 2, label: 'Consultancy', wins: 0 }
+  ]);
 
   const [ndm, setNdm] = useState({ nutrition: false, movement: false, mindfulness: false, brainDump: false });
   const [careers, setCareers] = useState({ corporate: { wins: 0 }, consultancy: { wins: 0 } });
   const [vitals] = useState({
-    sleep: { hours: 7.2, trend: 'up' },
-    hrv: { value: 48, trend: 'stable' },
-    rhr: { value: 61, trend: 'down' },
-    steps: { value: 8234 },
-    activeCalories: { value: 342 }
+    sleep: { hours: 0, trend: 'stable' },
+    hrv: { value: 0, trend: 'stable' },
+    rhr: { value: 0, trend: 'stable' },
+    steps: { value: 0 },
+    activeCalories: { value: 0 }
   });
   const [alertLevel] = useState('green');
   const [meals, setMeals] = useState([]);
@@ -25,7 +37,7 @@ const DualTrackOS = () => {
   const [activeWorkout, setActiveWorkout] = useState(null);
   const [workoutTimer, setWorkoutTimer] = useState(0);
   const [isWorkoutRunning, setIsWorkoutRunning] = useState(false);
-  const [weeklyData] = useState({ ndmStreak: 6, avgEnergy: 7.2, avgSleep: 7.1, workoutCount: 5, corporateWins: 12, consultancyWins: 8 });
+  const [weeklyData] = useState({ ndmStreak: 0, avgEnergy: 0, avgSleep: 0, workoutCount: 0, corporateWins: 0, consultancyWins: 0 });
 
   // Daily Planning State
   const [gratitude, setGratitude] = useState(['', '', '']);
@@ -40,6 +52,10 @@ const DualTrackOS = () => {
   const [foodDiary, setFoodDiary] = useState([]);
   const [learningLibrary, setLearningLibrary] = useState([]);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  // Voice diary state
+  const [voiceDiary, setVoiceDiary] = useState([]);
+  const [recordingStartTime, setRecordingStartTime] = useState(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('dualtrack-data');
@@ -58,6 +74,8 @@ const DualTrackOS = () => {
         if (data.foodDiary) setFoodDiary(data.foodDiary);
         if (data.learningLibrary) setLearningLibrary(data.learningLibrary);
         if (data.notificationsEnabled !== undefined) setNotificationsEnabled(data.notificationsEnabled);
+        if (data.careerSections) setCareerSections(data.careerSections);
+        if (data.voiceDiary) setVoiceDiary(data.voiceDiary);
       } catch (e) { console.error(e); }
     }
   }, []);
@@ -65,9 +83,34 @@ const DualTrackOS = () => {
   useEffect(() => {
     localStorage.setItem('dualtrack-data', JSON.stringify({
       ndm, careers, meals, workouts, proteinToday, darkMode,
-      gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled
+      gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled,
+      careerSections, voiceDiary
     }));
-  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled]);
+  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled, careerSections, voiceDiary]);
+
+  // Real-time clock update every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Pomodoro countdown
+  useEffect(() => {
+    let interval;
+    if (pomodoroRunning && pomodoroSeconds > 0) {
+      interval = setInterval(() => {
+        setPomodoroSeconds(prev => prev - 1);
+      }, 1000);
+    } else if (pomodoroSeconds === 0 && pomodoroRunning) {
+      setPomodoroRunning(false);
+      if (notificationsEnabled) {
+        new Notification('Focus session complete!', { body: '20 minutes of deep work done. Take a break!' });
+      }
+    }
+    return () => clearInterval(interval);
+  }, [pomodoroRunning, pomodoroSeconds, notificationsEnabled]);
 
   useEffect(() => {
     let score = 0;
@@ -87,7 +130,6 @@ const DualTrackOS = () => {
   }, [isWorkoutRunning]);
 
   const toggleNDM = (key) => setNdm(p => ({ ...p, [key]: !p[key] }));
-  const addCareerWin = (type) => setCareers(p => ({ ...p, [type]: { wins: p[type].wins + 1 } }));
   const addMeal = (name, protein) => {
     setMeals(p => [...p, { id: Date.now(), name, protein, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }]);
     setProteinToday(p => p + protein);
@@ -102,7 +144,88 @@ const DualTrackOS = () => {
     setCurrentView('exercise');
   };
   const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
-  const handleVoiceCheckin = () => { setIsRecording(true); setTimeout(() => { setIsRecording(false); alert('Voice captured!'); }, 2000); };
+
+  // Pomodoro timer functions
+  const togglePomodoroMode = () => {
+    setIsPomodoroMode(!isPomodoroMode);
+    if (!isPomodoroMode) {
+      setPomodoroSeconds(20 * 60); // Reset to 20 minutes when entering Pomodoro mode
+      setPomodoroRunning(false);
+    }
+  };
+
+  const startPomodoro = () => {
+    setPomodoroRunning(true);
+  };
+
+  const pausePomodoro = () => {
+    setPomodoroRunning(false);
+  };
+
+  const resetPomodoro = () => {
+    setPomodoroSeconds(20 * 60);
+    setPomodoroRunning(false);
+  };
+
+  // Voice diary functions (5-minute recording)
+  const handleVoiceCheckin = () => {
+    if (!isRecording) {
+      setIsRecording(true);
+      setRecordingStartTime(Date.now());
+      // Simulate 5-minute max recording
+      setTimeout(() => {
+        if (isRecording) {
+          setIsRecording(false);
+          const transcript = "Voice diary entry recorded"; // In production, use actual speech-to-text
+          setVoiceDiary(prev => [...prev, {
+            id: Date.now(),
+            date: new Date().toLocaleDateString(),
+            time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+            transcript,
+            duration: '5:00'
+          }]);
+          setRecordingStartTime(null);
+        }
+      }, 5 * 60 * 1000); // 5 minutes
+    } else {
+      // Manual stop
+      setIsRecording(false);
+      const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
+      const transcript = "Voice diary entry recorded"; // In production, use actual speech-to-text
+      setVoiceDiary(prev => [...prev, {
+        id: Date.now(),
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+        transcript,
+        duration: formatTime(duration)
+      }]);
+      setRecordingStartTime(null);
+    }
+  };
+
+  // Career section customization functions
+  const addCareerSection = () => {
+    const newId = Math.max(...careerSections.map(s => s.id), 0) + 1;
+    setCareerSections([...careerSections, { id: newId, label: 'New Section', wins: 0 }]);
+  };
+
+  const updateCareerSectionLabel = (id, newLabel) => {
+    setCareerSections(careerSections.map(section =>
+      section.id === id ? { ...section, label: newLabel } : section
+    ));
+  };
+
+  const deleteCareerSection = (id) => {
+    if (careerSections.length > 1) {
+      setCareerSections(careerSections.filter(section => section.id !== id));
+    }
+  };
+
+  const addCareerSectionWin = (id) => {
+    setCareerSections(careerSections.map(section =>
+      section.id === id ? { ...section, wins: section.wins + 1 } : section
+    ));
+  };
 
   const exportData = () => {
     const data = { ndm, careers, meals, workouts, proteinToday, vitals, energyLevel, streak, dailyScore, exportDate: new Date().toISOString() };
@@ -337,15 +460,61 @@ const DualTrackOS = () => {
               </h1>
               <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>Your Life Operating System</p>
             </div>
-            <div className="text-right text-xs">
-              <div className={darkMode ? 'text-gray-500' : 'text-gray-500'}>Dec 12, 2024</div>
-              <div className={`font-semibold ${
-                darkMode
-                  ? 'bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent'
-                  : 'text-purple-600'
-              }`}>
-                Day {streak} 🔥
-              </div>
+
+            {/* Clock / Pomodoro Timer Toggle */}
+            <div className="text-right">
+              {!isPomodoroMode ? (
+                // Clock Mode
+                <div onClick={togglePomodoroMode} className="cursor-pointer group">
+                  <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'} group-hover:${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </div>
+                  <div className={`font-mono text-lg font-bold flex items-center space-x-1 ${
+                    darkMode
+                      ? 'bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent'
+                      : 'text-purple-600'
+                  }`}>
+                    <Clock size={16} className={darkMode ? 'text-cyan-400' : 'text-purple-600'} />
+                    <span>{currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                  </div>
+                  <div className={`text-xs ${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>
+                    Click for Focus Mode
+                  </div>
+                </div>
+              ) : (
+                // Pomodoro Mode
+                <div className="space-y-1">
+                  <div className={`font-mono text-2xl font-bold ${
+                    darkMode
+                      ? pomodoroRunning
+                        ? 'bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent'
+                        : 'text-gray-400'
+                      : pomodoroRunning ? 'text-orange-600' : 'text-gray-400'
+                  }`}>
+                    {formatTime(pomodoroSeconds)}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {!pomodoroRunning ? (
+                      <button onClick={startPomodoro} className={`p-1 rounded ${darkMode ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400' : 'bg-green-100 hover:bg-green-200 text-green-600'}`}>
+                        <Play size={14} />
+                      </button>
+                    ) : (
+                      <button onClick={pausePomodoro} className={`p-1 rounded ${darkMode ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-400' : 'bg-orange-100 hover:bg-orange-200 text-orange-600'}`}>
+                        <Pause size={14} />
+                      </button>
+                    )}
+                    <button onClick={resetPomodoro} className={`p-1 rounded ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-400' : 'bg-gray-200 hover:bg-gray-300 text-gray-600'}`}>
+                      <RotateCcw size={14} />
+                    </button>
+                    <button onClick={togglePomodoroMode} className={`p-1 rounded ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-400' : 'bg-gray-200 hover:bg-gray-300 text-gray-600'}`}>
+                      <X size={14} />
+                    </button>
+                  </div>
+                  <div className={`text-xs ${darkMode ? 'text-gray-600' : 'text-gray-500'}`}>
+                    {pomodoroRunning ? '20-min Focus' : 'Paused'}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -427,37 +596,59 @@ const DualTrackOS = () => {
                 ? 'bg-gray-800/50 border-2 border-gray-700/50 shadow-lg backdrop-blur-sm'
                 : 'bg-white border-2 border-gray-100 shadow-md'
             }`}>
-              <h3 className={`text-lg font-bold mb-4 flex items-center ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                <Briefcase className={`mr-2 ${darkMode ? 'text-blue-400' : 'text-blue-500'}`} size={20} />
-                Career Progress
+              <h3 className={`text-lg font-bold mb-4 flex items-center justify-between ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                <div className="flex items-center">
+                  <Briefcase className={`mr-2 ${darkMode ? 'text-blue-400' : 'text-blue-500'}`} size={20} />
+                  Career Progress
+                </div>
+                <button onClick={addCareerSection} className={`p-1 rounded ${darkMode ? 'bg-blue-500/10 hover:bg-blue-500/20 text-blue-400' : 'bg-blue-50 hover:bg-blue-100 text-blue-600'}`}>
+                  <Plus size={16} />
+                </button>
               </h3>
               <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className={`text-sm font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Corporate</span>
-                    <span className={`text-lg font-bold ${darkMode ? 'bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent' : 'text-blue-600'}`}>{careers.corporate.wins} wins</span>
+                {careerSections.map((section, idx) => (
+                  <div key={section.id}>
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="flex items-center space-x-2 flex-1">
+                        <input
+                          type="text"
+                          value={section.label}
+                          onChange={(e) => updateCareerSectionLabel(section.id, e.target.value)}
+                          className={`text-sm font-semibold bg-transparent border-b-2 border-transparent focus:border-blue-500/50 outline-none ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                        />
+                        {careerSections.length > 1 && (
+                          <button onClick={() => deleteCareerSection(section.id)} className={darkMode ? 'text-gray-600 hover:text-red-400' : 'text-gray-400 hover:text-red-600'}>
+                            <X size={14} />
+                          </button>
+                        )}
+                      </div>
+                      <span className={`text-lg font-bold ${
+                        idx % 3 === 0
+                          ? darkMode ? 'bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent' : 'text-blue-600'
+                          : idx % 3 === 1
+                            ? darkMode ? 'bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent' : 'text-purple-600'
+                            : darkMode ? 'bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent' : 'text-green-600'
+                      }`}>
+                        {section.wins} wins
+                      </span>
+                    </div>
+                    <button onClick={() => addCareerSectionWin(section.id)} className={`w-full py-2 rounded-lg text-sm font-medium transition-all ${
+                      idx % 3 === 0
+                        ? darkMode
+                          ? 'bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border-2 border-blue-500/30'
+                          : 'bg-blue-50 hover:bg-blue-100 text-blue-700'
+                        : idx % 3 === 1
+                          ? darkMode
+                            ? 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border-2 border-purple-500/30'
+                            : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
+                          : darkMode
+                            ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-2 border-emerald-500/30'
+                            : 'bg-green-50 hover:bg-green-100 text-green-700'
+                    }`}>
+                      + Log Win
+                    </button>
                   </div>
-                  <button onClick={() => addCareerWin('corporate')} className={`w-full py-2 rounded-lg text-sm font-medium transition-all ${
-                    darkMode
-                      ? 'bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border-2 border-blue-500/30'
-                      : 'bg-blue-50 hover:bg-blue-100 text-blue-700'
-                  }`}>
-                    + Log Win
-                  </button>
-                </div>
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className={`text-sm font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Consultancy</span>
-                    <span className={`text-lg font-bold ${darkMode ? 'bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent' : 'text-purple-600'}`}>{careers.consultancy.wins} wins</span>
-                  </div>
-                  <button onClick={() => addCareerWin('consultancy')} className={`w-full py-2 rounded-lg text-sm font-medium transition-all ${
-                    darkMode
-                      ? 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border-2 border-purple-500/30'
-                      : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
-                  }`}>
-                    + Log Win
-                  </button>
-                </div>
+                ))}
               </div>
             </div>
 
@@ -514,8 +705,44 @@ const DualTrackOS = () => {
                   : 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
             }`}>
               <Mic size={28} />
-              <span>{isRecording ? 'RECORDING...' : 'VOICE CHECK-IN'}</span>
+              <span>{isRecording ? `RECORDING... (${recordingStartTime ? formatTime(Math.floor((Date.now() - recordingStartTime) / 1000)) : '0:00'})` : '5-MIN VOICE DIARY'}</span>
             </button>
+
+            {/* Voice Diary Entries */}
+            {voiceDiary.length > 0 && (
+              <div className={`rounded-xl p-6 transition-all duration-300 ${
+                darkMode
+                  ? 'bg-gray-800/50 border-2 border-gray-700/50 shadow-lg backdrop-blur-sm'
+                  : 'bg-white border-2 border-gray-100 shadow-md'
+              }`}>
+                <h3 className={`text-lg font-bold mb-4 flex items-center ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                  <Mic className={`mr-2 ${darkMode ? 'text-pink-400' : 'text-pink-500'}`} size={20} />
+                  Voice Diary
+                </h3>
+                <div className="space-y-3">
+                  {voiceDiary.slice(-5).reverse().map(entry => (
+                    <div key={entry.id} className={`rounded-lg p-4 ${
+                      darkMode ? 'bg-gray-900/50 border border-gray-700' : 'bg-gray-50 border border-gray-200'
+                    }`}>
+                      <div className="flex justify-between items-start mb-2">
+                        <div className={`text-sm font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {entry.date}
+                        </div>
+                        <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                          {entry.time} • {entry.duration}
+                        </div>
+                      </div>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} italic`}>
+                        "{entry.transcript}"
+                      </p>
+                      <div className={`mt-2 text-xs ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
+                        Tap to add transcription (coming soon)
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
         
