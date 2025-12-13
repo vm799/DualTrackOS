@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, AlertTriangle, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, User } from 'lucide-react';
 import { supabase, isSupabaseConfigured, signInWithGoogle, signOut as supabaseSignOut, saveUserData, loadUserData } from './supabaseClient';
 import Onboarding from './Onboarding';
+import SpiritAnimal from './SpiritAnimal';
 
 const DualTrackOS = () => {
   // Auth state
@@ -42,6 +43,11 @@ const DualTrackOS = () => {
   const [brainDumpText, setBrainDumpText] = useState('');
   const [mindfulTimer, setMindfulTimer] = useState(300); // 5 minutes
   const [mindfulRunning, setMindfulRunning] = useState(false);
+
+  // Spirit Animal State (心の成長 - Growth of the Heart)
+  const [spiritAnimalScore, setSpiritAnimalScore] = useState(0); // 0-100 balance score
+  const [balanceHistory, setBalanceHistory] = useState([]); // Track balance decisions
+  const [showSpiritInfo, setShowSpiritInfo] = useState(false);
 
   // Real-time clock state
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -153,6 +159,8 @@ const DualTrackOS = () => {
             if (data.userProfile) setUserProfile(data.userProfile);
             if (data.energyTracking) setEnergyTracking(data.energyTracking);
             if (data.currentMood) setCurrentMood(data.currentMood);
+            if (data.spiritAnimalScore !== undefined) setSpiritAnimalScore(data.spiritAnimalScore);
+            if (data.balanceHistory) setBalanceHistory(data.balanceHistory);
           } catch (e) { console.error(e); }
         }
       }
@@ -166,7 +174,8 @@ const DualTrackOS = () => {
     const dataToSave = {
       ndm, careers, meals, workouts, proteinToday, darkMode,
       gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled,
-      careerSections, voiceDiary, userProfile, energyTracking, currentMood
+      careerSections, voiceDiary, userProfile, energyTracking, currentMood,
+      spiritAnimalScore, balanceHistory
     };
 
     // Always save to localStorage as backup
@@ -176,7 +185,7 @@ const DualTrackOS = () => {
     if (user && isSupabaseConfigured()) {
       saveUserData(user.id, dataToSave);
     }
-  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled, careerSections, voiceDiary, userProfile, energyTracking, currentMood, user]);
+  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled, careerSections, voiceDiary, userProfile, energyTracking, currentMood, spiritAnimalScore, balanceHistory, user]);
 
   // Real-time clock update every second
   useEffect(() => {
@@ -229,6 +238,12 @@ const DualTrackOS = () => {
     score += Math.min(careers.consultancy.wins * 10, 30);
     setDailyScore(Math.min(score, 100));
   }, [ndm, careers]);
+
+  // Update spirit animal balance score (心の成長)
+  useEffect(() => {
+    const newScore = calculateBalanceScore();
+    setSpiritAnimalScore(newScore);
+  }, [energyTracking, currentMood, ndm, proteinToday, meals.length, voiceDiary.length, userProfile.weight]);
 
   useEffect(() => {
     let interval;
@@ -506,6 +521,128 @@ const DualTrackOS = () => {
     const lastMealTime = new Date();
     // Simplified: if more than 3 hours since last log, remind
     return meals.length < 3; // Simple heuristic
+  };
+
+  /**
+   * Spirit Animal Balance Algorithm (PhD-level behavioral psychology)
+   *
+   * Philosophy: True wellness comes from BALANCE, not just productivity.
+   * Resting when tired is as valuable as working when energized.
+   *
+   * Scoring Factors:
+   * 1. Energy-Action Alignment (+20): Did you rest when tired OR work when energized?
+   * 2. Emotional Intelligence (+20): Did you meditate when anxious/overwhelmed?
+   * 3. Self-Care (+20): Did you complete NDMs (nutrition, movement, mindfulness)?
+   * 4. Consistency (+20): Are you maintaining protein intake?
+   * 5. Wisdom (+20): Did you avoid pushing through exhaustion?
+   *
+   * Total: 0-100% balance score
+   */
+  const calculateBalanceScore = () => {
+    let score = 0;
+    let maxPossible = 0;
+
+    // Factor 1: Energy-Action Alignment (0-20 points)
+    const currentEnergy = getCurrentEnergy();
+    const currentPeriodEnergy = getCurrentPeriodEnergy();
+    if (currentPeriodEnergy !== null) {
+      maxPossible += 20;
+      if (currentPeriodEnergy <= 2) {
+        // Low energy: Did user rest? (check if meditation or brain dump today)
+        if (ndm.mindfulness || ndm.brainDump) {
+          score += 20; // EXCELLENT: Honored low energy with rest
+        } else if (voiceDiary.length > 0 && voiceDiary[voiceDiary.length - 1].type === 'brain-dump') {
+          score += 15; // GOOD: At least did brain dump
+        }
+      } else if (currentPeriodEnergy >= 4) {
+        // High energy: Count productive actions
+        const productiveActions = Object.values(hourlyTasks).flat().filter(t => t.completed).length;
+        if (productiveActions >= 3) {
+          score += 20; // EXCELLENT: Capitalized on high energy
+        } else if (productiveActions >= 1) {
+          score += 10; // GOOD: Some productivity
+        }
+      } else {
+        // Medium energy: Steady progress
+        score += 10; // NEUTRAL: Middle ground
+      }
+    }
+
+    // Factor 2: Emotional Intelligence (0-20 points)
+    maxPossible += 20;
+    if (currentMood === 'anxious' || currentMood === 'overwhelmed') {
+      // Did user meditate or brain dump?
+      if (ndm.mindfulness) {
+        score += 20; // EXCELLENT: Addressed anxiety with mindfulness
+      } else if (ndm.brainDump) {
+        score += 15; // GOOD: Released overwhelm through brain dump
+      }
+    } else if (currentMood === 'energized' || currentMood === 'focused') {
+      score += 15; // GOOD: Positive emotional state
+    } else if (currentMood === 'calm') {
+      score += 20; // EXCELLENT: Achieved calm state
+    }
+
+    // Factor 3: Self-Care NDMs (0-20 points)
+    maxPossible += 20;
+    const ndmCount = [ndm.nutrition, ndm.movement, ndm.mindfulness, ndm.brainDump].filter(Boolean).length;
+    score += ndmCount * 5; // 5 points per NDM
+
+    // Factor 4: Nutrition Consistency (0-20 points)
+    maxPossible += 20;
+    if (userProfile.weight) {
+      const proteinTarget = getProteinTarget();
+      const proteinPercent = (proteinToday / proteinTarget) * 100;
+      if (proteinPercent >= 80) {
+        score += 20; // EXCELLENT: Met protein goal
+      } else if (proteinPercent >= 50) {
+        score += 15; // GOOD: Halfway there
+      } else if (proteinPercent >= 25) {
+        score += 10; // FAIR: Some progress
+      } else if (meals.length > 0) {
+        score += 5; // At least tracking
+      }
+    } else {
+      // If no weight set, just reward tracking
+      score += meals.length >= 3 ? 20 : meals.length * 5;
+    }
+
+    // Factor 5: Wisdom - Avoiding Burnout (0-20 points)
+    maxPossible += 20;
+    if (currentPeriodEnergy !== null) {
+      if (currentPeriodEnergy <= 2) {
+        // Low energy: Wisdom is NOT pushing through
+        const tasksCompletedWhileTired = Object.values(hourlyTasks).flat()
+          .filter(t => t.completed).length;
+        if (tasksCompletedWhileTired === 0 && (ndm.mindfulness || ndm.brainDump)) {
+          score += 20; // WISDOM: Rested instead of pushing
+        } else if (tasksCompletedWhileTired <= 2) {
+          score += 10; // CAUTION: Limited output, honored energy somewhat
+        } else {
+          score += 0; // WARNING: Pushing through exhaustion
+        }
+      } else {
+        score += 15; // GOOD: Not in danger zone
+      }
+    } else {
+      score += 10; // NEUTRAL: Haven't set energy yet
+    }
+
+    // Convert to percentage
+    const balancePercent = maxPossible > 0 ? Math.round((score / maxPossible) * 100) : 0;
+    return Math.min(100, Math.max(0, balancePercent));
+  };
+
+  // Record a balance decision for history
+  const recordBalanceDecision = (decision, points) => {
+    const entry = {
+      timestamp: new Date().toISOString(),
+      decision,
+      points,
+      energy: getCurrentPeriodEnergy(),
+      mood: currentMood
+    };
+    setBalanceHistory(prev => [...prev.slice(-19), entry]); // Keep last 20
   };
 
   // Daily Planning Functions
@@ -825,6 +962,21 @@ const DualTrackOS = () => {
       <div className="max-w-4xl mx-auto px-4 py-6">
         {currentView === 'dashboard' && (
           <div className="space-y-6 pb-24 relative z-10">
+
+            {/* SPIRIT ANIMAL - Your Balance Companion */}
+            <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
+              darkMode
+                ? 'bg-gray-800/50 border-2 border-purple-500/30 backdrop-blur-xl'
+                : 'bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200'
+            }`}>
+              <SpiritAnimal
+                balanceScore={spiritAnimalScore}
+                growthLevel={Math.floor(spiritAnimalScore / 20)}
+                darkMode={darkMode}
+                showInfo={showSpiritInfo}
+                onInfoClick={() => setShowSpiritInfo(!showSpiritInfo)}
+              />
+            </div>
 
             {/* CURRENT HOUR FOCUS */}
             <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
