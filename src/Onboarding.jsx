@@ -13,7 +13,6 @@ const Onboarding = ({ onComplete, darkMode }) => {
 
   // Note: Avatar will evolve automatically based on your balance score
   // No need to choose - your spirit animal will grow with you!
-  const avatarOptions = ['🥚']; // Starting point for everyone
 
   const handleComplete = () => {
     onComplete({
