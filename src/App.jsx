@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, AlertTriangle, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, User } from 'lucide-react';
 import { supabase, isSupabaseConfigured, signInWithGoogle, signOut as supabaseSignOut, saveUserData, loadUserData } from './supabaseClient';
 import Onboarding from './Onboarding';
-import SpiritAnimal from './SpiritAnimal';
 
 const DualTrackOS = () => {
   // Auth state
@@ -19,7 +18,7 @@ const DualTrackOS = () => {
     preferredName: '',
     age: null,
     weight: null, // in lbs, for protein calculation
-    avatar: '🐉',
+    avatar: '🥚', // Everyone starts with an egg that grows into a Kitsune
     hasCompletedOnboarding: false,
     disclaimerAccepted: false
   });
@@ -47,7 +46,7 @@ const DualTrackOS = () => {
   // Spirit Animal State (心の成長 - Growth of the Heart)
   const [spiritAnimalScore, setSpiritAnimalScore] = useState(0); // 0-100 balance score
   const [balanceHistory, setBalanceHistory] = useState([]); // Track balance decisions
-  const [showSpiritInfo, setShowSpiritInfo] = useState(false);
+  const [showSpiritAnimalModal, setShowSpiritAnimalModal] = useState(false);
 
   // Real-time clock state
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -847,6 +846,86 @@ const DualTrackOS = () => {
     setBalanceHistory(prev => [...prev.slice(-19), entry]); // Keep last 20
   };
 
+  /**
+   * Get Spirit Animal Growth Stage (Inspired by Japanese Kitsune Mythology)
+   *
+   * Kitsune (狐) are fox spirits that gain tails as they grow wiser and more powerful.
+   * Your spirit animal evolves as you practice balance and self-care.
+   *
+   * Growth Journey:
+   * 1. Egg (卵 - Tamago): Potential waiting to be nurtured (0-19%)
+   * 2. Hatchling (雛 - Hina): New life, beginning to learn (20-39%)
+   * 3. Young Fox (子狐 - Kogitsune): Growing strength, 1-3 tails (40-59%)
+   * 4. Spirit Fox (狐 - Kitsune): Wisdom emerging, 5 tails (60-79%)
+   * 5. Nine-Tailed Fox (九尾 - Kyuubi): Enlightened master of balance (80-100%)
+   */
+  const getSpiritAnimalStage = (balanceScore) => {
+    const stages = [
+      {
+        name: 'Egg',
+        japanese: '卵',
+        romanji: 'Tamago',
+        emoji: '🥚',
+        minScore: 0,
+        maxScore: 19,
+        description: 'Potential waiting to hatch',
+        philosophy: 'Every great journey begins with patience. Your spirit animal sleeps within, waiting for you to nurture it with balance and self-care.',
+        color: 'gray',
+        tails: 0
+      },
+      {
+        name: 'Hatchling',
+        japanese: '雛',
+        romanji: 'Hina',
+        emoji: '🐣',
+        minScore: 20,
+        maxScore: 39,
+        description: 'Newly hatched, learning to balance',
+        philosophy: 'New beginnings require gentleness. You are learning that rest is not weakness, and productivity without balance is unsustainable.',
+        color: 'yellow',
+        tails: 0
+      },
+      {
+        name: 'Young Fox',
+        japanese: '子狐',
+        romanji: 'Kogitsune',
+        emoji: '🦊',
+        minScore: 40,
+        maxScore: 59,
+        description: 'Growing wisdom, finding rhythm',
+        philosophy: 'The young fox learns to dance between effort and rest. You are discovering your natural rhythm, honoring both ambition and restoration.',
+        color: 'orange',
+        tails: 3
+      },
+      {
+        name: 'Spirit Fox',
+        japanese: '狐',
+        romanji: 'Kitsune',
+        emoji: '✨🦊',
+        minScore: 60,
+        maxScore: 79,
+        description: 'Embodying balance, 5 tails of wisdom',
+        philosophy: 'The spirit fox moves gracefully through life. You understand that true power comes from sustainable practices, not constant hustle.',
+        color: 'purple',
+        tails: 5
+      },
+      {
+        name: 'Nine-Tailed Fox',
+        japanese: '九尾',
+        romanji: 'Kyuubi',
+        emoji: '🌟🦊✨',
+        minScore: 80,
+        maxScore: 100,
+        description: 'Enlightened master of balance',
+        philosophy: 'The nine-tailed fox has achieved perfect harmony. You honor your energy, emotions, and body with deep wisdom. You rest without guilt and work without burnout.',
+        color: 'gold',
+        tails: 9
+      }
+    ];
+
+    return stages.find(stage => balanceScore >= stage.minScore && balanceScore <= stage.maxScore) || stages[0];
+  };
+
   // Daily Planning Functions
   const updateGratitude = (index, value) => {
     const newGratitude = [...gratitude];
@@ -1055,7 +1134,22 @@ const DualTrackOS = () => {
           {/* Top Row: Greeting + Settings + Score */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <span className="text-4xl">{userProfile.avatar}</span>
+              {/* Spirit Animal - Clickable */}
+              <button
+                onClick={() => setShowSpiritAnimalModal(true)}
+                className={`relative group cursor-pointer transition-all duration-300 hover:scale-110 ${
+                  darkMode ? 'hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]' : 'hover:drop-shadow-lg'
+                }`}
+                title="View your spirit animal"
+              >
+                <span className="text-4xl">{getSpiritAnimalStage(spiritAnimalScore).emoji}</span>
+                {/* Pulse animation when balance score increases */}
+                <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${
+                  spiritAnimalScore >= 80 ? 'bg-yellow-400 animate-pulse' :
+                  spiritAnimalScore >= 60 ? 'bg-purple-400 animate-pulse' :
+                  spiritAnimalScore >= 40 ? 'bg-orange-400' : 'hidden'
+                }`} />
+              </button>
               <div>
                 <h2 className={`text-lg font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
                   Hey {userProfile.preferredName || userProfile.name || 'there'}! 👋
@@ -1334,21 +1428,6 @@ const DualTrackOS = () => {
       <div className="max-w-4xl mx-auto px-4 py-6">
         {currentView === 'dashboard' && (
           <div className="space-y-6 pb-24 relative z-10">
-
-            {/* SPIRIT ANIMAL - Your Balance Companion */}
-            <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
-              darkMode
-                ? 'bg-gray-800/50 border-2 border-purple-500/30 backdrop-blur-xl'
-                : 'bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200'
-            }`}>
-              <SpiritAnimal
-                balanceScore={spiritAnimalScore}
-                growthLevel={Math.floor(spiritAnimalScore / 20)}
-                darkMode={darkMode}
-                showInfo={showSpiritInfo}
-                onInfoClick={() => setShowSpiritInfo(!showSpiritInfo)}
-              />
-            </div>
 
             {/* CURRENT HOUR FOCUS */}
             <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
@@ -3013,6 +3092,200 @@ const DualTrackOS = () => {
           </div>
         </div>
       )}
+
+      {/* SPIRIT ANIMAL MODAL - Japanese Philosophy & Growth */}
+      {showSpiritAnimalModal && (() => {
+        const stage = getSpiritAnimalStage(spiritAnimalScore);
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+            <div className={`max-w-2xl w-full rounded-3xl shadow-2xl overflow-hidden ${
+              darkMode
+                ? 'bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 border-2 border-purple-500/30'
+                : 'bg-gradient-to-br from-white via-purple-50 to-white border-2 border-purple-200'
+            }`}>
+              {/* Header */}
+              <div className={`relative p-8 pb-6 ${
+                darkMode
+                  ? 'bg-gradient-to-r from-purple-900/40 to-pink-900/40'
+                  : 'bg-gradient-to-r from-purple-100 to-pink-100'
+              }`}>
+                <button
+                  onClick={() => setShowSpiritAnimalModal(false)}
+                  className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
+                    darkMode
+                      ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                      : 'hover:bg-white/50 text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <X size={24} />
+                </button>
+
+                {/* Spirit Animal Display */}
+                <div className="text-center mb-4">
+                  <div className="text-8xl mb-4">
+                    {stage.emoji}
+                  </div>
+                  <h2 className={`text-3xl font-bold mb-2 ${
+                    darkMode
+                      ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+                      : 'text-gray-900'
+                  }`}>
+                    {stage.japanese} ({stage.romanji})
+                  </h2>
+                  <p className={`text-lg font-medium ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+                    {stage.name}
+                  </p>
+                  <p className={`text-sm italic mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {stage.description}
+                  </p>
+                </div>
+
+                {/* Balance Score Progress */}
+                <div className="mt-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-xs font-semibold uppercase tracking-wide ${
+                      darkMode ? 'text-gray-400' : 'text-gray-600'
+                    }`}>
+                      Balance Score
+                    </span>
+                    <span className={`text-sm font-bold ${
+                      darkMode ? 'text-purple-300' : 'text-purple-700'
+                    }`}>
+                      {spiritAnimalScore}%
+                    </span>
+                  </div>
+                  <div className={`h-3 rounded-full overflow-hidden ${
+                    darkMode ? 'bg-gray-800' : 'bg-gray-200'
+                  }`}>
+                    <div
+                      className={`h-full transition-all duration-1000 ${
+                        stage.color === 'gold'
+                          ? 'bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-500'
+                          : stage.color === 'purple'
+                            ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500'
+                            : stage.color === 'orange'
+                              ? 'bg-gradient-to-r from-orange-400 to-pink-500'
+                              : stage.color === 'yellow'
+                                ? 'bg-gradient-to-r from-yellow-300 to-orange-400'
+                                : 'bg-gradient-to-r from-gray-400 to-gray-500'
+                      }`}
+                      style={{ width: `${spiritAnimalScore}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Philosophy Content */}
+              <div className="p-8 max-h-96 overflow-y-auto">
+                <div className={`p-6 rounded-2xl mb-6 ${
+                  darkMode
+                    ? 'bg-purple-500/10 border-2 border-purple-500/30'
+                    : 'bg-purple-50 border-2 border-purple-200'
+                }`}>
+                  <div className="flex items-start space-x-3 mb-3">
+                    <Sparkles className={darkMode ? 'text-purple-400 mt-1' : 'text-purple-600 mt-1'} size={20} />
+                    <p className={`font-semibold ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+                      Philosophy (哲学 - Tetsugaku)
+                    </p>
+                  </div>
+                  <p className={`leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {stage.philosophy}
+                  </p>
+                </div>
+
+                {/* Growth Path */}
+                <div className={`p-6 rounded-2xl ${
+                  darkMode
+                    ? 'bg-cyan-500/10 border-2 border-cyan-500/30'
+                    : 'bg-cyan-50 border-2 border-cyan-200'
+                }`}>
+                  <h3 className={`font-semibold mb-4 flex items-center ${
+                    darkMode ? 'text-cyan-300' : 'text-cyan-700'
+                  }`}>
+                    <Activity size={18} className="mr-2" />
+                    Growth Journey (成長の旅 - Seichou no Tabi)
+                  </h3>
+                  <div className="space-y-3">
+                    {[
+                      { emoji: '🥚', name: 'Egg (卵)', range: '0-19%' },
+                      { emoji: '🐣', name: 'Hatchling (雛)', range: '20-39%' },
+                      { emoji: '🦊', name: 'Young Fox (子狐)', range: '40-59%' },
+                      { emoji: '✨🦊', name: 'Spirit Fox (狐)', range: '60-79%' },
+                      { emoji: '🌟🦊✨', name: 'Nine-Tailed Fox (九尾)', range: '80-100%' }
+                    ].map((s, idx) => {
+                      const minScore = parseInt(s.range.split('-')[0]);
+                      const maxScore = parseInt(s.range.split('-')[1].replace('%', ''));
+                      const isCurrent = spiritAnimalScore >= minScore && spiritAnimalScore <= maxScore;
+                      const isUnlocked = spiritAnimalScore >= minScore;
+
+                      return (
+                        <div
+                          key={idx}
+                          className={`flex items-center justify-between p-3 rounded-lg transition-all ${
+                            isCurrent
+                              ? darkMode
+                                ? 'bg-purple-500/20 border-2 border-purple-500/50'
+                                : 'bg-purple-100 border-2 border-purple-400'
+                              : isUnlocked
+                                ? darkMode
+                                  ? 'bg-gray-800/50 border border-gray-700'
+                                  : 'bg-gray-100 border border-gray-300'
+                                : darkMode
+                                  ? 'bg-gray-900/30 border border-gray-800 opacity-50'
+                                  : 'bg-gray-50 border border-gray-200 opacity-50'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <span className="text-2xl">{isUnlocked ? s.emoji : '🔒'}</span>
+                            <div>
+                              <p className={`text-sm font-medium ${
+                                isCurrent
+                                  ? darkMode ? 'text-purple-300' : 'text-purple-700'
+                                  : darkMode ? 'text-gray-300' : 'text-gray-700'
+                              }`}>
+                                {s.name}
+                              </p>
+                              <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                                {s.range}
+                              </p>
+                            </div>
+                          </div>
+                          {isCurrent && (
+                            <span className={`text-xs font-bold px-2 py-1 rounded ${
+                              darkMode
+                                ? 'bg-purple-500/30 text-purple-300'
+                                : 'bg-purple-200 text-purple-700'
+                            }`}>
+                              Current
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Next Milestone */}
+                {spiritAnimalScore < 100 && (
+                  <div className={`mt-6 p-4 rounded-lg text-center ${
+                    darkMode
+                      ? 'bg-gradient-to-r from-cyan-900/30 to-purple-900/30 border border-cyan-500/30'
+                      : 'bg-gradient-to-r from-cyan-50 to-purple-50 border border-cyan-200'
+                  }`}>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {spiritAnimalScore < 20 && `${20 - spiritAnimalScore}% until your egg hatches! 🐣`}
+                      {spiritAnimalScore >= 20 && spiritAnimalScore < 40 && `${40 - spiritAnimalScore}% until Young Fox! 🦊`}
+                      {spiritAnimalScore >= 40 && spiritAnimalScore < 60 && `${60 - spiritAnimalScore}% until Spirit Fox! ✨🦊`}
+                      {spiritAnimalScore >= 60 && spiritAnimalScore < 80 && `${80 - spiritAnimalScore}% until Nine-Tailed Fox! 🌟🦊✨`}
+                      {spiritAnimalScore >= 80 && `Keep honoring your balance, you've achieved mastery! 🌟`}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };
