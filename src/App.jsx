@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, AlertTriangle, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, User } from 'lucide-react';
 import { supabase, isSupabaseConfigured, signInWithGoogle, signOut as supabaseSignOut, saveUserData, loadUserData } from './supabaseClient';
+import Onboarding from './Onboarding';
 
 const DualTrackOS = () => {
   // Auth state
@@ -310,7 +311,7 @@ const DualTrackOS = () => {
   };
 
   const exportData = () => {
-    const data = { ndm, careers, meals, workouts, proteinToday, vitals, energyLevel, streak, dailyScore, exportDate: new Date().toISOString() };
+    const data = { ndm, careers, meals, workouts, proteinToday, vitals, streak, dailyScore, userProfile, energyTracking, currentMood, exportDate: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -330,6 +331,18 @@ const DualTrackOS = () => {
       setProteinToday(0);
       alert('✅ All data cleared!');
     }
+  };
+
+  // Handle onboarding completion
+  const handleOnboardingComplete = (profile) => {
+    setUserProfile(profile);
+  };
+
+  // Calculate current energy level (average of tracked times)
+  const getCurrentEnergy = () => {
+    const values = Object.values(energyTracking).filter(v => v !== null);
+    if (values.length === 0) return 0;
+    return Math.round(values.reduce((a, b) => a + b, 0) / values.length);
   };
 
   // Daily Planning Functions
@@ -517,6 +530,11 @@ const DualTrackOS = () => {
     </button>
   );
 
+  // Show onboarding if not completed
+  if (!userProfile.hasCompletedOnboarding) {
+    return <Onboarding onComplete={handleOnboardingComplete} darkMode={darkMode} />;
+  }
+
   return (
     <div className={`min-h-screen transition-colors duration-500 ${
       darkMode
@@ -525,95 +543,118 @@ const DualTrackOS = () => {
     }`}>
       <GeometricBg />
 
+      {/* Redesigned Header - Massive Time Focus */}
       <div className={`sticky top-0 z-20 backdrop-blur-xl transition-all duration-300 ${
         darkMode
-          ? 'bg-gray-900/80 border-b border-gray-800/50 shadow-xl shadow-purple-500/5'
-          : 'bg-white/80 border-b border-gray-200/50 shadow-md'
+          ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
+          : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
-        <div className="max-w-2xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className={`text-2xl font-bold transition-all ${
-                darkMode
-                  ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
-                  : 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'
-              }`}>
-                DualTrack OS
-              </h1>
-              <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>Your Life Operating System</p>
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          {/* Top Row: Greeting + Settings + Score */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <span className="text-4xl">{userProfile.avatar}</span>
+              <div>
+                <h2 className={`text-lg font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                  Hey {userProfile.preferredName || userProfile.name || 'there'}! 👋
+                </h2>
+                <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                  {currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                </p>
+              </div>
             </div>
+            <div className="flex items-center space-x-3">
+              {/* Compact Score Badge */}
+              <div className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
+                darkMode
+                  ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-purple-300'
+                  : 'bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-300 text-purple-700'
+              }`}>
+                {dailyScore} pts {streak > 0 && `🔥${streak}`}
+              </div>
+              {/* Settings Icon */}
+              <button
+                onClick={() => setCurrentView('insights')}
+                className={`p-2 rounded-lg transition-all ${
+                  darkMode
+                    ? 'hover:bg-gray-800 text-gray-400 hover:text-gray-300'
+                    : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Settings size={20} />
+              </button>
+            </div>
+          </div>
 
-            {/* User Auth Status */}
-            {isSupabaseConfigured() && (
-              <div className="flex items-center space-x-2">
-                {user ? (
-                  <div className={`flex items-center space-x-1 text-xs ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                    <User size={14} />
-                    <span className="hidden sm:inline">Synced</span>
+          {/* Massive Time Display */}
+          <div className="text-center">
+            {!isPomodoroMode ? (
+              <div>
+                <div onClick={togglePomodoroMode} className="cursor-pointer group inline-block">
+                  <div className={`font-mono font-bold leading-none mb-1 transition-all ${
+                    darkMode
+                      ? 'text-6xl sm:text-7xl bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent group-hover:from-cyan-300 group-hover:via-purple-300 group-hover:to-pink-400'
+                      : 'text-6xl sm:text-7xl text-gray-900 group-hover:text-purple-600'
+                  }`}>
+                    {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                   </div>
-                ) : (
-                  <div className={`flex items-center space-x-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                    <span className="hidden sm:inline">Local</span>
+                  <div className={`text-xs ${darkMode ? 'text-gray-600 group-hover:text-gray-500' : 'text-gray-500 group-hover:text-gray-600'}`}>
+                    Tap for 20-min Focus Mode
                   </div>
-                )}
+                </div>
+              </div>
+            ) : (
+              // Pomodoro Timer Mode
+              <div className="space-y-3">
+                <div className={`font-mono text-6xl sm:text-7xl font-bold ${
+                  darkMode
+                    ? pomodoroRunning
+                      ? 'bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent'
+                      : 'text-gray-600'
+                    : pomodoroRunning ? 'text-orange-600' : 'text-gray-400'
+                }`}>
+                  {formatTime(pomodoroSeconds)}
+                </div>
+                <div className="flex items-center justify-center space-x-3">
+                  {!pomodoroRunning ? (
+                    <button onClick={startPomodoro} className={`px-6 py-2 rounded-lg font-medium flex items-center space-x-2 transition-all ${
+                      darkMode
+                        ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30'
+                        : 'bg-green-100 hover:bg-green-200 text-green-700 border border-green-300'
+                    }`}>
+                      <Play size={18} />
+                      <span>Start</span>
+                    </button>
+                  ) : (
+                    <button onClick={pausePomodoro} className={`px-6 py-2 rounded-lg font-medium flex items-center space-x-2 transition-all ${
+                      darkMode
+                        ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/30'
+                        : 'bg-orange-100 hover:bg-orange-200 text-orange-700 border border-orange-300'
+                    }`}>
+                      <Pause size={18} />
+                      <span>Pause</span>
+                    </button>
+                  )}
+                  <button onClick={resetPomodoro} className={`p-2 rounded-lg transition-all ${
+                    darkMode
+                      ? 'bg-gray-800 hover:bg-gray-700 text-gray-400'
+                      : 'bg-gray-200 hover:bg-gray-300 text-gray-600'
+                  }`}>
+                    <RotateCcw size={18} />
+                  </button>
+                  <button onClick={togglePomodoroMode} className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                    darkMode
+                      ? 'bg-gray-800 hover:bg-gray-700 text-gray-400'
+                      : 'bg-gray-200 hover:bg-gray-300 text-gray-600'
+                  }`}>
+                    Exit
+                  </button>
+                </div>
+                <div className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                  {pomodoroRunning ? '🎯 Deep Focus Mode Active' : 'Paused'}
+                </div>
               </div>
             )}
-
-            {/* Clock / Pomodoro Timer Toggle */}
-            <div className="text-right">
-              {!isPomodoroMode ? (
-                // Clock Mode
-                <div onClick={togglePomodoroMode} className="cursor-pointer group">
-                  <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'} group-hover:${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </div>
-                  <div className={`font-mono text-lg font-bold flex items-center space-x-1 ${
-                    darkMode
-                      ? 'bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent'
-                      : 'text-purple-600'
-                  }`}>
-                    <Clock size={16} className={darkMode ? 'text-cyan-400' : 'text-purple-600'} />
-                    <span>{currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
-                  </div>
-                  <div className={`text-xs ${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>
-                    Click for Focus Mode
-                  </div>
-                </div>
-              ) : (
-                // Pomodoro Mode
-                <div className="space-y-1">
-                  <div className={`font-mono text-2xl font-bold ${
-                    darkMode
-                      ? pomodoroRunning
-                        ? 'bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent'
-                        : 'text-gray-400'
-                      : pomodoroRunning ? 'text-orange-600' : 'text-gray-400'
-                  }`}>
-                    {formatTime(pomodoroSeconds)}
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {!pomodoroRunning ? (
-                      <button onClick={startPomodoro} className={`p-1 rounded ${darkMode ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400' : 'bg-green-100 hover:bg-green-200 text-green-600'}`}>
-                        <Play size={14} />
-                      </button>
-                    ) : (
-                      <button onClick={pausePomodoro} className={`p-1 rounded ${darkMode ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-400' : 'bg-orange-100 hover:bg-orange-200 text-orange-600'}`}>
-                        <Pause size={14} />
-                      </button>
-                    )}
-                    <button onClick={resetPomodoro} className={`p-1 rounded ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-400' : 'bg-gray-200 hover:bg-gray-300 text-gray-600'}`}>
-                      <RotateCcw size={14} />
-                    </button>
-                    <button onClick={togglePomodoroMode} className={`p-1 rounded ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-400' : 'bg-gray-200 hover:bg-gray-300 text-gray-600'}`}>
-                      <X size={14} />
-                    </button>
-                  </div>
-                  <div className={`text-xs ${darkMode ? 'text-gray-600' : 'text-gray-500'}`}>
-                    {pomodoroRunning ? '20-min Focus' : 'Paused'}
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </div>
@@ -653,9 +694,9 @@ const DualTrackOS = () => {
               }`}>
                 <div className="flex items-center justify-between mb-2">
                   <Zap className={darkMode ? 'text-yellow-400' : 'text-yellow-500'} size={24} />
-                  <span className={`text-2xl font-bold ${darkMode ? 'bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent' : 'text-gray-900'}`}>{energyLevel}/10</span>
+                  <span className={`text-2xl font-bold ${darkMode ? 'bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent' : 'text-gray-900'}`}>{getCurrentEnergy()}/5</span>
                 </div>
-                <div className={`text-xs uppercase ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>Energy Level</div>
+                <div className={`text-xs uppercase ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>Energy Today</div>
               </div>
               <div className={`rounded-xl p-4 transition-all duration-300 ${
                 darkMode
@@ -1139,10 +1180,10 @@ const DualTrackOS = () => {
                 Settings & Data
               </h3>
               <div className="space-y-3">
-                {/* Upgrade to Elite */}
-                {process.env.REACT_APP_STRIPE_ELITE_PAYMENT_LINK && (
+                {/* Upgrade to Starter */}
+                {process.env.REACT_APP_STRIPE_STARTER_PAYMENT_LINK && (
                   <a
-                    href={process.env.REACT_APP_STRIPE_ELITE_PAYMENT_LINK}
+                    href={process.env.REACT_APP_STRIPE_STARTER_PAYMENT_LINK}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`w-full py-4 rounded-lg font-bold text-center block transition-all ${
@@ -1151,7 +1192,7 @@ const DualTrackOS = () => {
                         : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
                     }`}
                   >
-                    ⭐ Upgrade to Elite - $97/month
+                    ✨ Upgrade to Starter - $19/month
                   </a>
                 )}
 
