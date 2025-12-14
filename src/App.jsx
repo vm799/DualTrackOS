@@ -1214,108 +1214,83 @@ const DualTrackOS = () => {
     }`} style={{ position: 'fixed', width: '100%', height: '100%', overflowY: 'auto' }}>
       <GeometricBg />
 
-      {/* Spirit Animal - Teasing Half-Off Tab (Arrow style) */}
-      <div className={`fixed right-0 bottom-20 md:bottom-24 z-30 transition-all duration-500 hover:translate-x-0 translate-x-16 md:translate-x-20`}>
+      {/* Spirit Animal - Compact Side Tab (40% smaller) */}
+      <div className="fixed right-0 top-1/2 -translate-y-1/2 w-10 h-24 z-30">
         <button
           onClick={() => setShowSpiritAnimalModal(true)}
-          className={`p-4 md:p-6 rounded-l-3xl transition-all hover:scale-105 border-4 border-r-0 relative ${
-            darkMode ? 'bg-gray-900/95' : 'bg-white/95'
+          className={`w-full h-full rounded-l-xl flex items-center justify-center transition-all ${
+            darkMode ? 'bg-cyan-500/20' : 'bg-cyan-100/40'
           }`}
           style={{
-            borderColor: getSpiritAnimalStage(spiritAnimalScore).color,
-            boxShadow: `0 0 40px ${getSpiritAnimalStage(spiritAnimalScore).neonColor}, 0 0 20px ${getSpiritAnimalStage(spiritAnimalScore).neonColor}, inset 0 0 20px ${getSpiritAnimalStage(spiritAnimalScore).neonColor}`,
+            border: `1px solid ${getSpiritAnimalStage(spiritAnimalScore).color}40`,
+            borderRight: 'none',
+            boxShadow: `0 0 20px ${getSpiritAnimalStage(spiritAnimalScore).neonColor}55`
           }}
           title="View Spirit Animal Journey"
         >
-          {/* Teasing Arrow Indicator */}
-          <div className="absolute left-2 top-1/2 -translate-y-1/2 text-xl animate-pulse" style={{ color: getSpiritAnimalStage(spiritAnimalScore).color }}>
-            ◀
-          </div>
-          <div className="flex flex-col items-center gap-2 pl-4">
+          <div className="flex flex-col items-center gap-1">
             <div className="relative">
               <img
                 src="/lioness-logo.png"
                 alt="Lioness"
-                className="w-16 h-16 md:w-20 md:h-20 object-cover"
-                style={{ filter: `drop-shadow(0 0 10px ${getSpiritAnimalStage(spiritAnimalScore).neonColor})` }}
+                className="w-8 h-8 object-cover"
+                style={{ filter: `drop-shadow(0 0 6px ${getSpiritAnimalStage(spiritAnimalScore).neonColor})` }}
               />
               {getSpiritAnimalStage(spiritAnimalScore).showCrown && (
-                <span className="absolute -top-2 -right-2 text-2xl">👑</span>
+                <span className="absolute -top-1 -right-1 text-xs">👑</span>
               )}
             </div>
-            <span className="text-sm md:text-base font-bold" style={{ color: getSpiritAnimalStage(spiritAnimalScore).color }}>
+            <span className="text-[8px] font-bold leading-tight" style={{ color: getSpiritAnimalStage(spiritAnimalScore).color }}>
               {getSpiritAnimalStage(spiritAnimalScore).japanese}
             </span>
           </div>
         </button>
       </div>
 
-      {/* Optimized Compact Header - Mobile First */}
+      {/* HEADER - Mobile First, Brand Visible */}
       <div className={`sticky top-0 z-20 backdrop-blur-xl transition-all duration-300 ${
         darkMode
           ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
           : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
-        <div className="max-w-7xl mx-auto px-3 py-1.5">
-          <div className="flex items-center justify-between gap-2">
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
 
-            {/* LEFT: Brand Logo (Small App Icon) */}
-            <img
-              src="/lioness-logo.png"
-              alt="DualTrack OS"
-              className="h-8 w-8 md:h-9 md:w-9 flex-shrink-0 object-cover opacity-90"
-            />
-
-            {/* CENTER: Time/Date/Pomodoro Cluster */}
-            <div className="flex-1 flex items-center justify-center gap-2 md:gap-3">
-              {/* Time & Date Widget */}
-              <div className={`flex flex-col items-center px-2.5 py-1 rounded-lg ${
-                darkMode
-                  ? 'bg-gray-800/40'
-                  : 'bg-gray-50'
-              }`}>
-                <div className="flex items-baseline gap-1">
-                  <span className={`font-mono font-bold text-base md:text-lg ${
-                    darkMode
-                      ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
-                      : 'text-gray-900'
-                  }`}>
-                    {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false })}
-                  </span>
-                  <span className={`text-[10px] md:text-xs font-medium ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                    {currentTime.toLocaleTimeString('en-US', { hour12: true }).slice(-2)}
-                  </span>
-                </div>
-                <div className={`text-[10px] md:text-xs ${darkMode ? 'text-gray-600' : 'text-gray-500'}`}>
-                  {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                </div>
-              </div>
-
-              {/* Pomodoro Pill (UI Only) */}
-              <button
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all hover:scale-105 ${
-                  darkMode
-                    ? 'bg-orange-500/10 border border-orange-500/30 text-orange-300'
-                    : 'bg-orange-50 border border-orange-200 text-orange-700'
-                }`}
-                title="Pomodoro Timer"
-              >
-                <span className="text-sm">🍅</span>
-                <span className="font-mono text-xs md:text-sm font-medium">25:00</span>
-              </button>
+            {/* LEFT: LOGO - Visible & Recognizable */}
+            <div className="flex items-center">
+              <img
+                src="/lioness-logo.png"
+                alt="DualTrack OS"
+                className="w-11 h-11 md:w-12 md:h-12 opacity-95 drop-shadow-lg"
+              />
             </div>
 
-            {/* RIGHT: Settings Icon (Compact) */}
+            {/* CENTER: TIME + POMODORO HINT - Primary Action */}
+            <button
+              onClick={() => setIsPomodoroMode(!isPomodoroMode)}
+              className="flex flex-col items-center cursor-pointer select-none transition-transform hover:scale-105"
+            >
+              <div className={`text-3xl md:text-4xl font-semibold tracking-tight ${
+                darkMode
+                  ? 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
+                  : 'text-gray-900'
+              }`}>
+                {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false })}
+              </div>
+              <div className={`text-[11px] md:text-xs ${
+                darkMode ? 'text-purple-400' : 'text-purple-600'
+              } opacity-80`}>
+                Tap clock to start Pomodoro
+              </div>
+            </button>
+
+            {/* RIGHT: SETTINGS - Demoted Visually */}
             <button
               onClick={() => setCurrentView(currentView === 'insights' ? 'dashboard' : 'insights')}
-              className={`p-1.5 md:p-2 rounded-lg transition-all ${
-                currentView === 'insights'
-                  ? darkMode
-                    ? 'bg-purple-500/20 text-purple-300'
-                    : 'bg-purple-100 text-purple-700'
-                  : darkMode
-                    ? 'hover:bg-gray-800/50 text-gray-500 hover:text-gray-400'
-                    : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+              className={`p-2 rounded-full transition-all ${
+                darkMode
+                  ? 'hover:bg-white/10 text-gray-400 hover:text-gray-300'
+                  : 'hover:bg-gray-100 text-gray-600 hover:text-gray-700'
               }`}
               title={currentView === 'insights' ? 'Close Settings' : 'Open Settings'}
             >
