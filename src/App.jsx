@@ -67,11 +67,14 @@ const DualTrackOS = () => {
   const [pomodoroSeconds, setPomodoroSeconds] = useState(20 * 60); // 20 minutes
   const [pomodoroRunning, setPomodoroRunning] = useState(false);
 
-  // Customizable career sections
-  const [careerSections, setCareerSections] = useState([
-    { id: 1, label: 'Work', wins: 0 },
-    { id: 2, label: 'Consultancy', wins: 0 }
-  ]);
+  // Kanban Board for Career & Business Tasks
+  const [kanbanTasks, setKanbanTasks] = useState({
+    backlog: [],
+    inProgress: [],
+    done: []
+  });
+  const [newTaskInput, setNewTaskInput] = useState('');
+  const [expandedColumn, setExpandedColumn] = useState(null);
 
   const [ndm, setNdm] = useState({ nutrition: false, movement: false, mindfulness: false, brainDump: false });
   const [careers, setCareers] = useState({ corporate: { wins: 0 }, consultancy: { wins: 0 } });
@@ -133,7 +136,7 @@ const DualTrackOS = () => {
             if (userData.foodDiary) setFoodDiary(userData.foodDiary);
             if (userData.learningLibrary) setLearningLibrary(userData.learningLibrary);
             if (userData.notificationsEnabled !== undefined) setNotificationsEnabled(userData.notificationsEnabled);
-            if (userData.careerSections) setCareerSections(userData.careerSections);
+            if (userData.kanbanTasks) setKanbanTasks(userData.kanbanTasks);
             if (userData.voiceDiary) setVoiceDiary(userData.voiceDiary);
             if (userData.userProfile) setUserProfile(userData.userProfile);
             if (userData.energyTracking) setEnergyTracking(userData.energyTracking);
@@ -165,7 +168,7 @@ const DualTrackOS = () => {
             if (data.foodDiary) setFoodDiary(data.foodDiary);
             if (data.learningLibrary) setLearningLibrary(data.learningLibrary);
             if (data.notificationsEnabled !== undefined) setNotificationsEnabled(data.notificationsEnabled);
-            if (data.careerSections) setCareerSections(data.careerSections);
+            if (data.kanbanTasks) setKanbanTasks(data.kanbanTasks);
             if (data.voiceDiary) setVoiceDiary(data.voiceDiary);
             if (data.userProfile) setUserProfile(data.userProfile);
             if (data.energyTracking) setEnergyTracking(data.energyTracking);
@@ -185,7 +188,7 @@ const DualTrackOS = () => {
     const dataToSave = {
       ndm, careers, meals, workouts, proteinToday, darkMode,
       gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled,
-      careerSections, voiceDiary, userProfile, energyTracking, currentMood,
+      kanbanTasks, voiceDiary, userProfile, energyTracking, currentMood,
       spiritAnimalScore, balanceHistory
     };
 
@@ -196,7 +199,7 @@ const DualTrackOS = () => {
     if (user && isSupabaseConfigured()) {
       saveUserData(user.id, dataToSave);
     }
-  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled, careerSections, voiceDiary, userProfile, energyTracking, currentMood, spiritAnimalScore, balanceHistory, user]);
+  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled, kanbanTasks, voiceDiary, userProfile, energyTracking, currentMood, spiritAnimalScore, balanceHistory, user]);
 
   // Real-time clock update every second
   useEffect(() => {
@@ -400,28 +403,40 @@ const DualTrackOS = () => {
     }
   };
 
-  // Career section customization functions
-  const addCareerSection = () => {
-    const newId = Math.max(...careerSections.map(s => s.id), 0) + 1;
-    setCareerSections([...careerSections, { id: newId, label: 'New Section', wins: 0 }]);
-  };
-
-  const updateCareerSectionLabel = (id, newLabel) => {
-    setCareerSections(careerSections.map(section =>
-      section.id === id ? { ...section, label: newLabel } : section
-    ));
-  };
-
-  const deleteCareerSection = (id) => {
-    if (careerSections.length > 1) {
-      setCareerSections(careerSections.filter(section => section.id !== id));
+  // Kanban Board Functions
+  const addKanbanTask = () => {
+    if (newTaskInput.trim()) {
+      const newTask = {
+        id: Date.now(),
+        title: newTaskInput,
+        category: 'work', // Can be 'work' or 'business'
+        notes: '',
+        createdAt: new Date().toISOString()
+      };
+      setKanbanTasks(prev => ({
+        ...prev,
+        backlog: [...prev.backlog, newTask]
+      }));
+      setNewTaskInput('');
     }
   };
 
-  const addCareerSectionWin = (id) => {
-    setCareerSections(careerSections.map(section =>
-      section.id === id ? { ...section, wins: section.wins + 1 } : section
-    ));
+  const moveTask = (taskId, fromColumn, toColumn) => {
+    const task = kanbanTasks[fromColumn].find(t => t.id === taskId);
+    if (task) {
+      setKanbanTasks(prev => ({
+        ...prev,
+        [fromColumn]: prev[fromColumn].filter(t => t.id !== taskId),
+        [toColumn]: [...prev[toColumn], task]
+      }));
+    }
+  };
+
+  const deleteTask = (taskId, column) => {
+    setKanbanTasks(prev => ({
+      ...prev,
+      [column]: prev[column].filter(t => t.id !== taskId)
+    }));
   };
 
   const exportData = () => {
@@ -1434,15 +1449,20 @@ const DualTrackOS = () => {
                   ? 'bg-gray-800/50 border-2 border-gray-700/50 hover:border-yellow-500/50 shadow-lg backdrop-blur-sm'
                   : 'bg-white border-2 border-gray-100 hover:border-yellow-400 shadow-md'
               }`}>
-                <div className="flex items-center justify-between mb-3">
-                  <Zap className={darkMode ? 'text-yellow-400' : 'text-yellow-500'} size={20} />
-                  <span className={`text-lg font-bold ${darkMode ? 'bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent' : 'text-gray-900'}`}>
+                <div className="flex items-center justify-center mb-2">
+                  <Zap className={darkMode ? 'text-yellow-400' : 'text-yellow-500'} size={24} />
+                </div>
+                <div className={`text-sm font-bold uppercase text-center mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  ENERGY
+                </div>
+                <div className={`text-center mb-3`}>
+                  <span className={`text-2xl font-bold ${darkMode ? 'bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent' : 'text-gray-900'}`}>
                     {getCurrentPeriodEnergy() || '?'}/5
                   </span>
                 </div>
-                <div className={`text-xs uppercase mb-2 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                  Energy ({getTimeOfDay()})
-                  {getCurrentPeriodEnergy() && <span className="ml-1 text-xs">(Click for tips)</span>}
+                <div className={`text-xs text-center mb-2 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                  {getTimeOfDay()}
+                  {getCurrentPeriodEnergy() && <div className="text-xs mt-1">(Click for tips)</div>}
                 </div>
                 {/* Energy level selector */}
                 <div className="flex justify-between mt-2">
@@ -1474,66 +1494,55 @@ const DualTrackOS = () => {
               </div>
 
               {/* Mood Selector - Click to open modal */}
-              <div onClick={() => {
-                if (currentMood) {
-                  setShowMoodModal(true);
-                } else {
-                  setExpandedTile(expandedTile === 'mood' ? null : 'mood');
-                }
-              }} className={`rounded-xl p-4 cursor-pointer transition-all duration-300 ${
+              <div className={`rounded-xl p-4 transition-all duration-300 ${
                 darkMode
                   ? 'bg-gray-800/50 border-2 border-gray-700/50 hover:border-purple-500/50 shadow-lg backdrop-blur-sm'
                   : 'bg-white border-2 border-gray-100 hover:border-purple-400 shadow-md'
               }`}>
-                <div className="flex items-center justify-between mb-3">
-                  <Heart className={darkMode ? 'text-pink-400' : 'text-pink-500'} size={20} />
-                  <span className="text-2xl">
-                    {currentMood === 'energized' && '😊'}
-                    {currentMood === 'focused' && '🎯'}
-                    {currentMood === 'calm' && '😌'}
-                    {currentMood === 'tired' && '😴'}
-                    {currentMood === 'anxious' && '😰'}
-                    {currentMood === 'overwhelmed' && '😫'}
-                    {!currentMood && '😐'}
-                  </span>
+                <div className="flex items-center justify-center mb-2">
+                  <Heart className={darkMode ? 'text-pink-400' : 'text-pink-500'} size={24} />
                 </div>
-                <div className={`text-xs uppercase mb-2 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                  MOOD {currentMood && `(current: ${currentMood})`}
-                  {currentMood && <div className="text-xs normal-case mt-1">(Click for wellness tips)</div>}
+                <div className={`text-sm font-bold uppercase text-center mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  MOOD
                 </div>
-                {/* Mood selector grid */}
-                {expandedTile === 'mood' && (
-                  <div className="grid grid-cols-3 gap-2 mt-2">
-                    {[
-                      { mood: 'energized', emoji: '😊' },
-                      { mood: 'focused', emoji: '🎯' },
-                      { mood: 'calm', emoji: '😌' },
-                      { mood: 'tired', emoji: '😴' },
-                      { mood: 'anxious', emoji: '😰' },
-                      { mood: 'overwhelmed', emoji: '😫' }
-                    ].map(({ mood, emoji }) => (
-                      <button
-                        key={mood}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCurrentMood(mood);
-                          setExpandedTile(null);
-                        }}
-                        className={`p-2 rounded-lg text-2xl transition-all ${
-                          currentMood === mood
-                            ? darkMode
-                              ? 'bg-purple-500/30 border border-purple-500/50'
-                              : 'bg-purple-100 border border-purple-300'
-                            : darkMode
-                              ? 'bg-gray-700/30 hover:bg-gray-700/50'
-                              : 'bg-gray-100 hover:bg-gray-200'
-                        }`}
-                      >
-                        {emoji}
-                      </button>
-                    ))}
+                {currentMood && (
+                  <div className={`text-xs text-center mb-3 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                    Current: {currentMood}
+                    <div className="text-xs mt-1 cursor-pointer hover:underline" onClick={() => setShowMoodModal(true)}>
+                      (Click for wellness tips)
+                    </div>
                   </div>
                 )}
+                {/* Mood selector grid - Always visible */}
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { mood: 'energized', emoji: '😊' },
+                    { mood: 'focused', emoji: '🎯' },
+                    { mood: 'calm', emoji: '😌' },
+                    { mood: 'tired', emoji: '😴' },
+                    { mood: 'anxious', emoji: '😰' },
+                    { mood: 'overwhelmed', emoji: '😫' }
+                  ].map(({ mood, emoji }) => (
+                    <button
+                      key={mood}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentMood(mood);
+                      }}
+                      className={`p-2 rounded-lg text-xl transition-all ${
+                        currentMood === mood
+                          ? darkMode
+                            ? 'bg-purple-500/30 border-2 border-purple-500/50 scale-110'
+                            : 'bg-purple-100 border-2 border-purple-400 scale-110'
+                          : darkMode
+                            ? 'bg-gray-700/30 hover:bg-gray-700/50 border-2 border-transparent'
+                            : 'bg-gray-100 hover:bg-gray-200 border-2 border-transparent'
+                      }`}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -1637,64 +1646,229 @@ const DualTrackOS = () => {
               </div>
             </div>
             
+            {/* KANBAN BOARD - Career & Business Tasks */}
             <div className={`rounded-xl p-6 transition-all duration-300 ${
               darkMode
                 ? 'bg-gray-800/50 border-2 border-gray-700/50 shadow-lg backdrop-blur-sm'
                 : 'bg-white border-2 border-gray-100 shadow-md'
             }`}>
-              <h3 className={`text-lg font-bold mb-4 flex items-center justify-between ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                <div className="flex items-center">
-                  <Briefcase className={`mr-2 ${darkMode ? 'text-blue-400' : 'text-blue-500'}`} size={20} />
-                  Career Progress
-                </div>
-                <button onClick={addCareerSection} className={`p-1 rounded ${darkMode ? 'bg-blue-500/10 hover:bg-blue-500/20 text-blue-400' : 'bg-blue-50 hover:bg-blue-100 text-blue-600'}`}>
-                  <Plus size={16} />
-                </button>
+              <h3 className={`text-lg font-bold mb-4 flex items-center ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                <Briefcase className={`mr-2 ${darkMode ? 'text-blue-400' : 'text-blue-500'}`} size={20} />
+                Career & Business Pipeline
               </h3>
-              <div className="space-y-4">
-                {careerSections.map((section, idx) => (
-                  <div key={section.id}>
-                    <div className="flex justify-between items-center mb-2">
-                      <div className="flex items-center space-x-2 flex-1">
-                        <input
-                          type="text"
-                          value={section.label}
-                          onChange={(e) => updateCareerSectionLabel(section.id, e.target.value)}
-                          className={`text-sm font-semibold bg-transparent border-b-2 border-transparent focus:border-blue-500/50 outline-none ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                        />
-                        {careerSections.length > 1 && (
-                          <button onClick={() => deleteCareerSection(section.id)} className={darkMode ? 'text-gray-600 hover:text-red-400' : 'text-gray-400 hover:text-red-600'}>
-                            <X size={14} />
-                          </button>
-                        )}
-                      </div>
-                      <span className={`text-lg font-bold ${
-                        idx % 3 === 0
-                          ? darkMode ? 'bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent' : 'text-blue-600'
-                          : idx % 3 === 1
-                            ? darkMode ? 'bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent' : 'text-purple-600'
-                            : darkMode ? 'bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent' : 'text-green-600'
-                      }`}>
-                        {section.wins} wins
-                      </span>
-                    </div>
-                    <button onClick={() => addCareerSectionWin(section.id)} className={`w-full py-2 rounded-lg text-sm font-medium transition-all ${
-                      idx % 3 === 0
-                        ? darkMode
-                          ? 'bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border-2 border-blue-500/30'
-                          : 'bg-blue-50 hover:bg-blue-100 text-blue-700'
-                        : idx % 3 === 1
-                          ? darkMode
-                            ? 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border-2 border-purple-500/30'
-                            : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
-                          : darkMode
-                            ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-2 border-emerald-500/30'
-                            : 'bg-green-50 hover:bg-green-100 text-green-700'
+
+              {/* Add Task Input */}
+              <div className="flex space-x-2 mb-6">
+                <input
+                  type="text"
+                  value={newTaskInput}
+                  onChange={(e) => setNewTaskInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && addKanbanTask()}
+                  placeholder="Add new task..."
+                  className={`flex-1 px-4 py-2 rounded-lg border-2 transition-all ${
+                    darkMode
+                      ? 'bg-gray-900/50 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-blue-500/50'
+                      : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-500'
+                  }`}
+                />
+                <button
+                  onClick={addKanbanTask}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                    darkMode
+                      ? 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border-2 border-blue-500/40'
+                      : 'bg-blue-500 hover:bg-blue-600 text-white'
+                  }`}
+                >
+                  <Plus size={18} />
+                </button>
+              </div>
+
+              {/* Kanban Columns */}
+              <div className="grid grid-cols-3 gap-3">
+                {/* BACKLOG */}
+                <div
+                  onClick={() => setExpandedColumn(expandedColumn === 'backlog' ? null : 'backlog')}
+                  className={`rounded-lg p-3 cursor-pointer transition-all ${
+                    darkMode
+                      ? 'bg-gray-900/50 border-2 border-gray-700 hover:border-gray-600'
+                      : 'bg-gray-50 border-2 border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className={`text-xs font-bold uppercase ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      Backlog
+                    </h4>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                      darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'
                     }`}>
-                      + Log Win
-                    </button>
+                      {kanbanTasks.backlog.length}
+                    </span>
                   </div>
-                ))}
+                  <div className="space-y-2">
+                    {kanbanTasks.backlog.slice(0, expandedColumn === 'backlog' ? undefined : 3).map(task => (
+                      <div
+                        key={task.id}
+                        onClick={(e) => e.stopPropagation()}
+                        className={`p-2 rounded text-xs ${
+                          darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+                        }`}
+                      >
+                        <p className={`font-medium mb-1 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                          {task.title}
+                        </p>
+                        <div className="flex space-x-1">
+                          <button
+                            onClick={() => moveTask(task.id, 'backlog', 'inProgress')}
+                            className={`flex-1 py-1 rounded text-xs ${
+                              darkMode
+                                ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-400'
+                                : 'bg-orange-100 hover:bg-orange-200 text-orange-700'
+                            }`}
+                          >
+                            Start →
+                          </button>
+                          <button
+                            onClick={() => deleteTask(task.id, 'backlog')}
+                            className={`px-2 py-1 rounded ${
+                              darkMode ? 'hover:bg-red-500/20 text-red-400' : 'hover:bg-red-100 text-red-600'
+                            }`}
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    {expandedColumn !== 'backlog' && kanbanTasks.backlog.length > 3 && (
+                      <div className={`text-xs text-center ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                        +{kanbanTasks.backlog.length - 3} more
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* IN PROGRESS */}
+                <div
+                  onClick={() => setExpandedColumn(expandedColumn === 'inProgress' ? null : 'inProgress')}
+                  className={`rounded-lg p-3 cursor-pointer transition-all ${
+                    darkMode
+                      ? 'bg-orange-900/20 border-2 border-orange-700/30 hover:border-orange-600/50'
+                      : 'bg-orange-50 border-2 border-orange-200 hover:border-orange-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className={`text-xs font-bold uppercase ${darkMode ? 'text-orange-400' : 'text-orange-700'}`}>
+                      In Progress
+                    </h4>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                      darkMode ? 'bg-orange-700/30 text-orange-300' : 'bg-orange-200 text-orange-800'
+                    }`}>
+                      {kanbanTasks.inProgress.length}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {kanbanTasks.inProgress.slice(0, expandedColumn === 'inProgress' ? undefined : 3).map(task => (
+                      <div
+                        key={task.id}
+                        onClick={(e) => e.stopPropagation()}
+                        className={`p-2 rounded text-xs ${
+                          darkMode ? 'bg-gray-800 border border-orange-700/30' : 'bg-white border border-orange-300'
+                        }`}
+                      >
+                        <p className={`font-medium mb-1 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                          {task.title}
+                        </p>
+                        <div className="flex space-x-1">
+                          <button
+                            onClick={() => moveTask(task.id, 'inProgress', 'backlog')}
+                            className={`px-2 py-1 rounded text-xs ${
+                              darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-200 text-gray-600'
+                            }`}
+                          >
+                            ← Back
+                          </button>
+                          <button
+                            onClick={() => moveTask(task.id, 'inProgress', 'done')}
+                            className={`flex-1 py-1 rounded text-xs ${
+                              darkMode
+                                ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400'
+                                : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-700'
+                            }`}
+                          >
+                            Done →
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    {expandedColumn !== 'inProgress' && kanbanTasks.inProgress.length > 3 && (
+                      <div className={`text-xs text-center ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                        +{kanbanTasks.inProgress.length - 3} more
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* DONE */}
+                <div
+                  onClick={() => setExpandedColumn(expandedColumn === 'done' ? null : 'done')}
+                  className={`rounded-lg p-3 cursor-pointer transition-all ${
+                    darkMode
+                      ? 'bg-emerald-900/20 border-2 border-emerald-700/30 hover:border-emerald-600/50'
+                      : 'bg-emerald-50 border-2 border-emerald-200 hover:border-emerald-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className={`text-xs font-bold uppercase ${darkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
+                      Done
+                    </h4>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                      darkMode ? 'bg-emerald-700/30 text-emerald-300' : 'bg-emerald-200 text-emerald-800'
+                    }`}>
+                      {kanbanTasks.done.length}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {kanbanTasks.done.slice(0, expandedColumn === 'done' ? undefined : 3).map(task => (
+                      <div
+                        key={task.id}
+                        onClick={(e) => e.stopPropagation()}
+                        className={`p-2 rounded text-xs ${
+                          darkMode ? 'bg-gray-800 border border-emerald-700/30' : 'bg-white border border-emerald-300'
+                        }`}
+                      >
+                        <p className={`font-medium mb-1 line-through ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          {task.title}
+                        </p>
+                        <div className="flex space-x-1">
+                          <button
+                            onClick={() => moveTask(task.id, 'done', 'inProgress')}
+                            className={`flex-1 py-1 rounded text-xs ${
+                              darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-200 text-gray-600'
+                            }`}
+                          >
+                            ← Redo
+                          </button>
+                          <button
+                            onClick={() => deleteTask(task.id, 'done')}
+                            className={`px-2 py-1 rounded ${
+                              darkMode ? 'hover:bg-red-500/20 text-red-400' : 'hover:bg-red-100 text-red-600'
+                            }`}
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    {expandedColumn !== 'done' && kanbanTasks.done.length > 3 && (
+                      <div className={`text-xs text-center ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                        +{kanbanTasks.done.length - 3} more
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className={`mt-4 text-xs text-center ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                Click on any column to expand and see all tasks
               </div>
             </div>
 
