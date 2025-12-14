@@ -16,22 +16,22 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
         } animate-pulse`} style={{ animationDuration: '6s', animationDelay: '1s' }}></div>
       </div>
 
-      {/* Main content - Centered */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 text-center max-w-3xl mx-auto">
+      {/* Main content - Centered, tighter spacing */}
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 text-center max-w-4xl mx-auto">
         {/* Logo - Lioness - 3x Larger */}
-        <div className="mb-8 animate-fade-in">
+        <div className="mb-2 animate-fade-in">
           <div className="relative">
             {/* Actual Logo Image - 3x Larger */}
             <img
               src="/lioness-logo.png"
               alt="DualTrack OS Lioness Logo"
-              className="w-[500px] h-[500px] md:w-[700px] md:h-[700px] lg:w-[900px] lg:h-[900px] mx-auto drop-shadow-2xl"
+              className="w-[400px] h-[400px] md:w-[550px] md:h-[550px] lg:w-[650px] lg:h-[650px] mx-auto drop-shadow-2xl"
             />
           </div>
         </div>
 
-        {/* Brand name */}
-        <h1 className="text-5xl md:text-6xl font-bold mb-4">
+        {/* Brand name - directly under logo */}
+        <h1 className="text-4xl md:text-5xl font-bold mb-3">
           <span className={darkMode ? 'text-gray-100' : 'text-gray-900'}>DualTrack</span>{' '}
           <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
             OS
@@ -39,14 +39,14 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
         </h1>
 
         {/* Strapline */}
-        <p className={`text-lg md:text-xl mb-6 leading-relaxed font-medium ${
+        <p className={`text-base md:text-lg mb-4 leading-relaxed font-medium ${
           darkMode ? 'text-gray-300' : 'text-gray-700'
         }`}>
           The operating system powering every role she runs, every day.
         </p>
 
         {/* Motivation message */}
-        <p className={`text-base md:text-lg mb-12 italic font-light ${
+        <p className={`text-sm md:text-base mb-6 italic font-light ${
           darkMode ? 'text-purple-400' : 'text-purple-600'
         }`}>
           Take a breath. You got this. Lets do it.
@@ -71,11 +71,11 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
         </button>
       </div>
 
-      {/* Story link - Fixed at bottom with rounded edges and glowy blur */}
-      <div className="relative z-10 pb-6 px-6 text-center">
+      {/* Story link - Fixed at bottom, always visible */}
+      <div className="relative z-10 pb-4 px-6 text-center">
         <button
           onClick={onViewStory}
-          className={`px-10 py-5 rounded-full font-medium text-base md:text-lg transition-all hover:scale-105 ${
+          className={`px-10 py-4 rounded-full font-medium text-sm md:text-base transition-all hover:scale-105 ${
             darkMode
               ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40'
               : 'bg-amber-100 hover:bg-amber-200 text-amber-700 border border-amber-300'
