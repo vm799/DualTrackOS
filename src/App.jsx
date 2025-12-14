@@ -893,63 +893,68 @@ const DualTrackOS = () => {
   const getSpiritAnimalStage = (balanceScore) => {
     const stages = [
       {
-        name: 'Egg',
-        japanese: '卵',
-        romanji: 'Tamago',
-        emoji: 'ॐ',
+        name: 'Newborn Cub',
+        japanese: '新生',
+        romanji: 'Shinsei',
+        emoji: '🦁',
         minScore: 0,
         maxScore: 19,
-        description: 'Potential waiting to hatch',
-        philosophy: 'Every great journey begins with patience. Your spirit animal sleeps within, waiting for you to nurture it with balance and self-care.',
-        color: 'gray',
+        description: 'Newborn cub finding her roar',
+        philosophy: 'Every great journey begins with patience. Your inner lioness sleeps within, waiting for you to nurture her with balance and self-care.',
+        color: '#06b6d4',
+        neonColor: 'rgba(6, 182, 212, 0.8)',
         tails: 0
       },
       {
-        name: 'Hatchling',
-        japanese: '雛',
-        romanji: 'Hina',
-        emoji: 'श',
+        name: 'Young Cub',
+        japanese: '若獅子',
+        romanji: 'Waka-shishi',
+        emoji: '🦁',
         minScore: 20,
         maxScore: 39,
-        description: 'Newly hatched, learning to balance',
+        description: 'Young cub learning to balance',
         philosophy: 'New beginnings require gentleness. You are learning that rest is not weakness, and productivity without balance is unsustainable.',
-        color: 'yellow',
+        color: '#a855f7',
+        neonColor: 'rgba(168, 85, 247, 0.8)',
         tails: 0
       },
       {
-        name: 'Young Fox',
-        japanese: '子狐',
-        romanji: 'Kogitsune',
-        emoji: 'शक्ति',
+        name: 'Growing Lioness',
+        japanese: '成長',
+        romanji: 'Seichō',
+        emoji: '🦁',
         minScore: 40,
         maxScore: 59,
-        description: 'Growing wisdom, finding rhythm',
-        philosophy: 'The young fox learns to dance between effort and rest. You are discovering your natural rhythm, honoring both ambition and restoration.',
-        color: 'orange',
+        description: 'Growing lioness, finding rhythm',
+        philosophy: 'The growing lioness learns to dance between effort and rest. You are discovering your natural rhythm, honoring both ambition and restoration.',
+        color: '#ec4899',
+        neonColor: 'rgba(236, 72, 153, 0.8)',
         tails: 3
       },
       {
-        name: 'Spirit Fox',
-        japanese: '狐',
-        romanji: 'Kitsune',
-        emoji: 'महा',
+        name: 'Powerful Lioness',
+        japanese: '力',
+        romanji: 'Chikara',
+        emoji: '🦁',
         minScore: 60,
         maxScore: 79,
-        description: 'Embodying balance, 5 tails of wisdom',
-        philosophy: 'The spirit fox moves gracefully through life. You understand that true power comes from sustainable practices, not constant hustle.',
-        color: 'purple',
+        description: 'Embodying balance and power',
+        philosophy: 'The powerful lioness moves gracefully through life. You understand that true power comes from sustainable practices, not constant hustle.',
+        color: '#fb923c',
+        neonColor: 'rgba(251, 146, 60, 0.8)',
         tails: 5
       },
       {
-        name: 'Nine-Tailed Fox',
-        japanese: '九尾',
-        romanji: 'Kyuubi',
-        emoji: 'सिद्ध',
+        name: 'Queen Lioness',
+        japanese: '女王',
+        romanji: 'Joō',
+        emoji: '👑🦁',
         minScore: 80,
         maxScore: 100,
         description: 'Enlightened master of balance',
-        philosophy: 'The nine-tailed fox has achieved perfect harmony. You honor your energy, emotions, and body with deep wisdom. You rest without guilt and work without burnout.',
-        color: 'gold',
+        philosophy: 'The queen lioness has achieved perfect harmony. You honor your energy, emotions, and body with deep wisdom. You rest without guilt and work without burnout.',
+        color: '#fbbf24',
+        neonColor: 'rgba(251, 191, 36, 0.9)',
         tails: 9
       }
     ];
@@ -1175,26 +1180,31 @@ const DualTrackOS = () => {
   }
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 ${
+    <div className={`min-h-screen transition-colors duration-500 overflow-x-hidden ${
       darkMode
         ? 'bg-[#191919]'
         : 'bg-gradient-to-br from-purple-50 to-pink-50'
-    }`}>
+    }`} style={{ position: 'fixed', width: '100%', height: '100%', overflowY: 'auto' }}>
       <GeometricBg />
 
-      {/* Bottom Right Side Tab - Spirit Animal */}
+      {/* Bottom Right Side Tab - Spirit Animal with Neon Colors */}
       <div className={`fixed right-0 bottom-20 md:bottom-24 z-30 transition-all duration-300`}>
         <button
           onClick={() => setShowSpiritAnimalModal(true)}
-          className={`p-3 md:p-4 rounded-l-2xl transition-all hover:scale-110 shadow-2xl ${
-            darkMode
-              ? 'bg-gradient-to-br from-purple-900/90 to-pink-900/90 border-2 border-r-0 border-purple-500/50'
-              : 'bg-gradient-to-br from-purple-100 to-pink-100 border-2 border-r-0 border-purple-300 shadow-purple-200'
+          className={`p-3 md:p-4 rounded-l-2xl transition-all hover:scale-110 border-2 border-r-0 ${
+            darkMode ? 'bg-gray-900/90' : 'bg-white/90'
           }`}
+          style={{
+            borderColor: getSpiritAnimalStage(spiritAnimalScore).color,
+            boxShadow: `0 0 30px ${getSpiritAnimalStage(spiritAnimalScore).neonColor}, 0 0 15px ${getSpiritAnimalStage(spiritAnimalScore).neonColor}`
+          }}
           title="View Spirit Animal Journey"
         >
-          <div className="text-4xl md:text-5xl">
+          <div className="text-4xl md:text-5xl flex flex-col items-center gap-1">
             {getSpiritAnimalStage(spiritAnimalScore).emoji}
+            <span className="text-xs font-bold" style={{ color: getSpiritAnimalStage(spiritAnimalScore).color }}>
+              {getSpiritAnimalStage(spiritAnimalScore).japanese}
+            </span>
           </div>
         </button>
       </div>
@@ -1207,17 +1217,17 @@ const DualTrackOS = () => {
       }`}>
         <div className="max-w-6xl mx-auto px-4 py-3 md:py-4">
           <div className="flex items-center justify-between gap-2 md:gap-4">
-            {/* Left: Brand Logo + User Initials + Welcome */}
-            <div className="flex items-center gap-2 md:gap-4">
-              {/* Brand Logo - Much Larger, Responsive */}
+            {/* Left: Brand Logo + User Initials (side by side) */}
+            <div className="flex items-center gap-3 md:gap-5">
+              {/* Brand Logo - Bigger, Fill Space */}
               <img
                 src="/lioness-logo.png"
                 alt="DualTrack OS"
-                className="w-12 h-12 md:w-20 md:h-20 lg:w-24 lg:h-24 flex-shrink-0 drop-shadow-lg"
+                className="w-16 h-16 md:w-28 md:h-28 lg:w-32 lg:h-32 flex-shrink-0 drop-shadow-2xl"
               />
 
               {userProfile.initials && (
-                <div className={`w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center font-bold text-sm md:text-xl lg:text-2xl border-2 ${
+                <div className={`w-12 h-12 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full flex items-center justify-center font-bold text-lg md:text-3xl lg:text-4xl border-3 ${
                   darkMode
                     ? 'bg-purple-900/30 border-purple-500/50 text-purple-300'
                     : 'bg-purple-100 border-purple-300 text-purple-700'
@@ -1225,14 +1235,6 @@ const DualTrackOS = () => {
                   {userProfile.initials}
                 </div>
               )}
-              <div className="hidden sm:block">
-                <h2 className={`font-bold text-base md:text-xl lg:text-2xl ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                  {userProfile.preferredName || 'Welcome'}
-                </h2>
-                <p className={`text-xs md:text-sm ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                  DualTrack OS
-                </p>
-              </div>
             </div>
 
             {/* Right: Time/Date + Auth + Settings */}
