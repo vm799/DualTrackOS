@@ -1250,122 +1250,77 @@ const DualTrackOS = () => {
         </button>
       </div>
 
-      {/* Clean Top Header */}
+      {/* Optimized Compact Header - Mobile First */}
       <div className={`sticky top-0 z-20 backdrop-blur-xl transition-all duration-300 ${
         darkMode
           ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
           : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 py-2">
-          <div className="flex items-center justify-between gap-2 md:gap-4">
-            {/* Left: Brand Logo + User Initials (4x bigger) */}
-            <div className="flex items-center gap-2 md:gap-4">
-              {/* Brand Logo - 4x Bigger */}
-              <img
-                src="/lioness-logo.png"
-                alt="DualTrack OS"
-                className="h-40 w-40 md:h-56 md:w-56 lg:h-64 lg:w-64 flex-shrink-0 drop-shadow-2xl object-cover"
-              />
+        <div className="max-w-7xl mx-auto px-3 py-1.5">
+          <div className="flex items-center justify-between gap-2">
 
-              {userProfile.initials && (
-                <div className={`flex items-center justify-center font-bold text-4xl md:text-6xl lg:text-7xl ${
-                  darkMode
-                    ? 'text-purple-300'
-                    : 'text-purple-700'
-                }`}>
-                  {userProfile.initials}
-                </div>
-              )}
-            </div>
+            {/* LEFT: Brand Logo (Small App Icon) */}
+            <img
+              src="/lioness-logo.png"
+              alt="DualTrack OS"
+              className="h-8 w-8 md:h-9 md:w-9 flex-shrink-0 object-cover opacity-90"
+            />
 
-            {/* Right: Time/Date + Auth + Settings */}
-            <div className="flex items-center space-x-3">
-              {/* Time & Date Card */}
-              <div className={`px-4 py-2 rounded-xl border-2 ${
+            {/* CENTER: Time/Date/Pomodoro Cluster */}
+            <div className="flex-1 flex items-center justify-center gap-2 md:gap-3">
+              {/* Time & Date Widget */}
+              <div className={`flex flex-col items-center px-2.5 py-1 rounded-lg ${
                 darkMode
-                  ? 'bg-gray-800/50 border-gray-700/50'
-                  : 'bg-white border-gray-200'
+                  ? 'bg-gray-800/40'
+                  : 'bg-gray-50'
               }`}>
-                <div className={`font-mono font-bold text-xl ${
-                  darkMode
-                    ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
-                    : 'text-gray-900'
-                }`}>
-                  {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                <div className="flex items-baseline gap-1">
+                  <span className={`font-mono font-bold text-base md:text-lg ${
+                    darkMode
+                      ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+                      : 'text-gray-900'
+                  }`}>
+                    {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false })}
+                  </span>
+                  <span className={`text-[10px] md:text-xs font-medium ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                    {currentTime.toLocaleTimeString('en-US', { hour12: true }).slice(-2)}
+                  </span>
                 </div>
-                <div className={`text-xs text-center mt-0.5 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                  {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {currentTime.toLocaleDateString('en-US', { weekday: 'short' })}
+                <div className={`text-[10px] md:text-xs ${darkMode ? 'text-gray-600' : 'text-gray-500'}`}>
+                  {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 </div>
               </div>
 
-              {/* Google Auth Button */}
-              {isSupabaseConfigured() ? (
-                user ? (
-                  <div className="flex items-center space-x-2">
-                    {/* User Profile */}
-                    <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg ${
-                      darkMode
-                        ? 'bg-emerald-500/10 border border-emerald-500/30'
-                        : 'bg-emerald-50 border border-emerald-200'
-                    }`}>
-                      <User size={14} className={darkMode ? 'text-emerald-400' : 'text-emerald-600'} />
-                      <span className={`text-xs font-medium ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>
-                        {user.user_metadata?.name?.split(' ')[0] || userProfile.preferredName || 'User'}
-                      </span>
-                    </div>
-                    {/* Sign Out Button */}
-                    <button
-                      onClick={async () => {
-                        await supabaseSignOut();
-                        setUser(null);
-                      }}
-                      className={`p-2 rounded-lg transition-all ${
-                        darkMode
-                          ? 'hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30'
-                          : 'hover:bg-rose-100 text-rose-600 hover:text-rose-700 border border-rose-300'
-                      }`}
-                      title="Sign out"
-                    >
-                      <LogOut size={16} />
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={async () => {
-                      const { error } = await signInWithGoogle();
-                      if (error) {
-                        console.error('Sign in error:', error);
-                      }
-                    }}
-                    className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg transition-all ${
-                      darkMode
-                        ? 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30'
-                        : 'bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200'
-                    }`}
-                  >
-                    <LogIn size={16} />
-                    <span className="text-xs font-medium">Sign in with Google</span>
-                  </button>
-                )
-              ) : null}
-
-              {/* Settings Icon - Larger and more visible */}
+              {/* Pomodoro Pill (UI Only) */}
               <button
-                onClick={() => setCurrentView(currentView === 'insights' ? 'dashboard' : 'insights')}
-                className={`p-2 md:p-3 lg:p-4 rounded-lg md:rounded-xl transition-all ${
-                  currentView === 'insights'
-                    ? darkMode
-                      ? 'bg-purple-500/20 border-2 border-purple-500/40 text-purple-300'
-                      : 'bg-purple-100 border-2 border-purple-400 text-purple-700'
-                    : darkMode
-                      ? 'hover:bg-gray-800 text-gray-400 hover:text-gray-300 border-2 border-transparent'
-                      : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900 border-2 border-transparent'
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all hover:scale-105 ${
+                  darkMode
+                    ? 'bg-orange-500/10 border border-orange-500/30 text-orange-300'
+                    : 'bg-orange-50 border border-orange-200 text-orange-700'
                 }`}
-                title={currentView === 'insights' ? 'Close Settings' : 'Open Settings'}
+                title="Pomodoro Timer"
               >
-                <Settings className="w-5 h-5 md:w-7 md:h-7 lg:w-8 lg:h-8" />
+                <span className="text-sm">🍅</span>
+                <span className="font-mono text-xs md:text-sm font-medium">25:00</span>
               </button>
             </div>
+
+            {/* RIGHT: Settings Icon (Compact) */}
+            <button
+              onClick={() => setCurrentView(currentView === 'insights' ? 'dashboard' : 'insights')}
+              className={`p-1.5 md:p-2 rounded-lg transition-all ${
+                currentView === 'insights'
+                  ? darkMode
+                    ? 'bg-purple-500/20 text-purple-300'
+                    : 'bg-purple-100 text-purple-700'
+                  : darkMode
+                    ? 'hover:bg-gray-800/50 text-gray-500 hover:text-gray-400'
+                    : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+              }`}
+              title={currentView === 'insights' ? 'Close Settings' : 'Open Settings'}
+            >
+              <Settings className="w-5 h-5 md:w-6 md:h-6" />
+            </button>
           </div>
 
           {/* Pomodoro Timer */}
