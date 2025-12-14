@@ -1137,13 +1137,35 @@ const DualTrackOS = () => {
   );
 
   const NavButton = ({ icon, label, active, onClick }) => (
-    <button onClick={onClick} className={`flex flex-col items-center space-y-1 transition-all duration-300 ${
-      darkMode
-        ? active ? 'text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500' : 'text-gray-500 hover:text-gray-400'
-        : active ? 'text-purple-600' : 'text-gray-400 hover:text-gray-500'
-    }`}>
-      {icon}
-      <span className="text-xs font-medium">{label}</span>
+    <button
+      onClick={onClick}
+      className={`flex flex-col items-center space-y-1 p-2 rounded-xl transition-all duration-300 ${
+        active
+          ? darkMode
+            ? 'bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-2 border-purple-400/50'
+            : 'bg-gradient-to-br from-purple-100 to-pink-100 border-2 border-purple-400'
+          : darkMode
+            ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/30'
+            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+      }`}
+      style={active ? {
+        boxShadow: darkMode
+          ? '0 0 20px rgba(168, 85, 247, 0.5), 0 0 10px rgba(236, 72, 153, 0.3)'
+          : '0 0 15px rgba(168, 85, 247, 0.3), 0 4px 10px rgba(168, 85, 247, 0.2)'
+      } : {}}
+    >
+      <div className={active ? (darkMode ? 'text-purple-300' : 'text-purple-600') : ''}>
+        {icon}
+      </div>
+      <span className={`text-xs font-medium ${
+        active
+          ? darkMode
+            ? 'text-purple-300 font-bold'
+            : 'text-purple-700 font-bold'
+          : ''
+      }`}>
+        {label}
+      </span>
     </button>
   );
 
@@ -1187,22 +1209,26 @@ const DualTrackOS = () => {
     }`} style={{ position: 'fixed', width: '100%', height: '100%', overflowY: 'auto' }}>
       <GeometricBg />
 
-      {/* Bottom Right Side Tab - Spirit Animal with Neon Colors */}
-      <div className={`fixed right-0 bottom-20 md:bottom-24 z-30 transition-all duration-300`}>
+      {/* Spirit Animal - Teasing Half-Off Tab (Arrow style) */}
+      <div className={`fixed right-0 bottom-20 md:bottom-24 z-30 transition-all duration-500 hover:translate-x-0 translate-x-16 md:translate-x-20`}>
         <button
           onClick={() => setShowSpiritAnimalModal(true)}
-          className={`p-3 md:p-4 rounded-l-2xl transition-all hover:scale-110 border-2 border-r-0 ${
-            darkMode ? 'bg-gray-900/90' : 'bg-white/90'
+          className={`p-4 md:p-6 rounded-l-3xl transition-all hover:scale-105 border-4 border-r-0 relative ${
+            darkMode ? 'bg-gray-900/95' : 'bg-white/95'
           }`}
           style={{
             borderColor: getSpiritAnimalStage(spiritAnimalScore).color,
-            boxShadow: `0 0 30px ${getSpiritAnimalStage(spiritAnimalScore).neonColor}, 0 0 15px ${getSpiritAnimalStage(spiritAnimalScore).neonColor}`
+            boxShadow: `0 0 40px ${getSpiritAnimalStage(spiritAnimalScore).neonColor}, 0 0 20px ${getSpiritAnimalStage(spiritAnimalScore).neonColor}, inset 0 0 20px ${getSpiritAnimalStage(spiritAnimalScore).neonColor}`,
           }}
           title="View Spirit Animal Journey"
         >
-          <div className="text-4xl md:text-5xl flex flex-col items-center gap-1">
+          {/* Teasing Arrow Indicator */}
+          <div className="absolute left-2 top-1/2 -translate-y-1/2 text-xl animate-pulse" style={{ color: getSpiritAnimalStage(spiritAnimalScore).color }}>
+            ◀
+          </div>
+          <div className="text-5xl md:text-6xl flex flex-col items-center gap-2 pl-4">
             {getSpiritAnimalStage(spiritAnimalScore).emoji}
-            <span className="text-xs font-bold" style={{ color: getSpiritAnimalStage(spiritAnimalScore).color }}>
+            <span className="text-sm md:text-base font-bold" style={{ color: getSpiritAnimalStage(spiritAnimalScore).color }}>
               {getSpiritAnimalStage(spiritAnimalScore).japanese}
             </span>
           </div>
@@ -1215,19 +1241,19 @@ const DualTrackOS = () => {
           ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
           : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
-        <div className="max-w-6xl mx-auto px-4 py-3 md:py-4">
+        <div className="max-w-7xl mx-auto px-4 py-2">
           <div className="flex items-center justify-between gap-2 md:gap-4">
-            {/* Left: Brand Logo + User Initials (side by side) */}
-            <div className="flex items-center gap-3 md:gap-5">
-              {/* Brand Logo - Bigger, Fill Space */}
+            {/* Left: Brand Logo + User Initials (2x bigger, fills space, aligned with time box) */}
+            <div className="flex items-center gap-2 md:gap-4">
+              {/* Brand Logo - 2x Bigger, Fills Vertical Space */}
               <img
                 src="/lioness-logo.png"
                 alt="DualTrack OS"
-                className="w-16 h-16 md:w-28 md:h-28 lg:w-32 lg:h-32 flex-shrink-0 drop-shadow-2xl"
+                className="h-20 w-20 md:h-28 md:w-28 lg:h-32 lg:w-32 flex-shrink-0 drop-shadow-2xl object-cover"
               />
 
               {userProfile.initials && (
-                <div className={`w-12 h-12 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full flex items-center justify-center font-bold text-lg md:text-3xl lg:text-4xl border-3 ${
+                <div className={`h-20 w-20 md:h-28 md:w-28 lg:h-32 lg:w-32 rounded-full flex items-center justify-center font-bold text-2xl md:text-4xl lg:text-5xl border-4 ${
                   darkMode
                     ? 'bg-purple-900/30 border-purple-500/50 text-purple-300'
                     : 'bg-purple-100 border-purple-300 text-purple-700'
@@ -3004,11 +3030,16 @@ const DualTrackOS = () => {
 
       <div className={`fixed bottom-0 left-0 right-0 z-20 backdrop-blur-xl transition-all duration-300 ${
         darkMode
-          ? 'bg-gray-900/80 border-t border-gray-800/50 shadow-xl shadow-purple-500/5'
-          : 'bg-white/80 border-t border-gray-200/50 shadow-lg'
-      }`}>
-        <div className="max-w-2xl mx-auto px-2 py-2">
-          <div className="grid grid-cols-6 gap-1">
+          ? 'bg-gradient-to-t from-gray-900/95 to-gray-900/90 border-t-2 border-purple-500/30 shadow-2xl'
+          : 'bg-gradient-to-t from-white/95 to-white/90 border-t-2 border-purple-300/50 shadow-2xl'
+      }`}
+      style={{
+        boxShadow: darkMode
+          ? '0 -4px 30px rgba(168, 85, 247, 0.2), 0 -2px 10px rgba(168, 85, 247, 0.1)'
+          : '0 -4px 20px rgba(168, 85, 247, 0.15), 0 -2px 10px rgba(168, 85, 247, 0.08)'
+      }}>
+        <div className="max-w-2xl mx-auto px-3 py-3">
+          <div className="grid grid-cols-6 gap-2">
             <NavButton icon={<Brain size={18} />} label="Home" active={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
             <NavButton icon={<Calendar size={18} />} label="Plan" active={currentView === 'plan'} onClick={() => setCurrentView('plan')} />
             <NavButton icon={<Zap size={18} />} label="Exercise" active={currentView === 'exercise'} onClick={() => setCurrentView('exercise')} />
