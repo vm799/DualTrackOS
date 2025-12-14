@@ -1256,20 +1256,13 @@ const DualTrackOS = () => {
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
 
-            {/* LEFT: LOGO - Visible & Recognizable */}
+            {/* LEFT: LOGO */}
             <div className="flex items-center gap-2">
               <img
                 src="/lioness-logo.png"
                 alt="DualTrack OS"
-                className="w-11 h-11 md:w-12 md:h-12 opacity-95 drop-shadow-lg"
+                className="w-16 h-16 md:w-20 md:h-20 opacity-100 drop-shadow-2xl"
               />
-              <div className={`text-2xl md:text-3xl font-black tracking-tighter ${
-                darkMode
-                  ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
-                  : 'bg-gradient-to-r from-cyan-600 via-purple-600 to-pink-600 bg-clip-text text-transparent'
-              }`}>
-                DT
-              </div>
             </div>
 
             {/* CENTER: TIME + POMODORO HINT - Primary Action */}
@@ -1944,13 +1937,13 @@ const DualTrackOS = () => {
             }`}>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-3">
-                  <Apple size={24} className="text-white" />
+                  <Apple size={24} className="text-white opacity-50" />
                   <div>
-                    <div className="font-bold text-white">Apple Health</div>
-                    <div className={`text-xs ${darkMode ? 'text-emerald-400' : 'text-white opacity-75'}`}>Connected</div>
+                    <div className="font-bold text-white opacity-75">Apple Health</div>
+                    <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-white opacity-50'}`}>To Be Connected</div>
                   </div>
                 </div>
-                <Check size={24} className={darkMode ? 'text-emerald-400' : 'text-green-400'} />
+                <Clock size={24} className={darkMode ? 'text-gray-500' : 'text-gray-400'} />
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm text-white">
                 <div>
