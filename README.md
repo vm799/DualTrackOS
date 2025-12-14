@@ -1,6 +1,8 @@
 # DualTrack OS
 
-**The operating system for women running multiple careers without burning out.**
+**The operating system for women navigating hormonal fluctuations, multiple life streams, and showing up powerfully—no matter what the day brings.**
+
+Because your energy and mood aren't constant. Your cycles (menstrual, sleep, stress, life) create natural fluctuations. DualTrack OS helps you adapt, not fight your biology.
 
 ## 🎯 What It Does
 
@@ -75,11 +77,11 @@ npm run deploy
 - Voice check-ins with AI transcription
 
 ### Exercise Library
-- HIIT workouts optimized for hormonal health
+- HIIT workouts optimized for hormonal health (works with your cycle, not against it)
 - Live workout timer with audio cues
-- Strength training circuits
-- Recovery yoga
-- Completion tracking
+- Strength training circuits for all fitness levels
+- Recovery yoga for high-energy nervous systems
+- Completion tracking (celebrate showing up, period)
 
 ### Nutrition Tracking
 - Quick meal logging with photo upload
@@ -170,11 +172,11 @@ dualtrack-os/
 ## 💰 Business Model
 
 **Target Market:**
-- Women 
-- Corporate leaders building side businesses
-- ADHD/neurodivergent high-performers
-- Health-conscious individuals seeking work-life balance
-- Professionals navigating career transitions and health changes
+- Women experiencing hormone-driven energy/mood fluctuations (menstrual cycles, stress, sleep deprivation, pregnancy, postpartum, perimenopause)
+- Multi-career professionals (corporate job + side business/consultancy)
+- ADHD/neurodivergent high-performers managing variable executive function
+- Women refusing to choose between ambition and wellness
+- Anyone tired of "work-life balance" advice that ignores biological reality
 
 **Revenue Streams:**
 1. Consumer subscriptions (B2C) - $19/month Starter plan
@@ -192,12 +194,12 @@ Proprietary - All rights reserved
 
 ## ��‍💻 About the Founder
 
-Built by a busy professional who's
+Built by a badass woman who's:
 - AI Lead at a major financial institution
 - Building an AI automation consultancy
-- Managing ADHD and slave to hormonal mood and energy changes every day !!
-- Refusing to burn out
-- Living proof the system works
+- Managing ADHD + daily hormonal fluctuations with grace instead of guilt
+- Refusing to burn out or slow down
+- Living proof you can honor your biology AND your ambition
 
 ## �� Contact
 
@@ -207,4 +209,4 @@ Built by a busy professional who's
 
 ---
 
-**You're not failing at work-life balance. The system is broken. Let's build a better one.**
+**Your energy fluctuates. Your mood shifts. Your hormones cycle. You still show up. DualTrack helps you do it with grace and power.**
