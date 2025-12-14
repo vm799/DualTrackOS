@@ -16,12 +16,12 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
         } animate-pulse`} style={{ animationDuration: '6s', animationDelay: '1s' }}></div>
       </div>
 
-      {/* Main content - Centered, tighter spacing */}
+      {/* Top Half: Logo + Text Block */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 text-center max-w-4xl mx-auto">
-        {/* Logo - Lioness - 3x Larger */}
-        <div className="mb-2 animate-fade-in">
+        {/* Logo - Lioness - NO space below */}
+        <div className="mb-0 animate-fade-in">
           <div className="relative">
-            {/* Actual Logo Image - 3x Larger */}
+            {/* Actual Logo Image */}
             <img
               src="/lioness-logo.png"
               alt="DualTrack OS Lioness Logo"
@@ -30,32 +30,35 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
           </div>
         </div>
 
-        {/* Brand name - directly under logo */}
-        <h1 className="text-4xl md:text-5xl font-bold mb-3">
+        {/* Text Block - tight to logo */}
+        <h1 className="text-4xl md:text-5xl font-bold mb-2">
           <span className={darkMode ? 'text-gray-100' : 'text-gray-900'}>DualTrack</span>{' '}
           <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
             OS
           </span>
         </h1>
 
-        {/* Strapline */}
-        <p className={`text-base md:text-lg mb-4 leading-relaxed font-medium ${
+        {/* Strapline - end of top section */}
+        <p className={`text-base md:text-lg leading-relaxed font-medium ${
           darkMode ? 'text-gray-300' : 'text-gray-700'
         }`}>
           The operating system powering every role she runs, every day.
         </p>
+      </div>
 
-        {/* Motivation message */}
-        <p className={`text-sm md:text-base mb-6 italic font-light ${
+      {/* Second Half Top: Motivation + Button */}
+      <div className="relative z-10 flex flex-col items-center px-6 text-center max-w-4xl mx-auto mb-auto">
+        {/* Motivation message - purple smaller text */}
+        <p className={`text-sm md:text-base mb-4 italic font-light ${
           darkMode ? 'text-purple-400' : 'text-purple-600'
         }`}>
           Take a breath. You got this. Lets do it.
         </p>
 
-        {/* Enter button - Rectangle with gradient neon border */}
+        {/* Enter button - Smaller */}
         <button
           onClick={onEnter}
-          className={`group relative px-12 py-5 font-bold text-xl transition-all duration-300 transform hover:scale-105 ${
+          className={`group relative px-8 py-3 font-bold text-lg transition-all duration-300 transform hover:scale-105 ${
             darkMode ? 'bg-gray-900' : 'bg-white'
           }`}
           style={{
@@ -66,13 +69,13 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
         >
           <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent flex items-center space-x-2">
             <span>Enter Here</span>
-            <ArrowRight className="transition-transform group-hover:translate-x-1 text-purple-500" size={24} />
+            <ArrowRight className="transition-transform group-hover:translate-x-1 text-purple-500" size={20} />
           </span>
         </button>
       </div>
 
-      {/* Story link - Fixed at bottom, always visible */}
-      <div className="relative z-10 pb-4 px-6 text-center">
+      {/* Bottom: Story link with spacing */}
+      <div className="relative z-10 pb-6 px-6 text-center mt-auto">
         <button
           onClick={onViewStory}
           className={`px-10 py-4 rounded-full font-medium text-sm md:text-base transition-all hover:scale-105 ${
