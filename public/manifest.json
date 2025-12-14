@@ -1,15 +1,29 @@
 {
-  "short_name": "DualTrack OS",
-  "name": "DualTrack OS - Life Operating System",
+  "short_name": "DualTrack",
+  "name": "DualTrack OS",
+  "description": "Your personal operating system for managing fluctuating energy, mood, and multiple life demands",
   "icons": [
     {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#9333ea",
-  "background_color": "#ffffff"
+  "orientation": "portrait",
+  "theme_color": "#191919",
+  "background_color": "#191919"
 }
