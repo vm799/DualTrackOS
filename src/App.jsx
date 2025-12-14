@@ -1261,7 +1261,7 @@ const DualTrackOS = () => {
               <img
                 src="/lioness-logo.png"
                 alt="DualTrack OS"
-                className="w-16 h-16 md:w-20 md:h-20 opacity-100 drop-shadow-2xl"
+                className="w-32 h-32 md:w-40 md:h-40 opacity-100 drop-shadow-2xl"
               />
             </div>
 
