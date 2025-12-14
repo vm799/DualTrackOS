@@ -1,0 +1,38 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="lionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#a855f7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Dark background -->
+  <rect width="64" height="64" fill="#191919" rx="12"/>
+
+  <!-- Simplified bold lioness head -->
+  <g fill="url(#lionGradient)">
+    <!-- Main head circle -->
+    <circle cx="32" cy="32" r="22" opacity="0.95"/>
+
+    <!-- Left ear -->
+    <circle cx="18" cy="18" r="8"/>
+
+    <!-- Right ear -->
+    <circle cx="46" cy="18" r="8"/>
+
+    <!-- Mane glow effect -->
+    <circle cx="32" cy="32" r="24" opacity="0.3"/>
+
+    <!-- Eyes (dark) -->
+    <ellipse cx="26" cy="30" rx="3" ry="4" fill="#191919" opacity="0.9"/>
+    <ellipse cx="38" cy="30" rx="3" ry="4" fill="#191919" opacity="0.9"/>
+
+    <!-- Eye highlights -->
+    <ellipse cx="27" cy="29" rx="1.5" ry="2" fill="#06b6d4" opacity="0.9"/>
+    <ellipse cx="39" cy="29" rx="1.5" ry="2" fill="#06b6d4" opacity="0.9"/>
+
+    <!-- Nose -->
+    <path d="M 32 36 L 30 38 L 32 39 L 34 38 Z" fill="#191919" opacity="0.8"/>
+  </g>
+</svg>
