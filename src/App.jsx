@@ -1257,12 +1257,19 @@ const DualTrackOS = () => {
           <div className="flex items-center justify-between">
 
             {/* LEFT: LOGO - Visible & Recognizable */}
-            <div className="flex items-center">
+            <div className="flex items-center gap-2">
               <img
                 src="/lioness-logo.png"
                 alt="DualTrack OS"
                 className="w-11 h-11 md:w-12 md:h-12 opacity-95 drop-shadow-lg"
               />
+              <div className={`text-2xl md:text-3xl font-black tracking-tighter ${
+                darkMode
+                  ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+                  : 'bg-gradient-to-r from-cyan-600 via-purple-600 to-pink-600 bg-clip-text text-transparent'
+              }`}>
+                DT
+              </div>
             </div>
 
             {/* CENTER: TIME + POMODORO HINT - Primary Action */}
