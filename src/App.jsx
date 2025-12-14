@@ -163,10 +163,7 @@ const DualTrackOS = () => {
           try {
             const data = JSON.parse(saved);
 
-            // Check if user has entered before (completed onboarding)
-            if (data.userProfile?.hasCompletedOnboarding) {
-              setShowLandingPage(false);
-            }
+            // Always show landing page - removed auto-skip
 
             if (data.ndm) setNdm(data.ndm);
             if (data.careers) setCareers(data.careers);
@@ -1185,18 +1182,18 @@ const DualTrackOS = () => {
     }`}>
       <GeometricBg />
 
-      {/* Left Sidebar - Spirit Animal */}
-      <div className={`fixed left-0 top-1/2 -translate-y-1/2 z-30 transition-all duration-300`}>
+      {/* Bottom Right - Spirit Animal (above nav bar) */}
+      <div className={`fixed right-6 bottom-24 z-30 transition-all duration-300`}>
         <button
           onClick={() => setShowSpiritAnimalModal(true)}
-          className={`p-3 rounded-r-2xl transition-all hover:scale-110 ${
+          className={`p-4 rounded-full transition-all hover:scale-110 shadow-2xl ${
             darkMode
-              ? 'bg-gray-800/90 border-2 border-l-0 border-gray-700/50 hover:bg-gray-800'
-              : 'bg-white/90 border-2 border-l-0 border-gray-200 hover:bg-white shadow-lg'
+              ? 'bg-gradient-to-br from-purple-900/90 to-pink-900/90 border-2 border-purple-500/50'
+              : 'bg-gradient-to-br from-purple-100 to-pink-100 border-2 border-purple-300 shadow-purple-200'
           }`}
           title="View Spirit Animal Journey"
         >
-          <div className="text-4xl">
+          <div className="text-5xl">
             {getSpiritAnimalStage(spiritAnimalScore).emoji}
           </div>
         </button>
@@ -1508,13 +1505,7 @@ const DualTrackOS = () => {
                 const allEnergyActionsComplete = getCurrentPeriodEnergy() && totalEnergyActions > 0 && completedEnergyActions >= totalEnergyActions;
 
                 return (
-                  <div onClick={() => {
-                    if (getCurrentPeriodEnergy()) {
-                      setShowEnergyModal(true);
-                    } else {
-                      setExpandedTile(expandedTile === 'energy' ? null : 'energy');
-                    }
-                  }} className={`rounded-xl p-4 cursor-pointer transition-all duration-300 ${
+                  <div className={`rounded-xl p-4 transition-all duration-300 ${
                     allEnergyActionsComplete
                       ? darkMode
                         ? 'bg-emerald-900/30 border-2 border-emerald-500/50 shadow-lg backdrop-blur-sm'
@@ -1541,7 +1532,14 @@ const DualTrackOS = () => {
                 </div>
                 <div className={`text-xs text-center mb-2 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
                   {getTimeOfDay()}
-                  {getCurrentPeriodEnergy() && <div className="text-xs mt-1">(Click for tips)</div>}
+                  {getCurrentPeriodEnergy() && (
+                    <button
+                      onClick={() => setShowEnergyModal(true)}
+                      className="text-xs mt-1 underline hover:text-yellow-500 cursor-pointer"
+                    >
+                      Click for tips
+                    </button>
+                  )}
                 </div>
                 {/* Energy level selector */}
                 <div className="flex justify-between mt-2">
@@ -1605,9 +1603,12 @@ const DualTrackOS = () => {
                 {currentMood && (
                   <div className={`text-xs text-center mb-3 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
                     Current: {currentMood}
-                    <div className="text-xs mt-1 cursor-pointer hover:underline" onClick={() => setShowMoodModal(true)}>
-                      (Click for wellness tips)
-                    </div>
+                    <button
+                      onClick={() => setShowMoodModal(true)}
+                      className="block text-xs mt-1 underline hover:text-pink-500 cursor-pointer mx-auto"
+                    >
+                      Click for wellness tips
+                    </button>
                   </div>
                 )}
                 {/* Mood selector grid - Always visible */}
