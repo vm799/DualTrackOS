@@ -3,9 +3,9 @@ import { ArrowLeft, Heart, Zap, Brain, Sparkles } from 'lucide-react';
 
 const StoryPage = ({ onBack, darkMode }) => {
   return (
-    <div className={`min-h-screen ${
+    <div className={`min-h-screen overflow-x-hidden ${
       darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50'
-    }`}>
+    }`} style={{ position: 'fixed', width: '100%', height: '100%', overflowY: 'auto' }}>
       {/* Back button */}
       <div className="sticky top-0 z-20 backdrop-blur-xl border-b">
         <div className="max-w-4xl mx-auto px-6 py-4">
@@ -216,18 +216,18 @@ const StoryPage = ({ onBack, darkMode }) => {
 
         {/* Closing */}
         <div className="text-center space-y-6 py-8">
-          <p className={`text-2xl md:text-3xl font-bold italic ${
-            darkMode ? 'text-gray-200' : 'text-gray-900'
-          }`}>
+          <p className={`text-2xl md:text-3xl font-light italic leading-relaxed ${
+            darkMode ? 'text-gray-200' : 'text-gray-800'
+          }`} style={{ fontFamily: 'Georgia, serif' }}>
             "Real strength comes from vulnerability, setting boundaries, and showing up as your full, imperfect self even when the outcome is uncertain."
           </p>
-          <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          <p className={`text-lg font-light ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             - Brené Brown
           </p>
-          <p className={`text-xl font-medium mt-8 ${
+          <p className={`text-2xl md:text-3xl font-semibold mt-12 leading-relaxed ${
             darkMode ? 'text-purple-400' : 'text-purple-700'
           }`}>
-            Welcome to your operating system, WARRIOR. 🦁
+            Welcome to your OS.<br />You got this.
           </p>
         </div>
       </div>
