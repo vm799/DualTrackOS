@@ -896,7 +896,7 @@ const DualTrackOS = () => {
         name: 'Egg',
         japanese: '卵',
         romanji: 'Tamago',
-        emoji: '🥚',
+        emoji: 'ॐ',
         minScore: 0,
         maxScore: 19,
         description: 'Potential waiting to hatch',
@@ -908,7 +908,7 @@ const DualTrackOS = () => {
         name: 'Hatchling',
         japanese: '雛',
         romanji: 'Hina',
-        emoji: '🐣',
+        emoji: 'श',
         minScore: 20,
         maxScore: 39,
         description: 'Newly hatched, learning to balance',
@@ -920,7 +920,7 @@ const DualTrackOS = () => {
         name: 'Young Fox',
         japanese: '子狐',
         romanji: 'Kogitsune',
-        emoji: '🦊',
+        emoji: 'शक्ति',
         minScore: 40,
         maxScore: 59,
         description: 'Growing wisdom, finding rhythm',
@@ -932,7 +932,7 @@ const DualTrackOS = () => {
         name: 'Spirit Fox',
         japanese: '狐',
         romanji: 'Kitsune',
-        emoji: '✨🦊',
+        emoji: 'महा',
         minScore: 60,
         maxScore: 79,
         description: 'Embodying balance, 5 tails of wisdom',
@@ -944,7 +944,7 @@ const DualTrackOS = () => {
         name: 'Nine-Tailed Fox',
         japanese: '九尾',
         romanji: 'Kyuubi',
-        emoji: '🌟🦊✨',
+        emoji: 'सिद्ध',
         minScore: 80,
         maxScore: 100,
         description: 'Enlightened master of balance',
@@ -1182,18 +1182,18 @@ const DualTrackOS = () => {
     }`}>
       <GeometricBg />
 
-      {/* Right Side - Spirit Animal (middle of page) */}
-      <div className={`fixed right-0 top-1/2 -translate-y-1/2 z-30 transition-all duration-300`}>
+      {/* Bottom Right Side Tab - Spirit Animal */}
+      <div className={`fixed right-0 bottom-20 md:bottom-24 z-30 transition-all duration-300`}>
         <button
           onClick={() => setShowSpiritAnimalModal(true)}
-          className={`p-4 rounded-l-2xl transition-all hover:scale-110 shadow-2xl ${
+          className={`p-3 md:p-4 rounded-l-2xl transition-all hover:scale-110 shadow-2xl ${
             darkMode
               ? 'bg-gradient-to-br from-purple-900/90 to-pink-900/90 border-2 border-r-0 border-purple-500/50'
               : 'bg-gradient-to-br from-purple-100 to-pink-100 border-2 border-r-0 border-purple-300 shadow-purple-200'
           }`}
           title="View Spirit Animal Journey"
         >
-          <div className="text-5xl">
+          <div className="text-4xl md:text-5xl">
             {getSpiritAnimalStage(spiritAnimalScore).emoji}
           </div>
         </button>
@@ -1205,19 +1205,19 @@ const DualTrackOS = () => {
           ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
           : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            {/* Left: Logo + User Initials + Welcome */}
-            <div className="flex items-center space-x-3">
-              {/* Mini Logo - Using actual image */}
+        <div className="max-w-6xl mx-auto px-4 py-3 md:py-4">
+          <div className="flex items-center justify-between gap-2 md:gap-4">
+            {/* Left: Brand Logo + User Initials + Welcome */}
+            <div className="flex items-center gap-2 md:gap-4">
+              {/* Brand Logo - Much Larger, Responsive */}
               <img
                 src="/lioness-logo.png"
                 alt="DualTrack OS"
-                className="w-10 h-10 flex-shrink-0"
+                className="w-12 h-12 md:w-20 md:h-20 lg:w-24 lg:h-24 flex-shrink-0 drop-shadow-lg"
               />
 
               {userProfile.initials && (
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg border-2 ${
+                <div className={`w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center font-bold text-sm md:text-xl lg:text-2xl border-2 ${
                   darkMode
                     ? 'bg-purple-900/30 border-purple-500/50 text-purple-300'
                     : 'bg-purple-100 border-purple-300 text-purple-700'
@@ -1225,11 +1225,11 @@ const DualTrackOS = () => {
                   {userProfile.initials}
                 </div>
               )}
-              <div>
-                <h2 className={`font-bold text-lg ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+              <div className="hidden sm:block">
+                <h2 className={`font-bold text-base md:text-xl lg:text-2xl ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
                   {userProfile.preferredName || 'Welcome'}
                 </h2>
-                <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                <p className={`text-xs md:text-sm ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
                   DualTrack OS
                 </p>
               </div>
@@ -1306,10 +1306,10 @@ const DualTrackOS = () => {
                 )
               ) : null}
 
-              {/* Settings Icon */}
+              {/* Settings Icon - Larger and more visible */}
               <button
                 onClick={() => setCurrentView(currentView === 'insights' ? 'dashboard' : 'insights')}
-                className={`p-2 rounded-lg transition-all ${
+                className={`p-2 md:p-3 lg:p-4 rounded-lg md:rounded-xl transition-all ${
                   currentView === 'insights'
                     ? darkMode
                       ? 'bg-purple-500/20 border-2 border-purple-500/40 text-purple-300'
@@ -1320,7 +1320,7 @@ const DualTrackOS = () => {
                 }`}
                 title={currentView === 'insights' ? 'Close Settings' : 'Open Settings'}
               >
-                <Settings size={20} />
+                <Settings className="w-5 h-5 md:w-7 md:h-7 lg:w-8 lg:h-8" />
               </button>
             </div>
           </div>
