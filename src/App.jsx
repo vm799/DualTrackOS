@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, User, TrendingUp } from 'lucide-react';
+import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, User } from 'lucide-react';
 import { supabase, isSupabaseConfigured, signInWithGoogle, signOut as supabaseSignOut, saveUserData, loadUserData } from './supabaseClient';
 import Onboarding from './Onboarding';
+import SpiritAnimalCard from './components/SpiritAnimalCard';
+import NDMStatusBar from './components/NDMStatusBar';
+import SmartSuggestions from './components/SmartSuggestions';
+import EnergyModal from './components/EnergyModal';
+import MoodModal from './components/MoodModal';
 
 const DualTrackOS = () => {
   // Auth state
@@ -16,6 +21,7 @@ const DualTrackOS = () => {
   const [userProfile, setUserProfile] = useState({
     name: '',
     preferredName: '',
+    initials: '',
     age: null,
     weight: null, // in lbs, for protein calculation
     avatar: '🥚', // Everyone starts with an egg that grows into a Kitsune
@@ -42,6 +48,10 @@ const DualTrackOS = () => {
   const [brainDumpText, setBrainDumpText] = useState('');
   const [mindfulTimer, setMindfulTimer] = useState(300); // 5 minutes
   const [mindfulRunning, setMindfulRunning] = useState(false);
+
+  // Energy & Mood Modals
+  const [showEnergyModal, setShowEnergyModal] = useState(false);
+  const [showMoodModal, setShowMoodModal] = useState(false);
 
   // Spirit Animal State (心の成長 - Growth of the Heart)
   const [spiritAnimalScore, setSpiritAnimalScore] = useState(0); // 0-100 balance score
@@ -241,6 +251,7 @@ const DualTrackOS = () => {
   useEffect(() => {
     const newScore = calculateBalanceScore();
     setSpiritAnimalScore(newScore);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [energyTracking, currentMood, ndm, proteinToday, meals.length, voiceDiary.length, userProfile.weight]);
 
   useEffect(() => {
@@ -296,6 +307,14 @@ const DualTrackOS = () => {
     setMeals(p => [...p, { id: Date.now(), name, protein, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }]);
     setProteinToday(p => p + protein);
   };
+
+  // Add food from Energy/Mood modals (simplified - adds to meals without protein tracking)
+  const addFoodFromModal = (foodName) => {
+    setMeals(p => [...p, { id: Date.now(), name: foodName, protein: 0, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }]);
+    // Optional: Mark nutrition NDM as complete
+    setNdm(prev => ({ ...prev, nutrition: true }));
+  };
+
   const startWorkout = (workout) => { setActiveWorkout(workout); setWorkoutTimer(0); setIsWorkoutRunning(true); setCurrentView('workout-active'); };
   const completeWorkout = () => {
     setWorkouts(p => [...p, { id: Date.now(), ...activeWorkout, duration: workoutTimer }]);
@@ -729,7 +748,6 @@ const DualTrackOS = () => {
     let maxPossible = 0;
 
     // Factor 1: Energy-Action Alignment (0-20 points)
-    const currentEnergy = getCurrentEnergy();
     const currentPeriodEnergy = getCurrentPeriodEnergy();
     if (currentPeriodEnergy !== null) {
       maxPossible += 20;
@@ -1104,100 +1122,59 @@ const DualTrackOS = () => {
           : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
         <div className="max-w-4xl mx-auto px-4 py-6">
-          {/* Top Row: Greeting + Settings + Score */}
+          {/* Top Row: Spirit Animal + User Info + Time/Date + Settings */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               {/* Spirit Animal - Gamified Display */}
-              <button
+              <SpiritAnimalCard
+                spiritAnimalScore={spiritAnimalScore}
+                darkMode={darkMode}
                 onClick={() => setShowSpiritAnimalModal(true)}
-                className={`relative group transition-all duration-300 ${
-                  darkMode
-                    ? 'hover:bg-purple-900/20 border-2 border-purple-500/30 hover:border-purple-400/60'
-                    : 'hover:bg-purple-50 border-2 border-purple-200 hover:border-purple-400'
-                } rounded-xl p-2 cursor-pointer`}
-                title="Click to view spirit animal details"
-              >
-                <div className="flex items-center space-x-2">
-                  {/* Emoji with pulse animation */}
-                  <div className="relative">
-                    <span className="text-3xl group-hover:scale-110 transition-transform duration-300 inline-block">
-                      {getSpiritAnimalStage(spiritAnimalScore).emoji}
-                    </span>
-                    {/* Level indicator dot */}
-                    <div className={`absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ${
-                      spiritAnimalScore >= 80 ? 'bg-yellow-400 animate-pulse shadow-lg shadow-yellow-400/50' :
-                      spiritAnimalScore >= 60 ? 'bg-purple-400 animate-pulse shadow-lg shadow-purple-400/50' :
-                      spiritAnimalScore >= 40 ? 'bg-orange-400 shadow-lg shadow-orange-400/50' :
-                      spiritAnimalScore >= 20 ? 'bg-green-400' : 'bg-gray-400'
-                    }`} />
-                  </div>
+                getSpiritAnimalStage={getSpiritAnimalStage}
+              />
 
-                  {/* Spirit Name & Progress */}
-                  <div className="text-left">
-                    <div className={`text-xs font-bold ${
-                      darkMode ? 'text-purple-300' : 'text-purple-700'
-                    }`}>
-                      {getSpiritAnimalStage(spiritAnimalScore).japanese} ({getSpiritAnimalStage(spiritAnimalScore).romanji})
-                    </div>
-                    <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                      {getSpiritAnimalStage(spiritAnimalScore).description}
-                    </div>
-                    {/* Points to next level */}
-                    {spiritAnimalScore < 100 && (
-                      <div className="flex items-center space-x-1 mt-0.5">
-                        <div className={`h-1 rounded-full flex-1 ${darkMode ? 'bg-gray-800' : 'bg-gray-200'}`} style={{ width: '60px' }}>
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ${
-                              getSpiritAnimalStage(spiritAnimalScore).color === 'gold'
-                                ? 'bg-gradient-to-r from-yellow-400 to-orange-400'
-                                : getSpiritAnimalStage(spiritAnimalScore).color === 'purple'
-                                  ? 'bg-gradient-to-r from-purple-500 to-pink-500'
-                                  : getSpiritAnimalStage(spiritAnimalScore).color === 'orange'
-                                    ? 'bg-gradient-to-r from-orange-400 to-pink-500'
-                                    : getSpiritAnimalStage(spiritAnimalScore).color === 'yellow'
-                                      ? 'bg-gradient-to-r from-yellow-300 to-orange-400'
-                                      : 'bg-gradient-to-r from-gray-400 to-gray-500'
-                            }`}
-                            style={{
-                              width: `${(() => {
-                                const nextThreshold = spiritAnimalScore < 20 ? 20 : spiritAnimalScore < 40 ? 40 : spiritAnimalScore < 60 ? 60 : spiritAnimalScore < 80 ? 80 : 100;
-                                const prevThreshold = spiritAnimalScore < 20 ? 0 : spiritAnimalScore < 40 ? 20 : spiritAnimalScore < 60 ? 40 : spiritAnimalScore < 80 ? 60 : 80;
-                                return ((spiritAnimalScore - prevThreshold) / (nextThreshold - prevThreshold)) * 100;
-                              })()}%`
-                            }}
-                          />
-                        </div>
-                        <span className={`text-xs font-medium ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
-                          {(() => {
-                            const nextThreshold = spiritAnimalScore < 20 ? 20 : spiritAnimalScore < 40 ? 40 : spiritAnimalScore < 60 ? 60 : spiritAnimalScore < 80 ? 80 : 100;
-                            return `${nextThreshold - spiritAnimalScore}%`;
-                          })()}
-                        </span>
-                      </div>
-                    )}
+              {/* User Initials + Animal Info */}
+              <div className="flex items-center space-x-3">
+                {/* User Initials Circle */}
+                {userProfile.initials && (
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg border-2 ${
+                    darkMode
+                      ? 'bg-purple-900/30 border-purple-500/50 text-purple-300'
+                      : 'bg-purple-100 border-purple-300 text-purple-700'
+                  }`}>
+                    {userProfile.initials}
                   </div>
+                )}
 
-                  {/* Click affordance */}
-                  <Sparkles className={`${darkMode ? 'text-purple-400' : 'text-purple-600'} group-hover:animate-spin`} size={14} />
+                {/* Name + Animal Stage */}
+                <div>
+                  <h2 className={`text-lg font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                    {userProfile.preferredName || userProfile.name || 'there'}
+                  </h2>
+                  <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                    {getSpiritAnimalStage(spiritAnimalScore).name} • {getSpiritAnimalStage(spiritAnimalScore).romanji}
+                  </p>
                 </div>
-              </button>
-              <div>
-                <h2 className={`text-lg font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                  {userProfile.preferredName || userProfile.name || 'there'}
-                </h2>
-                <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                  {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {currentTime.toLocaleDateString('en-US', { weekday: 'short' })}
-                </p>
               </div>
             </div>
+
             <div className="flex items-center space-x-3">
-              {/* Time Display (Top Right) */}
-              <div className={`font-mono font-semibold ${
+              {/* Time & Date Card */}
+              <div className={`px-4 py-2 rounded-xl border-2 ${
                 darkMode
-                  ? 'text-2xl bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
-                  : 'text-2xl text-gray-900'
+                  ? 'bg-gray-800/50 border-gray-700/50'
+                  : 'bg-white border-gray-200'
               }`}>
-                {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                <div className={`font-mono font-bold text-xl ${
+                  darkMode
+                    ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+                    : 'text-gray-900'
+                }`}>
+                  {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                </div>
+                <div className={`text-xs text-center mt-0.5 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                  {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {currentTime.toLocaleDateString('en-US', { weekday: 'short' })}
+                </div>
               </div>
 
               {/* Google Auth Button */}
@@ -1326,129 +1303,13 @@ const DualTrackOS = () => {
             )}
 
             {/* NDM Status Bar - Shows Outstanding Tasks */}
-            <div className="mt-4 max-w-sm mx-auto">
-              <div className={`rounded-lg p-2 ${
-                darkMode
-                  ? 'bg-gray-800/50 border border-gray-700/50'
-                  : 'bg-white/50 border border-gray-200'
-              }`}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className={`text-xs font-semibold uppercase tracking-wide ${
-                    darkMode ? 'text-gray-500' : 'text-gray-600'
-                  }`}>
-                    Today's Non-Negotiables
-                  </span>
-                  <span className={`text-xs font-bold ${
-                    darkMode ? 'text-purple-400' : 'text-purple-600'
-                  }`}>
-                    {[ndm.nutrition, ndm.movement, ndm.mindfulness, ndm.brainDump].filter(Boolean).length}/4
-                  </span>
-                </div>
-
-                {/* Progress Bar */}
-                <div className={`h-1.5 rounded-full overflow-hidden mb-2 ${
-                  darkMode ? 'bg-gray-900/50' : 'bg-gray-200'
-                }`}>
-                  <div
-                    className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 transition-all duration-500"
-                    style={{
-                      width: `${([ndm.nutrition, ndm.movement, ndm.mindfulness, ndm.brainDump].filter(Boolean).length / 4) * 100}%`
-                    }}
-                  />
-                </div>
-
-                {/* Outstanding Items - Clickable */}
-                <div className="grid grid-cols-4 gap-1.5">
-                  <button
-                    onClick={() => setCurrentView('food')}
-                    className={`text-center p-1.5 rounded transition-all cursor-pointer ${
-                      ndm.nutrition
-                        ? darkMode
-                          ? 'bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30'
-                          : 'bg-emerald-100 border border-emerald-300 hover:bg-emerald-200'
-                        : darkMode
-                          ? 'bg-gray-700/30 border border-gray-700/50 hover:bg-gray-700/50'
-                          : 'bg-gray-100 border border-gray-200 hover:bg-gray-200'
-                    }`}
-                  >
-                    <div className="text-base">{ndm.nutrition ? '✅' : '🍽️'}</div>
-                    <div className={`text-xs mt-0.5 ${
-                      ndm.nutrition
-                        ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
-                        : darkMode ? 'text-gray-600' : 'text-gray-500'
-                    }`}>
-                      Nutrition
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => setCurrentView('exercise')}
-                    className={`text-center p-1.5 rounded transition-all cursor-pointer ${
-                      ndm.movement
-                        ? darkMode
-                          ? 'bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30'
-                          : 'bg-emerald-100 border border-emerald-300 hover:bg-emerald-200'
-                        : darkMode
-                          ? 'bg-gray-700/30 border border-gray-700/50 hover:bg-gray-700/50'
-                          : 'bg-gray-100 border border-gray-200 hover:bg-gray-200'
-                    }`}
-                  >
-                    <div className="text-base">{ndm.movement ? '✅' : '🏃'}</div>
-                    <div className={`text-xs mt-0.5 ${
-                      ndm.movement
-                        ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
-                        : darkMode ? 'text-gray-600' : 'text-gray-500'
-                    }`}>
-                      Movement
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={openMindfulMoment}
-                    className={`text-center p-1.5 rounded transition-all cursor-pointer ${
-                      ndm.mindfulness
-                        ? darkMode
-                          ? 'bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30'
-                          : 'bg-emerald-100 border border-emerald-300 hover:bg-emerald-200'
-                        : darkMode
-                          ? 'bg-gray-700/30 border border-gray-700/50 hover:bg-gray-700/50'
-                          : 'bg-gray-100 border border-gray-200 hover:bg-gray-200'
-                    }`}
-                  >
-                    <div className="text-base">{ndm.mindfulness ? '✅' : '🧘'}</div>
-                    <div className={`text-xs mt-0.5 ${
-                      ndm.mindfulness
-                        ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
-                        : darkMode ? 'text-gray-600' : 'text-gray-500'
-                    }`}>
-                      Mindful
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={openBrainDump}
-                    className={`text-center p-1.5 rounded transition-all cursor-pointer ${
-                      ndm.brainDump
-                        ? darkMode
-                          ? 'bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30'
-                          : 'bg-emerald-100 border border-emerald-300 hover:bg-emerald-200'
-                        : darkMode
-                          ? 'bg-gray-700/30 border border-gray-700/50 hover:bg-gray-700/50'
-                          : 'bg-gray-100 border border-gray-200 hover:bg-gray-200'
-                    }`}
-                  >
-                    <div className="text-base">{ndm.brainDump ? '✅' : '📝'}</div>
-                    <div className={`text-xs mt-0.5 ${
-                      ndm.brainDump
-                        ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
-                        : darkMode ? 'text-gray-600' : 'text-gray-500'
-                    }`}>
-                      Brain Dump
-                    </div>
-                  </button>
-                </div>
-              </div>
-            </div>
+            <NDMStatusBar
+              ndm={ndm}
+              darkMode={darkMode}
+              setCurrentView={setCurrentView}
+              openMindfulMoment={openMindfulMoment}
+              openBrainDump={openBrainDump}
+            />
           </div>
         </div>
       </div>
@@ -1541,8 +1402,14 @@ const DualTrackOS = () => {
 
             {/* ENERGY & MOOD TRACKING */}
             <div className="grid grid-cols-2 gap-4">
-              {/* Energy Selector */}
-              <div onClick={() => setExpandedTile(expandedTile === 'energy' ? null : 'energy')} className={`rounded-xl p-4 cursor-pointer transition-all duration-300 ${
+              {/* Energy Selector - Click to open modal */}
+              <div onClick={() => {
+                if (getCurrentPeriodEnergy()) {
+                  setShowEnergyModal(true);
+                } else {
+                  setExpandedTile(expandedTile === 'energy' ? null : 'energy');
+                }
+              }} className={`rounded-xl p-4 cursor-pointer transition-all duration-300 ${
                 darkMode
                   ? 'bg-gray-800/50 border-2 border-gray-700/50 hover:border-yellow-500/50 shadow-lg backdrop-blur-sm'
                   : 'bg-white border-2 border-gray-100 hover:border-yellow-400 shadow-md'
@@ -1555,6 +1422,7 @@ const DualTrackOS = () => {
                 </div>
                 <div className={`text-xs uppercase mb-2 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
                   Energy ({getTimeOfDay()})
+                  {getCurrentPeriodEnergy() && <span className="ml-1 text-xs">(Click for tips)</span>}
                 </div>
                 {/* Energy level selector */}
                 <div className="flex justify-between mt-2">
@@ -1585,8 +1453,14 @@ const DualTrackOS = () => {
                 </div>
               </div>
 
-              {/* Mood Selector */}
-              <div onClick={() => setExpandedTile(expandedTile === 'mood' ? null : 'mood')} className={`rounded-xl p-4 cursor-pointer transition-all duration-300 ${
+              {/* Mood Selector - Click to open modal */}
+              <div onClick={() => {
+                if (currentMood) {
+                  setShowMoodModal(true);
+                } else {
+                  setExpandedTile(expandedTile === 'mood' ? null : 'mood');
+                }
+              }} className={`rounded-xl p-4 cursor-pointer transition-all duration-300 ${
                 darkMode
                   ? 'bg-gray-800/50 border-2 border-gray-700/50 hover:border-purple-500/50 shadow-lg backdrop-blur-sm'
                   : 'bg-white border-2 border-gray-100 hover:border-purple-400 shadow-md'
@@ -1604,7 +1478,8 @@ const DualTrackOS = () => {
                   </span>
                 </div>
                 <div className={`text-xs uppercase mb-2 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                  {currentMood || 'Set Mood'}
+                  MOOD {currentMood && `(current: ${currentMood})`}
+                  {currentMood && <div className="text-xs normal-case mt-1">(Click for wellness tips)</div>}
                 </div>
                 {/* Mood selector grid */}
                 {expandedTile === 'mood' && (
@@ -1643,234 +1518,14 @@ const DualTrackOS = () => {
             </div>
 
             {/* SMART SUGGESTIONS - Based on Energy + Mood */}
-            {(getCurrentEnergy() > 0 || currentMood) && (() => {
-              const suggestions = getSmartSuggestions();
-              const isUltimateGentle = suggestions.type === 'crisis';
-
-              return (
-                <div className="space-y-4">
-                  {/* Energy-Based Suggestions */}
-                  <div className={`rounded-xl p-6 transition-all duration-300 shadow-lg backdrop-blur-sm ${
-                    darkMode
-                      ? suggestions.color === 'orange'
-                        ? 'bg-gradient-to-br from-orange-900/50 via-amber-900/50 to-orange-900/50 border-2 border-orange-500/40'
-                        : suggestions.color === 'rose'
-                          ? 'bg-gradient-to-br from-rose-900/50 via-pink-900/50 to-rose-900/50 border-2 border-rose-500/40'
-                          : suggestions.color === 'purple'
-                            ? 'bg-gradient-to-br from-purple-900/50 via-violet-900/50 to-purple-900/50 border-2 border-purple-500/40'
-                            : suggestions.color === 'blue'
-                              ? 'bg-gradient-to-br from-blue-900/50 via-indigo-900/50 to-blue-900/50 border-2 border-blue-500/40'
-                              : 'bg-gradient-to-br from-cyan-900/50 via-teal-900/50 to-cyan-900/50 border-2 border-cyan-500/40'
-                      : suggestions.color === 'orange'
-                        ? 'bg-gradient-to-br from-orange-100 to-amber-100 border-2 border-orange-300'
-                        : suggestions.color === 'rose'
-                          ? 'bg-gradient-to-br from-rose-100 to-pink-100 border-2 border-rose-300'
-                          : suggestions.color === 'purple'
-                            ? 'bg-gradient-to-br from-purple-100 to-violet-100 border-2 border-purple-300'
-                            : suggestions.color === 'blue'
-                              ? 'bg-gradient-to-br from-blue-100 to-indigo-100 border-2 border-blue-300'
-                              : 'bg-gradient-to-br from-cyan-100 to-teal-100 border-2 border-cyan-300'
-                  }`}>
-                    <div className="flex items-center mb-3">
-                      <Lightbulb className={`mr-2 ${
-                        darkMode
-                          ? suggestions.color === 'orange' ? 'text-orange-400'
-                            : suggestions.color === 'rose' ? 'text-rose-400'
-                            : suggestions.color === 'purple' ? 'text-purple-400'
-                            : suggestions.color === 'blue' ? 'text-blue-400'
-                            : 'text-cyan-400'
-                          : suggestions.color === 'orange' ? 'text-orange-600'
-                            : suggestions.color === 'rose' ? 'text-rose-600'
-                            : suggestions.color === 'purple' ? 'text-purple-600'
-                            : suggestions.color === 'blue' ? 'text-blue-600'
-                            : 'text-cyan-600'
-                      }`} size={24} />
-                      <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {isUltimateGentle ? '🌸 Ultimate Gentle Mode' : `⚡ Energy: ${suggestions.title}`}
-                      </h3>
-                    </div>
-                    <p className={`text-sm mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      {suggestions.message}
-                    </p>
-
-                    {suggestions.warning && (
-                      <div className={`p-3 rounded-lg mb-4 ${
-                        darkMode
-                          ? 'bg-rose-500/20 border border-rose-500/40'
-                          : 'bg-rose-100 border border-rose-300'
-                      }`}>
-                        <p className={`text-sm font-semibold ${darkMode ? 'text-rose-300' : 'text-rose-700'}`}>
-                          {suggestions.warning}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Task Suggestions */}
-                    {suggestions.tasks && suggestions.tasks.length > 0 && (
-                      <div className="mb-4">
-                        <h4 className={`text-xs font-bold mb-2 uppercase tracking-wide ${
-                          darkMode ? 'text-gray-400' : 'text-gray-600'
-                        }`}>
-                          Recommended Actions
-                        </h4>
-                        <div className="space-y-2">
-                          {suggestions.tasks.map((task, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => {
-                                addHourlyTask(currentTime.getHours(), task);
-                              }}
-                              className={`w-full text-left p-3 rounded-lg transition-all ${
-                                darkMode
-                                  ? 'bg-white/10 hover:bg-white/20 border border-white/20 text-gray-200'
-                                  : 'bg-white/60 hover:bg-white border border-white/40 text-gray-800'
-                              }`}
-                            >
-                              <span className="text-sm">✓ {task}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Snack Recommendations */}
-                    {suggestions.snacks && suggestions.snacks.length > 0 && (
-                      <div>
-                        <h4 className={`text-xs font-bold mb-2 uppercase tracking-wide ${
-                          darkMode ? 'text-gray-400' : 'text-gray-600'
-                        }`}>
-                          Fuel Your Energy
-                        </h4>
-                        <div className="grid grid-cols-1 gap-2">
-                          {suggestions.snacks.map((snack, idx) => (
-                            <div
-                              key={idx}
-                              className={`p-2 rounded-lg text-xs ${
-                                darkMode
-                                  ? 'bg-white/5 border border-white/10 text-gray-300'
-                                  : 'bg-white/40 border border-white/30 text-gray-700'
-                              }`}
-                            >
-                              🍽️ {snack}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Mood-Based Wellness Recommendations (Separate Section) */}
-                  {suggestions.moodWellness && !isUltimateGentle && (
-                    <div className={`rounded-xl p-6 transition-all duration-300 shadow-lg backdrop-blur-sm ${
-                      darkMode
-                        ? suggestions.moodWellness.color === 'orange'
-                          ? 'bg-gradient-to-br from-orange-900/50 via-amber-900/50 to-orange-900/50 border-2 border-orange-500/40'
-                          : suggestions.moodWellness.color === 'rose'
-                            ? 'bg-gradient-to-br from-rose-900/50 via-pink-900/50 to-rose-900/50 border-2 border-rose-500/40'
-                            : suggestions.moodWellness.color === 'purple'
-                              ? 'bg-gradient-to-br from-purple-900/50 via-violet-900/50 to-purple-900/50 border-2 border-purple-500/40'
-                              : suggestions.moodWellness.color === 'blue'
-                                ? 'bg-gradient-to-br from-blue-900/50 via-indigo-900/50 to-blue-900/50 border-2 border-blue-500/40'
-                                : 'bg-gradient-to-br from-cyan-900/50 via-teal-900/50 to-cyan-900/50 border-2 border-cyan-500/40'
-                        : suggestions.moodWellness.color === 'orange'
-                          ? 'bg-gradient-to-br from-orange-100 to-amber-100 border-2 border-orange-300'
-                          : suggestions.moodWellness.color === 'rose'
-                            ? 'bg-gradient-to-br from-rose-100 to-pink-100 border-2 border-rose-300'
-                            : suggestions.moodWellness.color === 'purple'
-                              ? 'bg-gradient-to-br from-purple-100 to-violet-100 border-2 border-purple-300'
-                              : suggestions.moodWellness.color === 'blue'
-                                ? 'bg-gradient-to-br from-blue-100 to-indigo-100 border-2 border-blue-300'
-                                : 'bg-gradient-to-br from-cyan-100 to-teal-100 border-2 border-cyan-300'
-                    }`}>
-                      <div className="flex items-center mb-3">
-                        <Sparkles className={`mr-2 ${
-                          darkMode
-                            ? suggestions.moodWellness.color === 'orange' ? 'text-orange-400'
-                              : suggestions.moodWellness.color === 'rose' ? 'text-rose-400'
-                              : suggestions.moodWellness.color === 'purple' ? 'text-purple-400'
-                              : suggestions.moodWellness.color === 'blue' ? 'text-blue-400'
-                              : 'text-cyan-400'
-                            : suggestions.moodWellness.color === 'orange' ? 'text-orange-600'
-                              : suggestions.moodWellness.color === 'rose' ? 'text-rose-600'
-                              : suggestions.moodWellness.color === 'purple' ? 'text-purple-600'
-                              : suggestions.moodWellness.color === 'blue' ? 'text-blue-600'
-                              : 'text-cyan-600'
-                        }`} size={24} />
-                        <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                          🎭 Mood: {suggestions.moodWellness.title}
-                        </h3>
-                      </div>
-                      <p className={`text-sm mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        {suggestions.moodWellness.message}
-                      </p>
-
-                      {/* Mood Activities */}
-                      {suggestions.moodWellness.activities && suggestions.moodWellness.activities.length > 0 && (
-                        <div className="mb-4">
-                          <h4 className={`text-xs font-bold mb-2 uppercase tracking-wide ${
-                            darkMode ? 'text-gray-400' : 'text-gray-600'
-                          }`}>
-                            Wellness Activities
-                          </h4>
-                          <div className="space-y-2">
-                            {suggestions.moodWellness.activities.map((activity, idx) => (
-                              <div
-                                key={idx}
-                                className={`p-3 rounded-lg text-sm ${
-                                  darkMode
-                                    ? 'bg-white/10 border border-white/20 text-gray-200'
-                                    : 'bg-white/60 border border-white/40 text-gray-800'
-                                }`}
-                              >
-                                ✨ {activity}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Mood Snacks */}
-                      {suggestions.moodWellness.snacks && suggestions.moodWellness.snacks.length > 0 && (
-                        <div>
-                          <h4 className={`text-xs font-bold mb-2 uppercase tracking-wide ${
-                            darkMode ? 'text-gray-400' : 'text-gray-600'
-                          }`}>
-                            Mood-Boosting Nutrition
-                          </h4>
-                          <div className="grid grid-cols-1 gap-2">
-                            {suggestions.moodWellness.snacks.map((snack, idx) => (
-                              <div
-                                key={idx}
-                                className={`p-2 rounded-lg text-xs ${
-                                  darkMode
-                                    ? 'bg-white/5 border border-white/10 text-gray-300'
-                                    : 'bg-white/40 border border-white/30 text-gray-700'
-                                }`}
-                              >
-                                🍽️ {snack}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Supplement suggestion if available */}
-                      {suggestions.moodWellness.supplement && (
-                        <div className={`mt-4 p-3 rounded-lg ${
-                          darkMode
-                            ? 'bg-purple-500/20 border border-purple-500/40'
-                            : 'bg-purple-100 border border-purple-300'
-                        }`}>
-                          <p className={`text-xs ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
-                            💊 {suggestions.moodWellness.supplement}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
+            {(getCurrentEnergy() > 0 || currentMood) && (
+              <SmartSuggestions
+                suggestions={getSmartSuggestions()}
+                darkMode={darkMode}
+                onAddTask={addHourlyTask}
+                currentHour={currentTime.getHours()}
+              />
+            )}
 
             {/* PROTEIN TRACKER */}
             <div onClick={() => setExpandedTile(expandedTile === 'protein' ? null : 'protein')} className={`rounded-xl p-6 cursor-pointer transition-all duration-300 ${
@@ -2916,6 +2571,30 @@ const DualTrackOS = () => {
           </div>
         </div>
       </div>
+
+      {/* ENERGY MODAL */}
+      <EnergyModal
+        isOpen={showEnergyModal}
+        onClose={() => setShowEnergyModal(false)}
+        energyLevel={getCurrentPeriodEnergy() || getCurrentEnergy()}
+        suggestions={getSmartSuggestions()}
+        darkMode={darkMode}
+        onAddTask={addHourlyTask}
+        onAddToFoodDiary={addFoodFromModal}
+        currentHour={currentTime.getHours()}
+      />
+
+      {/* MOOD MODAL */}
+      <MoodModal
+        isOpen={showMoodModal}
+        onClose={() => setShowMoodModal(false)}
+        currentMood={currentMood}
+        moodWellness={getSmartSuggestions().moodWellness}
+        darkMode={darkMode}
+        onAddTask={addHourlyTask}
+        onAddToFoodDiary={addFoodFromModal}
+        currentHour={currentTime.getHours()}
+      />
 
       {/* BRAIN DUMP MODAL */}
       {showBrainDumpModal && (
