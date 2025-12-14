@@ -896,7 +896,8 @@ const DualTrackOS = () => {
         name: 'Newborn Cub',
         japanese: '新生',
         romanji: 'Shinsei',
-        emoji: '🦁',
+        useLogo: true,
+        showCrown: false,
         minScore: 0,
         maxScore: 19,
         description: 'Newborn cub finding her roar',
@@ -909,7 +910,8 @@ const DualTrackOS = () => {
         name: 'Young Cub',
         japanese: '若獅子',
         romanji: 'Waka-shishi',
-        emoji: '🦁',
+        useLogo: true,
+        showCrown: false,
         minScore: 20,
         maxScore: 39,
         description: 'Young cub learning to balance',
@@ -922,7 +924,8 @@ const DualTrackOS = () => {
         name: 'Growing Lioness',
         japanese: '成長',
         romanji: 'Seichō',
-        emoji: '🦁',
+        useLogo: true,
+        showCrown: false,
         minScore: 40,
         maxScore: 59,
         description: 'Growing lioness, finding rhythm',
@@ -935,7 +938,8 @@ const DualTrackOS = () => {
         name: 'Powerful Lioness',
         japanese: '力',
         romanji: 'Chikara',
-        emoji: '🦁',
+        useLogo: true,
+        showCrown: false,
         minScore: 60,
         maxScore: 79,
         description: 'Embodying balance and power',
@@ -948,7 +952,8 @@ const DualTrackOS = () => {
         name: 'Queen Lioness',
         japanese: '女王',
         romanji: 'Joō',
-        emoji: '👑🦁',
+        useLogo: true,
+        showCrown: true,
         minScore: 80,
         maxScore: 100,
         description: 'Enlightened master of balance',
@@ -1226,8 +1231,18 @@ const DualTrackOS = () => {
           <div className="absolute left-2 top-1/2 -translate-y-1/2 text-xl animate-pulse" style={{ color: getSpiritAnimalStage(spiritAnimalScore).color }}>
             ◀
           </div>
-          <div className="text-5xl md:text-6xl flex flex-col items-center gap-2 pl-4">
-            {getSpiritAnimalStage(spiritAnimalScore).emoji}
+          <div className="flex flex-col items-center gap-2 pl-4">
+            <div className="relative">
+              <img
+                src="/lioness-logo.png"
+                alt="Lioness"
+                className="w-16 h-16 md:w-20 md:h-20 object-cover"
+                style={{ filter: `drop-shadow(0 0 10px ${getSpiritAnimalStage(spiritAnimalScore).neonColor})` }}
+              />
+              {getSpiritAnimalStage(spiritAnimalScore).showCrown && (
+                <span className="absolute -top-2 -right-2 text-2xl">👑</span>
+              )}
+            </div>
             <span className="text-sm md:text-base font-bold" style={{ color: getSpiritAnimalStage(spiritAnimalScore).color }}>
               {getSpiritAnimalStage(spiritAnimalScore).japanese}
             </span>
@@ -1243,20 +1258,20 @@ const DualTrackOS = () => {
       }`}>
         <div className="max-w-7xl mx-auto px-4 py-2">
           <div className="flex items-center justify-between gap-2 md:gap-4">
-            {/* Left: Brand Logo + User Initials (2x bigger, fills space, aligned with time box) */}
+            {/* Left: Brand Logo + User Initials (4x bigger) */}
             <div className="flex items-center gap-2 md:gap-4">
-              {/* Brand Logo - 2x Bigger, Fills Vertical Space */}
+              {/* Brand Logo - 4x Bigger */}
               <img
                 src="/lioness-logo.png"
                 alt="DualTrack OS"
-                className="h-20 w-20 md:h-28 md:w-28 lg:h-32 lg:w-32 flex-shrink-0 drop-shadow-2xl object-cover"
+                className="h-40 w-40 md:h-56 md:w-56 lg:h-64 lg:w-64 flex-shrink-0 drop-shadow-2xl object-cover"
               />
 
               {userProfile.initials && (
-                <div className={`h-20 w-20 md:h-28 md:w-28 lg:h-32 lg:w-32 rounded-full flex items-center justify-center font-bold text-2xl md:text-4xl lg:text-5xl border-4 ${
+                <div className={`flex items-center justify-center font-bold text-4xl md:text-6xl lg:text-7xl ${
                   darkMode
-                    ? 'bg-purple-900/30 border-purple-500/50 text-purple-300'
-                    : 'bg-purple-100 border-purple-300 text-purple-700'
+                    ? 'text-purple-300'
+                    : 'text-purple-700'
                 }`}>
                   {userProfile.initials}
                 </div>
@@ -3311,8 +3326,18 @@ const DualTrackOS = () => {
 
                 {/* Spirit Animal Display */}
                 <div className="text-center mb-4">
-                  <div className="text-8xl mb-4">
-                    {stage.emoji}
+                  <div className="mb-4 flex justify-center">
+                    <div className="relative">
+                      <img
+                        src="/lioness-logo.png"
+                        alt="Lioness"
+                        className="w-32 h-32 md:w-40 md:h-40 object-cover mx-auto"
+                        style={{ filter: `drop-shadow(0 0 20px ${stage.neonColor})` }}
+                      />
+                      {stage.showCrown && (
+                        <span className="absolute -top-4 -right-4 text-5xl">👑</span>
+                      )}
+                    </div>
                   </div>
                   <h2 className={`text-3xl font-bold mb-2 ${
                     darkMode
@@ -3425,7 +3450,20 @@ const DualTrackOS = () => {
                           }`}
                         >
                           <div className="flex items-center space-x-3">
-                            <span className="text-2xl">{isUnlocked ? s.emoji : '🔒'}</span>
+                            {isUnlocked ? (
+                              <div className="relative">
+                                <img
+                                  src="/lioness-logo.png"
+                                  alt="Lioness"
+                                  className="w-8 h-8 object-cover"
+                                />
+                                {s.showCrown && (
+                                  <span className="absolute -top-1 -right-1 text-sm">👑</span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-2xl">🔒</span>
+                            )}
                             <div>
                               <p className={`text-sm font-medium ${
                                 isCurrent
