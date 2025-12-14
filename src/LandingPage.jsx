@@ -76,7 +76,7 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
 
       {/* Bottom: Story link with spacing */}
 
-      <div className="relative z-10 pb-6 px-6 text-center mt-auto mt-20">
+      <div className="relative z-10 pb-6 px-6 text-center mt-auto mt-8">
         <button
           onClick={onViewStory}
           className={`px-10 py-4 rounded-full font-medium text-sm md:text-base transition-all hover:scale-105 ${
