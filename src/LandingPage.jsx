@@ -33,14 +33,14 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
       <div className="relative z-10 flex flex-col min-h-screen px-6 text-center">
 
         {/* TOP — Brand Anchor */}
-        <div className="pt-6 md:pt-10">
+        <div className="pt-4 md:pt-8">
           <img
             src="/lioness-logo.png"
             alt="DualTrack OS Lioness Logo"
-            className="mx-auto w-[280px] h-[280px] sm:w-[360px] sm:h-[360px] md:w-[480px] md:h-[480px] drop-shadow-2xl animate-fade-in"
+            className="mx-auto w-[180px] h-[180px] sm:w-[280px] sm:h-[280px] md:w-[400px] md:h-[400px] drop-shadow-2xl animate-fade-in"
           />
 
-          <h1 className="mt-[-12px] text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
+          <h1 className="mt-[-8px] text-2xl sm:text-3xl md:text-4xl font-bold leading-tight">
             <span className={darkMode ? 'text-gray-100' : 'text-gray-900'}>
               DualTrack
             </span>{' '}
@@ -50,7 +50,7 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
           </h1>
 
           <p
-            className={`mt-1 text-sm sm:text-base md:text-lg leading-snug font-medium ${
+            className={`mt-1 text-xs sm:text-sm md:text-base leading-snug font-medium ${
               darkMode ? 'text-gray-300' : 'text-gray-700'
             }`}
           >
@@ -59,7 +59,7 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
         </div>
 
         {/* MIDDLE — Motivation + CTA */}
-        <div className="flex flex-col items-center justify-center flex-grow gap-4">
+        <div className="flex flex-col items-center justify-center flex-1 gap-3 py-4">
           <p
             className={`text-sm sm:text-base italic font-light ${
               darkMode ? 'text-purple-400' : 'text-purple-600'
@@ -92,10 +92,10 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
         </div>
 
         {/* BOTTOM — Story */}
-        <div className="pb-6">
+        <div className="pb-4 sm:pb-6">
           <button
             onClick={onViewStory}
-            className={`px-8 py-3 rounded-full text-sm sm:text-base font-medium transition-all hover:scale-105 ${
+            className={`px-6 py-2.5 sm:px-8 sm:py-3 rounded-full text-xs sm:text-sm md:text-base font-medium transition-all hover:scale-105 ${
               darkMode
                 ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40'
                 : 'bg-amber-100 hover:bg-amber-200 text-amber-700 border border-amber-300'
