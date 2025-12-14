@@ -5,7 +5,7 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
   return (
     <div className={`min-h-screen flex flex-col relative overflow-hidden ${
       darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50'
-    }`}>
+    }`} style={{ position: 'fixed', width: '100%', height: '100%', overflowY: 'auto' }}>
       {/* Animated background gradient orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 ${
@@ -18,14 +18,14 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
 
       {/* Main content - Centered */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 text-center max-w-3xl mx-auto">
-        {/* Logo - Lioness - Much Larger */}
+        {/* Logo - Lioness - 3x Larger */}
         <div className="mb-8 animate-fade-in">
           <div className="relative">
-            {/* Actual Logo Image - Significantly Larger */}
+            {/* Actual Logo Image - 3x Larger */}
             <img
               src="/lioness-logo.png"
               alt="DualTrack OS Lioness Logo"
-              className="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 mx-auto drop-shadow-2xl"
+              className="w-[500px] h-[500px] md:w-[700px] md:h-[700px] lg:w-[900px] lg:h-[900px] mx-auto drop-shadow-2xl"
             />
           </div>
         </div>
@@ -52,30 +52,40 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
           Take a breath. You got this. Lets do it.
         </p>
 
-        {/* Enter button */}
+        {/* Enter button - Rectangle with gradient neon border */}
         <button
           onClick={onEnter}
-          className="group relative px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-2xl"
+          className={`group relative px-12 py-5 font-bold text-xl transition-all duration-300 transform hover:scale-105 ${
+            darkMode ? 'bg-gray-900' : 'bg-white'
+          }`}
           style={{
-            background: 'linear-gradient(135deg, #06b6d4 0%, #a855f7 33%, #ec4899 66%, #fb923c 100%)'
+            border: '3px solid transparent',
+            borderImage: 'linear-gradient(135deg, #06b6d4 0%, #a855f7 33%, #ec4899 66%, #fb923c 100%) 1',
+            boxShadow: '0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(6, 182, 212, 0.3)'
           }}
         >
-          <span className="text-white flex items-center space-x-2">
+          <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent flex items-center space-x-2">
             <span>Enter Here</span>
-            <ArrowRight className="transition-transform group-hover:translate-x-1" size={20} />
+            <ArrowRight className="transition-transform group-hover:translate-x-1 text-purple-500" size={24} />
           </span>
         </button>
       </div>
 
-      {/* Story link - Fixed at bottom */}
+      {/* Story link - Fixed at bottom with rounded edges and glowy blur */}
       <div className="relative z-10 pb-6 px-6 text-center">
         <button
           onClick={onViewStory}
-          className={`px-8 py-4 rounded-xl font-semibold text-base md:text-lg transition-all hover:scale-105 shadow-xl ${
+          className={`px-10 py-5 rounded-full font-medium text-base md:text-lg transition-all hover:scale-105 ${
             darkMode
-              ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-2 border-amber-500/40'
-              : 'bg-amber-100 hover:bg-amber-200 text-amber-700 border-2 border-amber-300'
+              ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40'
+              : 'bg-amber-100 hover:bg-amber-200 text-amber-700 border border-amber-300'
           }`}
+          style={{
+            boxShadow: darkMode
+              ? '0 0 30px rgba(251, 191, 36, 0.4), 0 8px 30px rgba(251, 191, 36, 0.2)'
+              : '0 0 30px rgba(252, 211, 77, 0.5), 0 8px 30px rgba(245, 158, 11, 0.3)',
+            backdropFilter: 'blur(10px)'
+          }}
         >
           ✨ The Story Behind the App
         </button>
