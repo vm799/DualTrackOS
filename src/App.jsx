@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, User } from 'lucide-react';
 import { supabase, isSupabaseConfigured, signInWithGoogle, signOut as supabaseSignOut, saveUserData, loadUserData } from './supabaseClient';
+import LandingPage from './LandingPage';
+import StoryPage from './StoryPage';
 import Onboarding from './Onboarding';
 import NDMStatusBar from './components/NDMStatusBar';
 // SmartSuggestions moved to modals only - no longer on main dashboard
@@ -8,6 +10,10 @@ import EnergyModal from './components/EnergyModal';
 import MoodModal from './components/MoodModal';
 
 const DualTrackOS = () => {
+  // View states
+  const [showLandingPage, setShowLandingPage] = useState(true);
+  const [showStoryPage, setShowStoryPage] = useState(false);
+
   // Auth state
   const [user, setUser] = useState(null);
   const [currentView, setCurrentView] = useState('dashboard');
@@ -156,6 +162,12 @@ const DualTrackOS = () => {
         if (saved) {
           try {
             const data = JSON.parse(saved);
+
+            // Check if user has entered before (completed onboarding)
+            if (data.userProfile?.hasCompletedOnboarding) {
+              setShowLandingPage(false);
+            }
+
             if (data.ndm) setNdm(data.ndm);
             if (data.careers) setCareers(data.careers);
             if (data.meals) setMeals(data.meals);
@@ -1133,6 +1145,33 @@ const DualTrackOS = () => {
     </button>
   );
 
+  // Show landing page first
+  if (showLandingPage) {
+    return (
+      <LandingPage
+        onEnter={() => setShowLandingPage(false)}
+        onViewStory={() => {
+          setShowStoryPage(true);
+          setShowLandingPage(false);
+        }}
+        darkMode={darkMode}
+      />
+    );
+  }
+
+  // Show story page if requested
+  if (showStoryPage) {
+    return (
+      <StoryPage
+        onBack={() => {
+          setShowStoryPage(false);
+          setShowLandingPage(true);
+        }}
+        darkMode={darkMode}
+      />
+    );
+  }
+
   // Show onboarding if not completed
   if (!userProfile.hasCompletedOnboarding) {
     return <Onboarding onComplete={handleOnboardingComplete} darkMode={darkMode} />;
@@ -1171,8 +1210,32 @@ const DualTrackOS = () => {
       }`}>
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            {/* Left: User Initials + Welcome */}
+            {/* Left: Logo + User Initials + Welcome */}
             <div className="flex items-center space-x-3">
+              {/* Mini Logo */}
+              <svg width="40" height="40" viewBox="0 0 200 200" className="flex-shrink-0">
+                <defs>
+                  <linearGradient id="headerLionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style={{ stopColor: '#06b6d4', stopOpacity: 1 }} />
+                    <stop offset="33%" style={{ stopColor: '#a855f7', stopOpacity: 1 }} />
+                    <stop offset="66%" style={{ stopColor: '#ec4899', stopOpacity: 1 }} />
+                    <stop offset="100%" style={{ stopColor: '#fb923c', stopOpacity: 1 }} />
+                  </linearGradient>
+                </defs>
+                <g fill="url(#headerLionGradient)" stroke="url(#headerLionGradient)" strokeWidth="2">
+                  <circle cx="100" cy="90" r="35" fillOpacity="0.9" />
+                  <path d="M 75 65 Q 70 50 75 55 Q 80 60 75 65 Z" />
+                  <path d="M 125 65 Q 130 50 125 55 Q 120 60 125 65 Z" />
+                  <circle cx="90" cy="85" r="4" fill={darkMode ? "#fff" : "#1a1a1a"} />
+                  <circle cx="110" cy="85" r="4" fill={darkMode ? "#fff" : "#1a1a1a"} />
+                  <path d="M 100 95 L 95 100 L 100 102 L 105 100 Z" fill={darkMode ? "#fff" : "#1a1a1a"} />
+                  <path d="M 70 75 Q 50 70 45 85 Q 40 100 50 110" strokeWidth="3" fill="none" strokeLinecap="round" />
+                  <path d="M 130 75 Q 150 70 155 85 Q 160 100 150 110" strokeWidth="3" fill="none" strokeLinecap="round" />
+                  <circle cx="50" cy="110" r="2.5" />
+                  <circle cx="150" cy="110" r="2.5" />
+                </g>
+              </svg>
+
               {userProfile.initials && (
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg border-2 ${
                   darkMode
