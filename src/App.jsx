@@ -1182,14 +1182,14 @@ const DualTrackOS = () => {
     }`}>
       <GeometricBg />
 
-      {/* Bottom Right - Spirit Animal (above nav bar) */}
-      <div className={`fixed right-6 bottom-24 z-30 transition-all duration-300`}>
+      {/* Right Side - Spirit Animal (middle of page) */}
+      <div className={`fixed right-0 top-1/2 -translate-y-1/2 z-30 transition-all duration-300`}>
         <button
           onClick={() => setShowSpiritAnimalModal(true)}
-          className={`p-4 rounded-full transition-all hover:scale-110 shadow-2xl ${
+          className={`p-4 rounded-l-2xl transition-all hover:scale-110 shadow-2xl ${
             darkMode
-              ? 'bg-gradient-to-br from-purple-900/90 to-pink-900/90 border-2 border-purple-500/50'
-              : 'bg-gradient-to-br from-purple-100 to-pink-100 border-2 border-purple-300 shadow-purple-200'
+              ? 'bg-gradient-to-br from-purple-900/90 to-pink-900/90 border-2 border-r-0 border-purple-500/50'
+              : 'bg-gradient-to-br from-purple-100 to-pink-100 border-2 border-r-0 border-purple-300 shadow-purple-200'
           }`}
           title="View Spirit Animal Journey"
         >
@@ -1209,29 +1209,12 @@ const DualTrackOS = () => {
           <div className="flex items-center justify-between">
             {/* Left: Logo + User Initials + Welcome */}
             <div className="flex items-center space-x-3">
-              {/* Mini Logo */}
-              <svg width="40" height="40" viewBox="0 0 200 200" className="flex-shrink-0">
-                <defs>
-                  <linearGradient id="headerLionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: '#06b6d4', stopOpacity: 1 }} />
-                    <stop offset="33%" style={{ stopColor: '#a855f7', stopOpacity: 1 }} />
-                    <stop offset="66%" style={{ stopColor: '#ec4899', stopOpacity: 1 }} />
-                    <stop offset="100%" style={{ stopColor: '#fb923c', stopOpacity: 1 }} />
-                  </linearGradient>
-                </defs>
-                <g fill="url(#headerLionGradient)" stroke="url(#headerLionGradient)" strokeWidth="2">
-                  <circle cx="100" cy="90" r="35" fillOpacity="0.9" />
-                  <path d="M 75 65 Q 70 50 75 55 Q 80 60 75 65 Z" />
-                  <path d="M 125 65 Q 130 50 125 55 Q 120 60 125 65 Z" />
-                  <circle cx="90" cy="85" r="4" fill={darkMode ? "#fff" : "#1a1a1a"} />
-                  <circle cx="110" cy="85" r="4" fill={darkMode ? "#fff" : "#1a1a1a"} />
-                  <path d="M 100 95 L 95 100 L 100 102 L 105 100 Z" fill={darkMode ? "#fff" : "#1a1a1a"} />
-                  <path d="M 70 75 Q 50 70 45 85 Q 40 100 50 110" strokeWidth="3" fill="none" strokeLinecap="round" />
-                  <path d="M 130 75 Q 150 70 155 85 Q 160 100 150 110" strokeWidth="3" fill="none" strokeLinecap="round" />
-                  <circle cx="50" cy="110" r="2.5" />
-                  <circle cx="150" cy="110" r="2.5" />
-                </g>
-              </svg>
+              {/* Mini Logo - Using actual image */}
+              <img
+                src="/lioness-logo.png"
+                alt="DualTrack OS"
+                className="w-10 h-10 flex-shrink-0"
+              />
 
               {userProfile.initials && (
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg border-2 ${
@@ -1541,7 +1524,7 @@ const DualTrackOS = () => {
                     </button>
                   )}
                 </div>
-                {/* Energy level selector */}
+                {/* Energy level selector - clicking opens modal with tips */}
                 <div className="flex justify-between mt-2">
                   {[1, 2, 3, 4, 5].map(level => (
                     <button
@@ -1549,6 +1532,8 @@ const DualTrackOS = () => {
                       onClick={(e) => {
                         e.stopPropagation();
                         setCurrentEnergy(level);
+                        // Open modal immediately after setting energy
+                        setTimeout(() => setShowEnergyModal(true), 100);
                       }}
                       className={`w-8 h-8 rounded-full transition-all ${
                         getCurrentPeriodEnergy() === level
@@ -1611,7 +1596,7 @@ const DualTrackOS = () => {
                     </button>
                   </div>
                 )}
-                {/* Mood selector grid - Always visible */}
+                {/* Mood selector grid - clicking opens modal with tips */}
                 <div className="grid grid-cols-3 gap-2">
                   {[
                     { mood: 'energized', emoji: '😊' },
@@ -1626,6 +1611,8 @@ const DualTrackOS = () => {
                       onClick={(e) => {
                         e.stopPropagation();
                         setCurrentMood(mood);
+                        // Open modal immediately after setting mood
+                        setTimeout(() => setShowMoodModal(true), 100);
                       }}
                       className={`p-2 rounded-lg text-xl transition-all ${
                         currentMood === mood

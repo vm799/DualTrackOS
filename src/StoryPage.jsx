@@ -38,7 +38,7 @@ const StoryPage = ({ onBack, darkMode }) => {
           <p className={`text-lg md:text-xl leading-relaxed ${
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
-            A personal operating system born from the reality that no woman should have to choose between her power and her peace.
+            A personal operating system born from a simple truth: no woman should have to choose between her power and her peace.
           </p>
         </div>
 
@@ -58,7 +58,7 @@ const StoryPage = ({ onBack, darkMode }) => {
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
             <p>
-              Every day, women are expected to show up—fully present, high-performing, emotionally available—in every domain of life.
+              Every day, women are expected to show up fully present, high-performing, emotionally available in every domain of life.
             </p>
             <p className="font-medium">
               At work: Strategic thinker. Leader. Expert. Always one step ahead.
@@ -219,15 +219,15 @@ const StoryPage = ({ onBack, darkMode }) => {
           <p className={`text-2xl md:text-3xl font-bold italic ${
             darkMode ? 'text-gray-200' : 'text-gray-900'
           }`}>
-            "She is not fragile like a flower. She is fragile like a bomb."
+            "Real strength comes from vulnerability, setting boundaries, and showing up as your full, imperfect self even when the outcome is uncertain."
           </p>
           <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            — Unknown
+            - Brené Brown
           </p>
           <p className={`text-xl font-medium mt-8 ${
             darkMode ? 'text-purple-400' : 'text-purple-700'
           }`}>
-            Welcome to your operating system, Lioness. 🦁
+            Welcome to your operating system, WARRIOR. 🦁
           </p>
         </div>
       </div>
