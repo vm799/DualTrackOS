@@ -83,10 +83,17 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
         </h1>
 
         {/* Strapline */}
-        <p className={`text-lg md:text-xl mb-12 leading-relaxed font-medium ${
+        <p className={`text-lg md:text-xl mb-6 leading-relaxed font-medium ${
           darkMode ? 'text-gray-300' : 'text-gray-700'
         }`}>
           The operating system powering every role she runs, every day.
+        </p>
+
+        {/* Motivation message */}
+        <p className={`text-base md:text-lg mb-12 italic font-light ${
+          darkMode ? 'text-purple-400' : 'text-purple-600'
+        }`}>
+          Take a breath. You got this. Let's do this.
         </p>
 
         {/* Enter button */}
