@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
   return (
     <div
-      className={`min-h-screen relative overflow-hidden ${
+      className={`min-h-[100dvh] relative overflow-hidden ${
         darkMode
           ? 'bg-[#191919]'
           : 'bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50'
@@ -30,14 +30,14 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
       </div>
 
       {/* CONTENT */}
-      <div className="relative z-10 flex flex-col min-h-screen px-6 text-center">
+      <div className="relative z-10 flex flex-col min-h-[100dvh] px-6 text-center">
 
         {/* TOP — Brand Anchor */}
-        <div className="pt-6 md:pt-10">
+        <div className="pt-3 sm:pt-6 md:pt-10">
           <img
             src="/lioness-logo.png"
             alt="DualTrack OS Lioness Logo"
-            className="mx-auto w-[360px] h-[360px] sm:w-[560px] sm:h-[560px] md:w-[800px] md:h-[800px] drop-shadow-2xl animate-fade-in"
+            className="mx-auto w-[280px] h-[280px] sm:w-[480px] sm:h-[480px] md:w-[720px] md:h-[720px] drop-shadow-2xl animate-fade-in"
           />
 
           <h1 className="mt-[-12px] text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
@@ -59,7 +59,7 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
         </div>
 
         {/* MIDDLE — Motivation + CTA */}
-        <div className="flex flex-col items-center justify-center flex-grow gap-4 py-6">
+        <div className="flex flex-col items-center justify-center flex-grow gap-2 py-3 sm:py-4 md:py-6">
           <p
             className={`text-sm sm:text-base italic font-light ${
               darkMode ? 'text-purple-400' : 'text-purple-600'
@@ -92,7 +92,7 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
         </div>
 
         {/* BOTTOM — Story */}
-        <div className="mt-6 pb-6">
+        <div className="mt-3 sm:mt-4 md:mt-6 pb-4 sm:pb-6">
           <button
             onClick={onViewStory}
             className={`px-8 py-3 rounded-full text-sm sm:text-base font-medium transition-all hover:scale-105 ${
