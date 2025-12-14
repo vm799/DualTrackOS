@@ -3,7 +3,7 @@ import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utens
 import { supabase, isSupabaseConfigured, signInWithGoogle, signOut as supabaseSignOut, saveUserData, loadUserData } from './supabaseClient';
 import Onboarding from './Onboarding';
 import NDMStatusBar from './components/NDMStatusBar';
-import SmartSuggestions from './components/SmartSuggestions';
+// SmartSuggestions moved to modals only - no longer on main dashboard
 import EnergyModal from './components/EnergyModal';
 import MoodModal from './components/MoodModal';
 
@@ -1146,53 +1146,53 @@ const DualTrackOS = () => {
     }`}>
       <GeometricBg />
 
-      {/* Redesigned Header - Massive Time Focus */}
+      {/* Left Sidebar - Spirit Animal */}
+      <div className={`fixed left-0 top-1/2 -translate-y-1/2 z-30 transition-all duration-300`}>
+        <button
+          onClick={() => setShowSpiritAnimalModal(true)}
+          className={`p-3 rounded-r-2xl transition-all hover:scale-110 ${
+            darkMode
+              ? 'bg-gray-800/90 border-2 border-l-0 border-gray-700/50 hover:bg-gray-800'
+              : 'bg-white/90 border-2 border-l-0 border-gray-200 hover:bg-white shadow-lg'
+          }`}
+          title="View Spirit Animal Journey"
+        >
+          <div className="text-4xl">
+            {getSpiritAnimalStage(spiritAnimalScore).emoji}
+          </div>
+        </button>
+      </div>
+
+      {/* Clean Top Header */}
       <div className={`sticky top-0 z-20 backdrop-blur-xl transition-all duration-300 ${
         darkMode
           ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
           : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          {/* Header: Initials Top Left, Animal Below with Name/Meaning */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-start space-x-4">
-              {/* Left Column: Initials + Spirit Animal */}
-              <div className="flex flex-col items-center space-y-2">
-                {/* User Initials Circle */}
-                {userProfile.initials && (
-                  <div className={`w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl border-2 ${
-                    darkMode
-                      ? 'bg-purple-900/30 border-purple-500/50 text-purple-300'
-                      : 'bg-purple-100 border-purple-300 text-purple-700'
-                  }`}>
-                    {userProfile.initials}
-                  </div>
-                )}
-
-                {/* Spirit Animal - Clean Display */}
-                <button
-                  onClick={() => setShowSpiritAnimalModal(true)}
-                  className="text-5xl hover:scale-110 transition-transform cursor-pointer"
-                  title="View Spirit Animal"
-                >
-                  {getSpiritAnimalStage(spiritAnimalScore).emoji}
-                </button>
-              </div>
-
-              {/* Right Column: Animal Name + Meaning */}
-              <div className="flex flex-col justify-center">
-                <h3 className={`text-lg font-bold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                  {getSpiritAnimalStage(spiritAnimalScore).name}
-                </h3>
-                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  {getSpiritAnimalStage(spiritAnimalScore).romanji}
-                </p>
-                <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-500'} italic`}>
-                  "{getSpiritAnimalStage(spiritAnimalScore).description}"
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            {/* Left: User Initials + Welcome */}
+            <div className="flex items-center space-x-3">
+              {userProfile.initials && (
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg border-2 ${
+                  darkMode
+                    ? 'bg-purple-900/30 border-purple-500/50 text-purple-300'
+                    : 'bg-purple-100 border-purple-300 text-purple-700'
+                }`}>
+                  {userProfile.initials}
+                </div>
+              )}
+              <div>
+                <h2 className={`font-bold text-lg ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                  {userProfile.preferredName || 'Welcome'}
+                </h2>
+                <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                  DualTrack OS
                 </p>
               </div>
             </div>
 
+            {/* Right: Time/Date + Auth + Settings */}
             <div className="flex items-center space-x-3">
               {/* Time & Date Card */}
               <div className={`px-4 py-2 rounded-xl border-2 ${
@@ -1437,18 +1437,34 @@ const DualTrackOS = () => {
 
             {/* ENERGY & MOOD TRACKING */}
             <div className="grid grid-cols-2 gap-4">
-              {/* Energy Selector - Click to open modal */}
-              <div onClick={() => {
-                if (getCurrentPeriodEnergy()) {
-                  setShowEnergyModal(true);
-                } else {
-                  setExpandedTile(expandedTile === 'energy' ? null : 'energy');
-                }
-              }} className={`rounded-xl p-4 cursor-pointer transition-all duration-300 ${
-                darkMode
-                  ? 'bg-gray-800/50 border-2 border-gray-700/50 hover:border-yellow-500/50 shadow-lg backdrop-blur-sm'
-                  : 'bg-white border-2 border-gray-100 hover:border-yellow-400 shadow-md'
-              }`}>
+              {/* Energy Selector - Click to open modal (always visible but shows completion state) */}
+              {(() => {
+                const energySuggestions = getSmartSuggestions();
+                const totalEnergyActions = energySuggestions.tasks ? energySuggestions.tasks.length : 0;
+                const completedEnergyActions = selectedEnergyActions.length;
+                const allEnergyActionsComplete = getCurrentPeriodEnergy() && totalEnergyActions > 0 && completedEnergyActions >= totalEnergyActions;
+
+                return (
+                  <div onClick={() => {
+                    if (getCurrentPeriodEnergy()) {
+                      setShowEnergyModal(true);
+                    } else {
+                      setExpandedTile(expandedTile === 'energy' ? null : 'energy');
+                    }
+                  }} className={`rounded-xl p-4 cursor-pointer transition-all duration-300 ${
+                    allEnergyActionsComplete
+                      ? darkMode
+                        ? 'bg-emerald-900/30 border-2 border-emerald-500/50 shadow-lg backdrop-blur-sm'
+                        : 'bg-emerald-50 border-2 border-emerald-400 shadow-md'
+                      : darkMode
+                        ? 'bg-gray-800/50 border-2 border-gray-700/50 hover:border-yellow-500/50 shadow-lg backdrop-blur-sm'
+                        : 'bg-white border-2 border-gray-100 hover:border-yellow-400 shadow-md'
+                  }`}>
+                    {allEnergyActionsComplete && (
+                      <div className={`text-xs text-center mb-2 font-bold ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                        ✓ COMPLETE
+                      </div>
+                    )}
                 <div className="flex items-center justify-center mb-2">
                   <Zap className={darkMode ? 'text-yellow-400' : 'text-yellow-500'} size={24} />
                 </div>
@@ -1492,13 +1508,31 @@ const DualTrackOS = () => {
                   ))}
                 </div>
               </div>
+                );
+              })()}
 
-              {/* Mood Selector - Click to open modal */}
-              <div className={`rounded-xl p-4 transition-all duration-300 ${
-                darkMode
-                  ? 'bg-gray-800/50 border-2 border-gray-700/50 hover:border-purple-500/50 shadow-lg backdrop-blur-sm'
-                  : 'bg-white border-2 border-gray-100 hover:border-purple-400 shadow-md'
-              }`}>
+              {/* Mood Selector - Click to open modal (always visible but shows completion state) */}
+              {(() => {
+                const moodSuggestions = getSmartSuggestions();
+                const totalMoodActions = moodSuggestions.moodWellness?.activities ? moodSuggestions.moodWellness.activities.length : 0;
+                const completedMoodActions = selectedMoodActions.length;
+                const allMoodActionsComplete = currentMood && totalMoodActions > 0 && completedMoodActions >= totalMoodActions;
+
+                return (
+                  <div className={`rounded-xl p-4 transition-all duration-300 ${
+                    allMoodActionsComplete
+                      ? darkMode
+                        ? 'bg-emerald-900/30 border-2 border-emerald-500/50 shadow-lg backdrop-blur-sm'
+                        : 'bg-emerald-50 border-2 border-emerald-400 shadow-md'
+                      : darkMode
+                        ? 'bg-gray-800/50 border-2 border-gray-700/50 hover:border-purple-500/50 shadow-lg backdrop-blur-sm'
+                        : 'bg-white border-2 border-gray-100 hover:border-purple-400 shadow-md'
+                  }`}>
+                    {allMoodActionsComplete && (
+                      <div className={`text-xs text-center mb-2 font-bold ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                        ✓ COMPLETE
+                      </div>
+                    )}
                 <div className="flex items-center justify-center mb-2">
                   <Heart className={darkMode ? 'text-pink-400' : 'text-pink-500'} size={24} />
                 </div>
@@ -1544,17 +1578,9 @@ const DualTrackOS = () => {
                   ))}
                 </div>
               </div>
+                );
+              })()}
             </div>
-
-            {/* SMART SUGGESTIONS - Only show if no actions have been selected yet */}
-            {(getCurrentEnergy() > 0 || currentMood) && selectedEnergyActions.length === 0 && selectedMoodActions.length === 0 && (
-              <SmartSuggestions
-                suggestions={getSmartSuggestions()}
-                darkMode={darkMode}
-                onAddTask={addHourlyTask}
-                currentHour={currentTime.getHours()}
-              />
-            )}
 
             {/* PROTEIN TRACKER */}
             <div onClick={() => setExpandedTile(expandedTile === 'protein' ? null : 'protein')} className={`rounded-xl p-6 cursor-pointer transition-all duration-300 ${
@@ -2275,65 +2301,187 @@ const DualTrackOS = () => {
                 Settings & Data
               </h3>
               <div className="space-y-3">
-                {/* Upgrade to Starter Plan */}
-                {process.env.REACT_APP_STRIPE_STARTER_PAYMENT_LINK && (
-                  <div className={`rounded-xl p-6 border-2 ${
-                    darkMode
-                      ? 'bg-gradient-to-br from-purple-900/30 via-pink-900/20 to-purple-900/30 border-purple-500/30'
-                      : 'bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200'
-                  }`}>
-                    <div className="text-center mb-4">
-                      <h4 className={`text-2xl font-bold mb-2 ${
-                        darkMode ? 'text-purple-300' : 'text-purple-800'
-                      }`}>
-                        ⭐ DualTrack Starter Plan
-                      </h4>
-                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        Unlock premium features for $19/month
-                      </p>
-                    </div>
+                {/* Upgrade to Starter Plan - Enhanced Marketing */}
+                <div className={`rounded-xl p-6 border-2 ${
+                  darkMode
+                    ? 'bg-gradient-to-br from-purple-900/30 via-pink-900/20 to-purple-900/30 border-purple-500/30'
+                    : 'bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200'
+                }`}>
+                  <div className="text-center mb-6">
+                    <div className="text-4xl mb-3">🚀</div>
+                    <h4 className={`text-2xl font-bold mb-2 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent`}>
+                      DualTrack Starter Plan
+                    </h4>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      The fully integrated experience for badass women who refuse to burn out
+                    </p>
+                  </div>
 
-                    <div className={`space-y-2 mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {/* Core Features */}
+                  <div className={`mb-4 p-4 rounded-lg ${darkMode ? 'bg-gray-800/50' : 'bg-white/50'}`}>
+                    <h5 className={`font-bold mb-3 text-sm ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+                      💪 WELLNESS & MOVEMENT
+                    </h5>
+                    <div className={`space-y-2 mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       <div className="flex items-start space-x-2">
-                        <span className="text-emerald-500">✓</span>
-                        <span className="text-sm">Advanced HIIT workout programs with video guides</span>
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">Advanced HIIT workouts optimized for your cycle</span>
                       </div>
                       <div className="flex items-start space-x-2">
-                        <span className="text-emerald-500">✓</span>
-                        <span className="text-sm">Personalized meal prep plans and recipes</span>
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">Guided meditations for ADHD, stress & hormonal anxiety</span>
                       </div>
                       <div className="flex items-start space-x-2">
-                        <span className="text-emerald-500">✓</span>
-                        <span className="text-sm">Guided meditations for ADHD and stress relief</span>
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">Apple Health & Google Fit integration (sleep, HRV, steps)</span>
                       </div>
                       <div className="flex items-start space-x-2">
-                        <span className="text-emerald-500">✓</span>
-                        <span className="text-sm">Cycle-synced workout recommendations</span>
-                      </div>
-                      <div className="flex items-start space-x-2">
-                        <span className="text-emerald-500">✓</span>
-                        <span className="text-sm">Priority customer support</span>
-                      </div>
-                      <div className="flex items-start space-x-2">
-                        <span className="text-emerald-500">✓</span>
-                        <span className="text-sm">Weekly AI coaching insights</span>
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">Oura Ring & Whoop integration (recovery scores)</span>
                       </div>
                     </div>
 
+                    <h5 className={`font-bold mb-3 text-sm ${darkMode ? 'text-cyan-300' : 'text-cyan-700'}`}>
+                      🍽️ NUTRITION & ENERGY
+                    </h5>
+                    <div className={`space-y-2 mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">Personalized meal prep plans & quick recipes</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">MyFitnessPal integration (automatic macro tracking)</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">Energy-based meal suggestions (low energy? Here's what to eat)</span>
+                      </div>
+                    </div>
+
+                    <h5 className={`font-bold mb-3 text-sm ${darkMode ? 'text-pink-300' : 'text-pink-700'}`}>
+                      📅 PRODUCTIVITY & CALENDAR
+                    </h5>
+                    <div className={`space-y-2 mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">Google Calendar & Outlook sync (schedule optimization)</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">Notion & Todoist integration (unified task management)</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">Auto-schedule deep work during high-energy windows</span>
+                      </div>
+                    </div>
+
+                    <h5 className={`font-bold mb-3 text-sm ${darkMode ? 'text-orange-300' : 'text-orange-700'}`}>
+                      🎯 HORMONAL INTELLIGENCE
+                    </h5>
+                    <div className={`space-y-2 mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">Flo & Clue integration (predict low-energy days)</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">Cycle-synced workout & nutrition recommendations</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">AI predictions: "Rest mode recommended tomorrow"</span>
+                      </div>
+                    </div>
+
+                    <h5 className={`font-bold mb-3 text-sm ${darkMode ? 'text-blue-300' : 'text-blue-700'}`}>
+                      💼 BUSINESS & FINANCE
+                    </h5>
+                    <div className={`space-y-2 mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">QuickBooks & FreshBooks integration (track consultancy revenue)</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">Stripe analytics dashboard (side hustle income tracking)</span>
+                      </div>
+                    </div>
+
+                    <h5 className={`font-bold mb-3 text-sm ${darkMode ? 'text-yellow-300' : 'text-yellow-700'}`}>
+                      ✨ AI & AUTOMATION
+                    </h5>
+                    <div className={`space-y-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">Weekly AI coaching insights & pattern detection</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">Smart energy forecasting (predict tomorrow's capacity)</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-xs">Automated task rescheduling based on energy drops</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Waitlist Form */}
+                  <div className={`p-4 rounded-lg mb-4 ${darkMode ? 'bg-gray-800/50 border border-purple-500/30' : 'bg-white border border-purple-200'}`}>
+                    <p className={`text-sm font-bold mb-3 text-center ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+                      🎉 Join the Waitlist - Be First to Access All Integrations
+                    </p>
+                    <form onSubmit={(e) => {
+                      e.preventDefault();
+                      const email = e.target.waitlistEmail.value;
+                      alert(`Thank you! We'll email ${email} when the full experience launches! 🚀`);
+                      e.target.reset();
+                    }} className="space-y-2">
+                      <input
+                        type="email"
+                        name="waitlistEmail"
+                        required
+                        placeholder="your.email@example.com"
+                        className={`w-full px-4 py-2 rounded-lg text-sm ${
+                          darkMode
+                            ? 'bg-gray-900 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500'
+                            : 'bg-white border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
+                        }`}
+                      />
+                      <button
+                        type="submit"
+                        className={`w-full py-3 rounded-lg font-bold text-sm transition-all shadow-lg ${
+                          darkMode
+                            ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50'
+                            : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+                        }`}
+                      >
+                        🚀 Join Waitlist - Get Early Access
+                      </button>
+                    </form>
+                    <p className={`text-xs text-center mt-2 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                      First 100 members get lifetime 50% discount ($9.50/month)
+                    </p>
+                  </div>
+
+                  {/* CTA Button */}
+                  {process.env.REACT_APP_STRIPE_STARTER_PAYMENT_LINK && (
                     <a
                       href={process.env.REACT_APP_STRIPE_STARTER_PAYMENT_LINK}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`w-full py-4 rounded-lg font-bold text-center block transition-all shadow-lg ${
                         darkMode
-                          ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-purple-500/20'
-                          : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+                          ? 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:via-teal-500 hover:to-emerald-500 text-white border-2 border-emerald-500/50'
+                          : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white'
                       }`}
                     >
-                      ✨ Upgrade Now - $19/month
+                      💳 Get Started Now - $19/month
                     </a>
-                  </div>
-                )}
+                  )}
+                </div>
 
                 {/* Auth Section */}
                 {isSupabaseConfigured() && (
