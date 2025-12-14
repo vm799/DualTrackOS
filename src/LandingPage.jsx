@@ -52,7 +52,7 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
         <p className={`text-sm md:text-base mb-4 italic font-light ${
           darkMode ? 'text-purple-400' : 'text-purple-600'
         }`}>
-          Take a breath. You got this. Lets do it.
+          Take a breath. You got this. Let's do it.
         </p>
 
         {/* Enter button - Smaller */}
@@ -74,8 +74,8 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
         </button>
       </div>
 
-      {/* Bottom: Story link with spacing */}
-      <div className="relative z-10 pb-6 px-6 text-center mt-auto">
+      {/* Bottom: Story link - Always visible */}
+      <div className="relative z-10 py-6 px-6 text-center">
         <button
           onClick={onViewStory}
           className={`px-10 py-4 rounded-full font-medium text-sm md:text-base transition-all hover:scale-105 ${
