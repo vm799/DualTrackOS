@@ -21,18 +21,28 @@ const EnergyModal = ({
   darkMode,
   onAddTask,
   onAddToFoodDiary,
-  currentHour
+  currentHour,
+  selectedActions = [],
+  onActionSelect
 }) => {
   if (!isOpen || !suggestions) return null;
 
   const handleAddTask = (task) => {
     onAddTask(currentHour, task);
-    // Optional: show brief feedback
+    if (onActionSelect) {
+      onActionSelect(task);
+    }
   };
 
   const handleAddFood = (food) => {
     onAddToFoodDiary(food);
-    // Optional: show brief feedback
+    if (onActionSelect) {
+      onActionSelect(food);
+    }
+  };
+
+  const isActionSelected = (action) => {
+    return selectedActions.includes(action);
   };
 
   // Get color based on energy level
@@ -152,17 +162,25 @@ const EnergyModal = ({
                   Recommended Actions (Click to Add to Tasks)
                 </h3>
                 <div className="space-y-2">
-                  {suggestions.tasks.map((task, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleAddTask(task)}
-                      className={`w-full text-left p-3 rounded-lg border-2 transition-all ${colorClasses.button} ${
-                        darkMode ? 'text-gray-200' : 'text-gray-800'
-                      }`}
-                    >
-                      <span className="text-sm">✓ {task}</span>
-                    </button>
-                  ))}
+                  {suggestions.tasks.map((task, idx) => {
+                    const isSelected = isActionSelected(task);
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleAddTask(task)}
+                        className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
+                          isSelected
+                            ? darkMode
+                              ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300 line-through opacity-60'
+                              : 'bg-emerald-100 border-emerald-400 text-emerald-700 line-through opacity-60'
+                            : colorClasses.button + ' ' + (darkMode ? 'text-gray-200' : 'text-gray-800')
+                        }`}
+                        disabled={isSelected}
+                      >
+                        <span className="text-sm">{isSelected ? '✓✓' : '✓'} {task}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -176,19 +194,27 @@ const EnergyModal = ({
                   🍽️ Energy-Boosting Nutrition (Click to Add to Food Diary)
                 </h3>
                 <div className="grid grid-cols-1 gap-2">
-                  {suggestions.snacks.map((snack, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleAddFood(snack)}
-                      className={`text-left p-3 rounded-lg border transition-all ${
-                        darkMode
-                          ? 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20 text-gray-300'
-                          : 'bg-gray-50 hover:bg-gray-100 border-gray-200 hover:border-gray-300 text-gray-700'
-                      }`}
-                    >
-                      <span className="text-sm">🍽️ {snack}</span>
-                    </button>
-                  ))}
+                  {suggestions.snacks.map((snack, idx) => {
+                    const isSelected = isActionSelected(snack);
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleAddFood(snack)}
+                        className={`text-left p-3 rounded-lg border transition-all ${
+                          isSelected
+                            ? darkMode
+                              ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300 line-through opacity-60'
+                              : 'bg-emerald-100 border-emerald-400 text-emerald-700 line-through opacity-60'
+                            : darkMode
+                              ? 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20 text-gray-300'
+                              : 'bg-gray-50 hover:bg-gray-100 border-gray-200 hover:border-gray-300 text-gray-700'
+                        }`}
+                        disabled={isSelected}
+                      >
+                        <span className="text-sm">{isSelected ? '✓✓' : '🍽️'} {snack}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}

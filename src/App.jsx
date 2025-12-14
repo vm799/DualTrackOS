@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, User } from 'lucide-react';
 import { supabase, isSupabaseConfigured, signInWithGoogle, signOut as supabaseSignOut, saveUserData, loadUserData } from './supabaseClient';
 import Onboarding from './Onboarding';
-import SpiritAnimalCard from './components/SpiritAnimalCard';
 import NDMStatusBar from './components/NDMStatusBar';
 import SmartSuggestions from './components/SmartSuggestions';
 import EnergyModal from './components/EnergyModal';
@@ -52,6 +51,10 @@ const DualTrackOS = () => {
   // Energy & Mood Modals
   const [showEnergyModal, setShowEnergyModal] = useState(false);
   const [showMoodModal, setShowMoodModal] = useState(false);
+
+  // Track selected actions from modals
+  const [selectedEnergyActions, setSelectedEnergyActions] = useState([]);
+  const [selectedMoodActions, setSelectedMoodActions] = useState([]);
 
   // Spirit Animal State (心の成長 - Growth of the Heart)
   const [spiritAnimalScore, setSpiritAnimalScore] = useState(0); // 0-100 balance score
@@ -313,6 +316,19 @@ const DualTrackOS = () => {
     setMeals(p => [...p, { id: Date.now(), name: foodName, protein: 0, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }]);
     // Optional: Mark nutrition NDM as complete
     setNdm(prev => ({ ...prev, nutrition: true }));
+  };
+
+  // Handle action selection from modals
+  const handleEnergyActionSelect = (action) => {
+    if (!selectedEnergyActions.includes(action)) {
+      setSelectedEnergyActions(prev => [...prev, action]);
+    }
+  };
+
+  const handleMoodActionSelect = (action) => {
+    if (!selectedMoodActions.includes(action)) {
+      setSelectedMoodActions(prev => [...prev, action]);
+    }
   };
 
   const startWorkout = (workout) => { setActiveWorkout(workout); setWorkoutTimer(0); setIsWorkoutRunning(true); setCurrentView('workout-active'); };
@@ -1122,22 +1138,14 @@ const DualTrackOS = () => {
           : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
         <div className="max-w-4xl mx-auto px-4 py-6">
-          {/* Top Row: Spirit Animal + User Info + Time/Date + Settings */}
+          {/* Header: Initials Top Left, Animal Below with Name/Meaning */}
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              {/* Spirit Animal - Gamified Display */}
-              <SpiritAnimalCard
-                spiritAnimalScore={spiritAnimalScore}
-                darkMode={darkMode}
-                onClick={() => setShowSpiritAnimalModal(true)}
-                getSpiritAnimalStage={getSpiritAnimalStage}
-              />
-
-              {/* User Initials + Animal Info */}
-              <div className="flex items-center space-x-3">
+            <div className="flex items-start space-x-4">
+              {/* Left Column: Initials + Spirit Animal */}
+              <div className="flex flex-col items-center space-y-2">
                 {/* User Initials Circle */}
                 {userProfile.initials && (
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg border-2 ${
+                  <div className={`w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl border-2 ${
                     darkMode
                       ? 'bg-purple-900/30 border-purple-500/50 text-purple-300'
                       : 'bg-purple-100 border-purple-300 text-purple-700'
@@ -1146,15 +1154,27 @@ const DualTrackOS = () => {
                   </div>
                 )}
 
-                {/* Name + Animal Stage */}
-                <div>
-                  <h2 className={`text-lg font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                    {userProfile.preferredName || userProfile.name || 'there'}
-                  </h2>
-                  <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                    {getSpiritAnimalStage(spiritAnimalScore).name} • {getSpiritAnimalStage(spiritAnimalScore).romanji}
-                  </p>
-                </div>
+                {/* Spirit Animal - Clean Display */}
+                <button
+                  onClick={() => setShowSpiritAnimalModal(true)}
+                  className="text-5xl hover:scale-110 transition-transform cursor-pointer"
+                  title="View Spirit Animal"
+                >
+                  {getSpiritAnimalStage(spiritAnimalScore).emoji}
+                </button>
+              </div>
+
+              {/* Right Column: Animal Name + Meaning */}
+              <div className="flex flex-col justify-center">
+                <h3 className={`text-lg font-bold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                  {getSpiritAnimalStage(spiritAnimalScore).name}
+                </h3>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {getSpiritAnimalStage(spiritAnimalScore).romanji}
+                </p>
+                <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-500'} italic`}>
+                  "{getSpiritAnimalStage(spiritAnimalScore).description}"
+                </p>
               </div>
             </div>
 
@@ -1517,8 +1537,8 @@ const DualTrackOS = () => {
               </div>
             </div>
 
-            {/* SMART SUGGESTIONS - Based on Energy + Mood */}
-            {(getCurrentEnergy() > 0 || currentMood) && (
+            {/* SMART SUGGESTIONS - Only show if no actions have been selected yet */}
+            {(getCurrentEnergy() > 0 || currentMood) && selectedEnergyActions.length === 0 && selectedMoodActions.length === 0 && (
               <SmartSuggestions
                 suggestions={getSmartSuggestions()}
                 darkMode={darkMode}
@@ -2073,20 +2093,64 @@ const DualTrackOS = () => {
                 Settings & Data
               </h3>
               <div className="space-y-3">
-                {/* Upgrade to Starter */}
+                {/* Upgrade to Starter Plan */}
                 {process.env.REACT_APP_STRIPE_STARTER_PAYMENT_LINK && (
-                  <a
-                    href={process.env.REACT_APP_STRIPE_STARTER_PAYMENT_LINK}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`w-full py-4 rounded-lg font-bold text-center block transition-all ${
-                      darkMode
-                        ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
-                        : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
-                    }`}
-                  >
-                    ✨ Upgrade to Starter - $19/month
-                  </a>
+                  <div className={`rounded-xl p-6 border-2 ${
+                    darkMode
+                      ? 'bg-gradient-to-br from-purple-900/30 via-pink-900/20 to-purple-900/30 border-purple-500/30'
+                      : 'bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200'
+                  }`}>
+                    <div className="text-center mb-4">
+                      <h4 className={`text-2xl font-bold mb-2 ${
+                        darkMode ? 'text-purple-300' : 'text-purple-800'
+                      }`}>
+                        ⭐ DualTrack Starter Plan
+                      </h4>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        Unlock premium features for $19/month
+                      </p>
+                    </div>
+
+                    <div className={`space-y-2 mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500">✓</span>
+                        <span className="text-sm">Advanced HIIT workout programs with video guides</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500">✓</span>
+                        <span className="text-sm">Personalized meal prep plans and recipes</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500">✓</span>
+                        <span className="text-sm">Guided meditations for ADHD and stress relief</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500">✓</span>
+                        <span className="text-sm">Cycle-synced workout recommendations</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500">✓</span>
+                        <span className="text-sm">Priority customer support</span>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <span className="text-emerald-500">✓</span>
+                        <span className="text-sm">Weekly AI coaching insights</span>
+                      </div>
+                    </div>
+
+                    <a
+                      href={process.env.REACT_APP_STRIPE_STARTER_PAYMENT_LINK}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`w-full py-4 rounded-lg font-bold text-center block transition-all shadow-lg ${
+                        darkMode
+                          ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-purple-500/20'
+                          : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+                      }`}
+                    >
+                      ✨ Upgrade Now - $19/month
+                    </a>
+                  </div>
                 )}
 
                 {/* Auth Section */}
@@ -2582,6 +2646,8 @@ const DualTrackOS = () => {
         onAddTask={addHourlyTask}
         onAddToFoodDiary={addFoodFromModal}
         currentHour={currentTime.getHours()}
+        selectedActions={selectedEnergyActions}
+        onActionSelect={handleEnergyActionSelect}
       />
 
       {/* MOOD MODAL */}
@@ -2594,6 +2660,8 @@ const DualTrackOS = () => {
         onAddTask={addHourlyTask}
         onAddToFoodDiary={addFoodFromModal}
         currentHour={currentTime.getHours()}
+        selectedActions={selectedMoodActions}
+        onActionSelect={handleMoodActionSelect}
       />
 
       {/* BRAIN DUMP MODAL */}
