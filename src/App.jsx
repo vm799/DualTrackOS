@@ -1634,10 +1634,18 @@ const DualTrackOS = () => {
                 ? 'bg-gray-800/50 border-2 border-gray-700/50 shadow-lg backdrop-blur-sm'
                 : 'bg-white border-2 border-gray-100 shadow-md'
             }`}>
-              <h3 className={`text-lg font-bold mb-4 flex items-center ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+              <h3 className={`text-lg font-bold mb-2 flex items-center ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
                 <Heart className={`mr-2 ${darkMode ? 'text-rose-400' : 'text-red-500'}`} size={20} />
                 Daily Non-Negotiables
               </h3>
+
+              {/* Personalized Greeting */}
+              {userProfile.initials && (
+                <p className="text-sm font-medium mb-4 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
+                  Hello {userProfile.initials}, these are your non-negotiables
+                </p>
+              )}
+
               <div className="space-y-3">
                 <NDMItem icon="🥗" label="Protein Breakfast" completed={ndm.nutrition} onClick={() => setCurrentView('food')} />
                 <NDMItem icon="⚡" label="HIIT Burst" completed={ndm.movement} onClick={() => setCurrentView('exercise')} />
