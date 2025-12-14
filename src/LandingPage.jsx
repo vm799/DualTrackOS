@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 
 const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
   return (
-    <div className={`min-h-screen flex flex-col items-center justify-center relative overflow-hidden ${
+    <div className={`min-h-screen flex flex-col relative overflow-hidden ${
       darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50'
     }`}>
       {/* Animated background gradient orbs */}
@@ -16,16 +16,16 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
         } animate-pulse`} style={{ animationDuration: '6s', animationDelay: '1s' }}></div>
       </div>
 
-      {/* Main content */}
-      <div className="relative z-10 flex flex-col items-center justify-center px-6 text-center max-w-2xl">
-        {/* Logo - Lioness */}
+      {/* Main content - Centered */}
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 text-center max-w-3xl mx-auto">
+        {/* Logo - Lioness - Much Larger */}
         <div className="mb-8 animate-fade-in">
           <div className="relative">
-            {/* Actual Logo Image */}
+            {/* Actual Logo Image - Significantly Larger */}
             <img
               src="/lioness-logo.png"
               alt="DualTrack OS Lioness Logo"
-              className="w-48 h-48 md:w-56 md:h-56 mx-auto drop-shadow-2xl"
+              className="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 mx-auto drop-shadow-2xl"
             />
           </div>
         </div>
@@ -55,7 +55,7 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
         {/* Enter button */}
         <button
           onClick={onEnter}
-          className="group relative px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-2xl mb-8"
+          className="group relative px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-2xl"
           style={{
             background: 'linear-gradient(135deg, #06b6d4 0%, #a855f7 33%, #ec4899 66%, #fb923c 100%)'
           }}
@@ -65,11 +65,13 @@ const LandingPage = ({ onEnter, onViewStory, darkMode }) => {
             <ArrowRight className="transition-transform group-hover:translate-x-1" size={20} />
           </span>
         </button>
+      </div>
 
-        {/* Story link - moved to bottom with highlight */}
+      {/* Story link - Fixed at bottom */}
+      <div className="relative z-10 pb-6 px-6 text-center">
         <button
           onClick={onViewStory}
-          className={`px-6 py-3 rounded-lg font-medium transition-all hover:scale-105 ${
+          className={`px-8 py-4 rounded-xl font-semibold text-base md:text-lg transition-all hover:scale-105 shadow-xl ${
             darkMode
               ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-2 border-amber-500/40'
               : 'bg-amber-100 hover:bg-amber-200 text-amber-700 border-2 border-amber-300'
