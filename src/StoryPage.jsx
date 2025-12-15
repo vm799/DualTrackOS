@@ -1,7 +1,7 @@
 import React from 'react';
-import { ArrowLeft, Heart, Zap, Brain, Sparkles } from 'lucide-react';
+import { ArrowLeft, Heart, Zap, Brain, Sparkles, ArrowRight } from 'lucide-react';
 
-const StoryPage = ({ onBack, darkMode }) => {
+const StoryPage = ({ onBack, onEnter, darkMode }) => {
   return (
     <div className={`min-h-screen overflow-x-hidden ${
       darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50'
@@ -134,29 +134,33 @@ const StoryPage = ({ onBack, darkMode }) => {
             </p>
 
             <div className="space-y-4">
-              <p className="font-medium">
-                🦁 <strong>The Lioness represents controlled power, not aggression.</strong>
+              <p className="font-medium flex items-start gap-2">
+                <img src="/lioness-logo.png" alt="Lioness" className="w-6 h-6 inline-block" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
+                <strong>The Lioness represents controlled power, not aggression.</strong>
               </p>
-              <p className="pl-6">
+              <p className="pl-8">
                 She doesn't roar at every challenge. She observes. She waits. She chooses her battles. She knows when to pounce and when to rest in the tall grass.
               </p>
 
-              <p className="font-medium">
-                🦁 <strong>She embodies Shakti—the primordial cosmic energy of creation.</strong>
+              <p className="font-medium flex items-start gap-2">
+                <img src="/lioness-logo.png" alt="Lioness" className="w-6 h-6 inline-block" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
+                <strong>She embodies Shakti—the primordial cosmic energy of creation.</strong>
               </p>
-              <p className="pl-6">
+              <p className="pl-8">
                 Shakti is not about doing more. It's about harnessing your energy wisely. It's the force that creates worlds, but also the wisdom that knows rest is sacred.
               </p>
 
-              <p className="font-medium">
-                🦁 <strong>She masters raw power while staying centered in chaos.</strong>
+              <p className="font-medium flex items-start gap-2">
+                <img src="/lioness-logo.png" alt="Lioness" className="w-6 h-6 inline-block" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
+                <strong>She masters raw power while staying centered in chaos.</strong>
               </p>
-              <p className="pl-6">
+              <p className="pl-8">
                 Goddess Durga rides the lioness into battle against demons—but she doesn't fight frantically. She moves with intention. She protects what matters. She destroys only what threatens balance.
               </p>
 
-              <p className="font-medium">
-                🦁 <strong>She balances fierceness with nurturing.</strong>
+              <p className="font-medium flex items-start gap-2">
+                <img src="/lioness-logo.png" alt="Lioness" className="w-6 h-6 inline-block" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
+                <strong>She balances fierceness with nurturing.</strong>
               </p>
               <p className="pl-6">
                 The lioness hunts to feed her pride. She protects her young. She leads with strength and cares with depth. She doesn't choose between power and love—she IS both.
@@ -216,12 +220,10 @@ const StoryPage = ({ onBack, darkMode }) => {
 
         {/* Closing */}
         <div className="text-center space-y-6 py-8">
-          <p className={`text-2xl md:text-3xl font-light italic leading-relaxed ${
-            darkMode ? 'text-gray-200' : 'text-gray-800'
-          }`} style={{ fontFamily: 'Georgia, serif' }}>
+          <p className="text-2xl md:text-3xl font-medium italic leading-relaxed bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 bg-clip-text text-transparent" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', textShadow: '0 0 30px rgba(236, 72, 153, 0.4)' }}>
             "Real strength comes from vulnerability, setting boundaries, and showing up as your full, imperfect self even when the outcome is uncertain."
           </p>
-          <p className={`text-lg font-light ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          <p className={`text-lg font-medium ${darkMode ? 'text-pink-400' : 'text-pink-600'}`}>
             - Brené Brown
           </p>
           <p className={`text-2xl md:text-3xl font-semibold mt-12 leading-relaxed ${
@@ -229,6 +231,33 @@ const StoryPage = ({ onBack, darkMode }) => {
           }`}>
             Welcome to your OS.<br />You got this.
           </p>
+
+          {/* Enter Button */}
+          {onEnter && (
+            <div className="mt-8">
+              <button
+                onClick={onEnter}
+                className={`group relative px-7 py-3 text-base sm:text-lg font-bold transition-all duration-300 hover:scale-105 ${
+                  darkMode ? 'bg-gray-900' : 'bg-white'
+                }`}
+                style={{
+                  border: '3px solid transparent',
+                  borderImage:
+                    'linear-gradient(135deg, #06b6d4 0%, #a855f7 33%, #ec4899 66%, #fb923c 100%) 1',
+                  boxShadow:
+                    '0 0 20px rgba(168, 85, 247, 0.45), 0 0 40px rgba(6, 182, 212, 0.25)',
+                }}
+              >
+                <span className="flex items-center gap-2 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
+                  Enter Here
+                  <ArrowRight
+                    size={18}
+                    className="transition-transform group-hover:translate-x-1 text-purple-500"
+                  />
+                </span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
