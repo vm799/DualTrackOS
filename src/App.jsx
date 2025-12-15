@@ -65,7 +65,6 @@ const DualTrackOS = () => {
   // Spirit Animal State (心の成長 - Growth of the Heart)
   const [spiritAnimalScore, setSpiritAnimalScore] = useState(0); // 0-100 balance score
   const [balanceHistory, setBalanceHistory] = useState([]); // Track balance decisions
-  const [showSpiritAnimalModal, setShowSpiritAnimalModal] = useState(false);
 
   // Non-Negotiables Side Tab State
   const [showNonNegotiablesModal, setShowNonNegotiablesModal] = useState(false);
@@ -83,6 +82,18 @@ const DualTrackOS = () => {
   const [boxBreathingPhase, setBoxBreathingPhase] = useState('inhale');
   const [boxBreathingCycles, setBoxBreathingCycles] = useState(0);
   const [wellnessCompletions, setWellnessCompletions] = useState([]);
+
+  // Daily Command Center Metrics
+  const [dailyMetrics, setDailyMetrics] = useState({
+    hydration: { current: 0, target: 8, log: [] },
+    movement: { current: 0, target: 4, completions: [] },
+    focus: { current: 0, target: 4, sessions: [] },
+    ndms: { current: 0, target: 4 },
+    tasks: { done: 0, total: 0, pipeline: [] },
+    wins: []
+  });
+  const [showCommandCenterModal, setShowCommandCenterModal] = useState(false);
+  const [quickWinInput, setQuickWinInput] = useState('');
 
   // Real-time clock state
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -257,6 +268,17 @@ const DualTrackOS = () => {
       }, 1000);
     } else if (pomodoroSeconds === 0 && pomodoroRunning) {
       setPomodoroRunning(false);
+
+      // Track focus session in metrics
+      setDailyMetrics(prev => ({
+        ...prev,
+        focus: {
+          ...prev.focus,
+          current: Math.min(prev.focus.target, prev.focus.current + 1),
+          sessions: [...prev.focus.sessions, { duration: 20, timestamp: new Date() }]
+        }
+      }));
+
       if (notificationsEnabled) {
         new Notification('Focus session complete!', { body: '20 minutes of deep work done. Take a break!' });
       }
@@ -298,6 +320,25 @@ const DualTrackOS = () => {
     setSpiritAnimalScore(newScore);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [energyTracking, currentMood, ndm, proteinToday, meals.length, voiceDiary.length, userProfile.weight]);
+
+  // Sync NDM completions to Daily Metrics
+  useEffect(() => {
+    const ndmCount = [ndm.nutrition, ndm.movement, ndm.mindfulness, ndm.brainDump].filter(Boolean).length;
+    setDailyMetrics(prev => ({
+      ...prev,
+      ndms: { ...prev.ndms, current: ndmCount }
+    }));
+  }, [ndm]);
+
+  // Sync Kanban tasks to Daily Metrics
+  useEffect(() => {
+    const totalTasks = kanbanTasks.backlog.length + kanbanTasks.inProgress.length + kanbanTasks.done.length;
+    const doneTasks = kanbanTasks.done.length;
+    setDailyMetrics(prev => ({
+      ...prev,
+      tasks: { ...prev.tasks, done: doneTasks, total: totalTasks, pipeline: kanbanTasks.inProgress }
+    }));
+  }, [kanbanTasks]);
 
   useEffect(() => {
     let interval;
@@ -433,7 +474,40 @@ const DualTrackOS = () => {
     };
     setWellnessCompletions([...wellnessCompletions, completion]);
     setSpiritAnimalScore(prev => Math.min(100, prev + 2));
+
+    // Update Daily Metrics
+    if (type === 'hydration') {
+      setDailyMetrics(prev => ({
+        ...prev,
+        hydration: {
+          ...prev.hydration,
+          current: Math.min(prev.hydration.target, prev.hydration.current + 1),
+          log: [...prev.hydration.log, { timestamp: new Date() }]
+        }
+      }));
+    } else if (type === 'exercise') {
+      setDailyMetrics(prev => ({
+        ...prev,
+        movement: {
+          ...prev.movement,
+          current: Math.min(prev.movement.target, prev.movement.current + 1),
+          completions: [...prev.movement.completions, { type: exerciseChoice, timestamp: new Date() }]
+        }
+      }));
+    }
+
     dismissWellnessSnack();
+  };
+
+  // Quick Win Capture
+  const addQuickWin = () => {
+    if (quickWinInput.trim()) {
+      setDailyMetrics(prev => ({
+        ...prev,
+        wins: [...prev.wins, { text: quickWinInput.trim(), timestamp: new Date() }]
+      }));
+      setQuickWinInput('');
+    }
   };
 
   // Voice diary functions (5-minute recording)
@@ -950,83 +1024,6 @@ const DualTrackOS = () => {
    * 4. Spirit Fox (狐 - Kitsune): Wisdom emerging, 5 tails (60-79%)
    * 5. Nine-Tailed Fox (九尾 - Kyuubi): Enlightened master of balance (80-100%)
    */
-  const getSpiritAnimalStage = (balanceScore) => {
-    const stages = [
-      {
-        name: 'Newborn Cub',
-        japanese: '新生',
-        romanji: 'Shinsei',
-        useLogo: true,
-        showCrown: false,
-        minScore: 0,
-        maxScore: 19,
-        description: 'Newborn cub finding her roar',
-        philosophy: 'Every great journey begins with patience. Your inner lioness sleeps within, waiting for you to nurture her with balance and self-care.',
-        color: '#06b6d4',
-        neonColor: 'rgba(6, 182, 212, 0.8)',
-        tails: 0
-      },
-      {
-        name: 'Young Cub',
-        japanese: '若獅子',
-        romanji: 'Waka-shishi',
-        useLogo: true,
-        showCrown: false,
-        minScore: 20,
-        maxScore: 39,
-        description: 'Young cub learning to balance',
-        philosophy: 'New beginnings require gentleness. You are learning that rest is not weakness, and productivity without balance is unsustainable.',
-        color: '#a855f7',
-        neonColor: 'rgba(168, 85, 247, 0.8)',
-        tails: 0
-      },
-      {
-        name: 'Growing Lioness',
-        japanese: '成長',
-        romanji: 'Seichō',
-        useLogo: true,
-        showCrown: false,
-        minScore: 40,
-        maxScore: 59,
-        description: 'Growing lioness, finding rhythm',
-        philosophy: 'The growing lioness learns to dance between effort and rest. You are discovering your natural rhythm, honoring both ambition and restoration.',
-        color: '#ec4899',
-        neonColor: 'rgba(236, 72, 153, 0.8)',
-        tails: 3
-      },
-      {
-        name: 'Powerful Lioness',
-        japanese: '力',
-        romanji: 'Chikara',
-        useLogo: true,
-        showCrown: false,
-        minScore: 60,
-        maxScore: 79,
-        description: 'Embodying balance and power',
-        philosophy: 'The powerful lioness moves gracefully through life. You understand that true power comes from sustainable practices, not constant hustle.',
-        color: '#fb923c',
-        neonColor: 'rgba(251, 146, 60, 0.8)',
-        tails: 5
-      },
-      {
-        name: 'Queen Lioness',
-        japanese: '女王',
-        romanji: 'Joō',
-        useLogo: true,
-        showCrown: true,
-        minScore: 80,
-        maxScore: 100,
-        description: 'Enlightened master of balance',
-        philosophy: 'The queen lioness has achieved perfect harmony. You honor your energy, emotions, and body with deep wisdom. You rest without guilt and work without burnout.',
-        color: '#fbbf24',
-        neonColor: 'rgba(251, 191, 36, 0.9)',
-        tails: 9
-      }
-    ];
-
-    return stages.find(stage => balanceScore >= stage.minScore && balanceScore <= stage.maxScore) || stages[0];
-  };
-
   // Daily Planning Functions
   const updateGratitude = (index, value) => {
     const newGratitude = [...gratitude];
@@ -1345,34 +1342,24 @@ const DualTrackOS = () => {
     }`} style={{ position: 'fixed', width: '100%', height: '100%', overflowY: 'auto' }}>
       <GeometricBg />
 
-      {/* Spirit Animal - Top Right Side Tab */}
+      {/* Daily Command Center - Top Right Side Tab */}
       <div className="fixed right-0 top-1/2 -translate-y-16 w-10 h-24 z-30">
         <button
-          onClick={() => setShowSpiritAnimalModal(true)}
+          onClick={() => setShowCommandCenterModal(true)}
           className={`w-full h-full rounded-l-xl flex items-center justify-center transition-all ${
-            darkMode ? 'bg-cyan-500/20' : 'bg-cyan-100/40'
+            darkMode ? 'bg-gradient-to-b from-cyan-500/20 to-purple-500/20' : 'bg-gradient-to-b from-cyan-100/40 to-purple-100/40'
           }`}
           style={{
-            border: `1px solid ${getSpiritAnimalStage(spiritAnimalScore).color}40`,
+            border: '1px solid #a855f740',
             borderRight: 'none',
-            boxShadow: `0 0 20px ${getSpiritAnimalStage(spiritAnimalScore).neonColor}55`
+            boxShadow: '0 0 20px #a855f755'
           }}
-          title="View Spirit Animal Journey"
+          title="Daily Command Center"
         >
-          <div className="flex flex-col items-center gap-1">
-            <div className="relative">
-              <img
-                src="/lioness-logo.png"
-                alt="Lioness"
-                className="w-8 h-8 object-cover"
-                style={{ filter: `drop-shadow(0 0 6px ${getSpiritAnimalStage(spiritAnimalScore).neonColor})` }}
-              />
-              {getSpiritAnimalStage(spiritAnimalScore).showCrown && (
-                <span className="absolute -top-1 -right-1 text-xs">👑</span>
-              )}
-            </div>
-            <span className="text-[8px] font-bold leading-tight" style={{ color: getSpiritAnimalStage(spiritAnimalScore).color }}>
-              {getSpiritAnimalStage(spiritAnimalScore).japanese}
+          <div className="flex flex-col items-center gap-0.5">
+            <div className="text-2xl">📊</div>
+            <span className={`text-[8px] font-bold leading-tight ${darkMode ? 'text-purple-300' : 'text-purple-600'}`}>
+              CMD
             </span>
           </div>
         </button>
@@ -3573,24 +3560,23 @@ const DualTrackOS = () => {
         </div>
       )}
 
-      {/* SPIRIT ANIMAL MODAL - Japanese Philosophy & Growth */}
-      {showSpiritAnimalModal && (() => {
-        const stage = getSpiritAnimalStage(spiritAnimalScore);
+      {/* DAILY COMMAND CENTER MODAL */}
+      {showCommandCenterModal && (() => {
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-            <div className={`max-w-2xl w-full rounded-3xl shadow-2xl overflow-hidden ${
+            <div className={`max-w-4xl w-full rounded-3xl shadow-2xl overflow-hidden ${
               darkMode
                 ? 'bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 border-2 border-purple-500/30'
                 : 'bg-gradient-to-br from-white via-purple-50 to-white border-2 border-purple-200'
             }`}>
               {/* Header */}
-              <div className={`relative p-8 pb-6 ${
+              <div className={`relative p-6 pb-4 ${
                 darkMode
-                  ? 'bg-gradient-to-r from-purple-900/40 to-pink-900/40'
-                  : 'bg-gradient-to-r from-purple-100 to-pink-100'
+                  ? 'bg-gradient-to-r from-purple-900/40 to-cyan-900/40'
+                  : 'bg-gradient-to-r from-purple-100 to-cyan-100'
               }`}>
                 <button
-                  onClick={() => setShowSpiritAnimalModal(false)}
+                  onClick={() => setShowCommandCenterModal(false)}
                   className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
                     darkMode
                       ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
@@ -3600,190 +3586,269 @@ const DualTrackOS = () => {
                   <X size={24} />
                 </button>
 
-                {/* Spirit Animal Display */}
-                <div className="text-center mb-4">
-                  <div className="mb-4 flex justify-center">
-                    <div className="relative">
-                      <img
-                        src="/lioness-logo.png"
-                        alt="Lioness"
-                        className="w-32 h-32 md:w-40 md:h-40 object-cover mx-auto"
-                        style={{ filter: `drop-shadow(0 0 20px ${stage.neonColor})` }}
-                      />
-                      {stage.showCrown && (
-                        <span className="absolute -top-4 -right-4 text-5xl">👑</span>
-                      )}
-                    </div>
-                  </div>
+                <div className="text-center">
                   <h2 className={`text-3xl font-bold mb-2 ${
                     darkMode
                       ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
                       : 'text-gray-900'
                   }`}>
-                    {stage.japanese} ({stage.romanji})
+                    📊 Daily Command Center
                   </h2>
-                  <p className={`text-lg font-medium ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
-                    {stage.name}
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                   </p>
-                  <p className={`text-sm italic mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {stage.description}
-                  </p>
-                </div>
-
-                {/* Balance Score Progress */}
-                <div className="mt-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className={`text-xs font-semibold uppercase tracking-wide ${
-                      darkMode ? 'text-gray-400' : 'text-gray-600'
-                    }`}>
-                      Balance Score
-                    </span>
-                    <span className={`text-sm font-bold ${
-                      darkMode ? 'text-purple-300' : 'text-purple-700'
-                    }`}>
-                      {spiritAnimalScore}%
-                    </span>
-                  </div>
-                  <div className={`h-3 rounded-full overflow-hidden ${
-                    darkMode ? 'bg-gray-800' : 'bg-gray-200'
-                  }`}>
-                    <div
-                      className={`h-full transition-all duration-1000 ${
-                        stage.color === 'gold'
-                          ? 'bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-500'
-                          : stage.color === 'purple'
-                            ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500'
-                            : stage.color === 'orange'
-                              ? 'bg-gradient-to-r from-orange-400 to-pink-500'
-                              : stage.color === 'yellow'
-                                ? 'bg-gradient-to-r from-yellow-300 to-orange-400'
-                                : 'bg-gradient-to-r from-gray-400 to-gray-500'
-                      }`}
-                      style={{ width: `${spiritAnimalScore}%` }}
-                    />
-                  </div>
                 </div>
               </div>
 
-              {/* Philosophy Content */}
-              <div className="p-8 max-h-96 overflow-y-auto">
-                <div className={`p-6 rounded-2xl mb-6 ${
-                  darkMode
-                    ? 'bg-purple-500/10 border-2 border-purple-500/30'
-                    : 'bg-purple-50 border-2 border-purple-200'
-                }`}>
-                  <div className="flex items-start space-x-3 mb-3">
-                    <Sparkles className={darkMode ? 'text-purple-400 mt-1' : 'text-purple-600 mt-1'} size={20} />
-                    <p className={`font-semibold ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
-                      Philosophy (哲学 - Tetsugaku)
-                    </p>
+              {/* Metrics Dashboard Content */}
+              <div className="p-6 max-h-[70vh] overflow-y-auto space-y-6">
+
+                {/* Grid Layout: Top Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                  {/* HYDRATION TRACKER */}
+                  <div className={`p-6 rounded-2xl ${
+                    darkMode
+                      ? 'bg-cyan-500/10 border-2 border-cyan-500/30'
+                      : 'bg-cyan-50 border-2 border-cyan-200'
+                  }`}>
+                    <h3 className={`font-bold mb-4 flex items-center justify-between ${
+                      darkMode ? 'text-cyan-300' : 'text-cyan-700'
+                    }`}>
+                      <span>💧 Hydration</span>
+                      <span className="text-sm">{dailyMetrics.hydration.current}/{dailyMetrics.hydration.target}</span>
+                    </h3>
+                    <div className="flex items-center justify-center gap-2">
+                      {Array.from({ length: dailyMetrics.hydration.target }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-8 h-10 rounded-lg border-2 transition-all ${
+                            i < dailyMetrics.hydration.current
+                              ? 'bg-gradient-to-b from-cyan-400 to-blue-500 border-cyan-400'
+                              : darkMode
+                                ? 'bg-gray-800/30 border-gray-700'
+                                : 'bg-gray-100 border-gray-300'
+                          }`}
+                          style={{
+                            boxShadow: i < dailyMetrics.hydration.current ? '0 0 15px #06b6d4' : 'none'
+                          }}
+                        />
+                      ))}
+                    </div>
                   </div>
-                  <p className={`leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    {stage.philosophy}
-                  </p>
+
+                  {/* EXERCISE SNACKS TRACKER */}
+                  <div className={`p-6 rounded-2xl ${
+                    darkMode
+                      ? 'bg-orange-500/10 border-2 border-orange-500/30'
+                      : 'bg-orange-50 border-2 border-orange-200'
+                  }`}>
+                    <h3 className={`font-bold mb-4 flex items-center justify-between ${
+                      darkMode ? 'text-orange-300' : 'text-orange-700'
+                    }`}>
+                      <span>🦵 Movement Snacks</span>
+                      <span className="text-sm">{dailyMetrics.movement.current}/{dailyMetrics.movement.target}</span>
+                    </h3>
+                    <div className="flex items-center justify-center gap-3">
+                      {Array.from({ length: dailyMetrics.movement.target }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl border-2 transition-all ${
+                            i < dailyMetrics.movement.current
+                              ? 'bg-gradient-to-br from-orange-400 to-pink-500 border-orange-400'
+                              : darkMode
+                                ? 'bg-gray-800/30 border-gray-700'
+                                : 'bg-gray-100 border-gray-300'
+                          }`}
+                          style={{
+                            boxShadow: i < dailyMetrics.movement.current ? '0 0 20px #fb923c' : 'none'
+                          }}
+                        >
+                          {i < dailyMetrics.movement.current ? '✓' : ''}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* FOCUS SESSIONS TRACKER */}
+                  <div className={`p-6 rounded-2xl ${
+                    darkMode
+                      ? 'bg-purple-500/10 border-2 border-purple-500/30'
+                      : 'bg-purple-50 border-2 border-purple-200'
+                  }`}>
+                    <h3 className={`font-bold mb-4 flex items-center justify-between ${
+                      darkMode ? 'text-purple-300' : 'text-purple-700'
+                    }`}>
+                      <span>🎯 Focus Sessions</span>
+                      <span className="text-sm">{dailyMetrics.focus.current}/{dailyMetrics.focus.target}</span>
+                    </h3>
+                    <div className="flex items-center justify-center gap-3">
+                      {Array.from({ length: dailyMetrics.focus.target }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-16 h-16 rounded-xl flex items-center justify-center text-xl font-bold border-2 transition-all ${
+                            i < dailyMetrics.focus.current
+                              ? 'bg-gradient-to-br from-purple-400 to-pink-500 border-purple-400 text-white'
+                              : darkMode
+                                ? 'bg-gray-800/30 border-gray-700 text-gray-600'
+                                : 'bg-gray-100 border-gray-300 text-gray-400'
+                          }`}
+                          style={{
+                            boxShadow: i < dailyMetrics.focus.current ? '0 0 20px #a855f7' : 'none'
+                          }}
+                        >
+                          20
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* NDM COMPLETION TRACKER */}
+                  <div className={`p-6 rounded-2xl ${
+                    darkMode
+                      ? 'bg-rose-500/10 border-2 border-rose-500/30'
+                      : 'bg-rose-50 border-2 border-rose-200'
+                  }`}>
+                    <h3 className={`font-bold mb-4 flex items-center justify-between ${
+                      darkMode ? 'text-rose-300' : 'text-rose-700'
+                    }`}>
+                      <span>❤️ Non-Negotiables</span>
+                      <span className="text-sm">{dailyMetrics.ndms.current}/{dailyMetrics.ndms.target}</span>
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className={`p-3 rounded-lg text-center ${
+                        ndm.nutrition
+                          ? 'bg-gradient-to-br from-rose-400 to-pink-500'
+                          : darkMode ? 'bg-gray-800/30' : 'bg-gray-100'
+                      }`} style={{ boxShadow: ndm.nutrition ? '0 0 15px #fb7185' : 'none' }}>
+                        <div className="text-2xl mb-1">🥗</div>
+                        <div className={`text-xs font-medium ${ndm.nutrition ? 'text-white' : darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                          Nutrition
+                        </div>
+                      </div>
+                      <div className={`p-3 rounded-lg text-center ${
+                        ndm.movement
+                          ? 'bg-gradient-to-br from-rose-400 to-pink-500'
+                          : darkMode ? 'bg-gray-800/30' : 'bg-gray-100'
+                      }`} style={{ boxShadow: ndm.movement ? '0 0 15px #fb7185' : 'none' }}>
+                        <div className="text-2xl mb-1">⚡</div>
+                        <div className={`text-xs font-medium ${ndm.movement ? 'text-white' : darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                          Movement
+                        </div>
+                      </div>
+                      <div className={`p-3 rounded-lg text-center ${
+                        ndm.mindfulness
+                          ? 'bg-gradient-to-br from-rose-400 to-pink-500'
+                          : darkMode ? 'bg-gray-800/30' : 'bg-gray-100'
+                      }`} style={{ boxShadow: ndm.mindfulness ? '0 0 15px #fb7185' : 'none' }}>
+                        <div className="text-2xl mb-1">🧘</div>
+                        <div className={`text-xs font-medium ${ndm.mindfulness ? 'text-white' : darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                          Mindful
+                        </div>
+                      </div>
+                      <div className={`p-3 rounded-lg text-center ${
+                        ndm.brainDump
+                          ? 'bg-gradient-to-br from-rose-400 to-pink-500'
+                          : darkMode ? 'bg-gray-800/30' : 'bg-gray-100'
+                      }`} style={{ boxShadow: ndm.brainDump ? '0 0 15px #fb7185' : 'none' }}>
+                        <div className="text-2xl mb-1">🧠</div>
+                        <div className={`text-xs font-medium ${ndm.brainDump ? 'text-white' : darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                          Brain Dump
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Growth Path */}
+                {/* LIFE'S PIPELINE SUMMARY */}
                 <div className={`p-6 rounded-2xl ${
                   darkMode
-                    ? 'bg-cyan-500/10 border-2 border-cyan-500/30'
-                    : 'bg-cyan-50 border-2 border-cyan-200'
+                    ? 'bg-pink-500/10 border-2 border-pink-500/30'
+                    : 'bg-pink-50 border-2 border-pink-200'
                 }`}>
-                  <h3 className={`font-semibold mb-4 flex items-center ${
-                    darkMode ? 'text-cyan-300' : 'text-cyan-700'
+                  <h3 className={`font-bold mb-4 flex items-center justify-between ${
+                    darkMode ? 'text-pink-300' : 'text-pink-700'
                   }`}>
-                    <Activity size={18} className="mr-2" />
-                    Growth Journey (成長の旅 - Seichou no Tabi)
+                    <span>✨ Life's Pipeline</span>
+                    <span className="text-sm">{dailyMetrics.tasks.done}/{dailyMetrics.tasks.total} tasks</span>
                   </h3>
-                  <div className="space-y-3">
-                    {[
-                      { emoji: '🥚', name: 'Egg (卵)', range: '0-19%' },
-                      { emoji: '🐣', name: 'Hatchling (雛)', range: '20-39%' },
-                      { emoji: '🦊', name: 'Young Fox (子狐)', range: '40-59%' },
-                      { emoji: '✨🦊', name: 'Spirit Fox (狐)', range: '60-79%' },
-                      { emoji: '🌟🦊✨', name: 'Nine-Tailed Fox (九尾)', range: '80-100%' }
-                    ].map((s, idx) => {
-                      const minScore = parseInt(s.range.split('-')[0]);
-                      const maxScore = parseInt(s.range.split('-')[1].replace('%', ''));
-                      const isCurrent = spiritAnimalScore >= minScore && spiritAnimalScore <= maxScore;
-                      const isUnlocked = spiritAnimalScore >= minScore;
-
-                      return (
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <div className={`h-4 rounded-full overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-gray-200'}`}>
                         <div
-                          key={idx}
-                          className={`flex items-center justify-between p-3 rounded-lg transition-all ${
-                            isCurrent
-                              ? darkMode
-                                ? 'bg-purple-500/20 border-2 border-purple-500/50'
-                                : 'bg-purple-100 border-2 border-purple-400'
-                              : isUnlocked
-                                ? darkMode
-                                  ? 'bg-gray-800/50 border border-gray-700'
-                                  : 'bg-gray-100 border border-gray-300'
-                                : darkMode
-                                  ? 'bg-gray-900/30 border border-gray-800 opacity-50'
-                                  : 'bg-gray-50 border border-gray-200 opacity-50'
-                          }`}
-                        >
-                          <div className="flex items-center space-x-3">
-                            {isUnlocked ? (
-                              <div className="relative">
-                                <img
-                                  src="/lioness-logo.png"
-                                  alt="Lioness"
-                                  className="w-8 h-8 object-cover"
-                                />
-                                {s.showCrown && (
-                                  <span className="absolute -top-1 -right-1 text-sm">👑</span>
-                                )}
-                              </div>
-                            ) : (
-                              <span className="text-2xl">🔒</span>
-                            )}
-                            <div>
-                              <p className={`text-sm font-medium ${
-                                isCurrent
-                                  ? darkMode ? 'text-purple-300' : 'text-purple-700'
-                                  : darkMode ? 'text-gray-300' : 'text-gray-700'
-                              }`}>
-                                {s.name}
-                              </p>
-                              <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                                {s.range}
-                              </p>
-                            </div>
-                          </div>
-                          {isCurrent && (
-                            <span className={`text-xs font-bold px-2 py-1 rounded ${
-                              darkMode
-                                ? 'bg-purple-500/30 text-purple-300'
-                                : 'bg-purple-200 text-purple-700'
-                            }`}>
-                              Current
-                            </span>
-                          )}
+                          className="h-full bg-gradient-to-r from-pink-400 to-purple-500 transition-all duration-500"
+                          style={{
+                            width: `${dailyMetrics.tasks.total > 0 ? (dailyMetrics.tasks.done / dailyMetrics.tasks.total) * 100 : 0}%`,
+                            boxShadow: '0 0 10px #ec4899'
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className={`text-2xl font-bold ${darkMode ? 'text-pink-300' : 'text-pink-600'}`}>
+                      {dailyMetrics.tasks.total > 0 ? Math.round((dailyMetrics.tasks.done / dailyMetrics.tasks.total) * 100) : 0}%
+                    </div>
+                  </div>
+                  {dailyMetrics.tasks.pipeline.length > 0 && (
+                    <div className="mt-4 space-y-2">
+                      <div className={`text-xs font-semibold uppercase ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        In Progress
+                      </div>
+                      {dailyMetrics.tasks.pipeline.slice(0, 3).map((task, i) => (
+                        <div key={i} className={`text-sm p-2 rounded ${darkMode ? 'bg-gray-800/50' : 'bg-white/50'}`}>
+                          {task}
                         </div>
-                      );
-                    })}
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* QUICK WINS LOGGER */}
+                <div className={`p-6 rounded-2xl ${
+                  darkMode
+                    ? 'bg-amber-500/10 border-2 border-amber-500/30'
+                    : 'bg-amber-50 border-2 border-amber-200'
+                }`}>
+                  <h3 className={`font-bold mb-4 flex items-center ${
+                    darkMode ? 'text-amber-300' : 'text-amber-700'
+                  }`}>
+                    <span>🏆 Quick Wins ({dailyMetrics.wins.length})</span>
+                  </h3>
+                  <div className="flex gap-2 mb-3">
+                    <input
+                      type="text"
+                      value={quickWinInput}
+                      onChange={(e) => setQuickWinInput(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addQuickWin()}
+                      placeholder="Add a win..."
+                      className={`flex-1 px-4 py-2 rounded-lg border-2 ${
+                        darkMode
+                          ? 'bg-gray-800 border-amber-500/30 text-gray-100 placeholder-gray-500'
+                          : 'bg-white border-amber-300 text-gray-900 placeholder-gray-400'
+                      }`}
+                    />
+                    <button
+                      onClick={addQuickWin}
+                      className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                        darkMode
+                          ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300'
+                          : 'bg-amber-200 hover:bg-amber-300 text-amber-800'
+                      }`}
+                    >
+                      Add
+                    </button>
+                  </div>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {dailyMetrics.wins.slice().reverse().map((win, i) => (
+                      <div key={i} className={`p-3 rounded-lg ${darkMode ? 'bg-amber-900/20' : 'bg-amber-100/50'}`}>
+                        <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>{win.text}</div>
+                        <div className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                          {new Date(win.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Next Milestone */}
-                {spiritAnimalScore < 100 && (
-                  <div className={`mt-6 p-4 rounded-lg text-center ${
-                    darkMode
-                      ? 'bg-gradient-to-r from-cyan-900/30 to-purple-900/30 border border-cyan-500/30'
-                      : 'bg-gradient-to-r from-cyan-50 to-purple-50 border border-cyan-200'
-                  }`}>
-                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      {spiritAnimalScore < 20 && `${20 - spiritAnimalScore}% until your egg hatches! 🐣`}
-                      {spiritAnimalScore >= 20 && spiritAnimalScore < 40 && `${40 - spiritAnimalScore}% until Young Fox! 🦊`}
-                      {spiritAnimalScore >= 40 && spiritAnimalScore < 60 && `${60 - spiritAnimalScore}% until Spirit Fox! ✨🦊`}
-                      {spiritAnimalScore >= 60 && spiritAnimalScore < 80 && `${80 - spiritAnimalScore}% until Nine-Tailed Fox! 🌟🦊✨`}
-                      {spiritAnimalScore >= 80 && `Keep honoring your balance, you've achieved mastery! 🌟`}
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
           </div>
