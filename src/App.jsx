@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Brain, Heart, Briefcase, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, User } from 'lucide-react';
+import { Zap, Brain, Heart, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut } from 'lucide-react';
 import { supabase, isSupabaseConfigured, signInWithGoogle, signOut as supabaseSignOut, saveUserData, loadUserData } from './supabaseClient';
 import LandingPage from './LandingPage';
 import StoryPage from './StoryPage';
@@ -66,6 +66,12 @@ const DualTrackOS = () => {
   const [spiritAnimalScore, setSpiritAnimalScore] = useState(0); // 0-100 balance score
   const [balanceHistory, setBalanceHistory] = useState([]); // Track balance decisions
   const [showSpiritAnimalModal, setShowSpiritAnimalModal] = useState(false);
+
+  // Non-Negotiables Side Tab State
+  const [showNonNegotiablesModal, setShowNonNegotiablesModal] = useState(false);
+
+  // Pomodoro Full-Screen State
+  const [showPomodoroFullScreen, setShowPomodoroFullScreen] = useState(false);
 
   // Real-time clock state
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -365,15 +371,18 @@ const DualTrackOS = () => {
 
   const startPomodoro = () => {
     setPomodoroRunning(true);
+    setShowPomodoroFullScreen(true); // Enter full-screen focus mode
   };
 
   const pausePomodoro = () => {
     setPomodoroRunning(false);
+    setShowPomodoroFullScreen(false); // Exit full-screen mode
   };
 
   const resetPomodoro = () => {
     setPomodoroSeconds(20 * 60);
     setPomodoroRunning(false);
+    setShowPomodoroFullScreen(false); // Exit full-screen mode
   };
 
   // Voice diary functions (5-minute recording)
@@ -1214,6 +1223,32 @@ const DualTrackOS = () => {
     }`} style={{ position: 'fixed', width: '100%', height: '100%', overflowY: 'auto' }}>
       <GeometricBg />
 
+      {/* Non-Negotiables - Left Side Tab */}
+      <div className="fixed left-0 top-1/2 -translate-y-1/2 w-10 h-24 z-30">
+        <button
+          onClick={() => setShowNonNegotiablesModal(true)}
+          className={`w-full h-full rounded-r-xl flex items-center justify-center transition-all ${
+            darkMode ? 'bg-rose-500/20' : 'bg-rose-100/40'
+          }`}
+          style={{
+            border: `1px solid ${darkMode ? '#fb7185' : '#fda4af'}40`,
+            borderLeft: 'none',
+            boxShadow: `0 0 20px ${darkMode ? 'rgba(251, 113, 133, 0.55)' : 'rgba(253, 164, 175, 0.55)'}`
+          }}
+          title="View Daily Non-Negotiables"
+        >
+          <div className="flex flex-col items-center gap-1">
+            <Heart className="w-6 h-6" style={{
+              color: darkMode ? '#fb7185' : '#f43f5e',
+              filter: `drop-shadow(0 0 6px ${darkMode ? 'rgba(251, 113, 133, 0.8)' : 'rgba(244, 63, 94, 0.8)'})`
+            }} />
+            <span className="text-[8px] font-bold leading-tight" style={{ color: darkMode ? '#fb7185' : '#f43f5e' }}>
+              NDM
+            </span>
+          </div>
+        </button>
+      </div>
+
       {/* Spirit Animal - Compact Side Tab (40% smaller) */}
       <div className="fixed right-0 top-1/2 -translate-y-1/2 w-10 h-24 z-30">
         <button
@@ -1253,7 +1288,7 @@ const DualTrackOS = () => {
           ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
           : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 py-3">
+        <div className="max-w-7xl mx-auto px-4 py-2">
           <div className="flex items-center justify-between">
 
             {/* LEFT: LOGO */}
@@ -1261,7 +1296,7 @@ const DualTrackOS = () => {
               <img
                 src="/lioness-logo.png"
                 alt="DualTrack OS"
-                className="w-32 h-32 md:w-40 md:h-40 opacity-100 drop-shadow-2xl"
+                className="w-36 h-36 md:w-44 md:h-44 opacity-100 drop-shadow-2xl"
               />
             </div>
 
@@ -1367,7 +1402,7 @@ const DualTrackOS = () => {
       
       <div className="max-w-4xl mx-auto px-4 py-6">
         {currentView === 'dashboard' && (
-          <div className="space-y-6 pb-24 relative z-10">
+          <div className="space-y-6 pb-32 relative z-10">
 
             {/* CURRENT HOUR FOCUS */}
             <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
@@ -1679,31 +1714,6 @@ const DualTrackOS = () => {
               )}
             </div>
 
-            <div className={`rounded-xl p-6 transition-all duration-300 ${
-              darkMode
-                ? 'bg-gray-800/50 border-2 border-gray-700/50 shadow-lg backdrop-blur-sm'
-                : 'bg-white border-2 border-gray-100 shadow-md'
-            }`}>
-              <h3 className={`text-lg font-bold mb-2 flex items-center ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                <Heart className={`mr-2 ${darkMode ? 'text-rose-400' : 'text-red-500'}`} size={20} />
-                Daily Non-Negotiables
-              </h3>
-
-              {/* Personalized Greeting */}
-              {userProfile.initials && (
-                <p className="text-sm font-medium mb-4 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
-                  Hello {userProfile.initials}, these are your non-negotiables
-                </p>
-              )}
-
-              <div className="space-y-3">
-                <NDMItem icon="🥗" label="Protein Breakfast" completed={ndm.nutrition} onClick={() => setCurrentView('food')} />
-                <NDMItem icon="⚡" label="HIIT Burst" completed={ndm.movement} onClick={() => setCurrentView('exercise')} />
-                <NDMItem icon="🧘" label="Mindful Moment" completed={ndm.mindfulness} onClick={openMindfulMoment} />
-                <NDMItem icon="🧠" label="Brain Dump" completed={ndm.brainDump} onClick={openBrainDump} />
-              </div>
-            </div>
-            
             {/* KANBAN BOARD - Career & Business Tasks */}
             <div className={`rounded-xl p-6 transition-all duration-300 ${
               darkMode
@@ -1711,8 +1721,8 @@ const DualTrackOS = () => {
                 : 'bg-white border-2 border-gray-100 shadow-md'
             }`}>
               <h3 className={`text-lg font-bold mb-4 flex items-center ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                <Briefcase className={`mr-2 ${darkMode ? 'text-blue-400' : 'text-blue-500'}`} size={20} />
-                Career & Business Pipeline
+                <Sparkles className={`mr-2 ${darkMode ? 'text-purple-400' : 'text-purple-500'}`} size={20} />
+                Life's Pipeline
               </h3>
 
               {/* Add Task Input */}
@@ -2025,7 +2035,7 @@ const DualTrackOS = () => {
         )}
         
         {currentView === 'exercise' && (
-          <div className="space-y-4 pb-24 relative z-10">
+          <div className="space-y-4 pb-32 relative z-10">
             <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
               darkMode
                 ? 'bg-gradient-to-r from-orange-900/50 via-red-900/50 to-orange-900/50 border-2 border-orange-500/30 backdrop-blur-xl'
@@ -2061,7 +2071,7 @@ const DualTrackOS = () => {
         )}
         
         {currentView === 'workout-active' && (
-          <div className="space-y-6 pb-24 relative z-10">
+          <div className="space-y-6 pb-32 relative z-10">
             <div className={`rounded-2xl p-8 shadow-2xl text-center transition-all duration-300 ${
               darkMode
                 ? 'bg-gradient-to-r from-red-900/50 via-orange-900/50 to-red-900/50 border-2 border-red-500/30 backdrop-blur-xl'
@@ -2116,7 +2126,7 @@ const DualTrackOS = () => {
         )}
         
         {currentView === 'food' && (
-          <div className="space-y-4 pb-24 relative z-10">
+          <div className="space-y-4 pb-32 relative z-10">
             <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
               darkMode
                 ? 'bg-gradient-to-r from-emerald-900/50 via-green-900/50 to-emerald-900/50 border-2 border-emerald-500/30 backdrop-blur-xl'
@@ -2287,7 +2297,7 @@ const DualTrackOS = () => {
         )}
         
         {currentView === 'insights' && (
-          <div className="space-y-4 pb-24 relative z-10">
+          <div className="space-y-4 pb-32 relative z-10">
             <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
               darkMode
                 ? 'bg-gradient-to-r from-indigo-900/50 via-purple-900/50 to-indigo-900/50 border-2 border-purple-500/30 backdrop-blur-xl'
@@ -2595,7 +2605,7 @@ const DualTrackOS = () => {
         )}
 
         {currentView === 'plan' && (
-          <div className="space-y-4 pb-24 relative z-10">
+          <div className="space-y-4 pb-32 relative z-10">
             {/* Morning Ritual */}
             <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
               darkMode
@@ -2815,7 +2825,7 @@ const DualTrackOS = () => {
         )}
 
         {currentView === 'library' && (
-          <div className="space-y-4 pb-24 relative z-10">
+          <div className="space-y-4 pb-32 relative z-10">
             <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
               darkMode
                 ? 'bg-gradient-to-r from-violet-900/50 via-purple-900/50 to-violet-900/50 border-2 border-violet-500/30 backdrop-blur-xl'
@@ -3022,6 +3032,94 @@ const DualTrackOS = () => {
         selectedActions={selectedMoodActions}
         onActionSelect={handleMoodActionSelect}
       />
+
+      {/* FULL-SCREEN POMODORO FOCUS MODE */}
+      {showPomodoroFullScreen && pomodoroRunning && (
+        <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center ${
+          darkMode
+            ? 'bg-gradient-to-br from-gray-900 via-purple-900/30 to-gray-900'
+            : 'bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50'
+        }`}>
+          <button
+            onClick={() => setShowPomodoroFullScreen(false)}
+            className={`absolute top-8 right-8 p-3 rounded-full transition-all ${
+              darkMode
+                ? 'hover:bg-white/10 text-gray-400 hover:text-white'
+                : 'hover:bg-gray-200 text-gray-600 hover:text-gray-900'
+            }`}
+            title="Minimize (continue in background)"
+          >
+            <X size={32} />
+          </button>
+
+          <div className="text-center space-y-8">
+            <div className={`font-mono text-8xl md:text-9xl font-bold ${
+              darkMode
+                ? 'bg-gradient-to-r from-orange-400 via-pink-500 to-purple-500 bg-clip-text text-transparent'
+                : 'text-orange-600'
+            }`} style={{
+              textShadow: darkMode ? '0 0 40px rgba(249, 115, 22, 0.3)' : '0 0 20px rgba(249, 115, 22, 0.2)'
+            }}>
+              {formatTime(pomodoroSeconds)}
+            </div>
+
+            <div className={`text-2xl md:text-3xl font-semibold max-w-2xl mx-auto px-8 ${
+              darkMode ? 'text-purple-300' : 'text-purple-700'
+            }`}>
+              You got this - {Math.floor(pomodoroSeconds / 60)} mins knock it out of the park
+            </div>
+
+            <div className="relative w-64 h-64 mx-auto">
+              <svg className="transform -rotate-90 w-64 h-64">
+                <circle
+                  cx="128"
+                  cy="128"
+                  r="120"
+                  stroke={darkMode ? '#1f2937' : '#e5e7eb'}
+                  strokeWidth="8"
+                  fill="none"
+                />
+                <circle
+                  cx="128"
+                  cy="128"
+                  r="120"
+                  stroke="url(#gradient)"
+                  strokeWidth="8"
+                  fill="none"
+                  strokeDasharray={`${2 * Math.PI * 120}`}
+                  strokeDashoffset={`${2 * Math.PI * 120 * (1 - pomodoroSeconds / (20 * 60))}`}
+                  className="transition-all duration-1000"
+                />
+                <defs>
+                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%">
+                    <stop offset="0%" stopColor="#f97316" />
+                    <stop offset="50%" stopColor="#ec4899" />
+                    <stop offset="100%" stopColor="#a855f7" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+
+            <div className="flex items-center justify-center space-x-4 pt-8">
+              <button onClick={pausePomodoro} className={`px-8 py-4 rounded-full font-bold text-lg flex items-center space-x-3 transition-all ${
+                darkMode
+                  ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border-2 border-orange-500/40'
+                  : 'bg-orange-100 hover:bg-orange-200 text-orange-700 border-2 border-orange-300'
+              }`}>
+                <Pause size={24} />
+                <span>Pause</span>
+              </button>
+              <button onClick={resetPomodoro} className={`p-4 rounded-full transition-all ${
+                darkMode
+                  ? 'bg-gray-800 hover:bg-gray-700 text-gray-400 border-2 border-gray-700'
+                  : 'bg-gray-200 hover:bg-gray-300 text-gray-600 border-2 border-gray-300'
+              }`}>
+                <RotateCcw size={24} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* BRAIN DUMP MODAL */}
       {showBrainDumpModal && (
@@ -3443,6 +3541,63 @@ const DualTrackOS = () => {
           </div>
         );
       })()}
+
+      {/* NON-NEGOTIABLES MODAL */}
+      {showNonNegotiablesModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className={`max-w-2xl w-full rounded-3xl shadow-2xl overflow-hidden ${
+            darkMode
+              ? 'bg-gradient-to-br from-gray-900 via-rose-900/20 to-gray-900 border-2 border-rose-500/30'
+              : 'bg-gradient-to-br from-white via-rose-50 to-white border-2 border-rose-200'
+          }`}>
+            {/* Header with X button */}
+            <div className={`relative p-8 pb-6 ${
+              darkMode
+                ? 'bg-gradient-to-r from-rose-900/40 to-pink-900/40'
+                : 'bg-gradient-to-r from-rose-100 to-pink-100'
+            }`}>
+              <button
+                onClick={() => setShowNonNegotiablesModal(false)}
+                className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
+                  darkMode
+                    ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                    : 'hover:bg-white/50 text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <X size={24} />
+              </button>
+
+              <h2 className={`text-3xl font-bold mb-4 flex items-center ${
+                darkMode
+                  ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+                  : 'text-gray-900'
+              }`}>
+                <Heart className={`mr-3 ${darkMode ? 'text-rose-400' : 'text-red-500'}`} size={28} />
+                Daily Non-Negotiables
+              </h2>
+
+              {userProfile.initials && (
+                <p className={`text-lg font-medium ${
+                  darkMode
+                    ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+                    : 'text-purple-700'
+                }`}>
+                  Welcome {userProfile.initials}
+                </p>
+              )}
+            </div>
+
+            <div className="p-8">
+              <div className="space-y-3">
+                <NDMItem icon="🥗" label="Protein Breakfast" completed={ndm.nutrition} onClick={() => { setCurrentView('food'); setShowNonNegotiablesModal(false); }} />
+                <NDMItem icon="⚡" label="HIIT Burst" completed={ndm.movement} onClick={() => { setCurrentView('exercise'); setShowNonNegotiablesModal(false); }} />
+                <NDMItem icon="🧘" label="Mindful Moment" completed={ndm.mindfulness} onClick={() => { openMindfulMoment(); setShowNonNegotiablesModal(false); }} />
+                <NDMItem icon="🧠" label="Brain Dump" completed={ndm.brainDump} onClick={() => { openBrainDump(); setShowNonNegotiablesModal(false); }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
