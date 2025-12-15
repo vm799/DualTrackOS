@@ -1316,7 +1316,7 @@ const DualTrackOS = () => {
 
   // Box Breathing Component
   const BoxBreathingComponent = ({ darkMode, onComplete, boxBreathingPhase, setBoxBreathingPhase, boxBreathingCycles, setBoxBreathingCycles, onCancel }) => {
-    const [count, setCount] = React.useState(4);
+    const [millisInPhase, setMillisInPhase] = React.useState(0);
 
     React.useEffect(() => {
       if (boxBreathingCycles >= 8) {
@@ -1325,8 +1325,11 @@ const DualTrackOS = () => {
       }
 
       const timer = setInterval(() => {
-        setCount(prev => {
-          if (prev === 1) {
+        setMillisInPhase(prev => {
+          const newMillis = prev + 50;
+
+          if (newMillis >= 4000) {
+            // Phase complete, move to next phase
             const phases = ['inhale', 'hold1', 'exhale', 'hold2'];
             const currentIndex = phases.indexOf(boxBreathingPhase);
             const nextPhase = phases[(currentIndex + 1) % 4];
@@ -1335,11 +1338,11 @@ const DualTrackOS = () => {
             if (nextPhase === 'inhale') {
               setBoxBreathingCycles(prev => prev + 1);
             }
-            return 4;
+            return 0;
           }
-          return prev - 1;
+          return newMillis;
         });
-      }, 1000);
+      }, 50);
 
       return () => clearInterval(timer);
     }, [boxBreathingPhase, boxBreathingCycles, onComplete, setBoxBreathingPhase, setBoxBreathingCycles]);
@@ -1351,9 +1354,12 @@ const DualTrackOS = () => {
       hold2: "HOLD, lungs empty"
     };
 
-    // Calculate position based on phase and count for smooth animation
+    // Calculate countdown display from milliseconds
+    const count = Math.ceil((4000 - millisInPhase) / 1000);
+
+    // Calculate position based on phase and smooth progress for animation
     const getCirclePosition = () => {
-      const progress = (4 - count) / 4; // 0 to 1 progress through current phase
+      const progress = millisInPhase / 4000; // 0 to 1 smooth progress through current phase
       const cornerPositions = {
         inhale: { fromX: 32, fromY: 232, toX: 232, toY: 232 },  // bottom-left to bottom-right
         hold1: { fromX: 232, fromY: 232, toX: 232, toY: 32 },    // bottom-right to top-right
@@ -1391,8 +1397,7 @@ const DualTrackOS = () => {
                 r="12"
                 fill="#ec4899"
                 style={{
-                  filter: 'drop-shadow(0 0 8px #ec4899)',
-                  transition: 'cx 1s linear, cy 1s linear'
+                  filter: 'drop-shadow(0 0 8px #ec4899)'
                 }} />
             </svg>
           </div>
