@@ -1310,18 +1310,24 @@ const DualTrackOS = () => {
     </button>
   );
 
-  // Box Breathing Component - Single state approach for perfect sync
+  // Box Breathing Component - Bulletproof timer implementation
   const BoxBreathingComponent = ({ darkMode, onComplete, onCancel }) => {
     const [totalElapsedMs, setTotalElapsedMs] = React.useState(0);
+    const onCompleteRef = React.useRef(onComplete);
+
+    // Always keep ref updated with latest onComplete
+    React.useEffect(() => {
+      onCompleteRef.current = onComplete;
+    }, [onComplete]);
 
     React.useEffect(() => {
-      // Create timer once - runs continuously without recreation
+      // Create timer ONCE - never destroyed until component unmounts
       const timer = setInterval(() => {
         setTotalElapsedMs(prev => {
           const next = prev + 50;
           // Check completion inside state updater
           if (next >= 128000) {
-            onComplete();
+            onCompleteRef.current(); // Use ref, not prop
             return 128000; // Cap at completion time
           }
           return next;
@@ -1330,7 +1336,7 @@ const DualTrackOS = () => {
 
       // Only cleanup when component unmounts
       return () => clearInterval(timer);
-    }, [onComplete]); // Only onComplete in dependencies - timer stays alive!
+    }, []); // Empty deps - timer NEVER recreated!
 
     // Derive everything from single source of truth
     const phases = ['inhale', 'hold1', 'exhale', 'hold2'];
