@@ -5,7 +5,6 @@ import LandingPage from './LandingPage';
 import StoryPage from './StoryPage';
 import Onboarding from './Onboarding';
 import NDMStatusBar from './components/NDMStatusBar';
-// SmartSuggestions moved to modals only - no longer on main dashboard
 import EnergyModal from './components/EnergyModal';
 import MoodModal from './components/MoodModal';
 
@@ -270,14 +269,14 @@ const DualTrackOS = () => {
 
     if (isActiveHours && currentHour !== lastWellnessHour && inMainApp) {
       const hourKey = `${new Date().toDateString()}-${currentHour}`;
-      if (!wellnessSnacksDismissed.includes(hourKey) && !pomodoroRunning) {
-        setShowWellnessSnackModal(true);
+      if (!wellnessSnacksDismissed.includes(hourKey) && !pomodoroRunning && !missedHourPrompt && !showWellnessSnackModal) {
+        setMissedHourPrompt(true);
         setLastWellnessHour(currentHour);
       }
     }
 
     return () => clearInterval(timer);
-  }, [lastWellnessHour, wellnessSnacksDismissed, pomodoroRunning, showLandingPage, showStoryPage, userProfile.hasCompletedOnboarding]);
+  }, [lastWellnessHour, wellnessSnacksDismissed, pomodoroRunning, showLandingPage, showStoryPage, userProfile.hasCompletedOnboarding, missedHourPrompt, showWellnessSnackModal]);
 
   // Pomodoro countdown
   useEffect(() => {
@@ -571,6 +570,17 @@ const DualTrackOS = () => {
     setBoxBreathingPhase('inhale');
     setBoxBreathingCycles(0);
     setExerciseReps(0);
+  };
+
+  // Missed hour prompt handlers
+  const acceptWellnessPrompt = () => {
+    setMissedHourPrompt(false);
+    setShowWellnessSnackModal(true);
+  };
+
+  const declineWellnessPrompt = () => {
+    setMissedHourPrompt(false);
+    dismissWellnessSnack();
   };
 
   // Voice diary functions (5-minute recording)
@@ -3332,6 +3342,42 @@ const DualTrackOS = () => {
                   : 'bg-gray-200 hover:bg-gray-300 text-gray-600 border-2 border-gray-300'
               }`}>
                 <RotateCcw size={24} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MISSED HOUR WELLNESS PROMPT */}
+      {missedHourPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className={`max-w-md w-full rounded-2xl p-6 shadow-2xl animate-scale-in ${
+            darkMode ? 'bg-gray-900 border-2 border-orange-500/30' : 'bg-white border-2 border-orange-200'
+          }`}>
+            <div className="text-center mb-6">
+              <div className="text-5xl mb-3">⏰</div>
+              <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}>
+                Time for Your Wellness Snack?
+              </h3>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Take a quick break to recharge
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={declineWellnessPrompt}
+                className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+                  darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-300' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                }`}
+              >
+                Not Now
+              </button>
+              <button
+                onClick={acceptWellnessPrompt}
+                className="flex-1 py-3 px-4 rounded-lg font-semibold bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-400 hover:to-pink-400 text-white shadow-lg transition-all"
+              >
+                Yes, Show Me
               </button>
             </div>
           </div>
