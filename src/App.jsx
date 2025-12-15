@@ -1511,8 +1511,8 @@ const DualTrackOS = () => {
       <div className={`sticky top-0 z-20 backdrop-blur-xl transition-all duration-300 ${
         isScrolled
           ? darkMode
-            ? 'bg-gray-900/30 border-b border-gray-800/20'
-            : 'bg-white/30 border-b border-gray-200/20'
+            ? 'bg-gray-900/20 border-b border-gray-800/10'
+            : 'bg-white/20 border-b border-gray-200/10'
           : darkMode
             ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
             : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
