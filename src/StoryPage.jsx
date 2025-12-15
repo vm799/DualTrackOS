@@ -134,32 +134,32 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
             </p>
 
             <div className="space-y-4">
-              <p className="font-medium flex items-start gap-2">
-                <img src="/lioness-logo.png" alt="Lioness" className="w-6 h-6 inline-block" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
+              <p className="font-medium flex items-start gap-3">
+                <img src="/lioness-logo.png" alt="Lioness" className="w-12 h-12 inline-block flex-shrink-0" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
                 <strong>The Lioness represents controlled power, not aggression.</strong>
               </p>
               <p className="pl-8">
                 She doesn't roar at every challenge. She observes. She waits. She chooses her battles. She knows when to pounce and when to rest in the tall grass.
               </p>
 
-              <p className="font-medium flex items-start gap-2">
-                <img src="/lioness-logo.png" alt="Lioness" className="w-6 h-6 inline-block" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
+              <p className="font-medium flex items-start gap-3">
+                <img src="/lioness-logo.png" alt="Lioness" className="w-12 h-12 inline-block flex-shrink-0" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
                 <strong>She embodies Shakti—the primordial cosmic energy of creation.</strong>
               </p>
               <p className="pl-8">
                 Shakti is not about doing more. It's about harnessing your energy wisely. It's the force that creates worlds, but also the wisdom that knows rest is sacred.
               </p>
 
-              <p className="font-medium flex items-start gap-2">
-                <img src="/lioness-logo.png" alt="Lioness" className="w-6 h-6 inline-block" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
+              <p className="font-medium flex items-start gap-3">
+                <img src="/lioness-logo.png" alt="Lioness" className="w-12 h-12 inline-block flex-shrink-0" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
                 <strong>She masters raw power while staying centered in chaos.</strong>
               </p>
               <p className="pl-8">
                 Goddess Durga rides the lioness into battle against demons—but she doesn't fight frantically. She moves with intention. She protects what matters. She destroys only what threatens balance.
               </p>
 
-              <p className="font-medium flex items-start gap-2">
-                <img src="/lioness-logo.png" alt="Lioness" className="w-6 h-6 inline-block" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
+              <p className="font-medium flex items-start gap-3">
+                <img src="/lioness-logo.png" alt="Lioness" className="w-12 h-12 inline-block flex-shrink-0" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
                 <strong>She balances fierceness with nurturing.</strong>
               </p>
               <p className="pl-6">
