@@ -158,6 +158,7 @@ const DualTrackOS = () => {
   const [foodDiary, setFoodDiary] = useState([]);
   const [learningLibrary, setLearningLibrary] = useState([]);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   // Voice diary state
   const [voiceDiary, setVoiceDiary] = useState([]);
@@ -364,6 +365,15 @@ const DualTrackOS = () => {
     if (isWorkoutRunning) interval = setInterval(() => setWorkoutTimer(p => p + 1), 1000);
     return () => clearInterval(interval);
   }, [isWorkoutRunning]);
+
+  // Track scroll position for header transparency
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Handle Brain Dump modal
   const openBrainDump = () => {
@@ -1332,7 +1342,7 @@ const DualTrackOS = () => {
       }, 1000);
 
       return () => clearInterval(timer);
-    }, [boxBreathingPhase, boxBreathingCycles]);
+    }, [boxBreathingPhase, boxBreathingCycles, onComplete, setBoxBreathingPhase, setBoxBreathingCycles]);
 
     const instructions = {
       inhale: "Breathe IN through nose",
@@ -1380,8 +1390,10 @@ const DualTrackOS = () => {
                 cy={circlePos.cy}
                 r="12"
                 fill="#ec4899"
-                className="transition-all duration-1000 ease-linear"
-                style={{ filter: 'drop-shadow(0 0 8px #ec4899)' }} />
+                style={{
+                  filter: 'drop-shadow(0 0 8px #ec4899)',
+                  transition: 'cx 1s linear, cy 1s linear'
+                }} />
             </svg>
           </div>
 
@@ -1502,19 +1514,23 @@ const DualTrackOS = () => {
 
       {/* HEADER - Mobile First, Brand Visible */}
       <div className={`sticky top-0 z-20 backdrop-blur-xl transition-all duration-300 ${
-        darkMode
-          ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
-          : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
+        isScrolled
+          ? darkMode
+            ? 'bg-gray-900/30 border-b border-gray-800/20'
+            : 'bg-white/30 border-b border-gray-200/20'
+          : darkMode
+            ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
+            : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 py-2">
+        <div className="max-w-7xl mx-auto px-4 py-1">
           <div className="flex items-center justify-between">
 
             {/* LEFT: LOGO */}
-            <div className="flex items-center gap-2">
+            <div className={`flex items-center gap-2 transition-opacity duration-300 ${isScrolled ? 'opacity-0' : 'opacity-100'}`}>
               <img
                 src="/lioness-logo.png"
                 alt="DualTrack OS"
-                className="w-36 h-36 md:w-44 md:h-44 opacity-100 drop-shadow-2xl"
+                className="w-16 h-16 md:w-20 md:h-20 drop-shadow-xl"
               />
             </div>
 
@@ -1532,7 +1548,7 @@ const DualTrackOS = () => {
               </div>
               <div className={`text-[11px] md:text-xs ${
                 darkMode ? 'text-purple-400' : 'text-purple-600'
-              } opacity-80`}>
+              } ${isScrolled ? 'opacity-0' : 'opacity-80'} transition-opacity duration-300`}>
                 Tap clock to start Pomodoro
               </div>
               {userProfile.initials && (
@@ -1540,7 +1556,7 @@ const DualTrackOS = () => {
                   darkMode
                     ? 'bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent'
                     : 'text-pink-600'
-                }`}>
+                } ${isScrolled ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}>
                   {welcomeMessage}, {userProfile.initials}
                 </div>
               )}
@@ -1553,7 +1569,7 @@ const DualTrackOS = () => {
                 darkMode
                   ? 'hover:bg-white/10 text-gray-400 hover:text-gray-300'
                   : 'hover:bg-gray-100 text-gray-600 hover:text-gray-700'
-              }`}
+              } ${isScrolled ? 'opacity-0' : 'opacity-100'}`}
               title={currentView === 'insights' ? 'Close Settings' : 'Open Settings'}
             >
               <Settings className="w-5 h-5 md:w-6 md:h-6" />
