@@ -1315,19 +1315,22 @@ const DualTrackOS = () => {
     const [totalElapsedMs, setTotalElapsedMs] = React.useState(0);
 
     React.useEffect(() => {
-      // Complete after 8 full cycles (8 cycles × 16 seconds × 1000ms = 128000ms)
-      if (totalElapsedMs >= 128000) {
-        onComplete();
-        return;
-      }
-
-      // Update every 50ms for smooth animation (20 FPS)
+      // Create timer once - runs continuously without recreation
       const timer = setInterval(() => {
-        setTotalElapsedMs(prev => prev + 50);
+        setTotalElapsedMs(prev => {
+          const next = prev + 50;
+          // Check completion inside state updater
+          if (next >= 128000) {
+            onComplete();
+            return 128000; // Cap at completion time
+          }
+          return next;
+        });
       }, 50);
 
+      // Only cleanup when component unmounts
       return () => clearInterval(timer);
-    }, [totalElapsedMs, onComplete]);
+    }, [onComplete]); // Only onComplete in dependencies - timer stays alive!
 
     // Derive everything from single source of truth
     const phases = ['inhale', 'hold1', 'exhale', 'hold2'];
