@@ -73,6 +73,17 @@ const DualTrackOS = () => {
   // Pomodoro Full-Screen State
   const [showPomodoroFullScreen, setShowPomodoroFullScreen] = useState(false);
 
+  // Hourly Wellness Snack System
+  const [lastWellnessHour, setLastWellnessHour] = useState(null);
+  const [showWellnessSnackModal, setShowWellnessSnackModal] = useState(false);
+  const [wellnessSnacksDismissed, setWellnessSnacksDismissed] = useState([]);
+  const [wellnessSnackChoice, setWellnessSnackChoice] = useState(null); // 'exercise', 'breathing', 'hydration'
+  const [exerciseChoice, setExerciseChoice] = useState(null); // 'squats', 'calves', etc.
+  const [boxBreathingActive, setBoxBreathingActive] = useState(false);
+  const [boxBreathingPhase, setBoxBreathingPhase] = useState('inhale');
+  const [boxBreathingCycles, setBoxBreathingCycles] = useState(0);
+  const [wellnessCompletions, setWellnessCompletions] = useState([]);
+
   // Real-time clock state
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isPomodoroMode, setIsPomodoroMode] = useState(false);
@@ -218,11 +229,24 @@ const DualTrackOS = () => {
 
   // Real-time clock update every second
   useEffect(() => {
-    const interval = setInterval(() => {
+    const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+
+    // Hourly wellness snack trigger
+    const currentHour = new Date().getHours();
+    const isActiveHours = currentHour >= 9 && currentHour <= 21;
+
+    if (isActiveHours && currentHour !== lastWellnessHour) {
+      const hourKey = `${new Date().toDateString()}-${currentHour}`;
+      if (!wellnessSnacksDismissed.includes(hourKey) && !pomodoroRunning) {
+        setShowWellnessSnackModal(true);
+        setLastWellnessHour(currentHour);
+      }
+    }
+
+    return () => clearInterval(timer);
+  }, [lastWellnessHour, wellnessSnacksDismissed, pomodoroRunning]);
 
   // Pomodoro countdown
   useEffect(() => {
@@ -383,6 +407,33 @@ const DualTrackOS = () => {
     setPomodoroSeconds(20 * 60);
     setPomodoroRunning(false);
     setShowPomodoroFullScreen(false); // Exit full-screen mode
+  };
+
+  // Wellness Snack functions
+  const dismissWellnessSnack = () => {
+    const hourKey = `${currentTime.toDateString()}-${currentTime.getHours()}`;
+    setWellnessSnacksDismissed([...wellnessSnacksDismissed, hourKey]);
+    setShowWellnessSnackModal(false);
+    setWellnessSnackChoice(null);
+    setExerciseChoice(null);
+  };
+
+  const snoozeWellnessSnack = () => {
+    setShowWellnessSnackModal(false);
+    setTimeout(() => {
+      setShowWellnessSnackModal(true);
+    }, 15 * 60 * 1000);
+  };
+
+  const completeWellnessSnack = (type) => {
+    const completion = {
+      type,
+      timestamp: new Date(),
+      hour: currentTime.getHours()
+    };
+    setWellnessCompletions([...wellnessCompletions, completion]);
+    setSpiritAnimalScore(prev => Math.min(100, prev + 2));
+    dismissWellnessSnack();
   };
 
   // Voice diary functions (5-minute recording)
@@ -1183,6 +1234,77 @@ const DualTrackOS = () => {
     </button>
   );
 
+  // Box Breathing Component
+  const BoxBreathingComponent = ({ darkMode, onComplete, boxBreathingPhase, setBoxBreathingPhase, boxBreathingCycles, setBoxBreathingCycles }) => {
+    const [count, setCount] = React.useState(4);
+
+    React.useEffect(() => {
+      if (boxBreathingCycles >= 8) {
+        onComplete();
+        return;
+      }
+
+      const timer = setInterval(() => {
+        setCount(prev => {
+          if (prev === 1) {
+            const phases = ['inhale', 'hold1', 'exhale', 'hold2'];
+            const currentIndex = phases.indexOf(boxBreathingPhase);
+            const nextPhase = phases[(currentIndex + 1) % 4];
+            setBoxBreathingPhase(nextPhase);
+
+            if (nextPhase === 'inhale') {
+              setBoxBreathingCycles(prev => prev + 1);
+            }
+            return 4;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }, [boxBreathingPhase, boxBreathingCycles]);
+
+    const instructions = {
+      inhale: "Breathe IN through nose",
+      hold1: "HOLD your breath",
+      exhale: "Breathe OUT through mouth",
+      hold2: "HOLD, lungs empty"
+    };
+
+    return (
+      <div className={`max-w-2xl w-full rounded-3xl p-8 ${darkMode ? 'bg-gray-900 border-2 border-purple-500/30' : 'bg-white border-2 border-purple-200'}`}>
+        <div className="flex flex-col items-center justify-center space-y-8">
+          <div className="relative w-64 h-64">
+            <svg className="w-full h-full">
+              <rect x="32" y="32" width="200" height="200"
+                    fill="none"
+                    stroke={darkMode ? '#a855f7' : '#9333ea'}
+                    strokeWidth="3" />
+              <circle
+                cx={boxBreathingPhase === 'inhale' || boxBreathingPhase === 'hold1' ? 232 : 32}
+                cy={boxBreathingPhase === 'inhale' || boxBreathingPhase === 'exhale' ? 32 : 232}
+                r="12"
+                fill="#ec4899"
+                className="transition-all duration-1000" />
+            </svg>
+          </div>
+
+          <div className="text-center">
+            <div className={`text-6xl font-mono font-bold ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
+              {count}
+            </div>
+            <div className={`text-2xl font-semibold mt-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              {instructions[boxBreathingPhase]}
+            </div>
+            <div className={`text-sm mt-2 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+              Cycle {boxBreathingCycles + 1} of 8
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Show landing page first
   if (showLandingPage) {
     return (
@@ -1223,34 +1345,8 @@ const DualTrackOS = () => {
     }`} style={{ position: 'fixed', width: '100%', height: '100%', overflowY: 'auto' }}>
       <GeometricBg />
 
-      {/* Non-Negotiables - Left Side Tab */}
-      <div className="fixed left-0 top-1/2 -translate-y-1/2 w-10 h-24 z-30">
-        <button
-          onClick={() => setShowNonNegotiablesModal(true)}
-          className={`w-full h-full rounded-r-xl flex items-center justify-center transition-all ${
-            darkMode ? 'bg-rose-500/20' : 'bg-rose-100/40'
-          }`}
-          style={{
-            border: `1px solid ${darkMode ? '#fb7185' : '#fda4af'}40`,
-            borderLeft: 'none',
-            boxShadow: `0 0 20px ${darkMode ? 'rgba(251, 113, 133, 0.55)' : 'rgba(253, 164, 175, 0.55)'}`
-          }}
-          title="View Daily Non-Negotiables"
-        >
-          <div className="flex flex-col items-center gap-1">
-            <Heart className="w-6 h-6" style={{
-              color: darkMode ? '#fb7185' : '#f43f5e',
-              filter: `drop-shadow(0 0 6px ${darkMode ? 'rgba(251, 113, 133, 0.8)' : 'rgba(244, 63, 94, 0.8)'})`
-            }} />
-            <span className="text-[8px] font-bold leading-tight" style={{ color: darkMode ? '#fb7185' : '#f43f5e' }}>
-              NDM
-            </span>
-          </div>
-        </button>
-      </div>
-
-      {/* Spirit Animal - Compact Side Tab (40% smaller) */}
-      <div className="fixed right-0 top-1/2 -translate-y-1/2 w-10 h-24 z-30">
+      {/* Spirit Animal - Top Right Side Tab */}
+      <div className="fixed right-0 top-1/2 -translate-y-16 w-10 h-24 z-30">
         <button
           onClick={() => setShowSpiritAnimalModal(true)}
           className={`w-full h-full rounded-l-xl flex items-center justify-center transition-all ${
@@ -1277,6 +1373,32 @@ const DualTrackOS = () => {
             </div>
             <span className="text-[8px] font-bold leading-tight" style={{ color: getSpiritAnimalStage(spiritAnimalScore).color }}>
               {getSpiritAnimalStage(spiritAnimalScore).japanese}
+            </span>
+          </div>
+        </button>
+      </div>
+
+      {/* Non-Negotiables - Right Side Tab (below spirit animal) */}
+      <div className="fixed right-0 top-1/2 translate-y-12 w-10 h-24 z-30">
+        <button
+          onClick={() => setShowNonNegotiablesModal(true)}
+          className={`w-full h-full rounded-l-xl flex items-center justify-center transition-all ${
+            darkMode ? 'bg-rose-500/20' : 'bg-rose-100/40'
+          }`}
+          style={{
+            border: `1px solid ${darkMode ? '#fb7185' : '#fda4af'}40`,
+            borderRight: 'none',
+            boxShadow: `0 0 20px ${darkMode ? 'rgba(251, 113, 133, 0.55)' : 'rgba(253, 164, 175, 0.55)'}`
+          }}
+          title="View Daily Non-Negotiables"
+        >
+          <div className="flex flex-col items-center gap-1">
+            <Heart className="w-6 h-6" style={{
+              color: darkMode ? '#fb7185' : '#f43f5e',
+              filter: `drop-shadow(0 0 6px ${darkMode ? 'rgba(251, 113, 133, 0.8)' : 'rgba(244, 63, 94, 0.8)'})`
+            }} />
+            <span className="text-[8px] font-bold leading-tight" style={{ color: darkMode ? '#fb7185' : '#f43f5e' }}>
+              NDM
             </span>
           </div>
         </button>
@@ -1334,7 +1456,7 @@ const DualTrackOS = () => {
           </div>
 
           {/* Pomodoro Timer */}
-          <div className="text-center">
+          <div className="text-center pb-1">
             {isPomodoroMode && (
               // Pomodoro Timer Mode
               <div className="space-y-3">
@@ -3118,6 +3240,132 @@ const DualTrackOS = () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* HOURLY WELLNESS SNACK MODAL */}
+      {showWellnessSnackModal && !wellnessSnackChoice && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className={`max-w-3xl w-full rounded-3xl shadow-2xl overflow-hidden animate-scale-in ${
+            darkMode
+              ? 'bg-gradient-to-br from-gray-900 via-orange-900/20 to-gray-900 border-2 border-orange-500/30'
+              : 'bg-gradient-to-br from-white via-orange-50 to-white border-2 border-orange-200'
+          }`}>
+            <div className={`relative p-8 pb-6 ${
+              darkMode
+                ? 'bg-gradient-to-r from-orange-900/40 to-pink-900/40'
+                : 'bg-gradient-to-r from-orange-100 to-pink-100'
+            }`}>
+              <button onClick={dismissWellnessSnack} className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
+                darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-white/50 text-gray-600 hover:text-gray-900'
+              }`}>
+                <X size={24} />
+              </button>
+
+              <div className="text-center">
+                <div className="text-6xl mb-4">⚡💪🧘</div>
+                <h2 className={`text-3xl font-bold mb-2 ${
+                  darkMode ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent' : 'text-gray-900'
+                }`}>
+                  Choose Your Wellness Weapon
+                </h2>
+                <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {formatHour(currentTime.getHours())} check-in • 2-minute power-up
+                </p>
+              </div>
+            </div>
+
+            <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <button onClick={() => setWellnessSnackChoice('exercise')} className={`p-6 rounded-xl border-2 transition-all hover:scale-105 ${
+                darkMode ? 'bg-orange-500/10 border-orange-500/30 hover:bg-orange-500/20' : 'bg-orange-50 border-orange-200 hover:bg-orange-100'
+              }`}>
+                <div className="text-5xl mb-3">🦵</div>
+                <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}>Exercise Snack</h3>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Quick burst of movement
+                </p>
+              </button>
+
+              <button onClick={() => { setWellnessSnackChoice('breathing'); setBoxBreathingActive(true); }} className={`p-6 rounded-xl border-2 transition-all hover:scale-105 ${
+                darkMode ? 'bg-purple-500/10 border-purple-500/30 hover:bg-purple-500/20' : 'bg-purple-50 border-purple-200 hover:bg-purple-100'
+              }`}>
+                <div className="text-5xl mb-3">🧘</div>
+                <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>Box Breathing</h3>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  2 min calm reset
+                </p>
+              </button>
+
+              <button onClick={() => completeWellnessSnack('hydration')} className={`p-6 rounded-xl border-2 transition-all hover:scale-105 ${
+                darkMode ? 'bg-cyan-500/10 border-cyan-500/30 hover:bg-cyan-500/20' : 'bg-cyan-50 border-cyan-200 hover:bg-cyan-100'
+              }`}>
+                <div className="text-5xl mb-3">💧</div>
+                <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-cyan-400' : 'text-cyan-600'}`}>Hydration Break</h3>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Water or herbal tea
+                </p>
+              </button>
+            </div>
+
+            <div className="px-8 pb-8 text-center">
+              <button onClick={snoozeWellnessSnack} className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-600'} hover:underline`}>
+                Remind me in 15 minutes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EXERCISE SNACK CHOICE MODAL */}
+      {showWellnessSnackModal && wellnessSnackChoice === 'exercise' && !exerciseChoice && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className={`max-w-3xl w-full rounded-3xl shadow-2xl overflow-hidden ${
+            darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-orange-500/30' : 'bg-white border-2 border-orange-200'
+          }`}>
+            <div className={`p-8 ${darkMode ? 'bg-orange-900/20' : 'bg-orange-50'}`}>
+              <button onClick={() => setWellnessSnackChoice(null)} className={`mb-4 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                ← Back
+              </button>
+              <h2 className={`text-2xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                Choose Your Exercise Snack
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { id: 'squats', name: '25 Air Squats', icon: '🦵', time: '2 mins' },
+                  { id: 'calves', name: 'Calf Raises', icon: '👟', time: '2 mins' },
+                  { id: 'stairs', name: 'Stair Sprint', icon: '🪜', time: '2 mins' },
+                  { id: 'deadhang', name: 'Dead Hang', icon: '💪', time: '30-60 sec' },
+                  { id: 'gorilla', name: 'Gorilla Rows', icon: '🦍', time: '2 mins' }
+                ].map(exercise => (
+                  <button
+                    key={exercise.id}
+                    onClick={() => { setExerciseChoice(exercise.id); completeWellnessSnack('exercise'); }}
+                    className={`p-4 rounded-xl border-2 transition-all hover:scale-105 text-left ${
+                      darkMode ? 'bg-gray-800 border-orange-500/30 hover:bg-gray-700' : 'bg-white border-orange-200 hover:bg-orange-50'
+                    }`}
+                  >
+                    <div className="text-4xl mb-2">{exercise.icon}</div>
+                    <h3 className={`font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{exercise.name}</h3>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{exercise.time}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* BOX BREATHING MODAL */}
+      {showWellnessSnackModal && wellnessSnackChoice === 'breathing' && boxBreathingActive && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <BoxBreathingComponent
+            darkMode={darkMode}
+            onComplete={() => completeWellnessSnack('breathing')}
+            boxBreathingPhase={boxBreathingPhase}
+            setBoxBreathingPhase={setBoxBreathingPhase}
+            boxBreathingCycles={boxBreathingCycles}
+            setBoxBreathingCycles={setBoxBreathingCycles}
+          />
         </div>
       )}
 
