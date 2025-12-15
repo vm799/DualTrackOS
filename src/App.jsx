@@ -97,6 +97,10 @@ const DualTrackOS = () => {
   const [boxBreathingPhase, setBoxBreathingPhase] = useState('inhale');
   const [boxBreathingCycles, setBoxBreathingCycles] = useState(0);
   const [wellnessCompletions, setWellnessCompletions] = useState([]);
+  const [missedHourPrompt, setMissedHourPrompt] = useState(false); // Show prompt if user missed hour
+  const [exerciseReps, setExerciseReps] = useState(0); // Current rep count
+  const [exerciseTarget, setExerciseTarget] = useState(25); // Target reps
+  const [exerciseActive, setExerciseActive] = useState(false); // Is exercise in progress
 
   // Daily Command Center Metrics
   const [dailyMetrics, setDailyMetrics] = useState({
@@ -259,11 +263,12 @@ const DualTrackOS = () => {
       setCurrentTime(new Date());
     }, 1000);
 
-    // Hourly wellness snack trigger
+    // Hourly wellness snack trigger (only when in main app, not landing/story)
     const currentHour = new Date().getHours();
     const isActiveHours = currentHour >= 9 && currentHour <= 21;
+    const inMainApp = !showLandingPage && !showStoryPage && userProfile.hasCompletedOnboarding;
 
-    if (isActiveHours && currentHour !== lastWellnessHour) {
+    if (isActiveHours && currentHour !== lastWellnessHour && inMainApp) {
       const hourKey = `${new Date().toDateString()}-${currentHour}`;
       if (!wellnessSnacksDismissed.includes(hourKey) && !pomodoroRunning) {
         setShowWellnessSnackModal(true);
@@ -272,7 +277,7 @@ const DualTrackOS = () => {
     }
 
     return () => clearInterval(timer);
-  }, [lastWellnessHour, wellnessSnacksDismissed, pomodoroRunning]);
+  }, [lastWellnessHour, wellnessSnacksDismissed, pomodoroRunning, showLandingPage, showStoryPage, userProfile.hasCompletedOnboarding]);
 
   // Pomodoro countdown
   useEffect(() => {
@@ -523,6 +528,49 @@ const DualTrackOS = () => {
       }));
       setQuickWinInput('');
     }
+  };
+
+  // Exercise tracking functions
+  const startExercise = (exercise) => {
+    setExerciseChoice(exercise.id);
+    setExerciseTarget(exercise.target || 25);
+    setExerciseReps(0);
+    setExerciseActive(true);
+  };
+
+  const incrementReps = () => {
+    if (exerciseReps < exerciseTarget) {
+      setExerciseReps(prev => prev + 1);
+    }
+  };
+
+  const decrementReps = () => {
+    if (exerciseReps > 0) {
+      setExerciseReps(prev => prev - 1);
+    }
+  };
+
+  const completeExercise = () => {
+    setExerciseActive(false);
+    completeWellnessSnack('exercise');
+  };
+
+  const cancelExercise = () => {
+    setExerciseActive(false);
+    setExerciseChoice(null);
+    setExerciseReps(0);
+    setWellnessSnackChoice(null);
+  };
+
+  const cancelWellnessFlow = () => {
+    setShowWellnessSnackModal(false);
+    setWellnessSnackChoice(null);
+    setExerciseChoice(null);
+    setExerciseActive(false);
+    setBoxBreathingActive(false);
+    setBoxBreathingPhase('inhale');
+    setBoxBreathingCycles(0);
+    setExerciseReps(0);
   };
 
   // Voice diary functions (5-minute recording)
@@ -1247,7 +1295,7 @@ const DualTrackOS = () => {
   );
 
   // Box Breathing Component
-  const BoxBreathingComponent = ({ darkMode, onComplete, boxBreathingPhase, setBoxBreathingPhase, boxBreathingCycles, setBoxBreathingCycles }) => {
+  const BoxBreathingComponent = ({ darkMode, onComplete, boxBreathingPhase, setBoxBreathingPhase, boxBreathingCycles, setBoxBreathingCycles, onCancel }) => {
     const [count, setCount] = React.useState(4);
 
     React.useEffect(() => {
@@ -1283,9 +1331,34 @@ const DualTrackOS = () => {
       hold2: "HOLD, lungs empty"
     };
 
+    // Calculate position based on phase and count for smooth animation
+    const getCirclePosition = () => {
+      const progress = (4 - count) / 4; // 0 to 1 progress through current phase
+      const cornerPositions = {
+        inhale: { fromX: 32, fromY: 232, toX: 232, toY: 232 },  // bottom-left to bottom-right
+        hold1: { fromX: 232, fromY: 232, toX: 232, toY: 32 },    // bottom-right to top-right
+        exhale: { fromX: 232, fromY: 32, toX: 32, toY: 32 },     // top-right to top-left
+        hold2: { fromX: 32, fromY: 32, toX: 32, toY: 232 }       // top-left to bottom-left
+      };
+
+      const pos = cornerPositions[boxBreathingPhase];
+      return {
+        cx: pos.fromX + (pos.toX - pos.fromX) * progress,
+        cy: pos.fromY + (pos.toY - pos.fromY) * progress
+      };
+    };
+
+    const circlePos = getCirclePosition();
+
     return (
-      <div className={`max-w-2xl w-full rounded-3xl p-8 ${darkMode ? 'bg-gray-900 border-2 border-purple-500/30' : 'bg-white border-2 border-purple-200'}`}>
-        <div className="flex flex-col items-center justify-center space-y-8">
+      <div className={`max-w-2xl w-full rounded-3xl p-8 relative ${darkMode ? 'bg-gray-900 border-2 border-purple-500/30' : 'bg-white border-2 border-purple-200'}`}>
+        <button onClick={onCancel} className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
+          darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+        }`} title="Cancel">
+          <X size={24} />
+        </button>
+
+        <div className="flex flex-col items-center justify-center space-y-8 pt-4">
           <div className="relative w-64 h-64">
             <svg className="w-full h-full">
               <rect x="32" y="32" width="200" height="200"
@@ -1293,11 +1366,12 @@ const DualTrackOS = () => {
                     stroke={darkMode ? '#a855f7' : '#9333ea'}
                     strokeWidth="3" />
               <circle
-                cx={boxBreathingPhase === 'inhale' || boxBreathingPhase === 'hold1' ? 232 : 32}
-                cy={boxBreathingPhase === 'inhale' || boxBreathingPhase === 'exhale' ? 32 : 232}
+                cx={circlePos.cx}
+                cy={circlePos.cy}
                 r="12"
                 fill="#ec4899"
-                className="transition-all duration-1000" />
+                className="transition-all duration-1000 ease-linear"
+                style={{ filter: 'drop-shadow(0 0 8px #ec4899)' }} />
             </svg>
           </div>
 
@@ -1310,6 +1384,12 @@ const DualTrackOS = () => {
             </div>
             <div className={`text-sm mt-2 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
               Cycle {boxBreathingCycles + 1} of 8
+            </div>
+            <div className={`mt-4 h-2 w-64 rounded-full overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-gray-200'}`}>
+              <div
+                className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-1000"
+                style={{ width: `${((boxBreathingCycles * 4 + (['inhale', 'hold1', 'exhale', 'hold2'].indexOf(boxBreathingPhase) + 1)) / 32) * 100}%` }}
+              />
             </div>
           </div>
         </div>
@@ -3258,104 +3338,115 @@ const DualTrackOS = () => {
         </div>
       )}
 
-      {/* HOURLY WELLNESS SNACK MODAL */}
+      {/* HOURLY WELLNESS SNACK MODAL - Improved scrollable version */}
       {showWellnessSnackModal && !wellnessSnackChoice && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-          <div className={`max-w-3xl w-full rounded-3xl shadow-2xl overflow-hidden animate-scale-in ${
+          <div className={`max-w-3xl w-full rounded-3xl shadow-2xl max-h-[90vh] flex flex-col animate-scale-in ${
             darkMode
               ? 'bg-gradient-to-br from-gray-900 via-orange-900/20 to-gray-900 border-2 border-orange-500/30'
               : 'bg-gradient-to-br from-white via-orange-50 to-white border-2 border-orange-200'
           }`}>
-            <div className={`relative p-8 pb-6 ${
+            <div className={`relative p-6 pb-4 ${
               darkMode
                 ? 'bg-gradient-to-r from-orange-900/40 to-pink-900/40'
                 : 'bg-gradient-to-r from-orange-100 to-pink-100'
             }`}>
-              <button onClick={dismissWellnessSnack} className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
+              <button onClick={cancelWellnessFlow} className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
                 darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-white/50 text-gray-600 hover:text-gray-900'
-              }`}>
+              }`} title="Close (dismiss for this hour)">
                 <X size={24} />
               </button>
 
               <div className="text-center">
-                <div className="text-6xl mb-4">⚡💪🧘</div>
-                <h2 className={`text-3xl font-bold mb-2 ${
+                <div className="text-5xl mb-3">⚡💪🧘</div>
+                <h2 className={`text-2xl md:text-3xl font-bold mb-2 ${
                   darkMode ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent' : 'text-gray-900'
                 }`}>
                   Choose Your Wellness Weapon
                 </h2>
-                <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                <p className={`text-sm md:text-base ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   {formatHour(currentTime.getHours())} check-in • 2-minute power-up
                 </p>
               </div>
             </div>
 
-            <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button onClick={() => setWellnessSnackChoice('exercise')} className={`p-6 rounded-xl border-2 transition-all hover:scale-105 ${
-                darkMode ? 'bg-orange-500/10 border-orange-500/30 hover:bg-orange-500/20' : 'bg-orange-50 border-orange-200 hover:bg-orange-100'
-              }`}>
-                <div className="text-5xl mb-3">🦵</div>
-                <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}>Exercise Snack</h3>
-                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Quick burst of movement
-                </p>
-              </button>
+            <div className="p-6 overflow-y-auto flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button onClick={() => setWellnessSnackChoice('exercise')} className={`p-6 rounded-xl border-2 transition-all hover:scale-105 active:scale-95 ${
+                  darkMode ? 'bg-orange-500/10 border-orange-500/30 hover:bg-orange-500/20' : 'bg-orange-50 border-orange-200 hover:bg-orange-100'
+                }`}>
+                  <div className="text-5xl mb-3">🦵</div>
+                  <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}>Exercise Snack</h3>
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Track your reps
+                  </p>
+                </button>
 
-              <button onClick={() => { setWellnessSnackChoice('breathing'); setBoxBreathingActive(true); }} className={`p-6 rounded-xl border-2 transition-all hover:scale-105 ${
-                darkMode ? 'bg-purple-500/10 border-purple-500/30 hover:bg-purple-500/20' : 'bg-purple-50 border-purple-200 hover:bg-purple-100'
-              }`}>
-                <div className="text-5xl mb-3">🧘</div>
-                <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>Box Breathing</h3>
-                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  2 min calm reset
-                </p>
-              </button>
+                <button onClick={() => { setWellnessSnackChoice('breathing'); setBoxBreathingActive(true); }} className={`p-6 rounded-xl border-2 transition-all hover:scale-105 active:scale-95 ${
+                  darkMode ? 'bg-purple-500/10 border-purple-500/30 hover:bg-purple-500/20' : 'bg-purple-50 border-purple-200 hover:bg-purple-100'
+                }`}>
+                  <div className="text-5xl mb-3">🧘</div>
+                  <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>Box Breathing</h3>
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    8 guided cycles
+                  </p>
+                </button>
 
-              <button onClick={() => completeWellnessSnack('hydration')} className={`p-6 rounded-xl border-2 transition-all hover:scale-105 ${
-                darkMode ? 'bg-cyan-500/10 border-cyan-500/30 hover:bg-cyan-500/20' : 'bg-cyan-50 border-cyan-200 hover:bg-cyan-100'
-              }`}>
-                <div className="text-5xl mb-3">💧</div>
-                <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-cyan-400' : 'text-cyan-600'}`}>Hydration Break</h3>
-                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Water or herbal tea
-                </p>
-              </button>
+                <button onClick={() => completeWellnessSnack('hydration')} className={`p-6 rounded-xl border-2 transition-all hover:scale-105 active:scale-95 ${
+                  darkMode ? 'bg-cyan-500/10 border-cyan-500/30 hover:bg-cyan-500/20' : 'bg-cyan-50 border-cyan-200 hover:bg-cyan-100'
+                }`}>
+                  <div className="text-5xl mb-3">🥤</div>
+                  <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-cyan-400' : 'text-cyan-600'}`}>Hydration Break</h3>
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Water or tea
+                  </p>
+                </button>
+              </div>
             </div>
 
-            <div className="px-8 pb-8 text-center">
-              <button onClick={snoozeWellnessSnack} className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-600'} hover:underline`}>
-                Remind me in 15 minutes
+            <div className="px-6 pb-6 pt-2 border-t border-gray-700/30 flex justify-center gap-4">
+              <button onClick={snoozeWellnessSnack} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-300' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+              }`}>
+                Remind me in 15 min
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* EXERCISE SNACK CHOICE MODAL */}
-      {showWellnessSnackModal && wellnessSnackChoice === 'exercise' && !exerciseChoice && (
+      {/* EXERCISE SNACK CHOICE MODAL - Scrollable with back/exit */}
+      {showWellnessSnackModal && wellnessSnackChoice === 'exercise' && !exerciseActive && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-          <div className={`max-w-3xl w-full rounded-3xl shadow-2xl overflow-hidden ${
+          <div className={`max-w-3xl w-full rounded-3xl shadow-2xl max-h-[90vh] flex flex-col ${
             darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-orange-500/30' : 'bg-white border-2 border-orange-200'
           }`}>
-            <div className={`p-8 ${darkMode ? 'bg-orange-900/20' : 'bg-orange-50'}`}>
-              <button onClick={() => setWellnessSnackChoice(null)} className={`mb-4 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            <div className={`relative p-6 pb-4 ${darkMode ? 'bg-orange-900/20' : 'bg-orange-50'}`}>
+              <button onClick={cancelWellnessFlow} className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
+                darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-white/50 text-gray-600 hover:text-gray-900'
+              }`} title="Close">
+                <X size={24} />
+              </button>
+              <button onClick={() => setWellnessSnackChoice(null)} className={`mb-4 text-sm font-medium flex items-center gap-1 ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-700'}`}>
                 ← Back
               </button>
-              <h2 className={`text-2xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 Choose Your Exercise Snack
               </h2>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                  { id: 'squats', name: '25 Air Squats', icon: '🦵', time: '2 mins' },
-                  { id: 'calves', name: 'Calf Raises', icon: '👟', time: '2 mins' },
-                  { id: 'stairs', name: 'Stair Sprint', icon: '🪜', time: '2 mins' },
-                  { id: 'deadhang', name: 'Dead Hang', icon: '💪', time: '30-60 sec' },
-                  { id: 'gorilla', name: 'Gorilla Rows', icon: '🦍', time: '2 mins' }
+                  { id: 'squats', name: '25 Air Squats', icon: '🦵', target: 25, time: '2 mins' },
+                  { id: 'calves', name: 'Calf Raises', icon: '👟', target: 30, time: '2 mins' },
+                  { id: 'stairs', name: 'Stair Sprint', icon: '🪜', target: 3, time: '2 mins' },
+                  { id: 'deadhang', name: 'Dead Hang', icon: '💪', target: 60, time: '30-60 sec' },
+                  { id: 'gorilla', name: 'Gorilla Rows', icon: '🦍', target: 20, time: '2 mins' }
                 ].map(exercise => (
                   <button
                     key={exercise.id}
-                    onClick={() => { setExerciseChoice(exercise.id); completeWellnessSnack('exercise'); }}
-                    className={`p-4 rounded-xl border-2 transition-all hover:scale-105 text-left ${
+                    onClick={() => startExercise(exercise)}
+                    className={`p-4 rounded-xl border-2 transition-all hover:scale-105 active:scale-95 text-left ${
                       darkMode ? 'bg-gray-800 border-orange-500/30 hover:bg-gray-700' : 'bg-white border-orange-200 hover:bg-orange-50'
                     }`}
                   >
@@ -3370,12 +3461,100 @@ const DualTrackOS = () => {
         </div>
       )}
 
+      {/* EXERCISE REP COUNTER MODAL - Functional tracker */}
+      {showWellnessSnackModal && wellnessSnackChoice === 'exercise' && exerciseActive && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className={`max-w-lg w-full rounded-3xl shadow-2xl ${
+            darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-orange-500/30' : 'bg-white border-2 border-orange-200'
+          }`}>
+            <div className={`relative p-6 text-center ${darkMode ? 'bg-orange-900/20' : 'bg-orange-50'}`}>
+              <button onClick={cancelExercise} className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
+                darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-white/50 text-gray-600 hover:text-gray-900'
+              }`} title="Cancel exercise">
+                <X size={24} />
+              </button>
+              <div className="text-5xl mb-3">
+                {exerciseChoice === 'squats' ? '🦵' : exerciseChoice === 'calves' ? '👟' : exerciseChoice === 'stairs' ? '🪜' : exerciseChoice === 'deadhang' ? '💪' : '🦍'}
+              </div>
+              <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                {exerciseChoice === 'squats' ? 'Air Squats' : exerciseChoice === 'calves' ? 'Calf Raises' : exerciseChoice === 'stairs' ? 'Stair Sprints' : exerciseChoice === 'deadhang' ? 'Dead Hang (seconds)' : 'Gorilla Rows'}
+              </h2>
+            </div>
+
+            <div className="p-8">
+              <div className="text-center mb-8">
+                <div className={`text-8xl font-bold mb-2 ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}>
+                  {exerciseReps}
+                </div>
+                <div className={`text-2xl font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  / {exerciseTarget}
+                </div>
+                <div className={`mt-4 h-3 rounded-full overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-gray-200'}`}>
+                  <div
+                    className="h-full bg-gradient-to-r from-orange-400 to-pink-500 transition-all duration-300"
+                    style={{ width: `${(exerciseReps / exerciseTarget) * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-center gap-4 mb-6">
+                <button
+                  onClick={decrementReps}
+                  disabled={exerciseReps === 0}
+                  className={`w-16 h-16 rounded-full text-3xl font-bold transition-all ${
+                    exerciseReps === 0
+                      ? darkMode ? 'bg-gray-800 text-gray-600 cursor-not-allowed' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-300 active:scale-95' : 'bg-gray-200 hover:bg-gray-300 text-gray-700 active:scale-95'
+                  }`}
+                >
+                  −
+                </button>
+                <button
+                  onClick={incrementReps}
+                  disabled={exerciseReps >= exerciseTarget}
+                  className={`w-16 h-16 rounded-full text-3xl font-bold transition-all ${
+                    exerciseReps >= exerciseTarget
+                      ? darkMode ? 'bg-gray-800 text-gray-600 cursor-not-allowed' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : darkMode ? 'bg-orange-500 hover:bg-orange-400 text-white active:scale-95' : 'bg-orange-500 hover:bg-orange-600 text-white active:scale-95'
+                  }`}
+                >
+                  +
+                </button>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={cancelExercise}
+                  className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+                    darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-300' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                  }`}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={completeExercise}
+                  disabled={exerciseReps === 0}
+                  className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+                    exerciseReps === 0
+                      ? darkMode ? 'bg-gray-800 text-gray-600 cursor-not-allowed' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-400 hover:to-pink-400 text-white shadow-lg'
+                  }`}
+                >
+                  Complete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* BOX BREATHING MODAL */}
       {showWellnessSnackModal && wellnessSnackChoice === 'breathing' && boxBreathingActive && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
           <BoxBreathingComponent
             darkMode={darkMode}
             onComplete={() => completeWellnessSnack('breathing')}
+            onCancel={cancelWellnessFlow}
             boxBreathingPhase={boxBreathingPhase}
             setBoxBreathingPhase={setBoxBreathingPhase}
             boxBreathingCycles={boxBreathingCycles}
