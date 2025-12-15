@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Brain, Heart, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut } from 'lucide-react';
+import { Zap, Brain, Heart, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, TrendingUp } from 'lucide-react';
 import { supabase, isSupabaseConfigured, signInWithGoogle, signOut as supabaseSignOut, saveUserData, loadUserData } from './supabaseClient';
 import LandingPage from './LandingPage';
 import StoryPage from './StoryPage';
@@ -33,6 +33,21 @@ const DualTrackOS = () => {
     hasCompletedOnboarding: false,
     disclaimerAccepted: false
   });
+
+  // Rotating welcome messages
+  const welcomeMessages = [
+    'Welcome',
+    'Good to see you',
+    'You got this',
+    'LFG!',
+    'Let\'s crush it',
+    'Ready to dominate',
+    'Time to shine',
+    'Bring your A-game'
+  ];
+  const [welcomeMessage, setWelcomeMessage] = useState(
+    welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)]
+  );
 
   // Energy tracking (3x per day)
   const [energyTracking, setEnergyTracking] = useState({
@@ -1324,6 +1339,10 @@ const DualTrackOS = () => {
           setShowStoryPage(false);
           setShowLandingPage(true);
         }}
+        onEnter={() => {
+          setShowStoryPage(false);
+          setShowLandingPage(false);
+        }}
         darkMode={darkMode}
       />
     );
@@ -1357,7 +1376,7 @@ const DualTrackOS = () => {
           title="Daily Command Center"
         >
           <div className="flex flex-col items-center gap-0.5">
-            <div className="text-2xl">📊</div>
+            <TrendingUp className={darkMode ? 'text-purple-300' : 'text-purple-600'} size={20} strokeWidth={2.5} />
             <span className={`text-[8px] font-bold leading-tight ${darkMode ? 'text-purple-300' : 'text-purple-600'}`}>
               CMD
             </span>
@@ -1426,6 +1445,15 @@ const DualTrackOS = () => {
               } opacity-80`}>
                 Tap clock to start Pomodoro
               </div>
+              {userProfile.initials && (
+                <div className={`text-xs md:text-sm font-medium mt-1 ${
+                  darkMode
+                    ? 'bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent'
+                    : 'text-pink-600'
+                }`}>
+                  {welcomeMessage}, {userProfile.initials}
+                </div>
+              )}
             </button>
 
             {/* RIGHT: SETTINGS - Demoted Visually */}
@@ -3587,12 +3615,13 @@ const DualTrackOS = () => {
                 </button>
 
                 <div className="text-center">
-                  <h2 className={`text-3xl font-bold mb-2 ${
+                  <h2 className={`text-3xl font-bold mb-2 flex items-center justify-center gap-3 ${
                     darkMode
                       ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
                       : 'text-gray-900'
                   }`}>
-                    📊 Daily Command Center
+                    <TrendingUp size={32} className={darkMode ? 'text-purple-400' : 'text-purple-600'} strokeWidth={2.5} />
+                    <span>Daily Command Centre</span>
                   </h2>
                   <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
@@ -3615,7 +3644,7 @@ const DualTrackOS = () => {
                     <h3 className={`font-bold mb-4 flex items-center justify-between ${
                       darkMode ? 'text-cyan-300' : 'text-cyan-700'
                     }`}>
-                      <span>💧 Hydration</span>
+                      <span>🥤 Hydration</span>
                       <span className="text-sm">{dailyMetrics.hydration.current}/{dailyMetrics.hydration.target}</span>
                     </h3>
                     <div className="flex items-center justify-center gap-2">
