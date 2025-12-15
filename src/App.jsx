@@ -93,8 +93,6 @@ const DualTrackOS = () => {
   const [wellnessSnackChoice, setWellnessSnackChoice] = useState(null); // 'exercise', 'breathing', 'hydration'
   const [exerciseChoice, setExerciseChoice] = useState(null); // 'squats', 'calves', etc.
   const [boxBreathingActive, setBoxBreathingActive] = useState(false);
-  const [boxBreathingPhase, setBoxBreathingPhase] = useState('inhale');
-  const [boxBreathingCycles, setBoxBreathingCycles] = useState(0);
   const [wellnessCompletions, setWellnessCompletions] = useState([]);
   const [missedHourPrompt, setMissedHourPrompt] = useState(false); // Show prompt if user missed hour
   const [exerciseReps, setExerciseReps] = useState(0); // Current rep count
@@ -577,8 +575,6 @@ const DualTrackOS = () => {
     setExerciseChoice(null);
     setExerciseActive(false);
     setBoxBreathingActive(false);
-    setBoxBreathingPhase('inhale');
-    setBoxBreathingCycles(0);
     setExerciseReps(0);
   };
 
@@ -1314,38 +1310,33 @@ const DualTrackOS = () => {
     </button>
   );
 
-  // Box Breathing Component
-  const BoxBreathingComponent = ({ darkMode, onComplete, boxBreathingPhase, setBoxBreathingPhase, boxBreathingCycles, setBoxBreathingCycles, onCancel }) => {
-    const [millisInPhase, setMillisInPhase] = React.useState(0);
+  // Box Breathing Component - Single state approach for perfect sync
+  const BoxBreathingComponent = ({ darkMode, onComplete, onCancel }) => {
+    const [totalElapsedMs, setTotalElapsedMs] = React.useState(0);
 
     React.useEffect(() => {
-      if (boxBreathingCycles >= 8) {
+      // Complete after 8 full cycles (8 cycles × 16 seconds × 1000ms = 128000ms)
+      if (totalElapsedMs >= 128000) {
         onComplete();
         return;
       }
 
+      // Update every 50ms for smooth animation (20 FPS)
       const timer = setInterval(() => {
-        setMillisInPhase(prev => {
-          const newMillis = prev + 50;
-
-          if (newMillis >= 4000) {
-            // Phase complete, move to next phase
-            const phases = ['inhale', 'hold1', 'exhale', 'hold2'];
-            const currentIndex = phases.indexOf(boxBreathingPhase);
-            const nextPhase = phases[(currentIndex + 1) % 4];
-            setBoxBreathingPhase(nextPhase);
-
-            if (nextPhase === 'inhale') {
-              setBoxBreathingCycles(prev => prev + 1);
-            }
-            return 0;
-          }
-          return newMillis;
-        });
+        setTotalElapsedMs(prev => prev + 50);
       }, 50);
 
       return () => clearInterval(timer);
-    }, [boxBreathingPhase, boxBreathingCycles, onComplete, setBoxBreathingPhase, setBoxBreathingCycles]);
+    }, [totalElapsedMs, onComplete]);
+
+    // Derive everything from single source of truth
+    const phases = ['inhale', 'hold1', 'exhale', 'hold2'];
+    const phaseIndex = Math.floor((totalElapsedMs % 16000) / 4000); // Which phase (0-3)
+    const currentPhase = phases[phaseIndex];
+    const millisInCurrentPhase = totalElapsedMs % 4000; // Position within phase (0-4000)
+    const progress = millisInCurrentPhase / 4000; // Smooth 0 to 1 progress
+    const countdown = Math.ceil((4000 - millisInCurrentPhase) / 1000); // 4,3,2,1
+    const cycleNumber = Math.floor(totalElapsedMs / 16000); // Which cycle (0-7)
 
     const instructions = {
       inhale: "Breathe IN through nose",
@@ -1354,23 +1345,19 @@ const DualTrackOS = () => {
       hold2: "HOLD, lungs empty"
     };
 
-    // Calculate countdown display from milliseconds
-    const count = Math.ceil((4000 - millisInPhase) / 1000);
-
-    // Calculate position based on phase and smooth progress for animation
+    // Calculate dot position - smooth flow around the box
     const getCirclePosition = () => {
-      const progress = millisInPhase / 4000; // 0 to 1 smooth progress through current phase
-      const cornerPositions = {
-        inhale: { fromX: 32, fromY: 232, toX: 232, toY: 232 },  // bottom-left to bottom-right
-        hold1: { fromX: 232, fromY: 232, toX: 232, toY: 32 },    // bottom-right to top-right
-        exhale: { fromX: 232, fromY: 32, toX: 32, toY: 32 },     // top-right to top-left
-        hold2: { fromX: 32, fromY: 32, toX: 32, toY: 232 }       // top-left to bottom-left
-      };
+      const paths = [
+        { fromX: 32, fromY: 232, toX: 232, toY: 232 },  // inhale: bottom-left → bottom-right
+        { fromX: 232, fromY: 232, toX: 232, toY: 32 },  // hold1: bottom-right → top-right
+        { fromX: 232, fromY: 32, toX: 32, toY: 32 },    // exhale: top-right → top-left
+        { fromX: 32, fromY: 32, toX: 32, toY: 232 }     // hold2: top-left → bottom-left
+      ];
 
-      const pos = cornerPositions[boxBreathingPhase];
+      const path = paths[phaseIndex];
       return {
-        cx: pos.fromX + (pos.toX - pos.fromX) * progress,
-        cy: pos.fromY + (pos.toY - pos.fromY) * progress
+        cx: path.fromX + (path.toX - path.fromX) * progress,
+        cy: path.fromY + (path.toY - path.fromY) * progress
       };
     };
 
@@ -1404,18 +1391,18 @@ const DualTrackOS = () => {
 
           <div className="text-center">
             <div className={`text-6xl font-mono font-bold ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
-              {count}
+              {countdown}
             </div>
             <div className={`text-2xl font-semibold mt-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              {instructions[boxBreathingPhase]}
+              {instructions[currentPhase]}
             </div>
             <div className={`text-sm mt-2 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-              Cycle {boxBreathingCycles + 1} of 8
+              Cycle {cycleNumber + 1} of 8
             </div>
             <div className={`mt-4 h-2 w-64 rounded-full overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-gray-200'}`}>
               <div
-                className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-1000"
-                style={{ width: `${((boxBreathingCycles * 4 + (['inhale', 'hold1', 'exhale', 'hold2'].indexOf(boxBreathingPhase) + 1)) / 32) * 100}%` }}
+                className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
+                style={{ width: `${(totalElapsedMs / 128000) * 100}%` }}
               />
             </div>
           </div>
@@ -3622,10 +3609,6 @@ const DualTrackOS = () => {
             darkMode={darkMode}
             onComplete={() => completeWellnessSnack('breathing')}
             onCancel={cancelWellnessFlow}
-            boxBreathingPhase={boxBreathingPhase}
-            setBoxBreathingPhase={setBoxBreathingPhase}
-            boxBreathingCycles={boxBreathingCycles}
-            setBoxBreathingCycles={setBoxBreathingCycles}
           />
         </div>
       )}
