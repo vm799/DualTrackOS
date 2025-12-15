@@ -1339,7 +1339,7 @@ const DualTrackOS = () => {
       darkMode
         ? 'bg-[#191919]'
         : 'bg-gradient-to-br from-purple-50 to-pink-50'
-    }`} style={{ position: 'fixed', width: '100%', height: '100%', overflowY: 'auto' }}>
+    }`} style={{ position: 'fixed', width: '100%', height: '100%', overflowY: 'auto', scrollBehavior: 'smooth' }}>
       <GeometricBg />
 
       {/* Daily Command Center - Top Right Side Tab */}
@@ -1496,6 +1496,13 @@ const DualTrackOS = () => {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        {currentView === 'dashboard' && (
+          <div className="space-y-6 pb-32 relative z-10">
 
             {/* NDM Status Bar - Shows Outstanding Tasks */}
             <NDMStatusBar
@@ -1505,13 +1512,6 @@ const DualTrackOS = () => {
               openMindfulMoment={openMindfulMoment}
               openBrainDump={openBrainDump}
             />
-          </div>
-        </div>
-      </div>
-      
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        {currentView === 'dashboard' && (
-          <div className="space-y-6 pb-32 relative z-10">
 
             {/* CURRENT HOUR FOCUS */}
             <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
