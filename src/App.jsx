@@ -7,6 +7,17 @@ import Onboarding from './Onboarding';
 import NDMStatusBar from './components/NDMStatusBar';
 import EnergyModal from './components/EnergyModal';
 import MoodModal from './components/MoodModal';
+import {
+  POMODORO_DURATION_SECONDS,
+  ACTIVE_HOURS_START,
+  ACTIVE_HOURS_END,
+  BOX_BREATHING_TOTAL_MS,
+  BOX_BREATHING_PHASE_DURATION_MS,
+  BOX_BREATHING_CYCLE_DURATION_MS,
+  MINDFUL_MOMENT_DURATION_SECONDS,
+  WELLNESS_SNOOZE_DURATION_MS,
+  EXERCISE_TARGETS,
+} from './constants';
 
 const DualTrackOS = () => {
   // View states
@@ -65,7 +76,7 @@ const DualTrackOS = () => {
   const [showBrainDumpModal, setShowBrainDumpModal] = useState(false);
   const [showMindfulMomentModal, setShowMindfulMomentModal] = useState(false);
   const [brainDumpText, setBrainDumpText] = useState('');
-  const [mindfulTimer, setMindfulTimer] = useState(300); // 5 minutes
+  const [mindfulTimer, setMindfulTimer] = useState(MINDFUL_MOMENT_DURATION_SECONDS);
   const [mindfulRunning, setMindfulRunning] = useState(false);
 
   // Energy & Mood Modals
@@ -96,7 +107,7 @@ const DualTrackOS = () => {
   const [wellnessCompletions, setWellnessCompletions] = useState([]);
   const [missedHourPrompt, setMissedHourPrompt] = useState(false); // Show prompt if user missed hour
   const [exerciseReps, setExerciseReps] = useState(0); // Current rep count
-  const [exerciseTarget, setExerciseTarget] = useState(25); // Target reps
+  const [exerciseTarget, setExerciseTarget] = useState(EXERCISE_TARGETS.squats); // Target reps
   const [exerciseActive, setExerciseActive] = useState(false); // Is exercise in progress
 
   // Daily Command Center Metrics
@@ -114,7 +125,7 @@ const DualTrackOS = () => {
   // Real-time clock state
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isPomodoroMode, setIsPomodoroMode] = useState(false);
-  const [pomodoroSeconds, setPomodoroSeconds] = useState(20 * 60); // 20 minutes
+  const [pomodoroSeconds, setPomodoroSeconds] = useState(POMODORO_DURATION_SECONDS);
   const [pomodoroRunning, setPomodoroRunning] = useState(false);
 
   // Kanban Board for Career & Business Tasks
@@ -263,7 +274,7 @@ const DualTrackOS = () => {
 
     // Hourly wellness snack trigger (only when in main app, not landing/story)
     const currentHour = new Date().getHours();
-    const isActiveHours = currentHour >= 9 && currentHour <= 21;
+    const isActiveHours = currentHour >= ACTIVE_HOURS_START && currentHour <= ACTIVE_HOURS_END;
     const inMainApp = !showLandingPage && !showStoryPage && userProfile.hasCompletedOnboarding;
 
     if (isActiveHours && currentHour !== lastWellnessHour && inMainApp) {
@@ -397,7 +408,7 @@ const DualTrackOS = () => {
 
   // Handle Mindful Moment modal
   const openMindfulMoment = () => {
-    setMindfulTimer(300); // Reset to 5 minutes
+    setMindfulTimer(MINDFUL_MOMENT_DURATION_SECONDS);
     setShowMindfulMomentModal(true);
   };
 
@@ -412,7 +423,7 @@ const DualTrackOS = () => {
   const completeMindfulSession = () => {
     setNdm(prev => ({ ...prev, mindfulness: true }));
     setShowMindfulMomentModal(false);
-    setMindfulTimer(300);
+    setMindfulTimer(MINDFUL_MOMENT_DURATION_SECONDS);
     setMindfulRunning(false);
   };
 
@@ -456,7 +467,7 @@ const DualTrackOS = () => {
   const togglePomodoroMode = () => {
     setIsPomodoroMode(!isPomodoroMode);
     if (!isPomodoroMode) {
-      setPomodoroSeconds(20 * 60); // Reset to 20 minutes when entering Pomodoro mode
+      setPomodoroSeconds(POMODORO_DURATION_SECONDS);
       setPomodoroRunning(false);
     }
   };
@@ -472,7 +483,7 @@ const DualTrackOS = () => {
   };
 
   const resetPomodoro = () => {
-    setPomodoroSeconds(20 * 60);
+    setPomodoroSeconds(POMODORO_DURATION_SECONDS);
     setPomodoroRunning(false);
     setShowPomodoroFullScreen(false); // Exit full-screen mode
   };
@@ -490,7 +501,7 @@ const DualTrackOS = () => {
     setShowWellnessSnackModal(false);
     setTimeout(() => {
       setShowWellnessSnackModal(true);
-    }, 15 * 60 * 1000);
+    }, WELLNESS_SNOOZE_DURATION_MS);
   };
 
   const completeWellnessSnack = (type) => {
@@ -540,7 +551,7 @@ const DualTrackOS = () => {
   // Exercise tracking functions
   const startExercise = (exercise) => {
     setExerciseChoice(exercise.id);
-    setExerciseTarget(exercise.target || 25);
+    setExerciseTarget(exercise.target || EXERCISE_TARGETS.squats);
     setExerciseReps(0);
     setExerciseActive(true);
   };
@@ -1326,9 +1337,9 @@ const DualTrackOS = () => {
         setTotalElapsedMs(prev => {
           const next = prev + 50;
           // Check completion inside state updater
-          if (next >= 128000) {
+          if (next >= BOX_BREATHING_TOTAL_MS) {
             onCompleteRef.current(); // Use ref, not prop
-            return 128000; // Cap at completion time
+            return BOX_BREATHING_TOTAL_MS; // Cap at completion time
           }
           return next;
         });
@@ -1340,12 +1351,12 @@ const DualTrackOS = () => {
 
     // Derive everything from single source of truth
     const phases = ['inhale', 'hold1', 'exhale', 'hold2'];
-    const phaseIndex = Math.floor((totalElapsedMs % 16000) / 4000); // Which phase (0-3)
+    const phaseIndex = Math.floor((totalElapsedMs % BOX_BREATHING_CYCLE_DURATION_MS) / BOX_BREATHING_PHASE_DURATION_MS);
     const currentPhase = phases[phaseIndex];
-    const millisInCurrentPhase = totalElapsedMs % 4000; // Position within phase (0-4000)
-    const progress = millisInCurrentPhase / 4000; // Smooth 0 to 1 progress
-    const countdown = Math.ceil((4000 - millisInCurrentPhase) / 1000); // 4,3,2,1
-    const cycleNumber = Math.floor(totalElapsedMs / 16000); // Which cycle (0-7)
+    const millisInCurrentPhase = totalElapsedMs % BOX_BREATHING_PHASE_DURATION_MS;
+    const progress = millisInCurrentPhase / BOX_BREATHING_PHASE_DURATION_MS;
+    const countdown = Math.ceil((BOX_BREATHING_PHASE_DURATION_MS - millisInCurrentPhase) / 1000);
+    const cycleNumber = Math.floor(totalElapsedMs / BOX_BREATHING_CYCLE_DURATION_MS);
 
     const instructions = {
       inhale: "Breathe IN through nose",
@@ -1411,7 +1422,7 @@ const DualTrackOS = () => {
             <div className={`mt-4 h-2 w-64 rounded-full overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-gray-200'}`}>
               <div
                 className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
-                style={{ width: `${(totalElapsedMs / 128000) * 100}%` }}
+                style={{ width: `${(totalElapsedMs / BOX_BREATHING_TOTAL_MS) * 100}%` }}
               />
             </div>
           </div>
@@ -3331,7 +3342,7 @@ const DualTrackOS = () => {
                   strokeWidth="8"
                   fill="none"
                   strokeDasharray={`${2 * Math.PI * 120}`}
-                  strokeDashoffset={`${2 * Math.PI * 120 * (1 - pomodoroSeconds / (20 * 60))}`}
+                  strokeDashoffset={`${2 * Math.PI * 120 * (1 - pomodoroSeconds / POMODORO_DURATION_SECONDS)}`}
                   className="transition-all duration-1000"
                 />
                 <defs>
@@ -3500,11 +3511,11 @@ const DualTrackOS = () => {
             <div className="p-6 overflow-y-auto flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                  { id: 'squats', name: '25 Air Squats', icon: '🦵', target: 25, time: '2 mins' },
-                  { id: 'calves', name: 'Calf Raises', icon: '👟', target: 30, time: '2 mins' },
-                  { id: 'stairs', name: 'Stair Sprint', icon: '🪜', target: 3, time: '2 mins' },
-                  { id: 'deadhang', name: 'Dead Hang', icon: '💪', target: 60, time: '30-60 sec' },
-                  { id: 'gorilla', name: 'Gorilla Rows', icon: '🦍', target: 20, time: '2 mins' }
+                  { id: 'squats', name: '25 Air Squats', icon: '🦵', target: EXERCISE_TARGETS.squats, time: '2 mins' },
+                  { id: 'calves', name: 'Calf Raises', icon: '👟', target: EXERCISE_TARGETS.calves, time: '2 mins' },
+                  { id: 'stairs', name: 'Stair Sprint', icon: '🪜', target: EXERCISE_TARGETS.stairs, time: '2 mins' },
+                  { id: 'deadhang', name: 'Dead Hang', icon: '💪', target: EXERCISE_TARGETS.deadhang, time: '30-60 sec' },
+                  { id: 'gorilla', name: 'Gorilla Rows', icon: '🦍', target: EXERCISE_TARGETS.gorilla, time: '2 mins' }
                 ].map(exercise => (
                   <button
                     key={exercise.id}
