@@ -1367,11 +1367,12 @@ const DualTrackOS = () => {
 
     // Calculate dot position - smooth flow around the box
     const getCirclePosition = () => {
+      // Redefined path for a standard clockwise box breathing animation
       const paths = [
-        { fromX: 32, fromY: 232, toX: 232, toY: 232 },  // inhale: bottom-left → bottom-right
-        { fromX: 232, fromY: 232, toX: 232, toY: 32 },  // hold1: bottom-right → top-right
-        { fromX: 232, fromY: 32, toX: 32, toY: 32 },    // exhale: top-right → top-left
-        { fromX: 32, fromY: 32, toX: 32, toY: 232 }     // hold2: top-left → bottom-left
+        { fromX: 32, fromY: 32, toX: 232, toY: 32 },    // inhale: top-left → top-right
+        { fromX: 232, fromY: 32, toX: 232, toY: 232 },  // hold1: top-right → bottom-right
+        { fromX: 232, fromY: 232, toX: 32, toY: 232 },  // exhale: bottom-right → bottom-left
+        { fromX: 32, fromY: 232, toX: 32, toY: 32 }     // hold2: bottom-left → top-left
       ];
 
       const path = paths[phaseIndex];
