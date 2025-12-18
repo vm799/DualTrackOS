@@ -504,13 +504,13 @@ const DualTrackOS = () => {
     }, WELLNESS_SNOOZE_DURATION_MS);
   };
 
-  const completeWellnessSnack = (type) => {
+  const completeWellnessSnack = React.useCallback((type) => {
     const completion = {
       type,
       timestamp: new Date(),
       hour: currentTime.getHours()
     };
-    setWellnessCompletions([...wellnessCompletions, completion]);
+    setWellnessCompletions(prev => [...prev, completion]);
     setSpiritAnimalScore(prev => Math.min(100, prev + 2));
 
     // Update Daily Metrics
@@ -535,7 +535,7 @@ const DualTrackOS = () => {
     }
 
     dismissWellnessSnack();
-  };
+  }, [currentTime, exerciseChoice]);
 
   // Quick Win Capture
   const addQuickWin = () => {
@@ -580,14 +580,14 @@ const DualTrackOS = () => {
     setWellnessSnackChoice(null);
   };
 
-  const cancelWellnessFlow = () => {
+  const cancelWellnessFlow = React.useCallback(() => {
     setShowWellnessSnackModal(false);
     setWellnessSnackChoice(null);
     setExerciseChoice(null);
     setExerciseActive(false);
     setBoxBreathingActive(false);
     setExerciseReps(0);
-  };
+  }, []);
 
   // Missed hour prompt handlers
   const acceptWellnessPrompt = () => {
@@ -1322,7 +1322,7 @@ const DualTrackOS = () => {
   );
 
   // Box Breathing Component - Bulletproof timer implementation
-  const BoxBreathingComponent = ({ darkMode, onComplete, onCancel }) => {
+  const BoxBreathingComponent = React.memo(({ darkMode, onComplete, onCancel }) => {
     const [totalElapsedMs, setTotalElapsedMs] = React.useState(0);
     const onCompleteRef = React.useRef(onComplete);
 
