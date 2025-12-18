@@ -10,11 +10,6 @@ const AppRouter = () => {
   const user = useStore((state) => state.user);
   const darkMode = useStore((state) => state.darkMode);
   const userProfile = useStore((state) => state.userProfile);
-  const setUserProfile = useStore((state) => state.setUserProfile); // Needed for OnboardingPage
-
-  const handleOnboardingComplete = (profile) => {
-    setUserProfile(profile);
-  };
 
   return (
     <Router>
@@ -27,7 +22,7 @@ const AppRouter = () => {
             userProfile.hasCompletedOnboarding ? (
               <Navigate to="/dashboard" replace />
             ) : (
-              <OnboardingPage onComplete={handleOnboardingComplete} darkMode={darkMode} />
+              <OnboardingPage darkMode={darkMode} />
             )
           }
         />
@@ -49,3 +44,4 @@ const AppRouter = () => {
 };
 
 export default AppRouter;
+
