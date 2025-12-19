@@ -2,13 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import usePomodoroStore from '../store/usePomodoroStore';
 import useStore from '../store/useStore';
-import { POMODORO_DURATION_SECONDS } from '../constants'; // Import constants needed
+import useWellnessStore from '../store/useWellnessStore';
+import WellnessSnackModal from '../components/WellnessSnackModal';
+import { POMODORO_DURATION_SECONDS, ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
 
 const Dashboard = () => {
+  // Global states and actions
   const { isPomodoroMode, pomodoroSeconds, pomodoroRunning, togglePomodoroMode, setPomodoroSeconds, setPomodoroRunning, resetPomodoro } = usePomodoroStore();
   const darkMode = useStore((state) => state.darkMode);
+  const userProfile = useStore((state) => state.userProfile);
 
+  // Local states that will eventually be moved to stores
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [lastWellnessHour, setLastWellnessHour] = useState(null);
+  const [wellnessSnacksDismissed, setWellnessSnacksDismissed] = useState([]);
+  const [showWellnessSnackModal, setShowWellnessSnackModal] = useState(false);
+  const [missedHourPrompt, setMissedHourPrompt] = useState(false);
+
+  // Mocked for now, will come from main store later
+  const [dailyMetrics, setDailyMetrics] = useState({ focus: { current: 0, target: 4, sessions: [] } });
+  const [spiritAnimalScore, setSpiritAnimalScore] = useState(0);
+
+  // Wellness Store states and actions
+  const { setMissedHourPrompt: setWellnessMissedHourPrompt, setLastWellnessHour: setWellnessLastWellnessHour, setWellnessSnacksDismissed: setWellnessWellnessSnacksDismissed, setShowWellnessSnackModal: setWellnessShowWellnessSnackModal } = useWellnessStore();
 
   // Real-time clock update every second
   useEffect(() => {
@@ -27,20 +43,39 @@ const Dashboard = () => {
       }, 1000);
     } else if (pomodoroSeconds === 0 && pomodoroRunning) {
       setPomodoroRunning(false);
-      // setDailyMetrics(prev => ({
-      //   ...prev,
-      //   focus: {
-      //     ...prev.focus,
-      //     current: Math.min(prev.focus.target, prev.focus.current + 1),
-      //     sessions: [...prev.focus.sessions, { duration: 20, timestamp: new Date() }]
-      //   }
-      // }));
+      // Track focus session in metrics
+      setDailyMetrics(prev => ({
+        ...prev,
+        focus: {
+          ...prev.focus,
+          current: Math.min(prev.focus.target, prev.focus.current + 1),
+          sessions: [...prev.focus.sessions, { duration: 20, timestamp: new Date() }]
+        }
+      }));
       // if (notificationsEnabled) {
       //   new Notification('Focus session complete!', { body: '20 minutes of deep work done. Take a break!' });
       // }
     }
     return () => clearInterval(interval);
-  }, [pomodoroRunning, pomodoroSeconds, setPomodoroSeconds, setPomodoroRunning]);
+  }, [pomodoroRunning, pomodoroSeconds, setPomodoroSeconds, setPomodoroRunning, setDailyMetrics]);
+
+  // Hourly wellness snack trigger
+  useEffect(() => {
+    const currentHour = new Date().getHours();
+    const isActiveHours = currentHour >= ACTIVE_HOURS_START && currentHour <= ACTIVE_HOURS_END;
+    const inMainApp = userProfile.hasCompletedOnboarding; // Landing/Story pages are now routed
+
+    if (isActiveHours && currentHour !== lastWellnessHour && inMainApp) {
+      const hourKey = `${new Date().toDateString()}-${currentHour}`;
+      if (!wellnessSnacksDismissed.includes(hourKey) && !pomodoroRunning && !missedHourPrompt && !showWellnessSnackModal) {
+        setMissedHourPrompt(true);
+        setLastWellnessHour(currentHour);
+        setWellnessMissedHourPrompt(true); // Update wellness store
+        setWellnessLastWellnessHour(currentHour); // Update wellness store
+      }
+    }
+  }, [lastWellnessHour, wellnessSnacksDismissed, pomodoroRunning, userProfile.hasCompletedOnboarding, missedHourPrompt, showWellnessSnackModal, setLastWellnessHour, setMissedHourPrompt, setWellnessLastWellnessHour, setWellnessMissedHourPrompt]);
+
 
   const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
@@ -118,6 +153,14 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+
+      {showWellnessSnackModal && (
+        <WellnessSnackModal
+          currentTime={currentTime}
+          setDailyMetrics={setDailyMetrics}
+          setSpiritAnimalScore={setSpiritAnimalScore}
+        />
+      )}
     </div>
   );
 };
