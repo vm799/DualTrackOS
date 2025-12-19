@@ -7,8 +7,9 @@ import useDailyMetricsStore from '../store/useDailyMetricsStore';
 import WellnessSnackModal from '../components/WellnessSnackModal';
 import DailyCommandCenterModal from '../components/DailyCommandCenterModal';
 import KanbanBoard from '../components/KanbanBoard';
-import HourlyTaskDisplay from '../components/HourlyTaskDisplay'; // Import HourlyTaskDisplay
-import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants'; // POMODORO_DURATION_SECONDS is not needed here anymore
+import HourlyTaskDisplay from '../components/HourlyTaskDisplay';
+import EnergyMoodTracker from '../components/EnergyMoodTracker'; // Import EnergyMoodTracker
+import { POMODORO_DURATION_SECONDS, ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants'; // Keep POMODORO_DURATION_SECONDS
 
 const Dashboard = () => {
   // Global states and actions
@@ -185,8 +186,12 @@ const Dashboard = () => {
             </div>
           )}
         </div>
+
         {/* Render HourlyTaskDisplay */}
         <HourlyTaskDisplay />
+
+        {/* Render EnergyMoodTracker */}
+        <EnergyMoodTracker />
 
         {/* Render Kanban Board */}
         <KanbanBoard />

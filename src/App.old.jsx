@@ -7,6 +7,7 @@ import useStore from './store/useStore';
 import usePomodoroStore from './store/usePomodoroStore'; // Import Pomodoro store
 import useWellnessStore from './store/useWellnessStore'; // Import Wellness store
 import useDailyMetricsStore from './store/useDailyMetricsStore'; // Import Daily Metrics store
+import useEnergyMoodStore from './store/useEnergyMoodStore'; // Import Energy Mood store
 
 import LandingPage from './LandingPage';
 import StoryPage from './StoryPage';
@@ -27,6 +28,7 @@ const DualTrackOS = () => {
   const { isPomodoroMode, pomodoroSeconds, pomodoroRunning, togglePomodoroMode, setPomodoroSeconds, setPomodoroRunning, resetPomodoro, startPomodoro, pausePomodoro } = usePomodoroStore();
   const { showWellnessSnackModal, setShowWellnessSnackModal, setMissedHourPrompt: setWellnessMissedHourPrompt, setLastWellnessHour: setWellnessLastWellnessHour, wellnessSnacksDismissed, missedHourPrompt } = useWellnessStore();
   const { setDailyMetrics, addQuickWin, quickWinInput, setQuickWinInput, dailyMetrics } = useDailyMetricsStore();
+  const { setCurrentEnergy, setCurrentMood, getEnergyBasedSuggestions, getMoodBasedWellness, getSmartSuggestions, energyTracking, currentMood } = useEnergyMoodStore();
 
 
   // Local states that will eventually be moved to stores
@@ -42,8 +44,8 @@ const DualTrackOS = () => {
   const [learningLibrary, setLearningLibrary] = useState([]);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [voiceDiary, setVoiceDiary] = useState([]);
-  const [energyTracking, setEnergyTracking] = useState({ morning: null, afternoon: null, evening: null });
-  const [currentMood, setCurrentMood] = useState(null);
+  // const [energyTracking, setEnergyTracking] = useState({ morning: null, afternoon: null, evening: null }); // Moved to useEnergyMoodStore
+  // const [currentMood, setCurrentMood] = useState(null); // Moved to useEnergyMoodStore
   const [balanceHistory, setBalanceHistory] = useState([]);
 
 
@@ -116,8 +118,8 @@ const DualTrackOS = () => {
             if (userData.notificationsEnabled !== undefined) setNotificationsEnabled(userData.notificationsEnabled);
             if (userData.voiceDiary) setVoiceDiary(userData.voiceDiary);
             if (userData.userProfile) setUserProfile(userData.userProfile);
-            if (userData.energyTracking) setEnergyTracking(userData.energyTracking);
-            if (userData.currentMood) setCurrentMood(data.currentMood); // Corrected this line
+            if (userData.energyTracking) useEnergyMoodStore.getState().setEnergyTracking(userData.energyTracking); // Updated
+            if (userData.currentMood) useEnergyMoodStore.getState().setCurrentMood(userData.currentMood); // Updated
           }
         }
 
@@ -150,8 +152,8 @@ const DualTrackOS = () => {
             if (data.notificationsEnabled !== undefined) setNotificationsEnabled(data.notificationsEnabled);
             if (data.voiceDiary) setVoiceDiary(data.voiceDiary);
             if (data.userProfile) setUserProfile(data.userProfile);
-            if (data.energyTracking) setEnergyTracking(data.energyTracking);
-            if (data.currentMood) setCurrentMood(data.currentMood);
+            if (data.energyTracking) useEnergyMoodStore.getState().setEnergyTracking(data.energyTracking); // Updated
+            if (data.currentMood) useEnergyMoodStore.getState().setCurrentMood(data.currentMood); // Updated
             if (data.spiritAnimalScore !== undefined) setSpiritAnimalScore(data.spiritAnimalScore);
             if (data.balanceHistory) setBalanceHistory(data.balanceHistory);
           } catch (e) { console.error(e); }
@@ -167,8 +169,10 @@ const DualTrackOS = () => {
     const dataToSave = {
       ndm, careers, meals, workouts, proteinToday, darkMode,
       gratitude, mantras, /*hourlyTasks,*/ foodDiary, learningLibrary, notificationsEnabled, // Removed hourlyTasks
-      voiceDiary, userProfile, energyTracking, currentMood,
-      spiritAnimalScore, balanceHistory
+      voiceDiary, userProfile, // Removed energyTracking, currentMood
+      spiritAnimalScore, balanceHistory,
+      energyTracking: useEnergyMoodStore.getState().energyTracking, // Add back current energy tracking
+      currentMood: useEnergyMoodStore.getState().currentMood, // Add back current mood
     };
 
     // Always save to localStorage as backup
@@ -178,7 +182,7 @@ const DualTrackOS = () => {
     if (user && isSupabaseConfigured()) {
       saveUserData(user.id, dataToSave);
     }
-  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, /*hourlyTasks,*/ foodDiary, learningLibrary, notificationsEnabled, voiceDiary, userProfile, energyTracking, currentMood, balanceHistory, user]); // Removed hourlyTasks from deps
+  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, foodDiary, learningLibrary, notificationsEnabled, voiceDiary, userProfile, balanceHistory, user]); // Removed energyTracking, currentMood, hourlyTasks from deps
 
   // Real-time clock update every second
   useEffect(() => {
@@ -262,7 +266,7 @@ const DualTrackOS = () => {
     const newScore = calculateBalanceScore();
     setSpiritAnimalScore(newScore);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [energyTracking, currentMood, ndm, proteinToday, meals.length, voiceDiary.length, userProfile.weight, setSpiritAnimalScore]); // Add setSpiritAnimalScore to deps
+  }, [ndm, proteinToday, meals.length, voiceDiary.length, userProfile.weight, setSpiritAnimalScore]); // Removed energyTracking, currentMood from deps
 
   // Sync NDM completions to Daily Metrics
   useEffect(() => {
@@ -354,18 +358,18 @@ const DualTrackOS = () => {
     setNdm(prev => ({ ...prev, nutrition: true }));
   };
 
-  // Handle action selection from modals
-  const handleEnergyActionSelect = (action) => {
-    // if (!selectedEnergyActions.includes(action)) { // selectedEnergyActions now in wellness store
-    //   setSelectedEnergyActions(prev => [...prev, action]);
-    // }
-  };
+  // Handle action selection from modals - NOW IN STORE
+  // const handleEnergyActionSelect = (action) => {
+  //   if (!selectedEnergyActions.includes(action)) {
+  //     setSelectedEnergyActions(prev => [...prev, action]);
+  //   }
+  // };
 
-  const handleMoodActionSelect = (action) => {
-    // if (!selectedMoodActions.includes(action)) { // selectedMoodActions now in wellness store
-    //   setSelectedMoodActions(prev => [...prev, action]);
-    // }
-  };
+  // const handleMoodActionSelect = (action) => {
+  //   if (!selectedMoodActions.includes(action)) {
+  //     setSelectedMoodActions(prev => [...prev, action]);
+  //   }
+  // };
 
   const startWorkout = (workout) => { setActiveWorkout(workout); setWorkoutTimer(0); setIsWorkoutRunning(true); setCurrentView('workout-active'); };
   const completeWorkout = () => {
@@ -530,7 +534,7 @@ const DualTrackOS = () => {
   };
 
   const exportData = () => {
-    const data = { ndm, careers, meals, workouts, proteinToday, dailyMetrics, userProfile, energyTracking, currentMood, exportDate: new Date().toISOString() };
+    const data = { ndm, careers, meals, workouts, proteinToday, dailyMetrics, userProfile, energyTracking: useEnergyMoodStore.getState().energyTracking, currentMood: useEnergyMoodStore.getState().currentMood, exportDate: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -559,7 +563,7 @@ const DualTrackOS = () => {
 
   // Calculate current energy level (average of tracked times)
   const getCurrentEnergy = () => {
-    const values = Object.values(energyTracking).filter(v => v !== null);
+    const values = Object.values(useEnergyMoodStore.getState().energyTracking).filter(v => v !== null);
     if (values.length === 0) return 0;
     return Math.round(values.reduce((a, b) => a + b, 0) / values.length);
   };
@@ -571,16 +575,16 @@ const DualTrackOS = () => {
   };
 
   // Set energy for current time of day
-  const setCurrentEnergy = (level) => {
-    const hour = currentTime.getHours();
-    if (hour >= 5 && hour < 12) {
-      setEnergyTracking(prev => ({ ...prev, morning: level }));
-    } else if (hour >= 12 && hour < 18) {
-      setEnergyTracking(prev => ({ ...prev, afternoon: level }));
-    } else {
-      setEnergyTracking(prev => ({ ...prev, evening: level }));
-    }
-  };
+  // const setCurrentEnergy = (level) => { // Moved to store
+  //   const hour = currentTime.getHours();
+  //   if (hour >= 5 && hour < 12) {
+  //     setEnergyTracking(prev => ({ ...prev, morning: level }));
+  //   } else if (hour >= 12 && hour < 18) {
+  //     setEnergyTracking(prev => ({ ...prev, afternoon: level }));
+  //   } else {
+  //     setEnergyTracking(prev => ({ ...prev, evening: level }));
+  //   }
+  // };
 
   // Get time of day label
   const getTimeOfDay = () => {
@@ -593,7 +597,7 @@ const DualTrackOS = () => {
   // Get current time period energy
   const getCurrentPeriodEnergy = () => {
     const period = getTimeOfDay();
-    return energyTracking[period];
+    return useEnergyMoodStore.getState().energyTracking[period];
   };
 
   /**
@@ -601,103 +605,7 @@ const DualTrackOS = () => {
    * Based on circadian rhythm research, cognitive load theory, and energy management studies
    */
   const getEnergyBasedSuggestions = (energyLevel) => {
-    const energySuggestions = {
-      1: {
-        // Very Low Energy (Depletion State)
-        title: "Critical Rest Needed",
-        message: "Your body is signaling depletion. Honor it with rest.",
-        tasks: [
-          "Take a 20-min power nap (proven to restore alertness)",
-          "Go for a gentle 10-min walk (boosts endorphins without strain)",
-          "Do 5 minutes of deep breathing (activates parasympathetic nervous system)",
-          "Listen to calming music while resting",
-        ],
-        snacks: [
-          "Greek yogurt with berries (protein + quick energy)",
-          "Apple with almond butter (slow-release energy)",
-          "Hard-boiled eggs (sustained protein)",
-          "Banana with handful of nuts (potassium + healthy fats)"
-        ],
-        warning: "⚠️ Working through this exhaustion damages your health. Rest is not optional.",
-        color: "rose"
-      },
-      2: {
-        // Low Energy (Recovery Mode)
-        title: "Gentle Mode Active",
-        message: "Low energy requires light tasks and self-nourishment.",
-        tasks: [
-          "Clear inbox (low cognitive load, feels productive)",
-          "Organize one drawer or desktop folder",
-          "Watch an educational video (passive learning)",
-          "Journal for 10 minutes (therapeutic, no pressure)",
-        ],
-        snacks: [
-          "Hummus with veggies (sustained energy)",
-          "Trail mix with dark chocolate (magnesium boost)",
-          "Cheese and whole grain crackers (protein + complex carbs)",
-          "Smoothie with protein powder (easy to digest)"
-        ],
-        proteinPrompt: true,
-        color: "purple"
-      },
-      3: {
-        // Medium Energy (Steady State)
-        title: "Steady Progress Mode",
-        message: "Perfect energy for consistent, sustainable work.",
-        tasks: [
-          "Routine meetings and check-ins",
-          "Email responses and communication",
-          "Project planning and organization",
-          "Administrative tasks and documentation"
-        ],
-        snacks: [
-          "Cottage cheese with pineapple (protein + energy)",
-          "Turkey roll-ups with avocado (lean protein + healthy fat)",
-          "Oatmeal with nuts (sustained release)",
-          "Protein bar with <5g sugar"
-        ],
-        color: "cyan"
-      },
-      4: {
-        // High Energy (Peak Performance)
-        title: "Peak Performance Window",
-        message: "Your cognitive peak! Tackle your hardest challenges now.",
-        tasks: [
-          "Complex problem-solving (prefrontal cortex at peak)",
-          "Important negotiations or difficult conversations",
-          "Creative work requiring deep thinking",
-          "Strategic planning for major decisions"
-        ],
-        snacks: [
-          "Salmon with leafy greens (omega-3 for brain function)",
-          "Blueberries with almonds (antioxidants + focus)",
-          "Green tea + dark chocolate (L-theanine + polyphenols)",
-          "Chicken breast with quinoa (complete protein + energy)"
-        ],
-        color: "orange"
-      },
-      5: {
-        // Very High Energy (Flow State Potential)
-        title: "Flow State Activated",
-        message: "You're in the zone! This is your superpower hour.",
-        tasks: [
-          "Your ONE most important task (deep work, 90-min block)",
-          "High-stakes presentations or pitches",
-          "Breakthrough creative work",
-          "Learning new complex skills"
-        ],
-        snacks: [
-          "Smoked salmon on whole grain (brain-boosting omega-3)",
-          "Matcha latte with MCT oil (sustained focus)",
-          "Beet juice + walnuts (nitric oxide + DHA)",
-          "Steak with sweet potato (iron + stable glucose)"
-        ],
-        warning: "⚡ Protect this energy! Minimize distractions, close unnecessary tabs.",
-        color: "yellow"
-      }
-    };
-
-    return energySuggestions[energyLevel] || energySuggestions[3];
+    return useEnergyMoodStore.getState().getEnergyBasedSuggestions(energyLevel);
   };
 
   /**
@@ -705,121 +613,13 @@ const DualTrackOS = () => {
    * Based on CBT, mindfulness research, and nutritional psychiatry
    */
   const getMoodBasedWellness = (moodState) => {
-    const moodWellness = {
-      energized: {
-        title: "Channel Your Energy Wisely",
-        message: "Great mood! Direct this energy into meaningful action.",
-        activities: [
-          "Tackle a challenge you've been avoiding",
-          "Connect with colleagues or friends (social energy peak)",
-          "Start a new project or initiative",
-          "Exercise (capitalize on natural motivation)"
-        ],
-        snacks: [
-          "Protein smoothie (maintain the momentum)",
-          "Mixed berries with Greek yogurt (antioxidants)",
-          "Energy balls (dates, nuts, cacao)",
-          "Green juice with ginger (sustained vitality)"
-        ],
-        color: "orange"
-      },
-      focused: {
-        title: "Deep Work Opportunity",
-        message: "Your attention is sharp. Protect this focused state.",
-        activities: [
-          "90-minute deep work block (no interruptions)",
-          "Complex analytical work requiring concentration",
-          "Learning or skill development",
-          "Writing or detailed planning"
-        ],
-        snacks: [
-          "Blueberries (improve cognitive function)",
-          "Dark chocolate 70%+ (flavonoids for focus)",
-          "Walnuts (omega-3 for sustained attention)",
-          "Green tea with honey (L-theanine + stable energy)"
-        ],
-        color: "blue"
-      },
-      calm: {
-        title: "Reflective State",
-        message: "Beautiful calm. Perfect for thoughtful, intentional work.",
-        activities: [
-          "Strategic thinking and big-picture planning",
-          "Journaling or reflective writing",
-          "Gentle yoga or stretching",
-          "Meaningful conversations (listening mode)"
-        ],
-        snacks: [
-          "Chamomile tea with honey (maintain calm)",
-          "Avocado toast (healthy fats for sustained calm)",
-          "Warm oatmeal with cinnamon (grounding)",
-          "Sliced pear with cheese (balanced satisfaction)"
-        ],
-        color: "cyan"
-      },
-      tired: {
-        title: "Rest & Recovery Mode",
-        message: "Your body needs restoration. Self-care is your priority.",
-        activities: [
-          "20-minute power nap (research-proven restoration)",
-          "Gentle walk in nature (cortisol reduction)",
-          "Passive learning (podcast, audiobook)",
-          "Light stretching or restorative yoga"
-        ],
-        snacks: [
-          "Tart cherry juice (melatonin, aids rest)",
-          "Banana with almond butter (tryptophan + magnesium)",
-          "Whole grain toast with turkey (sleep-promoting)",
-          "Warm milk with honey (traditional rest aid)"
-        ],
-        warning: "💤 Pushing through exhaustion backfires. Rest is productive.",
-        color: "purple"
-      },
-      anxious: {
-        title: "Grounding & Soothing",
-        message: "Anxiety needs grounding. These activities calm your nervous system.",
-        activities: [
-          "Box breathing (4-4-4-4 proven to reduce cortisol)",
-          "5-minute meditation or body scan",
-          "Write down worries (externalization reduces rumination)",
-          "Call a trusted friend (social support regulates nervous system)"
-        ],
-        snacks: [
-          "Complex carbs (whole grain) - serotonin boost",
-          "Chamomile or lavender tea (calming compounds)",
-          "Dark leafy greens (magnesium for relaxation)",
-          "Pumpkin seeds (zinc for anxiety reduction)"
-        ],
-        supplement: "Consider: Magnesium glycinate, L-theanine, or ashwagandha (consult provider)",
-        color: "blue"
-      },
-      overwhelmed: {
-        title: "🌸 GENTLE MODE ACTIVATED",
-        message: "You're doing too much. Simplify everything. Your only job: survive with grace.",
-        activities: [
-          "ONE tiny task only (build back confidence)",
-          "10-minute walk outside (perspective shift)",
-          "Brain dump all worries to paper (cognitive offload)",
-          "Ask for help (vulnerability is strength)"
-        ],
-        snacks: [
-          "Comfort food that nourishes: soup, oatmeal",
-          "Herbal tea (lemon balm, passionflower)",
-          "Dark chocolate (proven mood elevator)",
-          "Whatever you can manage - no judgment"
-        ],
-        warning: "🌸 PERMISSION TO PAUSE: Rest is not quitting. It's regrouping.",
-        color: "rose"
-      }
-    };
-
-    return moodWellness[moodState] || null;
+    return useEnergyMoodStore.getState().getMoodBasedWellness(moodState);
   };
 
   // Get combined smart suggestions
   const getSmartSuggestions = () => {
     const energyLevel = getCurrentPeriodEnergy() || getCurrentEnergy() || 3;
-    const mood = currentMood;
+    const mood = useEnergyMoodStore.getState().currentMood;
 
     // Get energy-based suggestions
     const energySuggestion = getEnergyBasedSuggestions(energyLevel);
@@ -1519,245 +1319,7 @@ const DualTrackOS = () => {
             /> */}
 
             {/* CURRENT HOUR FOCUS - REMOVED, NOW IN COMPONENT */}
-            {/* <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
-              darkMode
-                ? 'bg-gradient-to-r from-cyan-900/50 via-blue-900/50 to-cyan-900/50 border-2 border-cyan-500/30 backdrop-blur-xl'
-                : 'bg-gradient-to-r from-cyan-600 to-blue-600'
-            }`}>
-              <h2 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-white'}`}>
-                🎯 RIGHT NOW
-              </h2>
-              <p className={`text-sm mb-4 ${darkMode ? 'text-cyan-300' : 'text-white opacity-90'}`}>
-                {formatHour(currentTime.getHours())} - {formatHour(currentTime.getHours() + 1)}
-              </p>
-
-              {/* Current hour tasks
-              <div className="space-y-2">
-                {(hourlyTasks[currentTime.getHours()] || []).map(task => (
-                  <div key={task.id} className={`flex items-center justify-between p-3 rounded-lg ${
-                    darkMode
-                      ? task.completed
-                        ? 'bg-emerald-500/20 border border-emerald-500/40'
-                        : 'bg-white/10 border border-white/20'
-                      : task.completed
-                        ? 'bg-green-100 border border-green-300'
-                        : 'bg-white/40 border border-white/60'
-                  }`}>
-                    <div className="flex items-center space-x-3 flex-1">
-                      <button
-                        onClick={() => toggleHourlyTask(currentTime.getHours(), task.id)}
-                        className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
-                          darkMode
-                            ? task.completed
-                              ? 'bg-emerald-500 shadow-lg shadow-emerald-500/50'
-                              : 'bg-white/20 hover:bg-white/30'
-                            : task.completed
-                              ? 'bg-green-500'
-                              : 'bg-white/60 hover:bg-white/80'
-                        }`}
-                      >
-                        {task.completed && <Check className="text-white" size={14} />}
-                      </button>
-                      <span className={`text-sm font-medium ${
-                        darkMode
-                          ? task.completed
-                            ? 'text-emerald-300 line-through'
-                            : 'text-white'
-                          : task.completed
-                            ? 'text-green-700 line-through'
-                            : 'text-white'
-                      }`}>
-                        {task.text}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => deleteHourlyTask(currentTime.getHours(), task.id)}
-                      className={`ml-2 ${darkMode ? 'text-white/40 hover:text-red-400' : 'text-white/60 hover:text-red-600'}`}
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              {/* Add task for this hour
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                const input = e.target.elements.currentHourTask;
-                addHourlyTask(currentTime.getHours(), input.value);
-                input.value = '';
-              }} className="mt-3">
-                <input
-                  name="currentHourTask"
-                  type="text"
-                  placeholder="+ Add task for this hour..."
-                  className={`w-full px-4 py-3 rounded-lg transition-all ${
-                    darkMode
-                      ? 'bg-white/10 border-2 border-white/20 text-white placeholder-white/60 focus:border-cyan-400/50'
-                      : 'bg-white/40 border-2 border-white/60 text-white placeholder-white/80 focus:border-white'
-                  }`}
-                />
-              </form>
-            </div> */}
-
-            {/* ENERGY & MOOD TRACKING */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* Energy Selector - Click to open modal (always visible but shows completion state) */}
-              {(() => {
-                const energySuggestions = getSmartSuggestions();
-                // const totalEnergyActions = energySuggestions.tasks ? energySuggestions.tasks.length : 0; // selectedEnergyActions is in wellness store
-                // const completedEnergyActions = selectedEnergyActions.length;
-                // const allEnergyActionsComplete = getCurrentPeriodEnergy() && totalEnergyActions > 0 && completedEnergyActions >= totalEnergyActions;
-
-                const allEnergyActionsComplete = false; // Placeholder for now
-
-                return (
-                  <div className={`rounded-xl p-4 transition-all duration-300 ${
-                    allEnergyActionsComplete
-                      ? darkMode
-                        ? 'bg-emerald-900/30 border-2 border-emerald-500/50 shadow-lg backdrop-blur-sm'
-                        : 'bg-emerald-50 border-2 border-emerald-400 shadow-md'
-                      : darkMode
-                        ? 'bg-gray-800/50 border-2 border-gray-700/50 hover:border-yellow-500/50 shadow-lg backdrop-blur-sm'
-                        : 'bg-white border-2 border-gray-100 hover:border-yellow-400 shadow-md'
-                  }`}>
-                    {allEnergyActionsComplete && (
-                      <div className={`text-xs text-center mb-2 font-bold ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                        ✓ COMPLETE
-                      </div>
-                    )}
-                <div className="flex items-center justify-center mb-2">
-                  <Zap className={darkMode ? 'text-yellow-400' : 'text-yellow-500'} size={24} />
-                </div>
-                <div className={`text-sm font-bold uppercase text-center mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  ENERGY
-                </div>
-                <div className={`text-center mb-3`}>
-                  <span className={`text-2xl font-bold ${darkMode ? 'bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent' : 'text-gray-900'}`}>
-                    {getCurrentPeriodEnergy() || '?'}/5
-                  </span>
-                </div>
-                <div className={`text-xs text-center mb-2 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                  {getTimeOfDay()}
-                  {getCurrentPeriodEnergy() && (
-                    <button
-                      // onClick={() => setShowEnergyModal(true)} // setShowEnergyModal is local state
-                      className="text-xs mt-1 underline hover:text-yellow-500 cursor-pointer"
-                    >
-                      Click for tips
-                    </button>
-                  )}
-                </div>
-                {/* Energy level selector - clicking opens modal with tips */}
-                <div className="flex justify-between mt-2">
-                  {[1, 2, 3, 4, 5].map(level => (
-                    <button
-                      key={level}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentEnergy(level);
-                        // Open modal immediately after setting energy
-                        // setTimeout(() => setShowEnergyModal(true), 100); // setShowEnergyModal is local state
-                      }}
-                      className={`w-8 h-8 rounded-full transition-all ${
-                        getCurrentPeriodEnergy() === level
-                          ? darkMode
-                            ? 'bg-gradient-to-r from-yellow-400 to-orange-500 shadow-lg shadow-yellow-500/50'
-                            : 'bg-yellow-500'
-                          : darkMode
-                            ? 'bg-gray-700 hover:bg-gray-600'
-                            : 'bg-gray-200 hover:bg-gray-300'
-                      }`}
-                    >
-                      <span className={`text-xs font-bold ${
-                        getCurrentPeriodEnergy() === level ? 'text-white' : darkMode ? 'text-gray-400' : 'text-gray-600'
-                      }`}>
-                        {level}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-                );
-              })()}
-
-              {/* Mood Selector - Click to open modal (always visible but shows completion state) */}
-              {(() => {
-                const moodSuggestions = getSmartSuggestions();
-                // const totalMoodActions = moodSuggestions.moodWellness?.activities ? moodSuggestions.moodWellness.activities.length : 0; // selectedMoodActions is in wellness store
-                // const completedMoodActions = selectedMoodActions.length;
-                // const allMoodActionsComplete = currentMood && totalMoodActions > 0 && completedMoodActions >= totalMoodActions;
-
-                const allMoodActionsComplete = false; // Placeholder for now
-
-                return (
-                  <div className={`rounded-xl p-4 transition-all duration-300 ${
-                    allMoodActionsComplete
-                      ? darkMode
-                        ? 'bg-emerald-900/30 border-2 border-emerald-500/50 shadow-lg backdrop-blur-sm'
-                        : 'bg-emerald-50 border-2 border-emerald-400 shadow-md'
-                      : darkMode
-                        ? 'bg-gray-800/50 border-2 border-gray-700/50 hover:border-purple-500/50 shadow-lg backdrop-blur-sm'
-                        : 'bg-white border-2 border-gray-100 hover:border-purple-400 shadow-md'
-                  }`}>
-                    {allMoodActionsComplete && (
-                      <div className={`text-xs text-center mb-2 font-bold ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                        ✓ COMPLETE
-                      </div>
-                    )}
-                <div className="flex items-center justify-center mb-2">
-                  <Heart className={darkMode ? 'text-pink-400' : 'text-pink-500'} size={24} />
-                </div>
-                <div className={`text-sm font-bold uppercase text-center mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  MOOD
-                </div>
-                {currentMood && (
-                  <div className={`text-xs text-center mb-3 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                    Current: {currentMood}
-                    <button
-                      // onClick={() => setShowMoodModal(true)} // setShowMoodModal is local state
-                      className="block text-xs mt-1 underline hover:text-pink-500 cursor-pointer mx-auto"
-                    >
-                      Click for wellness tips
-                    </button>
-                  )}
-                </div>
-                {/* Mood selector grid - clicking opens modal with tips */}
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { mood: 'energized', emoji: '😊' },
-                    { mood: 'focused', emoji: '🎯' },
-                    { mood: 'calm', emoji: '😌' },
-                    { mood: 'tired', emoji: '😴' },
-                    { mood: 'anxious', emoji: '😰' },
-                    { mood: 'overwhelmed', emoji: '😫' }
-                  ].map(({ mood, emoji }) => (
-                    <button
-                      key={mood}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentMood(mood);
-                        // Open modal immediately after setting mood
-                        // setTimeout(() => setShowMoodModal(true), 100); // setShowMoodModal is local state
-                      }}
-                      className={`p-2 rounded-lg text-xl transition-all ${
-                        currentMood === mood
-                          ? darkMode
-                            ? 'bg-purple-500/30 border-2 border-purple-500/50 scale-110'
-                            : 'bg-purple-100 border-2 border-purple-400 scale-110'
-                          : darkMode
-                            ? 'bg-gray-700/30 hover:bg-gray-700/50 border-2 border-transparent'
-                            : 'bg-gray-100 hover:bg-gray-200 border-2 border-transparent'
-                      }`}
-                    >
-                      {emoji}
-                    </button>
-                  ))}
-                </div>
-              </div>
-                );
-              })()}
-            </div>
+            {/* ENERGY & MOOD TRACKING - REMOVED, NOW IN COMPONENT */}
 
             {/* PROTEIN TRACKER */}
             <div onClick={() => setExpandedTile(expandedTile === 'protein' ? null : 'protein')} className={`rounded-xl p-6 cursor-pointer transition-all duration-300 ${
@@ -1831,28 +1393,17 @@ const DualTrackOS = () => {
                 </div>
               )}
             </div>
-
             {/* KANBAN BOARD - Career & Business Tasks - REMOVED */}
           </div>
         )}
       </div>
 
-      {dailyMetrics.showCommandCenterModal && ( // Use dailyMetrics.showCommandCenterModal
-        <DailyCommandCenterModal
-          darkMode={darkMode}
-          setShowCommandCenterModal={dailyMetrics.setShowCommandCenterModal}
-          addQuickWin={addQuickWin}
-          quickWinInput={quickWinInput}
-          setQuickWinInput={setQuickWinInput}
-        />
-      )}
-      {showWellnessSnackModal && (
-        <WellnessSnackModal
-          currentTime={currentTime}
-          setDailyMetrics={setDailyMetrics}
-          setSpiritAnimalScore={setSpiritAnimalScore}
-        />
-      )}
+      <DailyCommandCenterModal />
+      <WellnessSnackModal
+        currentTime={currentTime}
+        setDailyMetrics={setDailyMetrics}
+        setSpiritAnimalScore={setSpiritAnimalScore}
+      />
     </div>
   );
 };
