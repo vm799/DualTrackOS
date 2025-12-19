@@ -39,7 +39,7 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
   } = useWellnessStore();
   const darkMode = useStore((state) => state.darkMode);
 
-  // Helper function from App.jsx, eventually moved to a utility
+  // Helper function from App.old.jsx, eventually moved to a utility
   const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
   const startExercise = useCallback((exercise) => {
@@ -63,6 +63,7 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
   const startHydration = useCallback(() => {
     completeWellnessSnack('hydration', currentTime, setDailyMetrics, setSpiritAnimalScore);
   }, [completeWellnessSnack, currentTime, setDailyMetrics, setSpiritAnimalScore]);
+
 
   return showWellnessSnackModal && (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg">
