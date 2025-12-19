@@ -37,7 +37,7 @@ const DualTrackOS = () => {
   const [proteinToday, setProteinToday] = useState(0);
   const [gratitude, setGratitude] = useState(['', '', '']);
   const [mantras, setMantras] = useState(['', '', '']);
-  const [hourlyTasks, setHourlyTasks] = useState({});
+  // const [hourlyTasks, setHourlyTasks] = useState({}); // Moved to useHourlyTaskStore
   const [foodDiary, setFoodDiary] = useState([]);
   const [learningLibrary, setLearningLibrary] = useState([]);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -110,7 +110,7 @@ const DualTrackOS = () => {
             if (userData.darkMode !== undefined) setDarkMode(userData.darkMode);
             if (userData.gratitude) setGratitude(userData.gratitude);
             if (userData.mantras) setMantras(userData.mantras);
-            if (userData.hourlyTasks) setHourlyTasks(userData.hourlyTasks);
+            // if (userData.hourlyTasks) setHourlyTasks(userData.hourlyTasks); // Removed
             if (userData.foodDiary) setFoodDiary(userData.foodDiary);
             if (userData.learningLibrary) setLearningLibrary(userData.learningLibrary);
             if (userData.notificationsEnabled !== undefined) setNotificationsEnabled(userData.notificationsEnabled);
@@ -144,7 +144,7 @@ const DualTrackOS = () => {
             if (data.darkMode !== undefined) setDarkMode(data.darkMode);
             if (data.gratitude) setGratitude(data.gratitude);
             if (data.mantras) setMantras(data.mantras);
-            if (data.hourlyTasks) setHourlyTasks(data.hourlyTasks);
+            // if (data.hourlyTasks) setHourlyTasks(data.hourlyTasks); // Removed
             if (data.foodDiary) setFoodDiary(data.foodDiary);
             if (data.learningLibrary) setLearningLibrary(data.learningLibrary);
             if (data.notificationsEnabled !== undefined) setNotificationsEnabled(data.notificationsEnabled);
@@ -166,7 +166,7 @@ const DualTrackOS = () => {
   useEffect(() => {
     const dataToSave = {
       ndm, careers, meals, workouts, proteinToday, darkMode,
-      gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled,
+      gratitude, mantras, /*hourlyTasks,*/ foodDiary, learningLibrary, notificationsEnabled, // Removed hourlyTasks
       voiceDiary, userProfile, energyTracking, currentMood,
       spiritAnimalScore, balanceHistory
     };
@@ -178,7 +178,7 @@ const DualTrackOS = () => {
     if (user && isSupabaseConfigured()) {
       saveUserData(user.id, dataToSave);
     }
-  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled, voiceDiary, userProfile, energyTracking, currentMood, balanceHistory, user]);
+  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, /*hourlyTasks,*/ foodDiary, learningLibrary, notificationsEnabled, voiceDiary, userProfile, energyTracking, currentMood, balanceHistory, user]); // Removed hourlyTasks from deps
 
   // Real-time clock update every second
   useEffect(() => {
@@ -272,6 +272,16 @@ const DualTrackOS = () => {
       ndms: { ...prev.ndms, current: ndmCount }
     }));
   }, [ndm, setDailyMetrics]);
+
+
+  // useEffect(() => { // Removed: Sync Kanban tasks to Daily Metrics - now in KanbanBoard
+  //   const totalTasks = kanbanTasks.backlog.length + kanbanTasks.inProgress.length + kanbanTasks.done.length;
+  //   const doneTasks = kanbanTasks.done.length;
+  //   setDailyMetrics(prev => ({
+  //     ...prev,
+  //     tasks: { ...prev.tasks, done: doneTasks, total: totalTasks, pipeline: kanbanTasks.inProgress }
+  //   }));
+  // }, [kanbanTasks]);
 
 
   useEffect(() => {
@@ -871,15 +881,15 @@ const DualTrackOS = () => {
         }
       } else if (currentPeriodEnergy >= 4) {
         // High energy: Count productive actions
-        const productiveActions = Object.values(hourlyTasks).flat()
-          .filter(t => t.completed).length;
+        // const productiveActions = Object.values(hourlyTasks).flat() // hourlyTasks removed
+        //   .filter(t => t.completed).length;
+        const productiveActions = 0; // Placeholder
         if (productiveActions >= 3) {
           score += 20; // EXCELLENT: Capitalized on high energy
         } else if (productiveActions >= 1) {
           score += 10; // GOOD: Some productivity
         }
       } else {
-        // Medium energy: Steady progress
         score += 10; // NEUTRAL: Middle ground
       }
     }
@@ -928,8 +938,9 @@ const DualTrackOS = () => {
     if (currentPeriodEnergy !== null) {
       if (currentPeriodEnergy <= 2) {
         // Low energy: Wisdom is NOT pushing through
-        const tasksCompletedWhileTired = Object.values(hourlyTasks).flat()
-          .filter(t => t.completed).length;
+        // const tasksCompletedWhileTired = Object.values(hourlyTasks).flat() // hourlyTasks removed
+        //   .filter(t => t.completed).length;
+        const tasksCompletedWhileTired = 0; // Placeholder
         if (tasksCompletedWhileTired === 0 && (ndm.mindfulness || ndm.brainDump)) {
           score += 20; // WISDOM: Rested instead of pushing
         } else if (tasksCompletedWhileTired <= 2) {
@@ -975,26 +986,26 @@ const DualTrackOS = () => {
     setMantras(newMantras);
   };
 
-  const addHourlyTask = (hour, taskText) => {
-    if (!taskText.trim()) return;
-    const newTasks = { ...hourlyTasks };
-    newTasks[hour] = [...(newTasks[hour] || []), { id: Date.now(), text: taskText, completed: false, type: 'task' }];
-    setHourlyTasks(newTasks);
-  };
+  // const addHourlyTask = (hour, taskText) => { // Removed
+  //   if (!taskText.trim()) return;
+  //   const newTasks = { ...hourlyTasks };
+  //   newTasks[hour] = [...(newTasks[hour] || []), { id: Date.now(), text: taskText, completed: false, type: 'task' }];
+  //   setHourlyTasks(newTasks);
+  // };
 
-  const toggleHourlyTask = (hour, taskId) => {
-    const newTasks = { ...hourlyTasks };
-    newTasks[hour] = newTasks[hour].map(task =>
-      task.id === taskId ? { ...task, completed: !task.completed } : task
-    );
-    setHourlyTasks(newTasks);
-  };
+  // const toggleHourlyTask = (hour, taskId) => { // Removed
+  //   const newTasks = { ...hourlyTasks };
+  //   newTasks[hour] = newTasks[hour].map(task =>
+  //     task.id === taskId ? { ...task, completed: !task.completed } : task
+  //   );
+  //   setHourlyTasks(newTasks);
+  // };
 
-  const deleteHourlyTask = (hour, taskId) => {
-    const newTasks = { ...hourlyTasks };
-    newTasks[hour] = newTasks[hour].filter(task => task.id !== taskId);
-    setHourlyTasks(newTasks);
-  };
+  // const deleteHourlyTask = (hour, taskId) => { // Removed
+  //   const newTasks = { ...hourlyTasks };
+  //   newTasks[hour] = newTasks[hour].filter(task => task.id !== taskId);
+  //   setHourlyTasks(newTasks);
+  // };
 
   const addFoodDiaryEntry = (imageData, description, calories) => {
     setFoodDiary(prev => [...prev, {
@@ -1507,8 +1518,8 @@ const DualTrackOS = () => {
               openBrainDump={openBrainDump}
             /> */}
 
-            {/* CURRENT HOUR FOCUS */}
-            <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
+            {/* CURRENT HOUR FOCUS - REMOVED, NOW IN COMPONENT */}
+            {/* <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
               darkMode
                 ? 'bg-gradient-to-r from-cyan-900/50 via-blue-900/50 to-cyan-900/50 border-2 border-cyan-500/30 backdrop-blur-xl'
                 : 'bg-gradient-to-r from-cyan-600 to-blue-600'
@@ -1520,7 +1531,7 @@ const DualTrackOS = () => {
                 {formatHour(currentTime.getHours())} - {formatHour(currentTime.getHours() + 1)}
               </p>
 
-              {/* Current hour tasks */}
+              {/* Current hour tasks
               <div className="space-y-2">
                 {(hourlyTasks[currentTime.getHours()] || []).map(task => (
                   <div key={task.id} className={`flex items-center justify-between p-3 rounded-lg ${
@@ -1569,7 +1580,7 @@ const DualTrackOS = () => {
                 ))}
               </div>
 
-              {/* Add task for this hour */}
+              {/* Add task for this hour
               <form onSubmit={(e) => {
                 e.preventDefault();
                 const input = e.target.elements.currentHourTask;
@@ -1587,7 +1598,7 @@ const DualTrackOS = () => {
                   }`}
                 />
               </form>
-            </div>
+            </div> */}
 
             {/* ENERGY & MOOD TRACKING */}
             <div className="grid grid-cols-2 gap-4">

@@ -6,8 +6,9 @@ import useWellnessStore from '../store/useWellnessStore';
 import useDailyMetricsStore from '../store/useDailyMetricsStore';
 import WellnessSnackModal from '../components/WellnessSnackModal';
 import DailyCommandCenterModal from '../components/DailyCommandCenterModal';
-import KanbanBoard from '../components/KanbanBoard'; // Import KanbanBoard
-import { POMODORO_DURATION_SECONDS, ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
+import KanbanBoard from '../components/KanbanBoard';
+import HourlyTaskDisplay from '../components/HourlyTaskDisplay'; // Import HourlyTaskDisplay
+import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants'; // POMODORO_DURATION_SECONDS is not needed here anymore
 
 const Dashboard = () => {
   // Global states and actions
@@ -16,7 +17,7 @@ const Dashboard = () => {
   const userProfile = useStore((state) => state.userProfile);
   const currentTime = useStore((state) => state.currentTime);
   const setCurrentTime = useStore((state) => state.setCurrentTime);
-  const setSpiritAnimalScore = useStore((state) => state.setSpiritAnimalScore); // Assuming setSpiritAnimalScore is in useStore
+  const setSpiritAnimalScore = useStore((state) => state.setSpiritAnimalScore);
 
   // Wellness Store states and actions for external interaction
   const {
@@ -31,7 +32,7 @@ const Dashboard = () => {
   const {
     showCommandCenterModal,
     setShowCommandCenterModal,
-    setDailyMetrics // Destructure setDailyMetrics from useDailyMetricsStore
+    setDailyMetrics
   } = useDailyMetricsStore();
 
   // Real-time clock update every second
@@ -52,7 +53,7 @@ const Dashboard = () => {
     } else if (pomodoroSeconds === 0 && pomodoroRunning) {
       setPomodoroRunning(false);
       // Track focus session in metrics
-      setDailyMetrics(prev => ({ // Use setDailyMetrics from useDailyMetricsStore
+      setDailyMetrics(prev => ({
         ...prev,
         focus: {
           ...prev.focus,
@@ -83,7 +84,8 @@ const Dashboard = () => {
   }, [userProfile.hasCompletedOnboarding, pomodoroRunning, currentTime]);
 
 
-  const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
+  const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`; // Keep formatTime for Pomodoro
+
 
   return (
     <div className="min-h-screen relative">
@@ -183,6 +185,9 @@ const Dashboard = () => {
             </div>
           )}
         </div>
+        {/* Render HourlyTaskDisplay */}
+        <HourlyTaskDisplay />
+
         {/* Render Kanban Board */}
         <KanbanBoard />
       </div>
