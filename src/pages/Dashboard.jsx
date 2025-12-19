@@ -187,7 +187,7 @@ const Dashboard = () => {
       <DailyCommandCenterModal />
       <WellnessSnackModal
         currentTime={currentTime}
-        setDailyMetrics={useDailyMetricsStore.getState().setDailyMetrics}
+        setDailyMetrics={setDailyMetrics}
         setSpiritAnimalScore={setSpiritAnimalScore}
       />
     </div>
