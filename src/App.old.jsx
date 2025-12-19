@@ -10,6 +10,10 @@ import useDailyMetricsStore from './store/useDailyMetricsStore'; // Import Daily
 import useEnergyMoodStore from './store/useEnergyMoodStore'; // Import Energy Mood store
 import useNutritionStore from './store/useNutritionStore'; // Import Nutrition Store
 import useVoiceDiaryStore from './store/useVoiceDiaryStore'; // Import Voice Diary Store
+import useLearningStore from './store/useLearningStore'; // Import Learning Store
+import useHourlyTaskStore from './store/useHourlyTaskStore'; // Import Hourly Task Store
+import useKanbanStore from './store/useKanbanStore'; // Import Kanban Store
+
 
 import LandingPage from './LandingPage';
 import StoryPage from './StoryPage';
@@ -33,6 +37,7 @@ const DualTrackOS = () => {
   const { setCurrentEnergy, setCurrentMood, getEnergyBasedSuggestions, getMoodBasedWellness, getSmartSuggestions, energyTracking, currentMood } = useEnergyMoodStore();
   const { proteinToday, getProteinTarget, meals } = useNutritionStore(); // Use proteinToday and meals from nutrition store
   const { voiceDiary } = useVoiceDiaryStore(); // Use voiceDiary from voice diary store
+  const { learningLibrary } = useLearningStore(); // Use learningLibrary from learning store
 
 
   // Local states that will eventually be moved to stores
@@ -45,7 +50,7 @@ const DualTrackOS = () => {
   const [mantras, setMantras] = useState(['', '', '']);
   // const [hourlyTasks, setHourlyTasks] = useState({}); // Moved to useHourlyTaskStore
   const [foodDiary, setFoodDiary] = useState([]);
-  const [learningLibrary, setLearningLibrary] = useState([]);
+  // const [learningLibrary, setLearningLibrary] = useState([]); // Moved to useLearningStore
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   // const [voiceDiary, setVoiceDiary] = useState([]); // Moved to useVoiceDiaryStore
   // const [energyTracking, setEnergyTracking] = useState({ morning: null, afternoon: null, evening: null }); // Moved to useEnergyMoodStore
@@ -118,7 +123,7 @@ const DualTrackOS = () => {
             if (userData.mantras) setMantras(userData.mantras);
             // if (userData.hourlyTasks) setHourlyTasks(userData.hourlyTasks); // Removed
             if (userData.foodDiary) setFoodDiary(userData.foodDiary);
-            if (userData.learningLibrary) setLearningLibrary(userData.learningLibrary);
+            if (userData.learningLibrary) useLearningStore.getState().setLearningLibrary(userData.learningLibrary); // Updated
             if (userData.notificationsEnabled !== undefined) setNotificationsEnabled(userData.notificationsEnabled);
             if (userData.voiceDiary) useVoiceDiaryStore.getState().setVoiceDiary(userData.voiceDiary); // Updated
             if (userData.userProfile) setUserProfile(userData.userProfile);
@@ -152,7 +157,7 @@ const DualTrackOS = () => {
             if (data.mantras) setMantras(data.mantras);
             // if (data.hourlyTasks) setHourlyTasks(data.hourlyTasks); // Removed
             if (data.foodDiary) setFoodDiary(data.foodDiary);
-            if (data.learningLibrary) setLearningLibrary(data.learningLibrary);
+            if (data.learningLibrary) useLearningStore.getState().setLearningLibrary(data.learningLibrary); // Updated
             if (data.notificationsEnabled !== undefined) setNotificationsEnabled(data.notificationsEnabled);
             if (data.voiceDiary) useVoiceDiaryStore.getState().setVoiceDiary(data.voiceDiary); // Updated
             if (data.userProfile) setUserProfile(data.userProfile);
@@ -172,7 +177,7 @@ const DualTrackOS = () => {
   useEffect(() => {
     const dataToSave = {
       ndm, careers, darkMode,
-      gratitude, mantras, foodDiary, learningLibrary, notificationsEnabled,
+      gratitude, mantras, foodDiary, notificationsEnabled,
       userProfile, balanceHistory,
       hourlyTasks: useHourlyTaskStore.getState().hourlyTasks, // Add back current hourly tasks
       energyTracking: useEnergyMoodStore.getState().energyTracking, // Add back current energy tracking
@@ -181,6 +186,7 @@ const DualTrackOS = () => {
       proteinToday: useNutritionStore.getState().proteinToday, // Add back proteinToday
       voiceDiary: useVoiceDiaryStore.getState().voiceDiary, // Add back voiceDiary
       kanbanTasks: useKanbanStore.getState().kanbanTasks, // Add back kanbanTasks
+      learningLibrary: useLearningStore.getState().learningLibrary, // Add back learningLibrary
     };
 
     // Always save to localStorage as backup
@@ -190,7 +196,7 @@ const DualTrackOS = () => {
     if (user && isSupabaseConfigured()) {
       saveUserData(user.id, dataToSave);
     }
-  }, [ndm, careers, darkMode, gratitude, mantras, foodDiary, learningLibrary, notificationsEnabled, userProfile, balanceHistory, user]);
+  }, [ndm, careers, darkMode, gratitude, mantras, foodDiary, notificationsEnabled, userProfile, balanceHistory, user]);
 
   // Real-time clock update every second
   useEffect(() => {
@@ -551,6 +557,7 @@ const DualTrackOS = () => {
       voiceDiary: useVoiceDiaryStore.getState().voiceDiary,
       hourlyTasks: useHourlyTaskStore.getState().hourlyTasks,
       kanbanTasks: useKanbanStore.getState().kanbanTasks,
+      learningLibrary: useLearningStore.getState().learningLibrary, // Added
       exportDate: new Date().toISOString()
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -834,25 +841,25 @@ const DualTrackOS = () => {
     }]);
   };
 
-  const addLearningItem = (url, title, type, notes) => {
-    setLearningLibrary(prev => [...prev, {
-      id: Date.now(),
-      url,
-      title,
-      type, // 'book', 'article', 'youtube', 'instagram'
-      notes: notes || '',
-      actionItems: [],
-      dateAdded: new Date().toLocaleDateString()
-    }]);
-  };
+  // const addLearningItem = (url, title, type, notes) => { // Moved to useLearningStore
+  //   setLearningLibrary(prev => [...prev, {
+  //     id: Date.now(),
+  //     url,
+  //     title,
+  //     type, // 'book', 'article', 'youtube', 'instagram'
+  //     notes: notes || '',
+  //     actionItems: [],
+  //     dateAdded: new Date().toLocaleDateString()
+  //   }]);
+  // };
 
-  const addActionItemToLearning = (learningId, actionText) => {
-    setLearningLibrary(prev => prev.map(item =>
-      item.id === learningId
-        ? { ...item, actionItems: [...item.actionItems, { id: Date.now(), text: actionText, done: false }] }
-        : item
-    ));
-  };
+  // const addActionItemToLearning = (learningId, actionText) => { // Moved to useLearningStore
+  //   setLearningLibrary(prev => prev.map(item =>
+  //     item.id === learningId
+  //       ? { ...item, actionItems: [...item.actionItems, { id: Date.now(), text: actionText, done: false }] }
+  //       : item
+  //   ));
+  // };
 
   const requestNotificationPermission = async () => {
     if ('Notification' in window && Notification.permission === 'default') {
@@ -1339,7 +1346,7 @@ const DualTrackOS = () => {
             {/* ENERGY & MOOD TRACKING - REMOVED, NOW IN COMPONENT */}
             {/* PROTEIN TRACKER - REMOVED, NOW IN COMPONENT */}
             {/* VOICE DIARY - REMOVED, NOW IN COMPONENT */}
-
+            {/* LEARNING LIBRARY - REMOVED, NOW IN COMPONENT */}
             {/* KANBAN BOARD - Career & Business Tasks - REMOVED */}
           </div>
         )}
