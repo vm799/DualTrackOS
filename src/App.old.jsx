@@ -8,6 +8,7 @@ import usePomodoroStore from './store/usePomodoroStore'; // Import Pomodoro stor
 import useWellnessStore from './store/useWellnessStore'; // Import Wellness store
 import useDailyMetricsStore from './store/useDailyMetricsStore'; // Import Daily Metrics store
 import useEnergyMoodStore from './store/useEnergyMoodStore'; // Import Energy Mood store
+import useNutritionStore from './store/useNutritionStore'; // Import Nutrition Store
 
 import LandingPage from './LandingPage';
 import StoryPage from './StoryPage';
@@ -29,14 +30,15 @@ const DualTrackOS = () => {
   const { showWellnessSnackModal, setShowWellnessSnackModal, setMissedHourPrompt: setWellnessMissedHourPrompt, setLastWellnessHour: setWellnessLastWellnessHour, wellnessSnacksDismissed, missedHourPrompt } = useWellnessStore();
   const { setDailyMetrics, addQuickWin, quickWinInput, setQuickWinInput, dailyMetrics } = useDailyMetricsStore();
   const { setCurrentEnergy, setCurrentMood, getEnergyBasedSuggestions, getMoodBasedWellness, getSmartSuggestions, energyTracking, currentMood } = useEnergyMoodStore();
+  const { proteinToday, getProteinTarget, meals } = useNutritionStore(); // Use proteinToday and meals from nutrition store
 
 
   // Local states that will eventually be moved to stores
   const [ndm, setNdm] = useState({ nutrition: false, movement: false, mindfulness: false, brainDump: false });
   const [careers, setCareers] = useState({ corporate: { wins: 0 }, consultancy: { wins: 0 } });
-  const [meals, setMeals] = useState([]);
+  // const [meals, setMeals] = useState([]); // Moved to useNutritionStore
   const [workouts, setWorkouts] = useState([]);
-  const [proteinToday, setProteinToday] = useState(0);
+  // const [proteinToday, setProteinToday] = useState(0); // Moved to useNutritionStore
   const [gratitude, setGratitude] = useState(['', '', '']);
   const [mantras, setMantras] = useState(['', '', '']);
   // const [hourlyTasks, setHourlyTasks] = useState({}); // Moved to useHourlyTaskStore
@@ -106,9 +108,9 @@ const DualTrackOS = () => {
             // Hydrate state from cloud
             if (userData.ndm) setNdm(userData.ndm);
             if (userData.careers) setCareers(userData.careers);
-            if (userData.meals) setMeals(userData.meals);
+            if (userData.meals) useNutritionStore.getState().setMeals(userData.meals); // Updated
             if (userData.workouts) setWorkouts(userData.workouts);
-            if (userData.proteinToday) setProteinToday(userData.proteinToday);
+            if (userData.proteinToday) useNutritionStore.getState().setProteinToday(userData.proteinToday); // Updated
             if (userData.darkMode !== undefined) setDarkMode(userData.darkMode);
             if (userData.gratitude) setGratitude(userData.gratitude);
             if (userData.mantras) setMantras(userData.mantras);
@@ -140,9 +142,9 @@ const DualTrackOS = () => {
 
             if (data.ndm) setNdm(data.ndm);
             if (data.careers) setCareers(data.careers);
-            if (data.meals) setMeals(data.meals);
+            if (data.meals) useNutritionStore.getState().setMeals(data.meals); // Updated
             if (data.workouts) setWorkouts(data.workouts);
-            if (data.proteinToday) setProteinToday(data.proteinToday);
+            if (data.proteinToday) useNutritionStore.getState().setProteinToday(data.proteinToday); // Updated
             if (data.darkMode !== undefined) setDarkMode(data.darkMode);
             if (data.gratitude) setGratitude(data.gratitude);
             if (data.mantras) setMantras(data.mantras);
@@ -167,12 +169,14 @@ const DualTrackOS = () => {
   // Save data to localStorage and Supabase
   useEffect(() => {
     const dataToSave = {
-      ndm, careers, meals, workouts, proteinToday, darkMode,
+      ndm, careers, /*meals, workouts, proteinToday,*/ darkMode, // Removed meals, proteinToday
       gratitude, mantras, /*hourlyTasks,*/ foodDiary, learningLibrary, notificationsEnabled, // Removed hourlyTasks
       voiceDiary, userProfile, // Removed energyTracking, currentMood
       spiritAnimalScore, balanceHistory,
       energyTracking: useEnergyMoodStore.getState().energyTracking, // Add back current energy tracking
       currentMood: useEnergyMoodStore.getState().currentMood, // Add back current mood
+      meals: useNutritionStore.getState().meals, // Add back meals
+      proteinToday: useNutritionStore.getState().proteinToday, // Add back proteinToday
     };
 
     // Always save to localStorage as backup
@@ -182,7 +186,7 @@ const DualTrackOS = () => {
     if (user && isSupabaseConfigured()) {
       saveUserData(user.id, dataToSave);
     }
-  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, foodDiary, learningLibrary, notificationsEnabled, voiceDiary, userProfile, balanceHistory, user]); // Removed energyTracking, currentMood, hourlyTasks from deps
+  }, [ndm, careers, darkMode, gratitude, mantras, foodDiary, learningLibrary, notificationsEnabled, voiceDiary, userProfile, balanceHistory, user]); // Removed energyTracking, currentMood, hourlyTasks, meals, proteinToday from deps
 
   // Real-time clock update every second
   useEffect(() => {
@@ -266,7 +270,7 @@ const DualTrackOS = () => {
     const newScore = calculateBalanceScore();
     setSpiritAnimalScore(newScore);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ndm, proteinToday, meals.length, voiceDiary.length, userProfile.weight, setSpiritAnimalScore]); // Removed energyTracking, currentMood from deps
+  }, [ndm, voiceDiary.length, userProfile.weight, setSpiritAnimalScore]); // Removed energyTracking, currentMood, proteinToday, meals.length from deps
 
   // Sync NDM completions to Daily Metrics
   useEffect(() => {
@@ -346,17 +350,17 @@ const DualTrackOS = () => {
     setMindfulRunning(false);
   };
 
-  const addMeal = (name, protein) => {
-    setMeals(p => [...p, { id: Date.now(), name, protein, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }]);
-    setProteinToday(p => p + protein);
-  };
+  // const addMeal = (name, protein) => { // Moved to useNutritionStore
+  //   setMeals(p => [...p, { id: Date.now(), name, protein, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }]);
+  //   setProteinToday(p => p + protein);
+  // };
 
-  // Add food from Energy/Mood modals (simplified - adds to meals without protein tracking)
-  const addFoodFromModal = (foodName) => {
-    setMeals(p => [...p, { id: Date.now(), name: foodName, protein: 0, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }]);
-    // Optional: Mark nutrition NDM as complete
-    setNdm(prev => ({ ...prev, nutrition: true }));
-  };
+  // Add food from Energy/Mood modals (simplified - adds to meals without protein tracking) - NOW IN USE NUTRITION STORE
+  // const addFoodFromModal = (foodName) => {
+  //   setMeals(p => [...p, { id: Date.now(), name: foodName, protein: 0, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }]);
+  //   // Optional: Mark nutrition NDM as complete
+  //   setNdm(prev => ({ ...prev, nutrition: true }));
+  // };
 
   // Handle action selection from modals - NOW IN STORE
   // const handleEnergyActionSelect = (action) => {
@@ -534,7 +538,7 @@ const DualTrackOS = () => {
   };
 
   const exportData = () => {
-    const data = { ndm, careers, meals, workouts, proteinToday, dailyMetrics, userProfile, energyTracking: useEnergyMoodStore.getState().energyTracking, currentMood: useEnergyMoodStore.getState().currentMood, exportDate: new Date().toISOString() };
+    const data = { ndm, careers, workouts, dailyMetrics, userProfile, energyTracking: useEnergyMoodStore.getState().energyTracking, currentMood: useEnergyMoodStore.getState().currentMood, meals: useNutritionStore.getState().meals, proteinToday: useNutritionStore.getState().proteinToday, exportDate: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -549,9 +553,9 @@ const DualTrackOS = () => {
       localStorage.removeItem('dualtrack-data');
       setNdm({ nutrition: false, movement: false, mindfulness: false, brainDump: false });
       setCareers({ corporate: { wins: 0 }, consultancy: { wins: 0 } });
-      setMeals([]);
+      // setMeals([]); // Moved to nutrition store
       setWorkouts([]);
-      setProteinToday(0);
+      // setProteinToday(0); // Moved to nutrition store
       alert('✅ All data cleared!');
     }
   };
@@ -717,20 +721,21 @@ const DualTrackOS = () => {
     // Factor 4: Nutrition Consistency (0-20 points)
     maxPossible += 20;
     if (userProfile.weight) {
-      const proteinTarget = getProteinTarget();
-      const proteinPercent = (proteinToday / proteinTarget) * 100;
+      const proteinTarget = getProteinTarget(); // Use from useNutritionStore
+      const currentProteinToday = proteinToday; // Use from useNutritionStore
+      const proteinPercent = (currentProteinToday / proteinTarget) * 100;
       if (proteinPercent >= 80) {
         score += 20; // EXCELLENT: Met protein goal
       } else if (proteinPercent >= 50) {
         score += 15; // GOOD: Halfway there
       } else if (proteinPercent >= 25) {
         score += 10; // FAIR: Some progress
-      } else if (meals.length > 0) {
+      } else if (meals.length > 0) { // Use meals from useNutritionStore
         score += 5; // At least tracking
       }
     } else {
       // If no weight set, just reward tracking
-      score += meals.length >= 3 ? 20 : meals.length * 5;
+      score += meals.length >= 3 ? 20 : meals.length * 5; // Use meals from useNutritionStore
     }
 
     // Factor 5: Wisdom - Avoiding Burnout (0-20 points)
@@ -1219,7 +1224,7 @@ const DualTrackOS = () => {
               </div>
               <div className={`text-[11px] md:text-xs ${
                 darkMode ? 'text-purple-400' : 'text-purple-600'
-              } ${isScrolled ? 'opacity-0' : 'opacity-80'} transition-opacity duration-300`}>
+              } ${isScrolled ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}>
                 Tap clock to start Pomodoro
               </div>
               {userProfile.initials && (
@@ -1320,90 +1325,29 @@ const DualTrackOS = () => {
 
             {/* CURRENT HOUR FOCUS - REMOVED, NOW IN COMPONENT */}
             {/* ENERGY & MOOD TRACKING - REMOVED, NOW IN COMPONENT */}
+            {/* PROTEIN TRACKER - REMOVED, NOW IN COMPONENT */}
 
-            {/* PROTEIN TRACKER */}
-            <div onClick={() => setExpandedTile(expandedTile === 'protein' ? null : 'protein')} className={`rounded-xl p-6 cursor-pointer transition-all duration-300 ${
-              darkMode
-                ? 'bg-gradient-to-br from-emerald-900/50 via-green-900/50 to-emerald-900/50 border-2 border-emerald-500/40 hover:border-emerald-500/60 shadow-lg backdrop-blur-sm'
-                : 'bg-gradient-to-br from-emerald-100 to-green-100 border-2 border-emerald-300 hover:border-emerald-400 shadow-md'
-            }`}>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <Activity className={darkMode ? 'text-emerald-400 mr-2' : 'text-emerald-600 mr-2'} size={24} />
-                  <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    Daily Protein
-                  </h3>
-                </div>
-                <div className={`text-2xl font-bold ${
-                  proteinToday >= getProteinTarget()
-                    ? darkMode ? 'text-emerald-400' : 'text-emerald-600'
-                    : darkMode ? 'text-gray-400' : 'text-gray-600'
-                }`}>
-                  {proteinToday}g
-                </div>
-              </div>
-
-              {/* Protein Progress Bar */}
-              <div className="mb-3">
-                <div className={`h-3 rounded-full overflow-hidden ${darkMode ? 'bg-gray-800/50' : 'bg-white/50'}`}>
-                  <div
-                    className="h-full bg-gradient-to-r from-emerald-500 to-green-500 transition-all duration-500"
-                    style={{ width: `${Math.min((proteinToday / getProteinTarget()) * 100, 100)}%` }}
-                  />
-                </div>
-                <div className="flex justify-between mt-1">
-                  <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                    0g
-                  </span>
-                  <span className={`text-xs font-semibold ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                    Target: {getProteinTarget()}g
-                  </span>
-                </div>
-              </div>
-
-              {expandedTile === 'protein' && (
-                <div className="space-y-2 mt-4">
-                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Based on your weight ({userProfile.weight || '?'} lbs), aim for {getProteinTarget()}g daily
-                  </p>
-                  <div className={`p-3 rounded-lg ${darkMode ? 'bg-emerald-500/10' : 'bg-white/60'}`}>
-                    <p className={`text-xs font-semibold mb-2 ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>
-                      💡 Quick Protein Sources:
-                    </p>
-                    <ul className={`text-xs space-y-1 ${darkMode ? 'text-gray-400' : 'text-gray-700'}`}>
-                      <li>• Chicken breast (3oz) = 26g</li>
-                      <li>• Greek yogurt (1 cup) = 20g</li>
-                      <li>• Eggs (2 large) = 12g</li>
-                      <li>• Protein shake = 20-30g</li>
-                    </ul>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setCurrentView('food');
-                    }}
-                    className={`w-full mt-2 py-2 rounded-lg font-semibold transition-all ${
-                      darkMode
-                        ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
-                        : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                    }`}
-                  >
-                    Log Food →
-                  </button>
-                </div>
-              )}
-            </div>
             {/* KANBAN BOARD - Career & Business Tasks - REMOVED */}
           </div>
         )}
       </div>
 
-      <DailyCommandCenterModal />
-      <WellnessSnackModal
-        currentTime={currentTime}
-        setDailyMetrics={setDailyMetrics}
-        setSpiritAnimalScore={setSpiritAnimalScore}
-      />
+      {dailyMetrics.showCommandCenterModal && ( // Use dailyMetrics.showCommandCenterModal
+        <DailyCommandCenterModal
+          darkMode={darkMode}
+          setShowCommandCenterModal={dailyMetrics.setShowCommandCenterModal}
+          addQuickWin={addQuickWin}
+          quickWinInput={quickWinInput}
+          setQuickWinInput={setQuickWinInput}
+        />
+      )}
+      {showWellnessSnackModal && (
+        <WellnessSnackModal
+          currentTime={currentTime}
+          setDailyMetrics={setDailyMetrics}
+          setSpiritAnimalScore={setSpiritAnimalScore}
+        />
+      )}
     </div>
   );
 };
