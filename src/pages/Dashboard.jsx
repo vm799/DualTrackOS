@@ -9,7 +9,8 @@ import DailyCommandCenterModal from '../components/DailyCommandCenterModal';
 import KanbanBoard from '../components/KanbanBoard';
 import HourlyTaskDisplay from '../components/HourlyTaskDisplay';
 import EnergyMoodTracker from '../components/EnergyMoodTracker';
-import ProteinTracker from '../components/ProteinTracker'; // Import ProteinTracker
+import ProteinTracker from '../components/ProteinTracker';
+import VoiceDiary from '../components/VoiceDiary'; // Import VoiceDiary
 import { POMODORO_DURATION_SECONDS, ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants'; // Keep POMODORO_DURATION_SECONDS
 
 const Dashboard = () => {
@@ -196,6 +197,9 @@ const Dashboard = () => {
 
         {/* Render ProteinTracker */}
         <ProteinTracker />
+
+        {/* Render VoiceDiary */}
+        <VoiceDiary />
 
         {/* Render Kanban Board */}
         <KanbanBoard />

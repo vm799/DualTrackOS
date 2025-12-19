@@ -9,6 +9,7 @@ import useWellnessStore from './store/useWellnessStore'; // Import Wellness stor
 import useDailyMetricsStore from './store/useDailyMetricsStore'; // Import Daily Metrics store
 import useEnergyMoodStore from './store/useEnergyMoodStore'; // Import Energy Mood store
 import useNutritionStore from './store/useNutritionStore'; // Import Nutrition Store
+import useVoiceDiaryStore from './store/useVoiceDiaryStore'; // Import Voice Diary Store
 
 import LandingPage from './LandingPage';
 import StoryPage from './StoryPage';
@@ -31,6 +32,7 @@ const DualTrackOS = () => {
   const { setDailyMetrics, addQuickWin, quickWinInput, setQuickWinInput, dailyMetrics } = useDailyMetricsStore();
   const { setCurrentEnergy, setCurrentMood, getEnergyBasedSuggestions, getMoodBasedWellness, getSmartSuggestions, energyTracking, currentMood } = useEnergyMoodStore();
   const { proteinToday, getProteinTarget, meals } = useNutritionStore(); // Use proteinToday and meals from nutrition store
+  const { voiceDiary } = useVoiceDiaryStore(); // Use voiceDiary from voice diary store
 
 
   // Local states that will eventually be moved to stores
@@ -45,7 +47,7 @@ const DualTrackOS = () => {
   const [foodDiary, setFoodDiary] = useState([]);
   const [learningLibrary, setLearningLibrary] = useState([]);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [voiceDiary, setVoiceDiary] = useState([]);
+  // const [voiceDiary, setVoiceDiary] = useState([]); // Moved to useVoiceDiaryStore
   // const [energyTracking, setEnergyTracking] = useState({ morning: null, afternoon: null, evening: null }); // Moved to useEnergyMoodStore
   // const [currentMood, setCurrentMood] = useState(null); // Moved to useEnergyMoodStore
   const [balanceHistory, setBalanceHistory] = useState([]);
@@ -76,9 +78,9 @@ const DualTrackOS = () => {
   const [wellnessCompletions, setWellnessCompletions] = useState([]);
   const [boxBreathingActive, setBoxBreathingActive] = useState(false);
 
-  // Voice Diary states
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingStartTime, setRecordingStartTime] = useState(null);
+  // Voice Diary states - MOVED TO USEVOICEDIARYSTORE
+  // const [isRecording, setIsRecording] = useState(false);
+  // const [recordingStartTime, setRecordingStartTime] = useState(null);
 
   // Expanded tile state for dashboard
   const [expandedTile, setExpandedTile] = useState(null); // 'protein', 'career' etc.
@@ -118,7 +120,7 @@ const DualTrackOS = () => {
             if (userData.foodDiary) setFoodDiary(userData.foodDiary);
             if (userData.learningLibrary) setLearningLibrary(userData.learningLibrary);
             if (userData.notificationsEnabled !== undefined) setNotificationsEnabled(userData.notificationsEnabled);
-            if (userData.voiceDiary) setVoiceDiary(userData.voiceDiary);
+            if (userData.voiceDiary) useVoiceDiaryStore.getState().setVoiceDiary(userData.voiceDiary); // Updated
             if (userData.userProfile) setUserProfile(userData.userProfile);
             if (userData.energyTracking) useEnergyMoodStore.getState().setEnergyTracking(userData.energyTracking); // Updated
             if (userData.currentMood) useEnergyMoodStore.getState().setCurrentMood(userData.currentMood); // Updated
@@ -152,7 +154,7 @@ const DualTrackOS = () => {
             if (data.foodDiary) setFoodDiary(data.foodDiary);
             if (data.learningLibrary) setLearningLibrary(data.learningLibrary);
             if (data.notificationsEnabled !== undefined) setNotificationsEnabled(data.notificationsEnabled);
-            if (data.voiceDiary) setVoiceDiary(data.voiceDiary);
+            if (data.voiceDiary) useVoiceDiaryStore.getState().setVoiceDiary(data.voiceDiary); // Updated
             if (data.userProfile) setUserProfile(data.userProfile);
             if (data.energyTracking) useEnergyMoodStore.getState().setEnergyTracking(data.energyTracking); // Updated
             if (data.currentMood) useEnergyMoodStore.getState().setCurrentMood(data.currentMood); // Updated
@@ -169,14 +171,16 @@ const DualTrackOS = () => {
   // Save data to localStorage and Supabase
   useEffect(() => {
     const dataToSave = {
-      ndm, careers, /*meals, workouts, proteinToday,*/ darkMode, // Removed meals, proteinToday
-      gratitude, mantras, /*hourlyTasks,*/ foodDiary, learningLibrary, notificationsEnabled, // Removed hourlyTasks
-      voiceDiary, userProfile, // Removed energyTracking, currentMood
-      spiritAnimalScore, balanceHistory,
+      ndm, careers, darkMode,
+      gratitude, mantras, foodDiary, learningLibrary, notificationsEnabled,
+      userProfile, balanceHistory,
+      hourlyTasks: useHourlyTaskStore.getState().hourlyTasks, // Add back current hourly tasks
       energyTracking: useEnergyMoodStore.getState().energyTracking, // Add back current energy tracking
       currentMood: useEnergyMoodStore.getState().currentMood, // Add back current mood
       meals: useNutritionStore.getState().meals, // Add back meals
       proteinToday: useNutritionStore.getState().proteinToday, // Add back proteinToday
+      voiceDiary: useVoiceDiaryStore.getState().voiceDiary, // Add back voiceDiary
+      kanbanTasks: useKanbanStore.getState().kanbanTasks, // Add back kanbanTasks
     };
 
     // Always save to localStorage as backup
@@ -186,7 +190,7 @@ const DualTrackOS = () => {
     if (user && isSupabaseConfigured()) {
       saveUserData(user.id, dataToSave);
     }
-  }, [ndm, careers, darkMode, gratitude, mantras, foodDiary, learningLibrary, notificationsEnabled, voiceDiary, userProfile, balanceHistory, user]); // Removed energyTracking, currentMood, hourlyTasks, meals, proteinToday from deps
+  }, [ndm, careers, darkMode, gratitude, mantras, foodDiary, learningLibrary, notificationsEnabled, userProfile, balanceHistory, user]);
 
   // Real-time clock update every second
   useEffect(() => {
@@ -270,7 +274,7 @@ const DualTrackOS = () => {
     const newScore = calculateBalanceScore();
     setSpiritAnimalScore(newScore);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ndm, voiceDiary.length, userProfile.weight, setSpiritAnimalScore]); // Removed energyTracking, currentMood, proteinToday, meals.length from deps
+  }, [ndm, userProfile.weight, setSpiritAnimalScore]); // Removed energyTracking, currentMood, proteinToday, meals.length, voiceDiary.length from deps
 
   // Sync NDM completions to Daily Metrics
   useEffect(() => {
@@ -322,7 +326,7 @@ const DualTrackOS = () => {
         text: brainDumpText,
         timestamp: new Date().toISOString()
       };
-      setVoiceDiary(prev => [...prev, entry]);
+      useVoiceDiaryStore.getState().setVoiceDiary(prev => [...prev, entry]); // Updated
       setNdm(prev => ({ ...prev, brainDump: true }));
       setShowBrainDumpModal(false);
       setBrainDumpText('');
@@ -501,44 +505,54 @@ const DualTrackOS = () => {
     dismissWellnessSnack.current();
   };
 
-  // Voice diary functions (5-minute recording)
-  const handleVoiceCheckin = () => {
-    if (!isRecording) {
-      setIsRecording(true);
-      setRecordingStartTime(Date.now());
-      // Simulate 5-minute max recording
-      setTimeout(() => {
-        if (isRecording) {
-          setIsRecording(false);
-          const transcript = "Voice diary entry recorded"; // In production, use actual speech-to-text
-          setVoiceDiary(prev => [...prev, {
-            id: Date.now(),
-            date: new Date().toLocaleDateString(),
-            time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
-            transcript,
-            duration: '5:00'
-          }]);
-          setRecordingStartTime(null);
-        }
-      }, 5 * 60 * 1000); // 5 minutes
-    } else {
-      // Manual stop
-      setIsRecording(false);
-      const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
-      const transcript = "Voice diary entry recorded"; // In production, use actual speech-to-text
-      setVoiceDiary(prev => [...prev, {
-        id: Date.now(),
-        date: new Date().toLocaleDateString(),
-        time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
-        transcript,
-        duration: formatTime(duration)
-      }]);
-      setRecordingStartTime(null);
-    }
-  };
+  // Voice diary functions (5-minute recording) - MOVED TO USEVOICEDIARYSTORE
+  // const handleVoiceCheckin = () => {
+  //   if (!isRecording) {
+  //     setIsRecording(true);
+  //     setRecordingStartTime(Date.now());
+  //     // Simulate 5-minute max recording
+  //     setTimeout(() => {
+  //       if (isRecording) {
+  //         setIsRecording(false);
+  //         const transcript = "Voice diary entry recorded"; // In production, use actual speech-to-text
+  //         setVoiceDiary(prev => [...prev, {
+  //           id: Date.now(),
+  //           date: new Date().toLocaleDateString(),
+  //           time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+  //           transcript,
+  //           duration: '5:00'
+  //         }]);
+  //         setRecordingStartTime(null);
+  //       }
+  //     }, 5 * 60 * 1000); // 5 minutes
+  //   } else {
+  //     // Manual stop
+  //     setIsRecording(false);
+  //     const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
+  //     const transcript = "Voice diary entry recorded"; // In production, use actual speech-to-text
+  //     setVoiceDiary(prev => [...prev, {
+  //       id: Date.now(),
+  //       date: new Date().toLocaleDateString(),
+  //       time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+  //       transcript,
+  //       duration: formatTime(duration)
+  //     }]);
+  //     setRecordingStartTime(null);
+  //   }
+  // };
 
   const exportData = () => {
-    const data = { ndm, careers, workouts, dailyMetrics, userProfile, energyTracking: useEnergyMoodStore.getState().energyTracking, currentMood: useEnergyMoodStore.getState().currentMood, meals: useNutritionStore.getState().meals, proteinToday: useNutritionStore.getState().proteinToday, exportDate: new Date().toISOString() };
+    const data = {
+      ndm, careers, workouts, dailyMetrics, userProfile,
+      energyTracking: useEnergyMoodStore.getState().energyTracking,
+      currentMood: useEnergyMoodStore.getState().currentMood,
+      meals: useNutritionStore.getState().meals,
+      proteinToday: useNutritionStore.getState().proteinToday,
+      voiceDiary: useVoiceDiaryStore.getState().voiceDiary,
+      hourlyTasks: useHourlyTaskStore.getState().hourlyTasks,
+      kanbanTasks: useKanbanStore.getState().kanbanTasks,
+      exportDate: new Date().toISOString()
+    };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -553,9 +567,9 @@ const DualTrackOS = () => {
       localStorage.removeItem('dualtrack-data');
       setNdm({ nutrition: false, movement: false, mindfulness: false, brainDump: false });
       setCareers({ corporate: { wins: 0 }, consultancy: { wins: 0 } });
-      // setMeals([]); // Moved to nutrition store
+      useNutritionStore.getState().setMeals([]); // Updated
       setWorkouts([]);
-      // setProteinToday(0); // Moved to nutrition store
+      useNutritionStore.getState().setProteinToday(0); // Updated
       alert('✅ All data cleared!');
     }
   };
@@ -680,14 +694,13 @@ const DualTrackOS = () => {
         // Low energy: Did user rest? (check if meditation or brain dump today)
         if (ndm.mindfulness || ndm.brainDump) {
           score += 20; // EXCELLENT: Honored low energy with rest
-        } else if (voiceDiary.length > 0 && voiceDiary[voiceDiary.length - 1].type === 'brain-dump') {
+        } else if (useVoiceDiaryStore.getState().voiceDiary.length > 0 && useVoiceDiaryStore.getState().voiceDiary[useVoiceDiaryStore.getState().voiceDiary.length - 1].type === 'brain-dump') { // Updated
           score += 15; // GOOD: At least did brain dump
         }
       } else if (currentPeriodEnergy >= 4) {
         // High energy: Count productive actions
-        // const productiveActions = Object.values(hourlyTasks).flat() // hourlyTasks removed
-        //   .filter(t => t.completed).length;
-        const productiveActions = 0; // Placeholder
+        const productiveActions = Object.values(useHourlyTaskStore.getState().hourlyTasks).flat() // Updated
+          .filter(t => t.completed).length;
         if (productiveActions >= 3) {
           score += 20; // EXCELLENT: Capitalized on high energy
         } else if (productiveActions >= 1) {
@@ -721,8 +734,8 @@ const DualTrackOS = () => {
     // Factor 4: Nutrition Consistency (0-20 points)
     maxPossible += 20;
     if (userProfile.weight) {
-      const proteinTarget = getProteinTarget(); // Use from useNutritionStore
-      const currentProteinToday = proteinToday; // Use from useNutritionStore
+      const proteinTarget = useNutritionStore.getState().getProteinTarget(); // Updated
+      const currentProteinToday = useNutritionStore.getState().proteinToday; // Updated
       const proteinPercent = (currentProteinToday / proteinTarget) * 100;
       if (proteinPercent >= 80) {
         score += 20; // EXCELLENT: Met protein goal
@@ -730,12 +743,12 @@ const DualTrackOS = () => {
         score += 15; // GOOD: Halfway there
       } else if (proteinPercent >= 25) {
         score += 10; // FAIR: Some progress
-      } else if (meals.length > 0) { // Use meals from useNutritionStore
+      } else if (useNutritionStore.getState().meals.length > 0) { // Updated
         score += 5; // At least tracking
       }
     } else {
       // If no weight set, just reward tracking
-      score += meals.length >= 3 ? 20 : meals.length * 5; // Use meals from useNutritionStore
+      score += useNutritionStore.getState().meals.length >= 3 ? 20 : useNutritionStore.getState().meals.length * 5; // Updated
     }
 
     // Factor 5: Wisdom - Avoiding Burnout (0-20 points)
@@ -743,9 +756,8 @@ const DualTrackOS = () => {
     if (currentPeriodEnergy !== null) {
       if (currentPeriodEnergy <= 2) {
         // Low energy: Wisdom is NOT pushing through
-        // const tasksCompletedWhileTired = Object.values(hourlyTasks).flat() // hourlyTasks removed
-        //   .filter(t => t.completed).length;
-        const tasksCompletedWhileTired = 0; // Placeholder
+        const tasksCompletedWhileTired = Object.values(useHourlyTaskStore.getState().hourlyTasks).flat() // Updated
+          .filter(t => t.completed).length;
         if (tasksCompletedWhileTired === 0 && (ndm.mindfulness || ndm.brainDump)) {
           score += 20; // WISDOM: Rested instead of pushing
         } else if (tasksCompletedWhileTired <= 2) {
@@ -791,14 +803,14 @@ const DualTrackOS = () => {
     setMantras(newMantras);
   };
 
-  // const addHourlyTask = (hour, taskText) => { // Removed
+  // const addHourlyTask = (hour, taskText) => { // Moved to useHourlyTaskStore
   //   if (!taskText.trim()) return;
   //   const newTasks = { ...hourlyTasks };
   //   newTasks[hour] = [...(newTasks[hour] || []), { id: Date.now(), text: taskText, completed: false, type: 'task' }];
   //   setHourlyTasks(newTasks);
   // };
 
-  // const toggleHourlyTask = (hour, taskId) => { // Removed
+  // const toggleHourlyTask = (hour, taskId) => { // Moved to useHourlyTaskStore
   //   const newTasks = { ...hourlyTasks };
   //   newTasks[hour] = newTasks[hour].map(task =>
   //     task.id === taskId ? { ...task, completed: !task.completed } : task
@@ -806,7 +818,7 @@ const DualTrackOS = () => {
   //   setHourlyTasks(newTasks);
   // };
 
-  // const deleteHourlyTask = (hour, taskId) => { // Removed
+  // const deleteHourlyTask = (hour, taskId) => { // Moved to useHourlyTaskStore
   //   const newTasks = { ...hourlyTasks };
   //   newTasks[hour] = newTasks[hour].filter(task => task.id !== taskId);
   //   setHourlyTasks(newTasks);
@@ -1326,6 +1338,7 @@ const DualTrackOS = () => {
             {/* CURRENT HOUR FOCUS - REMOVED, NOW IN COMPONENT */}
             {/* ENERGY & MOOD TRACKING - REMOVED, NOW IN COMPONENT */}
             {/* PROTEIN TRACKER - REMOVED, NOW IN COMPONENT */}
+            {/* VOICE DIARY - REMOVED, NOW IN COMPONENT */}
 
             {/* KANBAN BOARD - Career & Business Tasks - REMOVED */}
           </div>
