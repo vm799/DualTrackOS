@@ -14,11 +14,13 @@ const useStore = create((set) => ({
     hasCompletedOnboarding: false,
     disclaimerAccepted: false
   },
+  currentTime: new Date(), // Global current time
 
   // Actions
   setUser: (user) => set({ user }),
   setDarkMode: (darkMode) => set({ darkMode }),
   setUserProfile: (userProfile) => set({ userProfile }),
+  setCurrentTime: (time) => set({ currentTime: time }), // Action to update current time
 }));
 
 export default useStore;
