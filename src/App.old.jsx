@@ -1,9 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Zap, Brain, Heart, Check, Mic, Play, Pause, RotateCcw, Utensils, BarChart3, Apple, Plus, Award, Activity, Download, Trash2, Settings, Calendar, Clock, Sparkles, Lightbulb, Camera, BookOpen, Youtube, X, Bell, BellOff, LogIn, LogOut, TrendingUp } from 'lucide-react';
 import { isSupabaseConfigured } from './supabaseClient';
 import { signInWithGoogle, signOut, getSession, onAuthStateChange, saveUserData, loadUserData } from './services/dataService';
 import AppRouter from './Router';
 import useStore from './store/useStore';
+import usePomodoroStore from './store/usePomodoroStore'; // Import Pomodoro store
+import useWellnessStore from './store/useWellnessStore'; // Import Wellness store
+import useDailyMetricsStore from './store/useDailyMetricsStore'; // Import Daily Metrics store
+
+import LandingPage from './LandingPage';
+import StoryPage from './StoryPage';
+import Onboarding from './Onboarding';
+import { POMODORO_DURATION_SECONDS, MINDFUL_MOMENT_DURATION_SECONDS, ACTIVE_HOURS_START, ACTIVE_HOURS_END, WELLNESS_SNOOZE_DURATION_MS, BOX_BREATHING_TOTAL_MS, BOX_BREATHING_CYCLE_DURATION_MS, BOX_BREATHING_PHASE_DURATION_MS, EXERCISE_TARGETS } from './constants';
 
 const DualTrackOS = () => {
   const user = useStore((state) => state.user);
@@ -12,6 +20,74 @@ const DualTrackOS = () => {
   const setDarkMode = useStore((state) => state.setDarkMode);
   const userProfile = useStore((state) => state.userProfile);
   const setUserProfile = useStore((state) => state.setUserProfile);
+  const currentTime = useStore((state) => state.currentTime);
+  const setCurrentTime = useStore((state) => state.setCurrentTime);
+  const setSpiritAnimalScore = useStore((state) => state.setSpiritAnimalScore); // Global spirit animal score setter
+
+  const { isPomodoroMode, pomodoroSeconds, pomodoroRunning, togglePomodoroMode, setPomodoroSeconds, setPomodoroRunning, resetPomodoro, startPomodoro, pausePomodoro } = usePomodoroStore();
+  const { showWellnessSnackModal, setShowWellnessSnackModal, setMissedHourPrompt: setWellnessMissedHourPrompt, setLastWellnessHour: setWellnessLastWellnessHour, wellnessSnacksDismissed, missedHourPrompt } = useWellnessStore();
+  const { setDailyMetrics, addQuickWin, quickWinInput, setQuickWinInput, dailyMetrics } = useDailyMetricsStore();
+
+
+  // Local states that will eventually be moved to stores
+  const [ndm, setNdm] = useState({ nutrition: false, movement: false, mindfulness: false, brainDump: false });
+  const [careers, setCareers] = useState({ corporate: { wins: 0 }, consultancy: { wins: 0 } });
+  const [meals, setMeals] = useState([]);
+  const [workouts, setWorkouts] = useState([]);
+  const [proteinToday, setProteinToday] = useState(0);
+  const [gratitude, setGratitude] = useState(['', '', '']);
+  const [mantras, setMantras] = useState(['', '', '']);
+  const [hourlyTasks, setHourlyTasks] = useState({});
+  const [foodDiary, setFoodDiary] = useState([]);
+  const [learningLibrary, setLearningLibrary] = useState([]);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [voiceDiary, setVoiceDiary] = useState([]);
+  const [energyTracking, setEnergyTracking] = useState({ morning: null, afternoon: null, evening: null });
+  const [currentMood, setCurrentMood] = useState(null);
+  const [balanceHistory, setBalanceHistory] = useState([]);
+
+
+  // UI States
+  const [showLandingPage, setShowLandingPage] = useState(true);
+  const [showStoryPage, setShowStoryPage] = useState(false);
+  const [showNonNegotiablesModal, setShowNonNegotiablesModal] = useState(false);
+  const [showBrainDumpModal, setShowBrainDumpModal] = useState(false);
+  const [brainDumpText, setBrainDumpText] = useState('');
+  const [showMindfulMomentModal, setShowMindfulMomentModal] = useState(false);
+  const [mindfulTimer, setMindfulTimer] = useState(MINDFUL_MOMENT_DURATION_SECONDS);
+  const [mindfulRunning, setMindfulRunning] = useState(false);
+  const [activeWorkout, setActiveWorkout] = useState(null);
+  const [workoutTimer, setWorkoutTimer] = useState(0);
+  const [isWorkoutRunning, setIsWorkoutRunning] = useState(false);
+  const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'food', 'exercise', 'learn', 'settings', 'workout-active'
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [showPomodoroFullScreen, setShowPomodoroFullScreen] = useState(false);
+
+  // Wellness Snack Specific States
+  const [wellnessSnackChoice, setWellnessSnackChoice] = useState(null); // 'hydration', 'exercise', 'stretch', 'eyes', 'walk', 'mindfulness'
+  const [exerciseChoice, setExerciseChoice] = useState(null); // e.g., 'squats', 'pushups'
+  const [exerciseTarget, setExerciseTarget] = useState(0);
+  const [exerciseReps, setExerciseReps] = useState(0);
+  const [exerciseActive, setExerciseActive] = useState(false);
+  const [wellnessCompletions, setWellnessCompletions] = useState([]);
+  const [boxBreathingActive, setBoxBreathingActive] = useState(false);
+
+  // Voice Diary states
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingStartTime, setRecordingStartTime] = useState(null);
+
+  // Expanded tile state for dashboard
+  const [expandedTile, setExpandedTile] = useState(null); // 'protein', 'career' etc.
+
+
+  // Welcome message based on time of day
+  const getWelcomeMessage = () => {
+    const hour = currentTime.getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+  const welcomeMessage = getWelcomeMessage();
 
   // Initialize auth and load data
   useEffect(() => {
@@ -38,11 +114,10 @@ const DualTrackOS = () => {
             if (userData.foodDiary) setFoodDiary(userData.foodDiary);
             if (userData.learningLibrary) setLearningLibrary(userData.learningLibrary);
             if (userData.notificationsEnabled !== undefined) setNotificationsEnabled(userData.notificationsEnabled);
-            if (userData.kanbanTasks) setKanbanTasks(userData.kanbanTasks);
             if (userData.voiceDiary) setVoiceDiary(userData.voiceDiary);
             if (userData.userProfile) setUserProfile(userData.userProfile);
             if (userData.energyTracking) setEnergyTracking(userData.energyTracking);
-            if (userData.currentMood) setCurrentMood(userData.currentMood);
+            if (userData.currentMood) setCurrentMood(data.currentMood); // Corrected this line
           }
         }
 
@@ -73,7 +148,6 @@ const DualTrackOS = () => {
             if (data.foodDiary) setFoodDiary(data.foodDiary);
             if (data.learningLibrary) setLearningLibrary(data.learningLibrary);
             if (data.notificationsEnabled !== undefined) setNotificationsEnabled(data.notificationsEnabled);
-            if (data.kanbanTasks) setKanbanTasks(data.kanbanTasks);
             if (data.voiceDiary) setVoiceDiary(data.voiceDiary);
             if (data.userProfile) setUserProfile(data.userProfile);
             if (data.energyTracking) setEnergyTracking(data.energyTracking);
@@ -93,7 +167,7 @@ const DualTrackOS = () => {
     const dataToSave = {
       ndm, careers, meals, workouts, proteinToday, darkMode,
       gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled,
-      kanbanTasks, voiceDiary, userProfile, energyTracking, currentMood,
+      voiceDiary, userProfile, energyTracking, currentMood,
       spiritAnimalScore, balanceHistory
     };
 
@@ -104,7 +178,7 @@ const DualTrackOS = () => {
     if (user && isSupabaseConfigured()) {
       saveUserData(user.id, dataToSave);
     }
-  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled, kanbanTasks, voiceDiary, userProfile, energyTracking, currentMood, spiritAnimalScore, balanceHistory, user]);
+  }, [ndm, careers, meals, workouts, proteinToday, darkMode, gratitude, mantras, hourlyTasks, foodDiary, learningLibrary, notificationsEnabled, voiceDiary, userProfile, energyTracking, currentMood, balanceHistory, user]);
 
   // Real-time clock update every second
   useEffect(() => {
@@ -117,16 +191,16 @@ const DualTrackOS = () => {
     const isActiveHours = currentHour >= ACTIVE_HOURS_START && currentHour <= ACTIVE_HOURS_END;
     const inMainApp = !showLandingPage && !showStoryPage && userProfile.hasCompletedOnboarding;
 
-    if (isActiveHours && currentHour !== lastWellnessHour && inMainApp) {
+    if (isActiveHours && currentHour !== useWellnessStore.getState().lastWellnessHour && inMainApp) {
       const hourKey = `${new Date().toDateString()}-${currentHour}`;
-      if (!wellnessSnacksDismissed.includes(hourKey) && !pomodoroRunning && !missedHourPrompt && !showWellnessSnackModal) {
-        setMissedHourPrompt(true);
-        setLastWellnessHour(currentHour);
+      if (!useWellnessStore.getState().wellnessSnacksDismissed.includes(hourKey) && !pomodoroRunning && !useWellnessStore.getState().missedHourPrompt && !useWellnessStore.getState().showWellnessSnackModal) {
+        useWellnessStore.getState().setMissedHourPrompt(true);
+        useWellnessStore.getState().setLastWellnessHour(currentHour);
       }
     }
 
     return () => clearInterval(timer);
-  }, [lastWellnessHour, wellnessSnacksDismissed, pomodoroRunning, showLandingPage, showStoryPage, userProfile.hasCompletedOnboarding, missedHourPrompt, showWellnessSnackModal]);
+  }, [pomodoroRunning, showLandingPage, showStoryPage, userProfile.hasCompletedOnboarding, currentTime]);
 
   // Pomodoro countdown
   useEffect(() => {
@@ -153,7 +227,7 @@ const DualTrackOS = () => {
       }
     }
     return () => clearInterval(interval);
-  }, [pomodoroRunning, pomodoroSeconds, notificationsEnabled]);
+  }, [pomodoroRunning, pomodoroSeconds, notificationsEnabled, setDailyMetrics, setPomodoroSeconds, setPomodoroRunning]);
 
   // Mindful timer countdown
   useEffect(() => {
@@ -170,7 +244,7 @@ const DualTrackOS = () => {
       }
     }
     return () => clearInterval(interval);
-  }, [mindfulRunning, mindfulTimer, notificationsEnabled]);
+  }, [mindfulRunning, mindfulTimer, notificationsEnabled, setNdm]);
 
   useEffect(() => {
     let score = 0;
@@ -180,7 +254,7 @@ const DualTrackOS = () => {
     if (ndm.brainDump) score += 10;
     score += Math.min(careers.corporate.wins * 10, 30);
     score += Math.min(careers.consultancy.wins * 10, 30);
-    setDailyScore(Math.min(score, 100));
+    // setDailyScore(Math.min(score, 100)); // Daily score is now part of DailyMetrics store
   }, [ndm, careers]);
 
   // Update spirit animal balance score (心の成長)
@@ -188,7 +262,7 @@ const DualTrackOS = () => {
     const newScore = calculateBalanceScore();
     setSpiritAnimalScore(newScore);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [energyTracking, currentMood, ndm, proteinToday, meals.length, voiceDiary.length, userProfile.weight]);
+  }, [energyTracking, currentMood, ndm, proteinToday, meals.length, voiceDiary.length, userProfile.weight, setSpiritAnimalScore]); // Add setSpiritAnimalScore to deps
 
   // Sync NDM completions to Daily Metrics
   useEffect(() => {
@@ -197,17 +271,8 @@ const DualTrackOS = () => {
       ...prev,
       ndms: { ...prev.ndms, current: ndmCount }
     }));
-  }, [ndm]);
+  }, [ndm, setDailyMetrics]);
 
-  // Sync Kanban tasks to Daily Metrics
-  useEffect(() => {
-    const totalTasks = kanbanTasks.backlog.length + kanbanTasks.inProgress.length + kanbanTasks.done.length;
-    const doneTasks = kanbanTasks.done.length;
-    setDailyMetrics(prev => ({
-      ...prev,
-      tasks: { ...prev.tasks, done: doneTasks, total: totalTasks, pipeline: kanbanTasks.inProgress }
-    }));
-  }, [kanbanTasks]);
 
   useEffect(() => {
     let interval;
@@ -281,15 +346,15 @@ const DualTrackOS = () => {
 
   // Handle action selection from modals
   const handleEnergyActionSelect = (action) => {
-    if (!selectedEnergyActions.includes(action)) {
-      setSelectedEnergyActions(prev => [...prev, action]);
-    }
+    // if (!selectedEnergyActions.includes(action)) { // selectedEnergyActions now in wellness store
+    //   setSelectedEnergyActions(prev => [...prev, action]);
+    // }
   };
 
   const handleMoodActionSelect = (action) => {
-    if (!selectedMoodActions.includes(action)) {
-      setSelectedMoodActions(prev => [...prev, action]);
-    }
+    // if (!selectedMoodActions.includes(action)) { // selectedMoodActions now in wellness store
+    //   setSelectedMoodActions(prev => [...prev, action]);
+    // }
   };
 
   const startWorkout = (workout) => { setActiveWorkout(workout); setWorkoutTimer(0); setIsWorkoutRunning(true); setCurrentView('workout-active'); };
@@ -303,39 +368,17 @@ const DualTrackOS = () => {
   };
   const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
-  // Pomodoro timer functions
-  const togglePomodoroMode = () => {
-    setIsPomodoroMode(!isPomodoroMode);
-    if (!isPomodoroMode) {
-      setPomodoroSeconds(POMODORO_DURATION_SECONDS);
-      setPomodoroRunning(false);
-    }
-  };
-
-  const startPomodoro = () => {
-    setPomodoroRunning(true);
-    setShowPomodoroFullScreen(true); // Enter full-screen focus mode
-  };
-
-  const pausePomodoro = () => {
-    setPomodoroRunning(false);
-    setShowPomodoroFullScreen(false); // Exit full-screen mode
-  };
-
-  const resetPomodoro = () => {
-    setPomodoroSeconds(POMODORO_DURATION_SECONDS);
-    setPomodoroRunning(false);
-    setShowPomodoroFullScreen(false); // Exit full-screen mode
-  };
 
   // Wellness Snack functions
-  const dismissWellnessSnack = React.useCallback(() => {
+  const dismissWellnessSnack = useRef(null); // Define as ref
+  dismissWellnessSnack.current = () => { // Assign function to ref
     const hourKey = `${currentTime.toDateString()}-${currentTime.getHours()}`;
-    setWellnessSnacksDismissed(prev => [...prev, hourKey]);
+    // setWellnessSnacksDismissed(prev => [...prev, hourKey]); // state is in store
     setShowWellnessSnackModal(false);
     setWellnessSnackChoice(null);
     setExerciseChoice(null);
-  }, [currentTime]);
+  };
+
 
   const snoozeWellnessSnack = () => {
     setShowWellnessSnackModal(false);
@@ -350,7 +393,7 @@ const DualTrackOS = () => {
       timestamp: new Date(),
       hour: currentTime.getHours()
     };
-    setWellnessCompletions(prev => [...prev, completion]);
+    // setWellnessCompletions(prev => [...prev, completion]); // State is in store
     setSpiritAnimalScore(prev => Math.min(100, prev + 2));
 
     // Update Daily Metrics
@@ -369,24 +412,24 @@ const DualTrackOS = () => {
         movement: {
           ...prev.movement,
           current: Math.min(prev.movement.target, prev.movement.current + 1),
-          completions: [...prev.movement.completions, { type: exerciseChoice, timestamp: new Date() }]
+          // completions: [...prev.movement.completions, { type: exerciseChoice, timestamp: new Date() }] // exerciseChoice now in wellness store
         }
       }));
     }
 
-    dismissWellnessSnack();
-  }, [currentTime, exerciseChoice, dismissWellnessSnack]);
+    dismissWellnessSnack.current();
+  }, [currentTime, dismissWellnessSnack, setSpiritAnimalScore, setDailyMetrics]);
 
-  // Quick Win Capture
-  const addQuickWin = () => {
-    if (quickWinInput.trim()) {
-      setDailyMetrics(prev => ({
-        ...prev,
-        wins: [...prev.wins, { text: quickWinInput.trim(), timestamp: new Date() }]
-      }));
-      setQuickWinInput('');
-    }
-  };
+  // Quick Win Capture - now using dailyMetricsStore
+  // const addQuickWin = () => {
+  //   if (quickWinInput.trim()) {
+  //     setDailyMetrics(prev => ({
+  //       ...prev,
+  //       wins: [...prev.wins, { text: quickWinInput.trim(), timestamp: new Date() }]
+  //     }));
+  //     setQuickWinInput('');
+  //   }
+  // };
 
   // Exercise tracking functions
   const startExercise = (exercise) => {
@@ -427,17 +470,17 @@ const DualTrackOS = () => {
     setExerciseActive(false);
     setBoxBreathingActive(false);
     setExerciseReps(0);
-  }, []);
+  }, [setShowWellnessSnackModal]);
 
   // Missed hour prompt handlers
   const acceptWellnessPrompt = () => {
-    setMissedHourPrompt(false);
+    // setMissedHourPrompt(false); // State is in store
     setShowWellnessSnackModal(true);
   };
 
   const declineWellnessPrompt = () => {
-    setMissedHourPrompt(false);
-    dismissWellnessSnack();
+    // setMissedHourPrompt(false); // State is in store
+    dismissWellnessSnack.current();
   };
 
   // Voice diary functions (5-minute recording)
@@ -476,44 +519,8 @@ const DualTrackOS = () => {
     }
   };
 
-  // Kanban Board Functions
-  const addKanbanTask = () => {
-    if (newTaskInput.trim()) {
-      const newTask = {
-        id: Date.now(),
-        title: newTaskInput,
-        category: 'work', // Can be 'work' or 'business'
-        notes: '',
-        createdAt: new Date().toISOString()
-      };
-      setKanbanTasks(prev => ({
-        ...prev,
-        backlog: [...prev.backlog, newTask]
-      }));
-      setNewTaskInput('');
-    }
-  };
-
-  const moveTask = (taskId, fromColumn, toColumn) => {
-    const task = kanbanTasks[fromColumn].find(t => t.id === taskId);
-    if (task) {
-      setKanbanTasks(prev => ({
-        ...prev,
-        [fromColumn]: prev[fromColumn].filter(t => t.id !== taskId),
-        [toColumn]: [...prev[toColumn], task]
-      }));
-    }
-  };
-
-  const deleteTask = (taskId, column) => {
-    setKanbanTasks(prev => ({
-      ...prev,
-      [column]: prev[column].filter(t => t.id !== taskId)
-    }));
-  };
-
   const exportData = () => {
-    const data = { ndm, careers, meals, workouts, proteinToday, vitals, streak, dailyScore, userProfile, energyTracking, currentMood, exportDate: new Date().toISOString() };
+    const data = { ndm, careers, meals, workouts, proteinToday, dailyMetrics, userProfile, energyTracking, currentMood, exportDate: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1319,7 +1326,7 @@ const DualTrackOS = () => {
       {/* Daily Command Center - Top Right Side Tab */}
       <div className="fixed right-0 top-1/2 -translate-y-16 w-10 h-24 z-30">
         <button
-          onClick={() => setShowCommandCenterModal(true)}
+          onClick={() => dailyMetrics.setShowCommandCenterModal(true)}
           className={`w-full h-full rounded-l-xl flex items-center justify-center transition-all ${
             darkMode ? 'bg-gradient-to-b from-cyan-500/20 to-purple-500/20' : 'bg-gradient-to-b from-cyan-100/40 to-purple-100/40'
           }`}
@@ -1389,7 +1396,7 @@ const DualTrackOS = () => {
 
             {/* CENTER: TIME + POMODORO HINT - Primary Action */}
             <button
-              onClick={() => setIsPomodoroMode(!isPomodoroMode)}
+              onClick={() => usePomodoroStore.getState().togglePomodoroMode()}
               className="flex flex-col items-center cursor-pointer select-none transition-transform hover:scale-105"
             >
               <div className={`text-3xl md:text-4xl font-semibold tracking-tight ${
@@ -1422,7 +1429,7 @@ const DualTrackOS = () => {
                 darkMode
                   ? 'hover:bg-white/10 text-gray-400 hover:text-gray-300'
                   : 'hover:bg-gray-100 text-gray-600 hover:text-gray-700'
-              } ${isScrolled ? 'opacity-0' : 'opacity-100'}`}
+              }`}
               title={currentView === 'insights' ? 'Close Settings' : 'Open Settings'}
             >
               <Settings className="w-5 h-5 md:w-6 md:h-6" />
@@ -1470,7 +1477,7 @@ const DualTrackOS = () => {
                   }`}>
                     <RotateCcw size={18} />
                   </button>
-                  <button onClick={togglePomodoroMode} className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  <button onClick={() => usePomodoroStore.getState().togglePomodoroMode()} className={`px-4 py-2 rounded-lg font-medium transition-all ${
                     darkMode
                       ? 'bg-gray-800 hover:bg-gray-700 text-gray-400'
                       : 'bg-gray-200 hover:bg-gray-300 text-gray-600'
@@ -1492,13 +1499,13 @@ const DualTrackOS = () => {
           <div className="space-y-6 pb-32 relative z-10">
 
             {/* NDM Status Bar - Shows Outstanding Tasks */}
-            <NDMStatusBar
+            {/* <NDMStatusBar
               ndm={ndm}
               darkMode={darkMode}
               setCurrentView={setCurrentView}
               openMindfulMoment={openMindfulMoment}
               openBrainDump={openBrainDump}
-            />
+            /> */}
 
             {/* CURRENT HOUR FOCUS */}
             <div className={`rounded-2xl p-6 shadow-2xl transition-all duration-300 ${
@@ -1587,9 +1594,11 @@ const DualTrackOS = () => {
               {/* Energy Selector - Click to open modal (always visible but shows completion state) */}
               {(() => {
                 const energySuggestions = getSmartSuggestions();
-                const totalEnergyActions = energySuggestions.tasks ? energySuggestions.tasks.length : 0;
-                const completedEnergyActions = selectedEnergyActions.length;
-                const allEnergyActionsComplete = getCurrentPeriodEnergy() && totalEnergyActions > 0 && completedEnergyActions >= totalEnergyActions;
+                // const totalEnergyActions = energySuggestions.tasks ? energySuggestions.tasks.length : 0; // selectedEnergyActions is in wellness store
+                // const completedEnergyActions = selectedEnergyActions.length;
+                // const allEnergyActionsComplete = getCurrentPeriodEnergy() && totalEnergyActions > 0 && completedEnergyActions >= totalEnergyActions;
+
+                const allEnergyActionsComplete = false; // Placeholder for now
 
                 return (
                   <div className={`rounded-xl p-4 transition-all duration-300 ${
@@ -1621,7 +1630,7 @@ const DualTrackOS = () => {
                   {getTimeOfDay()}
                   {getCurrentPeriodEnergy() && (
                     <button
-                      onClick={() => setShowEnergyModal(true)}
+                      // onClick={() => setShowEnergyModal(true)} // setShowEnergyModal is local state
                       className="text-xs mt-1 underline hover:text-yellow-500 cursor-pointer"
                     >
                       Click for tips
@@ -1637,7 +1646,7 @@ const DualTrackOS = () => {
                         e.stopPropagation();
                         setCurrentEnergy(level);
                         // Open modal immediately after setting energy
-                        setTimeout(() => setShowEnergyModal(true), 100);
+                        // setTimeout(() => setShowEnergyModal(true), 100); // setShowEnergyModal is local state
                       }}
                       className={`w-8 h-8 rounded-full transition-all ${
                         getCurrentPeriodEnergy() === level
@@ -1664,9 +1673,11 @@ const DualTrackOS = () => {
               {/* Mood Selector - Click to open modal (always visible but shows completion state) */}
               {(() => {
                 const moodSuggestions = getSmartSuggestions();
-                const totalMoodActions = moodSuggestions.moodWellness?.activities ? moodSuggestions.moodWellness.activities.length : 0;
-                const completedMoodActions = selectedMoodActions.length;
-                const allMoodActionsComplete = currentMood && totalMoodActions > 0 && completedMoodActions >= totalMoodActions;
+                // const totalMoodActions = moodSuggestions.moodWellness?.activities ? moodSuggestions.moodWellness.activities.length : 0; // selectedMoodActions is in wellness store
+                // const completedMoodActions = selectedMoodActions.length;
+                // const allMoodActionsComplete = currentMood && totalMoodActions > 0 && completedMoodActions >= totalMoodActions;
+
+                const allMoodActionsComplete = false; // Placeholder for now
 
                 return (
                   <div className={`rounded-xl p-4 transition-all duration-300 ${
@@ -1693,7 +1704,7 @@ const DualTrackOS = () => {
                   <div className={`text-xs text-center mb-3 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
                     Current: {currentMood}
                     <button
-                      onClick={() => setShowMoodModal(true)}
+                      // onClick={() => setShowMoodModal(true)} // setShowMoodModal is local state
                       className="block text-xs mt-1 underline hover:text-pink-500 cursor-pointer mx-auto"
                     >
                       Click for wellness tips
@@ -1716,7 +1727,7 @@ const DualTrackOS = () => {
                         e.stopPropagation();
                         setCurrentMood(mood);
                         // Open modal immediately after setting mood
-                        setTimeout(() => setShowMoodModal(true), 100);
+                        // setTimeout(() => setShowMoodModal(true), 100); // setShowMoodModal is local state
                       }}
                       className={`p-2 rounded-lg text-xl transition-all ${
                         currentMood === mood
@@ -1810,192 +1821,29 @@ const DualTrackOS = () => {
               )}
             </div>
 
-            {/* KANBAN BOARD - Career & Business Tasks */}
-            <div className={`rounded-xl p-6 transition-all duration-300 ${
-              darkMode
-                ? 'bg-gray-800/50 border-2 border-gray-700/50 shadow-lg backdrop-blur-sm'
-                : 'bg-white border-2 border-gray-100 shadow-md'
-            }`}>
-              <h3 className={`text-lg font-bold mb-4 flex items-center ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                <Sparkles className={`mr-2 ${darkMode ? 'text-purple-400' : 'text-purple-500'}`} size={20} />
-                Life's Pipeline
-              </h3>
+            {/* KANBAN BOARD - Career & Business Tasks - REMOVED */}
+          </div>
+        )}
+      </div>
 
-              {/* Add Task Input */}
-              <div className="flex space-x-2 mb-6">
-                <input
-                  type="text"
-                  value={newTaskInput}
-                  onChange={(e) => setNewTaskInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && addKanbanTask()}
-                  placeholder="Add new task..."
-                  className={`flex-1 px-4 py-2 rounded-lg border-2 transition-all ${
-                    darkMode
-                      ? 'bg-gray-900/50 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-blue-500/50'
-                      : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-500'
-                  }`}
-                />
-                <button
-                  onClick={addKanbanTask}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                    darkMode
-                      ? 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border-2 border-blue-500/40'
-                      : 'bg-blue-500 hover:bg-blue-600 text-white'
-                  }`}
-                >
-                  <Plus size={18} />
-                </button>
-              </div>
+      {dailyMetrics.showCommandCenterModal && ( // Use dailyMetrics.showCommandCenterModal
+        <DailyCommandCenterModal
+          darkMode={darkMode}
+          setShowCommandCenterModal={dailyMetrics.setShowCommandCenterModal}
+          addQuickWin={addQuickWin}
+          quickWinInput={quickWinInput}
+          setQuickWinInput={setQuickWinInput}
+        />
+      )}
+      {showWellnessSnackModal && (
+        <WellnessSnackModal
+          currentTime={currentTime}
+          setDailyMetrics={setDailyMetrics}
+          setSpiritAnimalScore={setSpiritAnimalScore}
+        />
+      )}
+    </div>
+  );
+};
 
-              {/* Kanban Columns */}
-              <div className="grid grid-cols-3 gap-3">
-                {/* BACKLOG */}
-                <div
-                  onClick={() => setExpandedColumn(expandedColumn === 'backlog' ? null : 'backlog')}
-                  className={`rounded-lg p-3 cursor-pointer transition-all ${
-                    darkMode
-                      ? 'bg-gray-900/50 border-2 border-gray-700 hover:border-gray-600'
-                      : 'bg-gray-50 border-2 border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className={`text-xs font-bold uppercase ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      Backlog
-                    </h4>
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                      darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'
-                    }`}>
-                      {kanbanTasks.backlog.length}
-                    </span>
-                  </div>
-                  <div className="space-y-2">
-                    {kanbanTasks.backlog.slice(0, expandedColumn === 'backlog' ? undefined : 3).map(task => (
-                      <div
-                        key={task.id}
-                        onClick={(e) => e.stopPropagation()}
-                        className={`p-2 rounded text-xs ${
-                          darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-                        }`}
-                      >
-                        <p className={`font-medium mb-1 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                          {task.title}
-                        </p>
-                        <div className="flex space-x-1">
-                          <button
-                            onClick={() => moveTask(task.id, 'backlog', 'inProgress')}
-                            className={`flex-1 py-1 rounded text-xs ${
-                              darkMode
-                                ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-400'
-                                : 'bg-orange-100 hover:bg-orange-200 text-orange-700'
-                            }`}
-                          >
-                            Start →
-                          </button>
-                          <button
-                            onClick={() => deleteTask(task.id, 'backlog')}
-                            className={`px-2 py-1 rounded ${
-                              darkMode ? 'hover:bg-red-500/20 text-red-400' : 'hover:bg-red-100 text-red-600'
-                            }`}
-                          >
-                            <X size={12} />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                    {expandedColumn !== 'backlog' && kanbanTasks.backlog.length > 3 && (
-                      <div className={`text-xs text-center ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                        +{kanbanTasks.backlog.length - 3} more
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* IN PROGRESS */}
-                <div
-                  onClick={() => setExpandedColumn(expandedColumn === 'inProgress' ? null : 'inProgress')}
-                  className={`rounded-lg p-3 cursor-pointer transition-all ${
-                    darkMode
-                      ? 'bg-orange-900/20 border-2 border-orange-700/30 hover:border-orange-600/50'
-                      : 'bg-orange-50 border-2 border-orange-200 hover:border-orange-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className={`text-xs font-bold uppercase ${darkMode ? 'text-orange-400' : 'text-orange-700'}`}>
-                      In Progress
-                    </h4>
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                      darkMode ? 'bg-orange-700/30 text-orange-300' : 'bg-orange-200 text-orange-800'
-                    }`}>
-                      {kanbanTasks.inProgress.length}
-                    </span>
-                  </div>
-                  <div className="space-y-2">
-                    {kanbanTasks.inProgress.slice(0, expandedColumn === 'inProgress' ? undefined : 3).map(task => (
-                      <div
-                        key={task.id}
-                        onClick={(e) => e.stopPropagation()}
-                        className={`p-2 rounded text-xs ${
-                          darkMode ? 'bg-gray-800 border border-orange-700/30' : 'bg-white border border-orange-300'
-                        }`}
-                      >
-                        <p className={`font-medium mb-1 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                          {task.title}
-                        </p>
-                        <div className="flex space-x-1">
-                          <button
-                            onClick={() => moveTask(task.id, 'inProgress', 'backlog')}
-                            className={`px-2 py-1 rounded text-xs ${
-                              darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-200 text-gray-600'
-                            }`}
-                          >
-                            ← Back
-                          </button>
-                          <button
-                            onClick={() => moveTask(task.id, 'inProgress', 'done')}
-                            className={`flex-1 py-1 rounded text-xs ${
-                              darkMode
-                                ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400'
-                                : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-700'
-                            }`}
-                          >
-                            Done →
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                    {expandedColumn !== 'inProgress' && kanbanTasks.inProgress.length > 3 && (
-                      <div className={`text-xs text-center ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                        +{kanbanTasks.inProgress.length - 3} more
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* DONE */}
-                <div
-                  onClick={() => setExpandedColumn(expandedColumn === 'done' ? null : 'done')}
-                  className={`rounded-lg p-3 cursor-pointer transition-all ${
-                    darkMode
-                      ? 'bg-emerald-900/20 border-2 border-emerald-700/30 hover:border-emerald-600/50'
-                      : 'bg-emerald-50 border-2 border-emerald-200 hover:border-emerald-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className={`text-xs font-bold uppercase ${darkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
-                      Done
-                    </h4>
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                      darkMode ? 'bg-emerald-700/30 text-emerald-300' : 'bg-emerald-200 text-emerald-800'
-                    }`}>
-                      {kanbanTasks.done.length}
-                    </span>
-                  </div>
-                  <div className="space-y-2">
-                    {kanbanTasks.done.slice(0, expandedColumn === 'done' ? undefined : 3).map(task => (
-                      <div
-                        key={task.id}
-                        onClick={(e) => e.stopPropagation()}
-                        className={`p-2 rounded text-xs ${
-                          darkMode ? 'bg-gray-800 border border-emerald-700/30' : 'bg-white border border-emerald-300'
-                        }`}
-                      >
+export default DualTrackOS;

@@ -6,6 +6,7 @@ import useWellnessStore from '../store/useWellnessStore';
 import useDailyMetricsStore from '../store/useDailyMetricsStore';
 import WellnessSnackModal from '../components/WellnessSnackModal';
 import DailyCommandCenterModal from '../components/DailyCommandCenterModal';
+import KanbanBoard from '../components/KanbanBoard'; // Import KanbanBoard
 import { POMODORO_DURATION_SECONDS, ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
 
 const Dashboard = () => {
@@ -182,6 +183,8 @@ const Dashboard = () => {
             </div>
           )}
         </div>
+        {/* Render Kanban Board */}
+        <KanbanBoard />
       </div>
 
       <DailyCommandCenterModal />
