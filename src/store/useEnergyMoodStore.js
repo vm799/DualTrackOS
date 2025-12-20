@@ -37,7 +37,6 @@ const useEnergyMoodStore = create((set, get) => ({
   },
 
   setCurrentEnergy: (level) => {
-    const hour = new Date().getHours(); // Use new Date() for current time if not passed in
     const period = get().getTimeOfDay();
     set((state) => ({
       energyTracking: {
