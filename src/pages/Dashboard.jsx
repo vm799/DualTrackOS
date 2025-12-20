@@ -109,72 +109,72 @@ const Dashboard = () => {
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Pomodoro Timer */}
         <div className="text-center pb-1">
-          <button
-            onClick={togglePomodoroMode}
-            className="flex flex-col items-center cursor-pointer select-none transition-transform hover:scale-105"
-          >
-            <div className={`text-3xl md:text-4xl font-semibold tracking-tight ${
-              darkMode
-                ? 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
-                : 'text-gray-900'
-            }`}>
-              {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false })}
-            </div>
-            <div className={`text-[11px] md:text-xs ${
-              darkMode ? 'text-purple-400' : 'text-purple-600'
-            } opacity-80`}>
-              Tap clock to start Pomodoro
-            </div>
-          </button>
-
-          {isPomodoroMode && (
-            <div className="space-y-3 mt-4">
-              <div className={`font-mono text-3xl sm:text-4xl font-bold ${
+          {!isPomodoroMode ? (
+            <button
+              onClick={togglePomodoroMode}
+              className="flex flex-col items-center cursor-pointer select-none transition-transform hover:scale-105"
+            >
+              <div className={`text-3xl md:text-4xl font-semibold tracking-tight ${
+                darkMode
+                  ? 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
+                  : 'text-gray-900'
+              }`}>
+                {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false })}
+              </div>
+              <div className={`text-[11px] md:text-xs ${
+                darkMode ? 'text-purple-400' : 'text-purple-600'
+              } opacity-80`}>
+                Tap for Focus Timer
+              </div>
+            </button>
+          ) : (
+            <div className="space-y-3">
+              <div className={`font-mono text-4xl sm:text-5xl font-bold transition-all ${
                 darkMode
                   ? pomodoroRunning
                     ? 'bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent'
-                    : 'text-gray-600'
-                  : pomodoroRunning ? 'text-orange-600' : 'text-gray-400'
+                    : 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
+                  : pomodoroRunning ? 'text-orange-600' : 'text-purple-600'
               }`}>
                 {formatTime(pomodoroSeconds)}
               </div>
-              <div className="flex items-center justify-center space-x-3">
+              <div className="flex items-center justify-center space-x-3 flex-wrap gap-2">
                 {!pomodoroRunning ? (
-                  <button onClick={() => usePomodoroStore.getState().startPomodoro()} className={`px-6 py-2 rounded-lg font-medium flex items-center space-x-2 transition-all ${
+                  <button onClick={() => usePomodoroStore.getState().startPomodoro()} className={`px-8 py-3 rounded-xl font-semibold flex items-center space-x-2 transition-all shadow-lg ${
                     darkMode
-                      ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30'
-                      : 'bg-green-100 hover:bg-green-200 text-green-700 border border-green-300'
+                      ? 'bg-emerald-500/30 hover:bg-emerald-500/40 text-emerald-300 border-2 border-emerald-500/50'
+                      : 'bg-green-500 hover:bg-green-600 text-white border-2 border-green-600'
                   }`}>
-                    <Play size={18} />
-                    <span>Start</span>
+                    <Play size={20} />
+                    <span>Start Focus</span>
                   </button>
                 ) : (
-                  <button onClick={() => usePomodoroStore.getState().pausePomodoro()} className={`px-6 py-2 rounded-lg font-medium flex items-center space-x-2 transition-all ${
+                  <button onClick={() => usePomodoroStore.getState().pausePomodoro()} className={`px-8 py-3 rounded-xl font-semibold flex items-center space-x-2 transition-all shadow-lg ${
                     darkMode
-                      ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/30'
-                      : 'bg-orange-100 hover:bg-orange-200 text-orange-700 border border-orange-300'
+                      ? 'bg-orange-500/30 hover:bg-orange-500/40 text-orange-300 border-2 border-orange-500/50'
+                      : 'bg-orange-500 hover:bg-orange-600 text-white border-2 border-orange-600'
                   }`}>
-                    <Pause size={18} />
+                    <Pause size={20} />
                     <span>Pause</span>
                   </button>
                 )}
-                <button onClick={() => usePomodoroStore.getState().resetPomodoro()} className={`p-2 rounded-lg transition-all ${
+                <button onClick={() => usePomodoroStore.getState().resetPomodoro()} className={`px-6 py-3 rounded-xl font-medium transition-all ${
                   darkMode
-                    ? 'bg-gray-800 hover:bg-gray-700 text-gray-400'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-600'
-                }`}>
-                  <RotateCcw size={18} />
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
+                }`} title="Reset Timer">
+                  <RotateCcw size={20} />
                 </button>
-                <button onClick={togglePomodoroMode} className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                <button onClick={togglePomodoroMode} className={`px-6 py-3 rounded-xl font-medium transition-all ${
                   darkMode
-                    ? 'bg-gray-800 hover:bg-gray-700 text-gray-400'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-600'
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
                 }`}>
-                  Exit
+                  Exit Timer
                 </button>
               </div>
-              <div className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
-                {pomodoroRunning ? '🎯 Deep Focus Mode Active' : 'Paused'}
+              <div className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                {pomodoroRunning ? '🎯 Deep Focus Mode Active' : '⏸️ Timer Ready - Click Start Focus'}
               </div>
             </div>
           )}
