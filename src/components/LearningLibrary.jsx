@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Plus, X, Link, Youtube, Instagram } from 'lucide-react';
+import { BookOpen, Plus, Link, Youtube, Instagram } from 'lucide-react';
 import useLearningStore from '../store/useLearningStore';
 import useStore from '../store/useStore';
 
