@@ -1,14 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Onboarding from '../Onboarding'; // Original component
+import useStore from '../store/useStore';
 
 const OnboardingPage = ({ darkMode }) => {
   const navigate = useNavigate();
+  const setUserProfile = useStore((state) => state.setUserProfile);
 
   const handleOnboardingComplete = (profile) => {
-    // This function will still be passed to the original Onboarding component
-    // but the navigation happens here
-    // setUserProfile(profile); // This will be handled by the original Onboarding component or a centralized store
+    // Save profile to store before navigating
+    setUserProfile(profile);
     navigate('/dashboard');
   };
 
