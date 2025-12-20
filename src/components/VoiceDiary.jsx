@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mic, Play, Pause, Square } from 'lucide-react'; // Square for stop icon
+import { Mic, Square } from 'lucide-react'; // Square for stop icon
 import useVoiceDiaryStore from '../store/useVoiceDiaryStore';
 import useStore from '../store/useStore';
 

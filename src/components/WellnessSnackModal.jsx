@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { X, Check, Activity, Apple, Heart } from 'lucide-react';
+import React, { useCallback } from 'react';
+import { Activity, Apple, Heart } from 'lucide-react';
 import useWellnessStore from '../store/useWellnessStore';
 import useStore from '../store/useStore';
 import BoxBreathingComponent from './BoxBreathingComponent';
 
 import {
-  WELLNESS_SNOOZE_DURATION_MS,
   EXERCISE_TARGETS,
 } from '../constants';
 
@@ -23,7 +22,6 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
     setWellnessSnackChoice,
     setExerciseChoice,
     setBoxBreathingActive,
-    setMissedHourPrompt,
     setExerciseReps,
     setExerciseTarget,
     setExerciseActive,
@@ -38,9 +36,6 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
     decrementReps,
   } = useWellnessStore();
   const darkMode = useStore((state) => state.darkMode);
-
-  // Helper function from App.old.jsx, eventually moved to a utility
-  const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
   const startExercise = useCallback((exercise) => {
     setExerciseChoice(exercise.id);
