@@ -12,29 +12,19 @@ import EnergyMoodTracker from '../components/EnergyMoodTracker';
 import ProteinTracker from '../components/ProteinTracker';
 import VoiceDiary from '../components/VoiceDiary';
 import LearningLibrary from '../components/LearningLibrary'; // Import LearningLibrary
-import { POMODORO_DURATION_SECONDS, ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
+import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
 
 const Dashboard = () => {
   // Global states and actions
-  const { isPomodoroMode, pomodoroSeconds, pomodoroRunning, togglePomodoroMode, setPomodoroSeconds, setPomodoroRunning, resetPomodoro } = usePomodoroStore();
+  const { isPomodoroMode, pomodoroSeconds, pomodoroRunning, togglePomodoroMode, setPomodoroSeconds, setPomodoroRunning } = usePomodoroStore();
   const darkMode = useStore((state) => state.darkMode);
   const userProfile = useStore((state) => state.userProfile);
   const currentTime = useStore((state) => state.currentTime);
   const setCurrentTime = useStore((state) => state.setCurrentTime);
   const setSpiritAnimalScore = useStore((state) => state.setSpiritAnimalScore);
 
-  // Wellness Store states and actions for external interaction
-  const {
-    wellnessSnacksDismissed,
-    showWellnessSnackModal,
-    missedHourPrompt,
-    setMissedHourPrompt: setWellnessMissedHourPrompt,
-    setLastWellnessHour: setWellnessLastWellnessHour,
-  } = useWellnessStore();
-
   // Daily Metrics Store states and actions for external interaction
   const {
-    showCommandCenterModal,
     setShowCommandCenterModal,
     setDailyMetrics
   } = useDailyMetricsStore();
