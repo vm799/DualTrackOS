@@ -28,6 +28,8 @@ const Dashboard = () => {
   const setCurrentTime = useStore((state) => state.setCurrentTime);
   const setSpiritAnimalScore = useStore((state) => state.setSpiritAnimalScore);
   const setDarkMode = useStore((state) => state.setDarkMode);
+  const currentView = useStore((state) => state.currentView);
+  const setCurrentView = useStore((state) => state.setCurrentView);
 
   // Daily Metrics Store states and actions for external interaction
   const {
@@ -40,7 +42,6 @@ const Dashboard = () => {
 
   // Local UI state
   const [isScrolled, setIsScrolled] = useState(false);
-  const [currentView, setCurrentView] = useState('dashboard');
 
   // Get welcome message based on time of day
   const getWelcomeMessage = () => {
