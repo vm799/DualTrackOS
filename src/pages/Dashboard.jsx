@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Play, Pause, RotateCcw, TrendingUp, Settings, LogOut, User } from 'lucide-react';
 import { signOut } from '../services/dataService';
 import usePomodoroStore from '../store/usePomodoroStore';
@@ -22,6 +23,8 @@ import BrainDumpModal from '../components/BrainDumpModal';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   // Global states and actions
   const { isPomodoroMode, pomodoroSeconds, pomodoroRunning, togglePomodoroMode, setPomodoroSeconds, setPomodoroRunning } = usePomodoroStore();
   const darkMode = useStore((state) => state.darkMode);
@@ -30,9 +33,6 @@ const Dashboard = () => {
   const currentTime = useStore((state) => state.currentTime);
   const setCurrentTime = useStore((state) => state.setCurrentTime);
   const setSpiritAnimalScore = useStore((state) => state.setSpiritAnimalScore);
-  const setDarkMode = useStore((state) => state.setDarkMode);
-  const currentView = useStore((state) => state.currentView);
-  const setCurrentView = useStore((state) => state.setCurrentView);
 
   // Daily Metrics Store states and actions for external interaction
   const {
@@ -261,13 +261,13 @@ const Dashboard = () => {
                     </div>
                   </div>
                   <button
-                    onClick={() => setDarkMode(!darkMode)}
+                    onClick={() => navigate('/settings')}
                     className={`w-full px-4 py-2.5 text-left text-sm transition-all flex items-center gap-2 ${
                       darkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-700'
                     }`}
                   >
                     <Settings size={16} />
-                    Toggle Dark Mode
+                    Settings
                   </button>
                   <button
                     onClick={signOut}
@@ -282,13 +282,13 @@ const Dashboard = () => {
               </div>
             ) : (
               <button
-                onClick={() => setDarkMode(!darkMode)}
+                onClick={() => navigate('/settings')}
                 className={`p-2 rounded-full transition-all ${
                   darkMode
                     ? 'hover:bg-white/10 text-gray-400 hover:text-gray-300'
                     : 'hover:bg-gray-100 text-gray-600 hover:text-gray-700'
                 }`}
-                title="Toggle Dark Mode"
+                title="Settings"
               >
                 <Settings className="w-5 h-5 md:w-6 md:h-6" />
               </button>
