@@ -14,6 +14,7 @@ const BrainDumpModal = ({ show, onClose }) => {
   const [thoughts, setThoughts] = useState([]);
   const [currentThought, setCurrentThought] = useState('');
   const [dumpMode, setDumpMode] = useState('freestyle'); // freestyle | prompts
+  const [selectedPrompt, setSelectedPrompt] = useState(null);
 
   if (!show) return null;
 
@@ -49,18 +50,26 @@ const BrainDumpModal = ({ show, onClose }) => {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg p-4">
-      <div className={`max-w-3xl w-full rounded-3xl p-8 relative max-h-[90vh] overflow-y-auto ${
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg p-4 overflow-y-auto">
+      <div className={`max-w-3xl w-full rounded-3xl relative my-8 ${
         darkMode ? 'bg-gray-900 border-2 border-purple-500/30' : 'bg-white border-2 border-purple-200'
       }`}>
-        <button
-          onClick={onClose}
-          className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
-            darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          <X size={24} />
-        </button>
+        {/* Sticky close button */}
+        <div className={`sticky top-0 z-10 flex justify-end p-4 ${
+          darkMode ? 'bg-gray-900' : 'bg-white'
+        } rounded-t-3xl`}>
+          <button
+            onClick={onClose}
+            className={`p-2 rounded-lg transition-all ${
+              darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        {/* Scrollable content */}
+        <div className="px-8 pb-8">
 
         <div className="flex items-center gap-3 mb-2">
           <PenTool className={darkMode ? 'text-purple-400' : 'text-purple-600'} size={32} />
@@ -151,21 +160,36 @@ const BrainDumpModal = ({ show, onClose }) => {
         {/* Prompts Mode */}
         {dumpMode === 'prompts' && (
           <div className="mb-6 space-y-3">
-            {prompts.map((prompt, idx) => (
-              <div
-                key={idx}
-                className={`p-4 rounded-xl cursor-pointer transition-all ${
-                  darkMode
-                    ? 'bg-gray-800/50 border-2 border-gray-700 hover:border-purple-500/50'
-                    : 'bg-gray-50 border-2 border-gray-200 hover:border-purple-300'
-                }`}
-                onClick={() => setCurrentThought(prompt + '\n')}
-              >
-                <p className={`text-sm ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
-                  {prompt}
-                </p>
-              </div>
-            ))}
+            {prompts.map((prompt, idx) => {
+              const isSelected = selectedPrompt === idx;
+              return (
+                <div
+                  key={idx}
+                  className={`p-4 rounded-xl cursor-pointer transition-all ${
+                    isSelected
+                      ? darkMode
+                        ? 'bg-purple-500/20 border-2 border-purple-500/50 shadow-lg'
+                        : 'bg-purple-100 border-2 border-purple-400'
+                      : darkMode
+                        ? 'bg-gray-800/50 border-2 border-gray-700 hover:border-purple-500/50'
+                        : 'bg-gray-50 border-2 border-gray-200 hover:border-purple-300'
+                  }`}
+                  onClick={() => {
+                    setSelectedPrompt(idx);
+                    setCurrentThought(prompt + '\n\n');
+                  }}
+                >
+                  <p className={`text-sm font-semibold flex items-center gap-2 ${
+                    isSelected
+                      ? darkMode ? 'text-purple-300' : 'text-purple-700'
+                      : darkMode ? 'text-purple-400' : 'text-purple-600'
+                  }`}>
+                    {isSelected && <Check size={16} className="text-purple-400" />}
+                    {prompt}
+                  </p>
+                </div>
+              );
+            })}
             <textarea
               value={currentThought}
               onChange={(e) => setCurrentThought(e.target.value)}
@@ -264,6 +288,7 @@ const BrainDumpModal = ({ show, onClose }) => {
             {ndm.brainDump ? 'Already Complete' : 'Mark Complete'}
           </button>
         </div>
+        </div> {/* End scrollable content */}
       </div>
     </div>
   );

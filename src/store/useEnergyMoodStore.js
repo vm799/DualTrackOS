@@ -77,10 +77,10 @@ const useEnergyMoodStore = create((set, get) => ({
           "Listen to calming music while resting",
         ],
         snacks: [
-          "Greek yogurt with berries (protein + quick energy)",
-          "Apple with almond butter (slow-release energy)",
-          "Hard-boiled eggs (sustained protein)",
-          "Banana with handful of nuts (potassium + healthy fats)"
+          { name: "Greek yogurt with berries", protein: 20, note: "protein + quick energy" },
+          { name: "Apple with almond butter", protein: 4, note: "slow-release energy" },
+          { name: "Hard-boiled eggs", protein: 12, note: "sustained protein" },
+          { name: "Banana with handful of nuts", protein: 6, note: "potassium + healthy fats" }
         ],
         warning: "⚠️ Working through this exhaustion damages your health. Rest is not optional.",
         color: "rose"
@@ -95,10 +95,10 @@ const useEnergyMoodStore = create((set, get) => ({
           "Journal for 10 minutes (therapeutic, no pressure)",
         ],
         snacks: [
-          "Hummus with veggies (sustained energy)",
-          "Trail mix with dark chocolate (magnesium boost)",
-          "Cheese and whole grain crackers (protein + complex carbs)",
-          "Smoothie with protein powder (easy to digest)"
+          { name: "Hummus with veggies", protein: 8, note: "sustained energy" },
+          { name: "Trail mix with dark chocolate", protein: 8, note: "magnesium boost" },
+          { name: "Cheese and whole grain crackers", protein: 10, note: "protein + complex carbs" },
+          { name: "Smoothie with protein powder", protein: 25, note: "easy to digest" }
         ],
         proteinPrompt: true,
         color: "purple"
@@ -113,10 +113,10 @@ const useEnergyMoodStore = create((set, get) => ({
           "Administrative tasks and documentation"
         ],
         snacks: [
-          "Cottage cheese with pineapple (protein + energy)",
-          "Turkey roll-ups with avocado (lean protein + healthy fat)",
-          "Oatmeal with nuts (sustained release)",
-          "Protein bar with <5g sugar"
+          { name: "Cottage cheese with pineapple", protein: 22, note: "protein + energy" },
+          { name: "Turkey roll-ups with avocado", protein: 15, note: "lean protein + healthy fat" },
+          { name: "Oatmeal with nuts", protein: 10, note: "sustained release" },
+          { name: "Protein bar", protein: 20, note: "<5g sugar" }
         ],
         color: "cyan"
       },
@@ -130,10 +130,10 @@ const useEnergyMoodStore = create((set, get) => ({
           "Strategic planning for major decisions"
         ],
         snacks: [
-          "Salmon with leafy greens (omega-3 for brain function)",
-          "Blueberries with almonds (antioxidants + focus)",
-          "Green tea + dark chocolate (L-theanine + polyphenols)",
-          "Chicken breast with quinoa (complete protein + energy)"
+          { name: "Salmon with leafy greens", protein: 25, note: "omega-3 for brain function" },
+          { name: "Blueberries with almonds", protein: 6, note: "antioxidants + focus" },
+          { name: "Green tea + dark chocolate", protein: 2, note: "L-theanine + polyphenols" },
+          { name: "Chicken breast with quinoa", protein: 35, note: "complete protein + energy" }
         ],
         warning: "⚡ Protect this energy! Minimize distractions, close unnecessary tabs.",
         color: "orange"
@@ -148,10 +148,10 @@ const useEnergyMoodStore = create((set, get) => ({
           "Learning new complex skills"
         ],
         snacks: [
-          "Smoked salmon on whole grain (brain-boosting omega-3)",
-          "Matcha latte with MCT oil (sustained focus)",
-          "Beet juice + walnuts (nitric oxide + DHA)",
-          "Steak with sweet potato (iron + stable glucose)"
+          { name: "Smoked salmon on whole grain", protein: 20, note: "brain-boosting omega-3" },
+          { name: "Matcha latte with MCT oil", protein: 6, note: "sustained focus" },
+          { name: "Beet juice + walnuts", protein: 4, note: "nitric oxide + DHA" },
+          { name: "Steak with sweet potato", protein: 40, note: "iron + stable glucose" }
         ],
         warning: "⚡ Protect this energy! Minimize distractions, close unnecessary tabs.",
         color: "yellow"
@@ -172,10 +172,10 @@ const useEnergyMoodStore = create((set, get) => ({
           "Exercise (capitalize on natural motivation)"
         ],
         snacks: [
-          "Protein smoothie (maintain the momentum)",
-          "Mixed berries with Greek yogurt (antioxidants)",
-          "Energy balls (dates, nuts, cacao)",
-          "Green juice with ginger (sustained vitality)"
+          { name: "Protein smoothie", protein: 25, note: "maintain the momentum" },
+          { name: "Mixed berries with Greek yogurt", protein: 18, note: "antioxidants" },
+          { name: "Energy balls", protein: 8, note: "dates, nuts, cacao" },
+          { name: "Green juice with ginger", protein: 2, note: "sustained vitality" }
         ],
         color: "orange"
       },
@@ -189,10 +189,10 @@ const useEnergyMoodStore = create((set, get) => ({
           "Writing or detailed planning"
         ],
         snacks: [
-          "Blueberries (improve cognitive function)",
-          "Dark chocolate 70%+ (flavonoids for focus)",
-          "Walnuts (omega-3 for sustained attention)",
-          "Green tea with honey (L-theanine + stable energy)"
+          { name: "Blueberries", protein: 1, note: "improve cognitive function" },
+          { name: "Dark chocolate 70%+", protein: 2, note: "flavonoids for focus" },
+          { name: "Walnuts", protein: 4, note: "omega-3 for sustained attention" },
+          { name: "Green tea with honey", protein: 0, note: "L-theanine + stable energy" }
         ],
         color: "blue"
       },
@@ -206,10 +206,10 @@ const useEnergyMoodStore = create((set, get) => ({
           "Meaningful conversations (listening mode)"
         ],
         snacks: [
-          "Chamomile tea with honey (maintain calm)",
-          "Avocado toast (healthy fats for sustained calm)",
-          "Warm oatmeal with cinnamon (grounding)",
-          "Sliced pear with cheese (balanced satisfaction)"
+          { name: "Chamomile tea with honey", protein: 0, note: "maintain calm" },
+          { name: "Avocado toast", protein: 8, note: "healthy fats for sustained calm" },
+          { name: "Warm oatmeal with cinnamon", protein: 6, note: "grounding" },
+          { name: "Sliced pear with cheese", protein: 7, note: "balanced satisfaction" }
         ],
         color: "cyan"
       },
@@ -223,10 +223,10 @@ const useEnergyMoodStore = create((set, get) => ({
           "Light stretching or restorative yoga"
         ],
         snacks: [
-          "Tart cherry juice (melatonin, aids rest)",
-          "Banana with almond butter (tryptophan + magnesium)",
-          "Whole grain toast with turkey (sleep-promoting)",
-          "Warm milk with honey (traditional rest aid)"
+          { name: "Tart cherry juice", protein: 1, note: "melatonin, aids rest" },
+          { name: "Banana with almond butter", protein: 4, note: "tryptophan + magnesium" },
+          { name: "Whole grain toast with turkey", protein: 12, note: "sleep-promoting" },
+          { name: "Warm milk with honey", protein: 8, note: "traditional rest aid" }
         ],
         warning: "💤 Pushing through exhaustion backfires. Rest is productive.",
         color: "purple"
@@ -241,10 +241,10 @@ const useEnergyMoodStore = create((set, get) => ({
           "Call a trusted friend (social support regulates nervous system)"
         ],
         snacks: [
-          "Complex carbs (whole grain) - serotonin boost",
-          "Chamomile or lavender tea (calming compounds)",
-          "Dark leafy greens (magnesium for relaxation)",
-          "Pumpkin seeds (zinc for anxiety reduction)"
+          { name: "Complex carbs (whole grain)", protein: 6, note: "serotonin boost" },
+          { name: "Chamomile or lavender tea", protein: 0, note: "calming compounds" },
+          { name: "Dark leafy greens", protein: 3, note: "magnesium for relaxation" },
+          { name: "Pumpkin seeds", protein: 9, note: "zinc for anxiety reduction" }
         ],
         supplement: "Consider: Magnesium glycinate, L-theanine, or ashwagandha (consult provider)",
         color: "blue"
@@ -259,10 +259,10 @@ const useEnergyMoodStore = create((set, get) => ({
           "Ask for help (vulnerability is strength)"
         ],
         snacks: [
-          "Comfort food that nourishes: soup, oatmeal",
-          "Herbal tea (lemon balm, passionflower)",
-          "Dark chocolate (proven mood elevator)",
-          "Whatever you can manage - no judgment"
+          { name: "Comfort food that nourishes: soup, oatmeal", protein: 8, note: "gentle nourishment" },
+          { name: "Herbal tea (lemon balm, passionflower)", protein: 0, note: "nervous system support" },
+          { name: "Dark chocolate", protein: 2, note: "proven mood elevator" },
+          { name: "Whatever you can manage", protein: 5, note: "no judgment" }
         ],
         warning: "🌸 PERMISSION TO PAUSE: Rest is not quitting. It's regrouping.",
         color: "rose"
@@ -282,7 +282,12 @@ const useEnergyMoodStore = create((set, get) => ({
       return {
         message: "🌸 ULTIMATE GENTLE MODE: Rest is your only job today.",
         tasks: ["Take a bath or shower", "Nap for 20-30 minutes", "Watch comfort TV", "Order takeout (no cooking)"],
-        snacks: ["Whatever brings comfort - no rules today", "Warm soup", "Herbal tea", "Dark chocolate"],
+        snacks: [
+          { name: "Whatever brings comfort", protein: 5, note: "no rules today" },
+          { name: "Warm soup", protein: 10, note: "gentle nourishment" },
+          { name: "Herbal tea", protein: 0, note: "calming ritual" },
+          { name: "Dark chocolate", protein: 2, note: "mood support" }
+        ],
         warning: "🌸 You are enough. Rest is productive. Healing takes time.",
         color: "rose",
         type: "crisis"

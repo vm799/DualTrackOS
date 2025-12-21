@@ -4,10 +4,10 @@ import LandingPageView from './pages/LandingPage';
 import StoryPageView from './pages/StoryPage';
 import OnboardingPage from './pages/OnboardingPage';
 import Dashboard from './pages/Dashboard';
+import SettingsPage from './pages/SettingsPage';
 import useStore from './store/useStore';
 
 const AppRouter = () => {
-  const user = useStore((state) => state.user);
   const darkMode = useStore((state) => state.darkMode);
   const userProfile = useStore((state) => state.userProfile);
 
@@ -35,6 +35,10 @@ const AppRouter = () => {
               <Navigate to="/onboarding" replace />
             )
           }
+        />
+        <Route
+          path="/settings"
+          element={<SettingsPage />}
         />
         {/* Add more routes here as we break down App.jsx */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Check, Apple, Plus, Minus } from 'lucide-react';
+import { X, Check, Apple, Plus } from 'lucide-react';
 import useStore from '../store/useStore';
 import useNDMStore from '../store/useNDMStore';
 import useNutritionStore from '../store/useNutritionStore';
@@ -73,19 +73,26 @@ const NutritionDetailModal = ({ show, onClose }) => {
   const progress = Math.min((proteinToday / proteinTarget) * 100, 100);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg p-4">
-      <div className={`max-w-4xl w-full rounded-3xl p-8 relative max-h-[90vh] overflow-y-auto ${
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg p-4 overflow-y-auto">
+      <div className={`max-w-4xl w-full rounded-3xl relative my-8 ${
         darkMode ? 'bg-gray-900 border-2 border-green-500/30' : 'bg-white border-2 border-green-200'
       }`}>
-        <button
-          onClick={onClose}
-          className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
-            darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          <X size={24} />
-        </button>
+        {/* Sticky close button */}
+        <div className={`sticky top-0 z-10 flex justify-end p-4 ${
+          darkMode ? 'bg-gray-900' : 'bg-white'
+        } rounded-t-3xl`}>
+          <button
+            onClick={onClose}
+            className={`p-2 rounded-lg transition-all ${
+              darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <X size={24} />
+          </button>
+        </div>
 
+        {/* Scrollable content */}
+        <div className="px-8 pb-8">
         <div className="flex items-center gap-3 mb-2">
           <Apple className={darkMode ? 'text-green-400' : 'text-green-600'} size={32} />
           <h3 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -247,6 +254,7 @@ const NutritionDetailModal = ({ show, onClose }) => {
             {ndm.nutrition ? 'Already Complete' : 'Mark Complete'}
           </button>
         </div>
+        </div> {/* End scrollable content */}
       </div>
     </div>
   );
