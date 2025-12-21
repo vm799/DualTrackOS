@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Play, Pause, RotateCcw, TrendingUp, Settings } from 'lucide-react';
+import { Play, Pause, RotateCcw, TrendingUp, Settings, LogOut, User } from 'lucide-react';
+import { signOut } from '../services/dataService';
 import usePomodoroStore from '../store/usePomodoroStore';
 import useStore from '../store/useStore';
 import useWellnessStore from '../store/useWellnessStore';
 import useDailyMetricsStore from '../store/useDailyMetricsStore';
+import useNDMStore from '../store/useNDMStore';
 import WellnessSnackModal from '../components/WellnessSnackModal';
 import DailyCommandCenterModal from '../components/DailyCommandCenterModal';
+import NDMStatusBar from '../components/NDMStatusBar';
+import PomodoroFullScreen from '../components/PomodoroFullScreen';
 import KanbanBoard from '../components/KanbanBoard';
 import HourlyTaskDisplay from '../components/HourlyTaskDisplay';
 import EnergyMoodTracker from '../components/EnergyMoodTracker';
@@ -18,6 +22,7 @@ const Dashboard = () => {
   // Global states and actions
   const { isPomodoroMode, pomodoroSeconds, pomodoroRunning, togglePomodoroMode, setPomodoroSeconds, setPomodoroRunning } = usePomodoroStore();
   const darkMode = useStore((state) => state.darkMode);
+  const user = useStore((state) => state.user);
   const userProfile = useStore((state) => state.userProfile);
   const currentTime = useStore((state) => state.currentTime);
   const setCurrentTime = useStore((state) => state.setCurrentTime);
@@ -30,8 +35,12 @@ const Dashboard = () => {
     setDailyMetrics
   } = useDailyMetricsStore();
 
+  // NDM Store
+  const ndm = useNDMStore((state) => state.ndm);
+
   // Local UI state
   const [isScrolled, setIsScrolled] = useState(false);
+  const [currentView, setCurrentView] = useState('dashboard');
 
   // Get welcome message based on time of day
   const getWelcomeMessage = () => {
@@ -42,6 +51,24 @@ const Dashboard = () => {
   };
 
   const welcomeMessage = getWelcomeMessage();
+
+  // NDM Handler Functions
+  const openMindfulMoment = () => {
+    // Open box breathing modal for mindfulness
+    useWellnessStore.getState().setWellnessSnackChoice('breathing');
+    useWellnessStore.getState().setBoxBreathingActive(true);
+    useWellnessStore.getState().setShowWellnessSnackModal(true);
+  };
+
+  const openBrainDump = () => {
+    // Brain dump opens kanban board view
+    // For now, just stay on dashboard where kanban is visible
+    // Could enhance later with dedicated modal or view
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth'
+    });
+  };
 
   // Scroll listener for header animation
   useEffect(() => {
@@ -96,6 +123,30 @@ const Dashboard = () => {
       }
     }
   }, [userProfile.hasCompletedOnboarding, pomodoroRunning, currentTime]);
+
+  // Reset NDM at midnight
+  useEffect(() => {
+    const checkMidnight = setInterval(() => {
+      const now = new Date();
+      if (now.getHours() === 0 && now.getMinutes() === 0) {
+        useNDMStore.getState().resetNDM();
+      }
+    }, 60000); // Check every minute
+
+    return () => clearInterval(checkMidnight);
+  }, []);
+
+  // ESC key handler for fullscreen Pomodoro
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && usePomodoroStore.getState().showFullScreen) {
+        usePomodoroStore.getState().setShowFullScreen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, []);
 
   const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
@@ -176,18 +227,63 @@ const Dashboard = () => {
               )}
             </button>
 
-            {/* RIGHT: DARK MODE TOGGLE */}
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className={`p-2 rounded-full transition-all ${
-                darkMode
-                  ? 'hover:bg-white/10 text-gray-400 hover:text-gray-300'
-                  : 'hover:bg-gray-100 text-gray-600 hover:text-gray-700'
-              }`}
-              title="Toggle Dark Mode"
-            >
-              <Settings className="w-5 h-5 md:w-6 md:h-6" />
-            </button>
+            {/* RIGHT: USER MENU or DARK MODE TOGGLE */}
+            {user ? (
+              <div className="relative group">
+                <button
+                  className={`p-2 rounded-full transition-all flex items-center gap-2 ${
+                    darkMode
+                      ? 'hover:bg-white/10 text-gray-400 hover:text-gray-300'
+                      : 'hover:bg-gray-100 text-gray-600 hover:text-gray-700'
+                  }`}
+                  title="User Menu"
+                >
+                  <User className="w-5 h-5 md:w-6 md:h-6" />
+                </button>
+
+                {/* Dropdown menu */}
+                <div className={`absolute right-0 top-full mt-2 w-56 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 ${
+                  darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+                }`}>
+                  <div className={`p-3 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                    <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Signed in as</div>
+                    <div className={`text-sm font-medium truncate ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                      {user.email}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setDarkMode(!darkMode)}
+                    className={`w-full px-4 py-2.5 text-left text-sm transition-all flex items-center gap-2 ${
+                      darkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-700'
+                    }`}
+                  >
+                    <Settings size={16} />
+                    Toggle Dark Mode
+                  </button>
+                  <button
+                    onClick={signOut}
+                    className={`w-full px-4 py-2.5 text-left text-sm transition-all flex items-center gap-2 ${
+                      darkMode ? 'hover:bg-rose-500/20 text-rose-400' : 'hover:bg-rose-50 text-rose-600'
+                    }`}
+                  >
+                    <LogOut size={16} />
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className={`p-2 rounded-full transition-all ${
+                  darkMode
+                    ? 'hover:bg-white/10 text-gray-400 hover:text-gray-300'
+                    : 'hover:bg-gray-100 text-gray-600 hover:text-gray-700'
+                }`}
+                title="Toggle Dark Mode"
+              >
+                <Settings className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
+            )}
           </div>
 
           {/* Pomodoro Timer */}
@@ -250,6 +346,15 @@ const Dashboard = () => {
       {/* MAIN CONTENT */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-6 pb-32 relative z-10">
+          {/* NDM Status Bar */}
+          <NDMStatusBar
+            ndm={ndm}
+            darkMode={darkMode}
+            setCurrentView={setCurrentView}
+            openMindfulMoment={openMindfulMoment}
+            openBrainDump={openBrainDump}
+          />
+
           {/* Render HourlyTaskDisplay */}
           <HourlyTaskDisplay />
 
@@ -277,6 +382,9 @@ const Dashboard = () => {
         setDailyMetrics={setDailyMetrics}
         setSpiritAnimalScore={setSpiritAnimalScore}
       />
+
+      {/* FULLSCREEN POMODORO */}
+      <PomodoroFullScreen darkMode={darkMode} />
     </div>
   );
 };
