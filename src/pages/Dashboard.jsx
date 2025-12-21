@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Play, Pause, RotateCcw, TrendingUp } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Play, Pause, RotateCcw, TrendingUp, Settings } from 'lucide-react';
 import usePomodoroStore from '../store/usePomodoroStore';
 import useStore from '../store/useStore';
 import useWellnessStore from '../store/useWellnessStore';
@@ -11,7 +11,7 @@ import HourlyTaskDisplay from '../components/HourlyTaskDisplay';
 import EnergyMoodTracker from '../components/EnergyMoodTracker';
 import ProteinTracker from '../components/ProteinTracker';
 import VoiceDiary from '../components/VoiceDiary';
-import LearningLibrary from '../components/LearningLibrary'; // Import LearningLibrary
+import LearningLibrary from '../components/LearningLibrary';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
 
 const Dashboard = () => {
@@ -22,12 +22,35 @@ const Dashboard = () => {
   const currentTime = useStore((state) => state.currentTime);
   const setCurrentTime = useStore((state) => state.setCurrentTime);
   const setSpiritAnimalScore = useStore((state) => state.setSpiritAnimalScore);
+  const setDarkMode = useStore((state) => state.setDarkMode);
 
   // Daily Metrics Store states and actions for external interaction
   const {
     setShowCommandCenterModal,
     setDailyMetrics
   } = useDailyMetricsStore();
+
+  // Local UI state
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Get welcome message based on time of day
+  const getWelcomeMessage = () => {
+    const hour = currentTime.getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
+
+  const welcomeMessage = getWelcomeMessage();
+
+  // Scroll listener for header animation
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Real-time clock update every second
   useEffect(() => {
@@ -55,9 +78,6 @@ const Dashboard = () => {
           sessions: [...prev.focus.sessions, { duration: 20, timestamp: new Date() }]
         }
       }));
-      // if (notificationsEnabled) {
-      //   new Notification('Focus session complete!', { body: '20 minutes of deep work done. Take a break!' });
-      // }
     }
     return () => clearInterval(interval);
   }, [pomodoroRunning, pomodoroSeconds, setPomodoroSeconds, setPomodoroRunning, setDailyMetrics]);
@@ -77,9 +97,7 @@ const Dashboard = () => {
     }
   }, [userProfile.hasCompletedOnboarding, pomodoroRunning, currentTime]);
 
-
-  const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`; // Keep formatTime for Pomodoro
-
+  const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
   return (
     <div className={`min-h-screen relative ${
@@ -108,10 +126,29 @@ const Dashboard = () => {
         </button>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Pomodoro Timer */}
-        <div className="text-center pb-1">
-          {!isPomodoroMode ? (
+      {/* HEADER - Mobile First, Brand Visible */}
+      <div className={`sticky top-0 z-20 backdrop-blur-xl transition-all duration-300 ${
+        isScrolled
+          ? darkMode
+            ? 'bg-gray-900/20 border-b border-gray-800/10'
+            : 'bg-white/20 border-b border-gray-200/10'
+          : darkMode
+            ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
+            : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 py-1">
+          <div className="flex items-center justify-between">
+
+            {/* LEFT: LOGO */}
+            <div className={`flex items-center gap-2 transition-opacity duration-300 ${isScrolled ? 'opacity-0' : 'opacity-100'}`}>
+              <img
+                src="/lioness-logo.png"
+                alt="DualTrack OS"
+                className="w-16 h-16 md:w-20 md:h-20 drop-shadow-xl"
+              />
+            </div>
+
+            {/* CENTER: TIME + POMODORO HINT - Primary Action */}
             <button
               onClick={togglePomodoroMode}
               className="flex flex-col items-center cursor-pointer select-none transition-transform hover:scale-105"
@@ -125,82 +162,115 @@ const Dashboard = () => {
               </div>
               <div className={`text-[11px] md:text-xs ${
                 darkMode ? 'text-purple-400' : 'text-purple-600'
-              } opacity-80`}>
+              } ${isScrolled ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}>
                 Tap for Focus Timer
               </div>
+              {userProfile.initials && (
+                <div className={`text-xs md:text-sm font-medium mt-1 ${
+                  darkMode
+                    ? 'bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent'
+                    : 'text-pink-600'
+                } ${isScrolled ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}>
+                  {welcomeMessage}, {userProfile.initials}
+                </div>
+              )}
             </button>
-          ) : (
-            <div className="space-y-3">
-              <div className={`font-mono text-4xl sm:text-5xl font-bold transition-all ${
+
+            {/* RIGHT: DARK MODE TOGGLE */}
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className={`p-2 rounded-full transition-all ${
                 darkMode
-                  ? pomodoroRunning
-                    ? 'bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent'
-                    : 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
-                  : pomodoroRunning ? 'text-orange-600' : 'text-purple-600'
-              }`}>
-                {formatTime(pomodoroSeconds)}
-              </div>
-              <div className="flex items-center justify-center space-x-3 flex-wrap gap-2">
-                {!pomodoroRunning ? (
-                  <button onClick={() => usePomodoroStore.getState().startPomodoro()} className={`px-8 py-3 rounded-xl font-semibold flex items-center space-x-2 transition-all shadow-lg ${
-                    darkMode
-                      ? 'bg-emerald-500/30 hover:bg-emerald-500/40 text-emerald-300 border-2 border-emerald-500/50'
-                      : 'bg-green-500 hover:bg-green-600 text-white border-2 border-green-600'
-                  }`}>
-                    <Play size={20} />
-                    <span>Start Focus</span>
-                  </button>
-                ) : (
-                  <button onClick={() => usePomodoroStore.getState().pausePomodoro()} className={`px-8 py-3 rounded-xl font-semibold flex items-center space-x-2 transition-all shadow-lg ${
-                    darkMode
-                      ? 'bg-orange-500/30 hover:bg-orange-500/40 text-orange-300 border-2 border-orange-500/50'
-                      : 'bg-orange-500 hover:bg-orange-600 text-white border-2 border-orange-600'
-                  }`}>
-                    <Pause size={20} />
-                    <span>Pause</span>
-                  </button>
-                )}
-                <button onClick={() => usePomodoroStore.getState().resetPomodoro()} className={`px-6 py-3 rounded-xl font-medium transition-all ${
+                  ? 'hover:bg-white/10 text-gray-400 hover:text-gray-300'
+                  : 'hover:bg-gray-100 text-gray-600 hover:text-gray-700'
+              }`}
+              title="Toggle Dark Mode"
+            >
+              <Settings className="w-5 h-5 md:w-6 md:h-6" />
+            </button>
+          </div>
+
+          {/* Pomodoro Timer */}
+          <div className="text-center pb-1">
+            {isPomodoroMode && (
+              <div className="space-y-3">
+                <div className={`font-mono text-4xl sm:text-5xl font-bold transition-all ${
                   darkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                    : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
-                }`} title="Reset Timer">
-                  <RotateCcw size={20} />
-                </button>
-                <button onClick={togglePomodoroMode} className={`px-6 py-3 rounded-xl font-medium transition-all ${
-                  darkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                    : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
+                    ? pomodoroRunning
+                      ? 'bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent'
+                      : 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
+                    : pomodoroRunning ? 'text-orange-600' : 'text-purple-600'
                 }`}>
-                  Exit Timer
-                </button>
+                  {formatTime(pomodoroSeconds)}
+                </div>
+                <div className="flex items-center justify-center space-x-3 flex-wrap gap-2">
+                  {!pomodoroRunning ? (
+                    <button onClick={() => usePomodoroStore.getState().startPomodoro()} className={`px-8 py-3 rounded-xl font-semibold flex items-center space-x-2 transition-all shadow-lg ${
+                      darkMode
+                        ? 'bg-emerald-500/30 hover:bg-emerald-500/40 text-emerald-300 border-2 border-emerald-500/50'
+                        : 'bg-green-500 hover:bg-green-600 text-white border-2 border-green-600'
+                    }`}>
+                      <Play size={20} />
+                      <span>Start Focus</span>
+                    </button>
+                  ) : (
+                    <button onClick={() => usePomodoroStore.getState().pausePomodoro()} className={`px-8 py-3 rounded-xl font-semibold flex items-center space-x-2 transition-all shadow-lg ${
+                      darkMode
+                        ? 'bg-orange-500/30 hover:bg-orange-500/40 text-orange-300 border-2 border-orange-500/50'
+                        : 'bg-orange-500 hover:bg-orange-600 text-white border-2 border-orange-600'
+                    }`}>
+                      <Pause size={20} />
+                      <span>Pause</span>
+                    </button>
+                  )}
+                  <button onClick={() => usePomodoroStore.getState().resetPomodoro()} className={`px-6 py-3 rounded-xl font-medium transition-all ${
+                    darkMode
+                      ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                      : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
+                  }`} title="Reset Timer">
+                    <RotateCcw size={20} />
+                  </button>
+                  <button onClick={togglePomodoroMode} className={`px-6 py-3 rounded-xl font-medium transition-all ${
+                    darkMode
+                      ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                      : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
+                  }`}>
+                    Exit Timer
+                  </button>
+                </div>
+                <div className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {pomodoroRunning ? '🎯 Deep Focus Mode Active' : '⏸️ Timer Ready - Click Start Focus'}
+                </div>
               </div>
-              <div className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {pomodoroRunning ? '🎯 Deep Focus Mode Active' : '⏸️ Timer Ready - Click Start Focus'}
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-
-        {/* Render HourlyTaskDisplay */}
-        <HourlyTaskDisplay />
-
-        {/* Render EnergyMoodTracker */}
-        <EnergyMoodTracker />
-
-        {/* Render ProteinTracker */}
-        <ProteinTracker />
-
-        {/* Render VoiceDiary */}
-        <VoiceDiary />
-
-        {/* Render LearningLibrary */}
-        <LearningLibrary />
-
-        {/* Render Kanban Board */}
-        <KanbanBoard />
       </div>
 
+      {/* MAIN CONTENT */}
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        <div className="space-y-6 pb-32 relative z-10">
+          {/* Render HourlyTaskDisplay */}
+          <HourlyTaskDisplay />
+
+          {/* Render EnergyMoodTracker */}
+          <EnergyMoodTracker />
+
+          {/* Render ProteinTracker */}
+          <ProteinTracker />
+
+          {/* Render VoiceDiary */}
+          <VoiceDiary />
+
+          {/* Render LearningLibrary */}
+          <LearningLibrary />
+
+          {/* Render Kanban Board */}
+          <KanbanBoard />
+        </div>
+      </div>
+
+      {/* MODALS */}
       <DailyCommandCenterModal />
       <WellnessSnackModal
         currentTime={currentTime}
