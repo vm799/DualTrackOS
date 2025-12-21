@@ -24,6 +24,12 @@ const useNutritionStore = create((set, get) => ({
     }));
   },
 
+  addProtein: (amount) => {
+    set((state) => ({
+      proteinToday: state.proteinToday + amount
+    }));
+  },
+
   // Getters
   getProteinTarget: () => {
     // Access userProfile from the main store
