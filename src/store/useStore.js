@@ -15,12 +15,16 @@ const useStore = create((set) => ({
     disclaimerAccepted: false
   },
   currentTime: new Date(), // Global current time
+  spiritAnimalScore: 0, // Balance score (0-100) for spirit animal growth
+  currentView: 'dashboard', // Current view: 'dashboard' | 'food' | 'exercise' | 'learn'
 
   // Actions
   setUser: (user) => set({ user }),
   setDarkMode: (darkMode) => set({ darkMode }),
   setUserProfile: (userProfile) => set({ userProfile }),
   setCurrentTime: (time) => set({ currentTime: time }), // Action to update current time
+  setSpiritAnimalScore: (score) => set({ spiritAnimalScore: typeof score === 'function' ? score(useStore.getState().spiritAnimalScore) : score }),
+  setCurrentView: (view) => set({ currentView: view }), // Action to change view
 }));
 
 export default useStore;
