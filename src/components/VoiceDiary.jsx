@@ -6,7 +6,7 @@ import useStore from '../store/useStore';
 const VoiceDiary = () => {
   const darkMode = useStore((state) => state.darkMode);
   const currentTime = useStore((state) => state.currentTime);
-  const { voiceDiary, isRecording, recordingStartTime, handleVoiceCheckin, formatTime } = useVoiceDiaryStore();
+  const { voiceDiary, isRecording, recordingStartTime, currentTranscript, handleVoiceCheckin, formatTime } = useVoiceDiaryStore();
 
   const handleToggleRecording = () => {
     handleVoiceCheckin(currentTime); // Pass currentTime to the store action
@@ -53,6 +53,22 @@ const VoiceDiary = () => {
           </span>
         )}
       </div>
+
+      {/* Live Transcript Display */}
+      {isRecording && currentTranscript && (
+        <div className={`mb-4 p-4 rounded-xl border-2 ${
+          darkMode
+            ? 'bg-blue-500/10 border-blue-500/30'
+            : 'bg-blue-50 border-blue-200'
+        }`}>
+          <p className={`text-xs font-semibold mb-2 ${darkMode ? 'text-blue-400' : 'text-blue-700'}`}>
+            🎤 Live Transcript:
+          </p>
+          <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>
+            {currentTranscript}
+          </p>
+        </div>
+      )}
 
       <h4 className={`text-md font-semibold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Recent Entries:</h4>
       <div className="space-y-2 max-h-40 overflow-y-auto">
