@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X, Check } from 'lucide-react';
 import useEnergyMoodStore from '../store/useEnergyMoodStore';
 import useStore from '../store/useStore';
+import useNutritionStore from '../store/useNutritionStore';
 
 /**
  * Energy and Mood Suggestion Modals
@@ -21,25 +22,46 @@ const EnergyMoodModals = () => {
     getSmartSuggestions,
   } = useEnergyMoodStore();
 
+  const { addProtein } = useNutritionStore();
+  const [loggedSnacks, setLoggedSnacks] = useState([]);
+
   const suggestions = getSmartSuggestions();
+
+  const handleSnackClick = (snack) => {
+    if (snack.protein > 0) {
+      addProtein(snack.protein);
+    }
+    setLoggedSnacks(prev => [...prev, snack.name]);
+    setTimeout(() => {
+      setLoggedSnacks(prev => prev.filter(name => name !== snack.name));
+    }, 2000);
+  };
 
   // Energy Modal
   const renderEnergyModal = () => {
     if (!showEnergyModal) return null;
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg p-4">
-        <div className={`max-w-2xl w-full rounded-3xl p-8 relative max-h-[90vh] overflow-y-auto ${
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg p-4 overflow-y-auto">
+        <div className={`max-w-2xl w-full rounded-3xl relative my-8 ${
           darkMode ? 'bg-gray-900 border-2 border-yellow-500/30' : 'bg-white border-2 border-yellow-200'
         }`}>
-          <button
-            onClick={() => setShowEnergyModal(false)}
-            className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
-              darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <X size={24} />
-          </button>
+          {/* Sticky close button */}
+          <div className={`sticky top-0 z-10 flex justify-end p-4 ${
+            darkMode ? 'bg-gray-900' : 'bg-white'
+          } rounded-t-3xl`}>
+            <button
+              onClick={() => setShowEnergyModal(false)}
+              className={`p-2 rounded-lg transition-all ${
+                darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <X size={24} />
+            </button>
+          </div>
+
+          {/* Scrollable content */}
+          <div className="px-8 pb-8"  >
 
           <h3 className={`text-2xl font-bold mb-2 ${darkMode ? 'text-yellow-400' : 'text-yellow-600'}`}>
             {suggestions.title}
@@ -103,23 +125,53 @@ const EnergyMoodModals = () => {
           {/* Suggested Snacks */}
           <div>
             <h4 className={`font-bold mb-3 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-              Suggested Snacks:
+              Suggested Snacks (Click to log):
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {suggestions.snacks?.map((snack, index) => (
-                <div
-                  key={index}
-                  className={`p-3 rounded-lg ${
-                    darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-gray-50 border border-gray-200'
-                  }`}
-                >
-                  <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    • {snack}
-                  </p>
-                </div>
-              ))}
+              {suggestions.snacks?.map((snack, index) => {
+                const justLogged = loggedSnacks.includes(snack.name);
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleSnackClick(snack)}
+                    className={`p-3 rounded-lg text-left transition-all ${
+                      justLogged
+                        ? darkMode
+                          ? 'bg-emerald-500/20 border-2 border-emerald-500/50'
+                          : 'bg-emerald-100 border-2 border-emerald-400'
+                        : darkMode
+                          ? 'bg-gray-800/50 border border-gray-700 hover:border-yellow-500/50'
+                          : 'bg-gray-50 border border-gray-200 hover:border-yellow-300'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className={`text-sm flex-1 ${
+                        justLogged
+                          ? darkMode ? 'text-emerald-400 font-semibold' : 'text-emerald-700 font-semibold'
+                          : darkMode ? 'text-gray-300' : 'text-gray-700'
+                      }`}>
+                        {snack.name}
+                      </p>
+                      <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${
+                        darkMode ? 'bg-yellow-500/20 text-yellow-400' : 'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {snack.protein}g
+                      </span>
+                    </div>
+                    <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                      {snack.note}
+                    </p>
+                    {justLogged && (
+                      <p className={`text-xs mt-2 font-bold ${darkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
+                        ✓ Logged {snack.protein}g protein!
+                      </p>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
+          </div> {/* End scrollable content */}
         </div>
       </div>
     );
@@ -132,18 +184,26 @@ const EnergyMoodModals = () => {
     const moodData = suggestions.moodWellness;
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg p-4">
-        <div className={`max-w-2xl w-full rounded-3xl p-8 relative max-h-[90vh] overflow-y-auto ${
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg p-4 overflow-y-auto">
+        <div className={`max-w-2xl w-full rounded-3xl relative my-8 ${
           darkMode ? 'bg-gray-900 border-2 border-pink-500/30' : 'bg-white border-2 border-pink-200'
         }`}>
-          <button
-            onClick={() => setShowMoodModal(false)}
-            className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
-              darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <X size={24} />
-          </button>
+          {/* Sticky close button */}
+          <div className={`sticky top-0 z-10 flex justify-end p-4 ${
+            darkMode ? 'bg-gray-900' : 'bg-white'
+          } rounded-t-3xl`}>
+            <button
+              onClick={() => setShowMoodModal(false)}
+              className={`p-2 rounded-lg transition-all ${
+                darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <X size={24} />
+            </button>
+          </div>
+
+          {/* Scrollable content */}
+          <div className="px-8 pb-8">
 
           <h3 className={`text-2xl font-bold mb-2 ${darkMode ? 'text-pink-400' : 'text-pink-600'}`}>
             {moodData.title}
@@ -207,21 +267,50 @@ const EnergyMoodModals = () => {
           {/* Suggested Snacks */}
           <div className="mb-6">
             <h4 className={`font-bold mb-3 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-              Mood-Supporting Snacks:
+              Mood-Supporting Snacks (Click to log):
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {moodData.snacks?.map((snack, index) => (
-                <div
-                  key={index}
-                  className={`p-3 rounded-lg ${
-                    darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-gray-50 border border-gray-200'
-                  }`}
-                >
-                  <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    • {snack}
-                  </p>
-                </div>
-              ))}
+              {moodData.snacks?.map((snack, index) => {
+                const justLogged = loggedSnacks.includes(snack.name);
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleSnackClick(snack)}
+                    className={`p-3 rounded-lg text-left transition-all ${
+                      justLogged
+                        ? darkMode
+                          ? 'bg-emerald-500/20 border-2 border-emerald-500/50'
+                          : 'bg-emerald-100 border-2 border-emerald-400'
+                        : darkMode
+                          ? 'bg-gray-800/50 border border-gray-700 hover:border-pink-500/50'
+                          : 'bg-gray-50 border border-gray-200 hover:border-pink-300'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className={`text-sm flex-1 ${
+                        justLogged
+                          ? darkMode ? 'text-emerald-400 font-semibold' : 'text-emerald-700 font-semibold'
+                          : darkMode ? 'text-gray-300' : 'text-gray-700'
+                      }`}>
+                        {snack.name}
+                      </p>
+                      <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${
+                        darkMode ? 'bg-pink-500/20 text-pink-400' : 'bg-pink-100 text-pink-700'
+                      }`}>
+                        {snack.protein}g
+                      </span>
+                    </div>
+                    <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                      {snack.note}
+                    </p>
+                    {justLogged && (
+                      <p className={`text-xs mt-2 font-bold ${darkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
+                        ✓ Logged {snack.protein}g protein!
+                      </p>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -234,6 +323,7 @@ const EnergyMoodModals = () => {
               </p>
             </div>
           )}
+          </div> {/* End scrollable content */}
         </div>
       </div>
     );
