@@ -82,7 +82,9 @@ const Dashboard = () => {
 
 
   return (
-    <div className="min-h-screen relative">
+    <div className={`min-h-screen relative ${
+      darkMode ? 'bg-[#191919]' : 'bg-gray-50'
+    }`}>
       {/* Daily Command Center - Top Right Side Tab */}
       <div className="fixed right-0 top-1/2 -translate-y-16 w-10 h-24 z-30">
         <button
