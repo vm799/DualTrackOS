@@ -19,14 +19,31 @@ export const getSession = async () => {
 export const signInWithGoogle = async () => {
   if (!isSupabaseConfigured()) {
     console.error('Supabase is not configured. Cannot sign in.');
-    return;
+    return { error: 'Supabase not configured' };
   }
-  await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: window.location.origin
+
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        }
+      }
+    });
+
+    if (error) {
+      console.error('Google OAuth error:', error);
+      return { error };
     }
-  });
+
+    return { data };
+  } catch (e) {
+    console.error('Exception during Google sign in:', e);
+    return { error: e };
+  }
 };
 
 export const signOut = async () => {
