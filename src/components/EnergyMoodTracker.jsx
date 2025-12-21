@@ -2,6 +2,7 @@ import React from 'react';
 import { Zap, Heart } from 'lucide-react';
 import useEnergyMoodStore from '../store/useEnergyMoodStore';
 import useStore from '../store/useStore';
+import EnergyMoodModals from './EnergyMoodModals';
 
 const EnergyMoodTracker = () => {
   const darkMode = useStore((state) => state.darkMode);
@@ -179,11 +180,13 @@ const EnergyMoodTracker = () => {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      {renderEnergySelector()}
-      {renderMoodSelector()}
-      {/* Energy and Mood Modals will be rendered here, potentially as separate components or directly */}
-    </div>
+    <>
+      <div className="grid grid-cols-2 gap-4">
+        {renderEnergySelector()}
+        {renderMoodSelector()}
+      </div>
+      <EnergyMoodModals />
+    </>
   );
 };
 

@@ -11,7 +11,7 @@ import React from 'react';
  *
  * Each item is clickable to navigate to the appropriate view or open a modal
  */
-const NDMStatusBar = ({ ndm, darkMode, setCurrentView, openMindfulMoment, openBrainDump }) => {
+const NDMStatusBar = ({ ndm, darkMode, openNutrition, openMovement, openMindfulMoment, openBrainDump }) => {
   const completedCount = [ndm.nutrition, ndm.movement, ndm.mindfulness, ndm.brainDump].filter(Boolean).length;
   const completionPercent = (completedCount / 4) * 100;
 
@@ -58,7 +58,7 @@ const NDMStatusBar = ({ ndm, darkMode, setCurrentView, openMindfulMoment, openBr
         <div className="grid grid-cols-4 gap-2">
           {/* Nutrition */}
           <button
-            onClick={() => setCurrentView('food')}
+            onClick={openNutrition}
             className={`text-center p-3 rounded-lg transition-all duration-200 cursor-pointer active:scale-95 ${
               ndm.nutrition
                 ? darkMode
@@ -84,7 +84,7 @@ const NDMStatusBar = ({ ndm, darkMode, setCurrentView, openMindfulMoment, openBr
 
           {/* Movement */}
           <button
-            onClick={() => setCurrentView('exercise')}
+            onClick={openMovement}
             className={`text-center p-3 rounded-lg transition-all duration-200 cursor-pointer active:scale-95 ${
               ndm.movement
                 ? darkMode
