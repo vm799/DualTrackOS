@@ -1,8 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowRight, LogIn } from 'lucide-react';
 import { signInWithGoogle } from './services/dataService';
 
 const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
+  const [signingIn, setSigningIn] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleGoogleSignIn = async () => {
+    setSigningIn(true);
+    setError(null);
+
+    const result = await signInWithGoogle();
+
+    if (result?.error) {
+      setSigningIn(false);
+
+      // Check if it's a Supabase configuration error
+      if (result.error === 'Supabase not configured') {
+        setError(
+          'Google Sign-In requires setup. Click "Enter Here" above to continue without signing in.'
+        );
+      } else {
+        setError('Unable to sign in with Google. Please try again or click "Enter Here" above to continue.');
+      }
+
+      console.error('Sign in error:', result.error);
+    }
+    // If successful, Supabase redirects to Google OAuth, so we stay in loading state
+  };
   return (
     <div
       className={`min-h-[100dvh] relative overflow-hidden ${
@@ -95,23 +120,35 @@ const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
         {/* BOTTOM — Auth & Story */}
         <div className="mt-3 sm:mt-4 md:mt-6 pb-4 sm:pb-6 space-y-3">
           {!user ? (
-            <button
-              onClick={signInWithGoogle}
-              className={`px-8 py-3 rounded-full text-sm sm:text-base font-medium transition-all hover:scale-105 flex items-center gap-2 mx-auto ${
-                darkMode
-                  ? 'bg-white/10 hover:bg-white/20 text-white border border-white/30'
-                  : 'bg-gray-900 hover:bg-gray-800 text-white border border-gray-700'
-              }`}
-              style={{
-                backdropFilter: 'blur(10px)',
-                boxShadow: darkMode
-                  ? '0 0 20px rgba(255, 255, 255, 0.2)'
-                  : '0 0 20px rgba(0, 0, 0, 0.2)',
-              }}
-            >
-              <LogIn size={18} />
-              Sign in with Google
-            </button>
+            <>
+              <button
+                onClick={handleGoogleSignIn}
+                disabled={signingIn}
+                className={`px-8 py-3 rounded-full text-sm sm:text-base font-medium transition-all hover:scale-105 flex items-center gap-2 mx-auto ${
+                  signingIn
+                    ? 'opacity-50 cursor-not-allowed'
+                    : ''
+                } ${
+                  darkMode
+                    ? 'bg-white/10 hover:bg-white/20 text-white border border-white/30'
+                    : 'bg-gray-900 hover:bg-gray-800 text-white border border-gray-700'
+                }`}
+                style={{
+                  backdropFilter: 'blur(10px)',
+                  boxShadow: darkMode
+                    ? '0 0 20px rgba(255, 255, 255, 0.2)'
+                    : '0 0 20px rgba(0, 0, 0, 0.2)',
+                }}
+              >
+                <LogIn size={18} className={signingIn ? 'animate-spin' : ''} />
+                {signingIn ? 'Signing in...' : 'Sign in with Google'}
+              </button>
+              {error && (
+                <div className={`text-sm ${darkMode ? 'text-red-400' : 'text-red-600'} max-w-sm mx-auto`}>
+                  {error}
+                </div>
+              )}
+            </>
           ) : (
             <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               Signed in as {user.email}
