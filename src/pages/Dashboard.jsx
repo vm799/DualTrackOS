@@ -16,6 +16,9 @@ import EnergyMoodTracker from '../components/EnergyMoodTracker';
 import ProteinTracker from '../components/ProteinTracker';
 import VoiceDiary from '../components/VoiceDiary';
 import LearningLibrary from '../components/LearningLibrary';
+import MovementDetailModal from '../components/MovementDetailModal';
+import NutritionDetailModal from '../components/NutritionDetailModal';
+import BrainDumpModal from '../components/BrainDumpModal';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
 
 const Dashboard = () => {
@@ -42,6 +45,9 @@ const Dashboard = () => {
 
   // Local UI state
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showMovementModal, setShowMovementModal] = useState(false);
+  const [showNutritionModal, setShowNutritionModal] = useState(false);
+  const [showBrainDumpModal, setShowBrainDumpModal] = useState(false);
 
   // Get welcome message based on time of day
   const getWelcomeMessage = () => {
@@ -62,13 +68,15 @@ const Dashboard = () => {
   };
 
   const openBrainDump = () => {
-    // Brain dump opens kanban board view
-    // For now, just stay on dashboard where kanban is visible
-    // Could enhance later with dedicated modal or view
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: 'smooth'
-    });
+    setShowBrainDumpModal(true);
+  };
+
+  const openNutrition = () => {
+    setShowNutritionModal(true);
+  };
+
+  const openMovement = () => {
+    setShowMovementModal(true);
   };
 
   // Scroll listener for header animation
@@ -351,7 +359,8 @@ const Dashboard = () => {
           <NDMStatusBar
             ndm={ndm}
             darkMode={darkMode}
-            setCurrentView={setCurrentView}
+            openNutrition={openNutrition}
+            openMovement={openMovement}
             openMindfulMoment={openMindfulMoment}
             openBrainDump={openBrainDump}
           />
@@ -383,6 +392,9 @@ const Dashboard = () => {
         setDailyMetrics={setDailyMetrics}
         setSpiritAnimalScore={setSpiritAnimalScore}
       />
+      <MovementDetailModal show={showMovementModal} onClose={() => setShowMovementModal(false)} />
+      <NutritionDetailModal show={showNutritionModal} onClose={() => setShowNutritionModal(false)} />
+      <BrainDumpModal show={showBrainDumpModal} onClose={() => setShowBrainDumpModal(false)} />
 
       {/* FULLSCREEN POMODORO */}
       <PomodoroFullScreen darkMode={darkMode} />
