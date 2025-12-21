@@ -3,10 +3,9 @@ import { Activity } from 'lucide-react';
 import useNutritionStore from '../store/useNutritionStore';
 import useStore from '../store/useStore';
 
-const ProteinTracker = () => {
+const ProteinTracker = ({ openNutrition }) => {
   const darkMode = useStore((state) => state.darkMode);
   const userProfile = useStore((state) => state.userProfile);
-  const setCurrentView = useStore((state) => state.setCurrentView); // Assuming setCurrentView is in useStore
 
   const { proteinToday, getProteinTarget } = useNutritionStore();
   const [expandedTile, setExpandedTile] = React.useState(null); // Local state for expanding this tile
@@ -70,7 +69,7 @@ const ProteinTracker = () => {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setCurrentView('food');
+              openNutrition();
             }}
             className={`w-full mt-2 py-2 rounded-lg font-semibold transition-all ${
               darkMode

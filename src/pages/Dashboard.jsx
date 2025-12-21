@@ -372,7 +372,7 @@ const Dashboard = () => {
           <EnergyMoodTracker />
 
           {/* Render ProteinTracker */}
-          <ProteinTracker />
+          <ProteinTracker openNutrition={openNutrition} />
 
           {/* Render VoiceDiary */}
           <VoiceDiary />
