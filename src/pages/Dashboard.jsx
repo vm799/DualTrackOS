@@ -17,6 +17,9 @@ import EnergyMoodTracker from '../components/EnergyMoodTracker';
 import ProteinTracker from '../components/ProteinTracker';
 import VoiceDiary from '../components/VoiceDiary';
 import CycleTracker from '../components/CycleTracker';
+import BinaryDailyCheckin from '../components/BinaryDailyCheckin';
+import PullUpProgressionTracker from '../components/PullUpProgressionTracker';
+import WeeklyTrainingSchedule from '../components/WeeklyTrainingSchedule';
 import LearningLibrary from '../components/LearningLibrary';
 import SectionHeader from '../components/SectionHeader';
 import MovementDetailModal from '../components/MovementDetailModal';
@@ -457,35 +460,66 @@ const Dashboard = () => {
             <VoiceDiary />
           </FeaturePreview>
 
-          {/* Cycle Tracker */}
-          <SectionHeader
-            emoji="🌙"
-            title="Your Cycle-Aware Companion"
-            description="Workouts & nutrition that sync with your hormones"
-            badge="Preview: Today's tips"
-          />
-          <FeaturePreview
-            feature="cycleTracking"
-            requiredTier="starter"
-            previewLimits={{
-              showPhase: true,
-              showTip: true,
-              lockWorkouts: true,
-              lockNutrition: true,
-              description: "Phase info only"
-            }}
-            upgradeMessage={{
-              title: "Unlock Your Full Cycle Guide",
-              benefits: [
-                "Detailed workout recommendations",
-                "Cycle-synced nutrition plans",
-                "Historical tracking"
-              ],
-              cta: "Get Starter for $4.99/mo"
-            }}
-          >
-            <CycleTracker />
-          </FeaturePreview>
+          {/* Life-Stage Specific Features */}
+          {userProfile.lifeStage === 'perimenopause' ? (
+            <>
+              {/* Strong50 Daily Check-in */}
+              <SectionHeader
+                emoji="✅"
+                title="Strong50 Daily Check-in"
+                description="Tick boxes. Close the day."
+              />
+              <BinaryDailyCheckin />
+
+              {/* Weekly Training Schedule */}
+              <SectionHeader
+                emoji="📅"
+                title="Weekly Training Schedule"
+                description="Set it once, repeat weekly"
+              />
+              <WeeklyTrainingSchedule />
+
+              {/* Pull-Up Progression */}
+              <SectionHeader
+                emoji="💪"
+                title="Pull-Up Progression"
+                description="Master the skill, one stage at a time"
+              />
+              <PullUpProgressionTracker />
+            </>
+          ) : (
+            <>
+              {/* Cycle Tracker for reproductive users */}
+              <SectionHeader
+                emoji="🌙"
+                title="Your Cycle-Aware Companion"
+                description="Workouts & nutrition that sync with your hormones"
+                badge="Preview: Today's tips"
+              />
+              <FeaturePreview
+                feature="cycleTracking"
+                requiredTier="starter"
+                previewLimits={{
+                  showPhase: true,
+                  showTip: true,
+                  lockWorkouts: true,
+                  lockNutrition: true,
+                  description: "Phase info only"
+                }}
+                upgradeMessage={{
+                  title: "Unlock Your Full Cycle Guide",
+                  benefits: [
+                    "Detailed workout recommendations",
+                    "Cycle-synced nutrition plans",
+                    "Historical tracking"
+                  ],
+                  cta: "Get Starter for $4.99/mo"
+                }}
+              >
+                <CycleTracker />
+              </FeaturePreview>
+            </>
+          )}
 
           {/* Learning Library */}
           <SectionHeader
