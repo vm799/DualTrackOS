@@ -8,7 +8,7 @@ import useNutritionStore from '../store/useNutritionStore';
  * Energy and Mood Suggestion Modals
  * Displays smart suggestions based on user's current energy level and mood
  */
-const EnergyMoodModals = () => {
+const EnergyMoodModals = ({ previewMode = false }) => {
   const darkMode = useStore((state) => state.darkMode);
   const {
     showEnergyModal,
@@ -83,10 +83,10 @@ const EnergyMoodModals = () => {
           {/* Suggested Tasks */}
           <div className="mb-6">
             <h4 className={`font-bold mb-3 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-              Suggested Tasks:
+              Suggested Tasks: {previewMode && <span className="text-xs font-normal">(Limited to 3 in preview)</span>}
             </h4>
             <div className="space-y-2">
-              {suggestions.tasks?.map((task, index) => {
+              {(previewMode ? suggestions.tasks?.slice(0, 3) : suggestions.tasks)?.map((task, index) => {
                 const isSelected = selectedEnergyActions.includes(task);
                 return (
                   <button
@@ -225,10 +225,10 @@ const EnergyMoodModals = () => {
           {/* Suggested Activities */}
           <div className="mb-6">
             <h4 className={`font-bold mb-3 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-              Recommended Activities:
+              Recommended Activities: {previewMode && <span className="text-xs font-normal">(Limited to 3 in preview)</span>}
             </h4>
             <div className="space-y-2">
-              {moodData.activities?.map((activity, index) => {
+              {(previewMode ? moodData.activities?.slice(0, 3) : moodData.activities)?.map((activity, index) => {
                 const isSelected = selectedMoodActions.includes(activity);
                 return (
                   <button
