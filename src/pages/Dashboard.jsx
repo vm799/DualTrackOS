@@ -16,6 +16,7 @@ import HourlyTaskDisplay from '../components/HourlyTaskDisplay';
 import EnergyMoodTracker from '../components/EnergyMoodTracker';
 import ProteinTracker from '../components/ProteinTracker';
 import VoiceDiary from '../components/VoiceDiary';
+import CycleTracker from '../components/CycleTracker';
 import LearningLibrary from '../components/LearningLibrary';
 import MovementDetailModal from '../components/MovementDetailModal';
 import NutritionDetailModal from '../components/NutritionDetailModal';
@@ -380,6 +381,11 @@ const Dashboard = () => {
           {/* Render VoiceDiary */}
           <FeatureGate feature="voiceTranscription" requiredTier="starter">
             <VoiceDiary />
+          </FeatureGate>
+
+          {/* Render CycleTracker */}
+          <FeatureGate feature="cycleTracking" requiredTier="starter">
+            <CycleTracker />
           </FeatureGate>
 
           {/* Render LearningLibrary */}
