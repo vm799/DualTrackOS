@@ -20,6 +20,7 @@ import LearningLibrary from '../components/LearningLibrary';
 import MovementDetailModal from '../components/MovementDetailModal';
 import NutritionDetailModal from '../components/NutritionDetailModal';
 import BrainDumpModal from '../components/BrainDumpModal';
+import FeatureGate from '../components/FeatureGate';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
 
 const Dashboard = () => {
@@ -369,13 +370,17 @@ const Dashboard = () => {
           <HourlyTaskDisplay />
 
           {/* Render EnergyMoodTracker */}
-          <EnergyMoodTracker />
+          <FeatureGate feature="energyMoodTracking" requiredTier="premium">
+            <EnergyMoodTracker />
+          </FeatureGate>
 
           {/* Render ProteinTracker */}
           <ProteinTracker openNutrition={openNutrition} />
 
           {/* Render VoiceDiary */}
-          <VoiceDiary />
+          <FeatureGate feature="voiceTranscription" requiredTier="starter">
+            <VoiceDiary />
+          </FeatureGate>
 
           {/* Render LearningLibrary */}
           <LearningLibrary />
