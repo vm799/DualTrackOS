@@ -5,6 +5,7 @@ import StoryPageView from './pages/StoryPage';
 import OnboardingPage from './pages/OnboardingPage';
 import Dashboard from './pages/Dashboard';
 import SettingsPage from './pages/SettingsPage';
+import PricingPage from './pages/PricingPage';
 import useStore from './store/useStore';
 
 const AppRouter = () => {
@@ -39,6 +40,10 @@ const AppRouter = () => {
         <Route
           path="/settings"
           element={<SettingsPage />}
+        />
+        <Route
+          path="/pricing"
+          element={<PricingPage />}
         />
         {/* Add more routes here as we break down App.jsx */}
         <Route path="*" element={<Navigate to="/" replace />} />
