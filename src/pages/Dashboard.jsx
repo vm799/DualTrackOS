@@ -23,6 +23,7 @@ import MovementDetailModal from '../components/MovementDetailModal';
 import NutritionDetailModal from '../components/NutritionDetailModal';
 import BrainDumpModal from '../components/BrainDumpModal';
 import FeatureGate from '../components/FeatureGate';
+import FeaturePreview from '../components/FeaturePreview';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
 
 const Dashboard = () => {
@@ -398,9 +399,27 @@ const Dashboard = () => {
             description="Quick check-in helps us suggest the right tasks for your energy"
             badge="Preview Mode"
           />
-          <FeatureGate feature="energyMoodTracking" requiredTier="premium">
+          <FeaturePreview
+            feature="energyMoodTracking"
+            requiredTier="premium"
+            previewLimits={{
+              maxSuggestions: 3,
+              basicInsights: true,
+              description: "3 suggestions max"
+            }}
+            upgradeMessage={{
+              title: "Want Smarter Insights?",
+              benefits: [
+                "AI-powered task recommendations",
+                "Trend analysis & patterns",
+                "Unlimited suggestions",
+                "Advanced mood insights"
+              ],
+              cta: "Upgrade to Premium for $9.99/mo"
+            }}
+          >
             <EnergyMoodTracker />
-          </FeatureGate>
+          </FeaturePreview>
 
           {/* Protein Tracker */}
           <SectionHeader
@@ -417,9 +436,26 @@ const Dashboard = () => {
             description="Talk it out in 30 seconds - no typing needed"
             badge="Free: 30s"
           />
-          <FeatureGate feature="voiceTranscription" requiredTier="starter">
+          <FeaturePreview
+            feature="voiceTranscription"
+            requiredTier="starter"
+            previewLimits={{
+              maxDuration: 30,
+              maxEntries: 3,
+              description: "30s max, 3 entries"
+            }}
+            upgradeMessage={{
+              title: "Love Voice Diary?",
+              benefits: [
+                "Unlimited recording time",
+                "AI transcription",
+                "Full history access"
+              ],
+              cta: "Unlock for $4.99/mo"
+            }}
+          >
             <VoiceDiary />
-          </FeatureGate>
+          </FeaturePreview>
 
           {/* Cycle Tracker */}
           <SectionHeader
@@ -428,9 +464,28 @@ const Dashboard = () => {
             description="Workouts & nutrition that sync with your hormones"
             badge="Preview: Today's tips"
           />
-          <FeatureGate feature="cycleTracking" requiredTier="starter">
+          <FeaturePreview
+            feature="cycleTracking"
+            requiredTier="starter"
+            previewLimits={{
+              showPhase: true,
+              showTip: true,
+              lockWorkouts: true,
+              lockNutrition: true,
+              description: "Phase info only"
+            }}
+            upgradeMessage={{
+              title: "Unlock Your Full Cycle Guide",
+              benefits: [
+                "Detailed workout recommendations",
+                "Cycle-synced nutrition plans",
+                "Historical tracking"
+              ],
+              cta: "Get Starter for $4.99/mo"
+            }}
+          >
             <CycleTracker />
-          </FeatureGate>
+          </FeaturePreview>
 
           {/* Learning Library */}
           <SectionHeader

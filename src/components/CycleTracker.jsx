@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Activity, Apple, Lightbulb, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calendar, Activity, Apple, Lightbulb, ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import useStore from '../store/useStore';
 import useCycleStore from '../store/useCycleStore';
 
@@ -7,7 +7,7 @@ import useCycleStore from '../store/useCycleStore';
  * Cycle Tracker Component
  * Displays current cycle phase with workout and nutrition recommendations
  */
-const CycleTracker = () => {
+const CycleTracker = ({ previewMode = false, previewLimits = {} }) => {
   const darkMode = useStore((state) => state.darkMode);
   const userProfile = useStore((state) => state.userProfile);
 
@@ -203,9 +203,12 @@ const CycleTracker = () => {
       {/* Workout Recommendations */}
       <div className="mb-4">
         <button
-          onClick={() => setShowWorkouts(!showWorkouts)}
+          onClick={() => !previewMode && setShowWorkouts(!showWorkouts)}
+          disabled={previewMode}
           className={`w-full flex items-center justify-between p-3 rounded-lg transition-all ${
-            darkMode ? 'bg-gray-800/50 hover:bg-gray-800 border border-gray-700' : 'bg-white hover:bg-gray-50 border border-gray-200'
+            previewMode
+              ? darkMode ? 'bg-gray-800/30 border border-gray-700/50 cursor-not-allowed' : 'bg-gray-100 border border-gray-300 cursor-not-allowed'
+              : darkMode ? 'bg-gray-800/50 hover:bg-gray-800 border border-gray-700' : 'bg-white hover:bg-gray-50 border border-gray-200'
           }`}
         >
           <div className="flex items-center gap-3">
@@ -213,50 +216,92 @@ const CycleTracker = () => {
             <span className={`font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
               Today's Workouts
             </span>
+            {previewMode && <Lock size={14} className={darkMode ? 'text-purple-400' : 'text-purple-600'} />}
           </div>
-          {showWorkouts ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          {!previewMode && (showWorkouts ? <ChevronUp size={20} /> : <ChevronDown size={20} />)}
         </button>
 
-        {showWorkouts && (
-          <div className="mt-2 space-y-2">
-            {workouts.map((workout, idx) => (
-              <div
-                key={idx}
-                className={`p-3 rounded-lg flex items-center justify-between ${
+        {previewMode ? (
+          <div className={`mt-2 p-4 rounded-lg border-2 ${
+            darkMode
+              ? 'bg-purple-500/10 border-purple-500/30'
+              : 'bg-purple-50 border-purple-200'
+          }`}>
+            <div className="flex items-center gap-2 mb-2">
+              <Lock size={14} className={darkMode ? 'text-purple-400' : 'text-purple-600'} />
+              <p className={`text-xs font-semibold ${darkMode ? 'text-purple-400' : 'text-purple-700'}`}>
+                Full Workout Details Locked
+              </p>
+            </div>
+            <p className={`text-xs mb-3 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Unlock personalized workout recommendations synced to your cycle phase with Starter!
+            </p>
+            {/* Preview - Show first workout blurred */}
+            <div className="relative">
+              <div className="blur-sm select-none pointer-events-none opacity-50">
+                <div className={`p-3 rounded-lg flex items-center justify-between ${
                   darkMode ? 'bg-gray-800/30' : 'bg-white/50'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{workout.emoji}</span>
-                  <div>
-                    <p className={`font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                      {workout.type}
-                    </p>
-                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      {workout.duration}
-                    </p>
+                }`}>
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{workouts[0]?.emoji}</span>
+                    <div>
+                      <p className={`font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                        {workouts[0]?.type}
+                      </p>
+                      <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {workouts[0]?.duration}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <span className={`text-xs px-2 py-1 rounded-full ${
-                  workout.intensity === 'peak' ? 'bg-orange-500/20 text-orange-400' :
-                  workout.intensity === 'high' ? 'bg-green-500/20 text-green-400' :
-                  workout.intensity === 'medium' ? 'bg-blue-500/20 text-blue-400' :
-                  'bg-gray-500/20 text-gray-400'
-                }`}>
-                  {workout.intensity}
-                </span>
               </div>
-            ))}
+            </div>
           </div>
+        ) : (
+          showWorkouts && (
+            <div className="mt-2 space-y-2">
+              {workouts.map((workout, idx) => (
+                <div
+                  key={idx}
+                  className={`p-3 rounded-lg flex items-center justify-between ${
+                    darkMode ? 'bg-gray-800/30' : 'bg-white/50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{workout.emoji}</span>
+                    <div>
+                      <p className={`font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                        {workout.type}
+                      </p>
+                      <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {workout.duration}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`text-xs px-2 py-1 rounded-full ${
+                    workout.intensity === 'peak' ? 'bg-orange-500/20 text-orange-400' :
+                    workout.intensity === 'high' ? 'bg-green-500/20 text-green-400' :
+                    workout.intensity === 'medium' ? 'bg-blue-500/20 text-blue-400' :
+                    'bg-gray-500/20 text-gray-400'
+                  }`}>
+                    {workout.intensity}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )
         )}
       </div>
 
       {/* Nutrition Recommendations */}
       <div>
         <button
-          onClick={() => setShowNutrition(!showNutrition)}
+          onClick={() => !previewMode && setShowNutrition(!showNutrition)}
+          disabled={previewMode}
           className={`w-full flex items-center justify-between p-3 rounded-lg transition-all ${
-            darkMode ? 'bg-gray-800/50 hover:bg-gray-800 border border-gray-700' : 'bg-white hover:bg-gray-50 border border-gray-200'
+            previewMode
+              ? darkMode ? 'bg-gray-800/30 border border-gray-700/50 cursor-not-allowed' : 'bg-gray-100 border border-gray-300 cursor-not-allowed'
+              : darkMode ? 'bg-gray-800/50 hover:bg-gray-800 border border-gray-700' : 'bg-white hover:bg-gray-50 border border-gray-200'
           }`}
         >
           <div className="flex items-center gap-3">
@@ -264,63 +309,82 @@ const CycleTracker = () => {
             <span className={`font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
               Nutrition Focus
             </span>
+            {previewMode && <Lock size={14} className={darkMode ? 'text-purple-400' : 'text-purple-600'} />}
           </div>
-          {showNutrition ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          {!previewMode && (showNutrition ? <ChevronUp size={20} /> : <ChevronDown size={20} />)}
         </button>
 
-        {showNutrition && nutrition && (
-          <div className="mt-2 space-y-3">
-            {/* Protein Target */}
-            <div className={`p-3 rounded-lg ${colors.accent} border ${colors.border}`}>
-              <p className={`text-sm font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-800'} mb-1`}>
-                Protein Target
+        {previewMode ? (
+          <div className={`mt-2 p-4 rounded-lg border-2 ${
+            darkMode
+              ? 'bg-purple-500/10 border-purple-500/30'
+              : 'bg-purple-50 border-purple-200'
+          }`}>
+            <div className="flex items-center gap-2 mb-2">
+              <Lock size={14} className={darkMode ? 'text-purple-400' : 'text-purple-600'} />
+              <p className={`text-xs font-semibold ${darkMode ? 'text-purple-400' : 'text-purple-700'}`}>
+                Full Nutrition Guide Locked
               </p>
-              <p className={`text-lg font-bold ${colors.text}`}>
-                {nutrition.proteinTarget}g per lb body weight
-              </p>
-              {userProfile.weight && (
-                <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'} mt-1`}>
-                  ≈ {Math.round(userProfile.weight * nutrition.proteinTarget)}g total
+            </div>
+            <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Unlock cycle-synced nutrition recommendations, protein targets, and food guides with Starter!
+            </p>
+          </div>
+        ) : (
+          showNutrition && nutrition && (
+            <div className="mt-2 space-y-3">
+              {/* Protein Target */}
+              <div className={`p-3 rounded-lg ${colors.accent} border ${colors.border}`}>
+                <p className={`text-sm font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-800'} mb-1`}>
+                  Protein Target
                 </p>
+                <p className={`text-lg font-bold ${colors.text}`}>
+                  {nutrition.proteinTarget}g per lb body weight
+                </p>
+                {userProfile.weight && (
+                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'} mt-1`}>
+                    ≈ {Math.round(userProfile.weight * nutrition.proteinTarget)}g total
+                  </p>
+                )}
+              </div>
+
+              {/* Focus Foods */}
+              <div className={`p-3 rounded-lg ${darkMode ? 'bg-gray-800/30' : 'bg-white/50'}`}>
+                <p className={`text-xs font-semibold uppercase mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {nutrition.focus}
+                </p>
+                <div className="space-y-2">
+                  {nutrition.foods.map((food, idx) => (
+                    <div key={idx} className="flex items-start gap-2">
+                      <span className="text-lg">{food.emoji}</span>
+                      <div>
+                        <p className={`text-sm font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                          {food.name}
+                        </p>
+                        <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          {food.benefit}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Avoid List */}
+              {nutrition.avoid && nutrition.avoid.length > 0 && (
+                <div className={`p-3 rounded-lg ${
+                  darkMode ? 'bg-red-500/10 border border-red-500/30' : 'bg-red-50 border border-red-200'
+                }`}>
+                  <p className={`text-xs font-semibold mb-1 ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
+                    Try to Avoid
+                  </p>
+                  <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {nutrition.avoid.join(', ')}
+                  </p>
+                </div>
               )}
             </div>
-
-            {/* Focus Foods */}
-            <div className={`p-3 rounded-lg ${darkMode ? 'bg-gray-800/30' : 'bg-white/50'}`}>
-              <p className={`text-xs font-semibold uppercase mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {nutrition.focus}
-              </p>
-              <div className="space-y-2">
-                {nutrition.foods.map((food, idx) => (
-                  <div key={idx} className="flex items-start gap-2">
-                    <span className="text-lg">{food.emoji}</span>
-                    <div>
-                      <p className={`text-sm font-semibold ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                        {food.name}
-                      </p>
-                      <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        {food.benefit}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Avoid List */}
-            {nutrition.avoid && nutrition.avoid.length > 0 && (
-              <div className={`p-3 rounded-lg ${
-                darkMode ? 'bg-red-500/10 border border-red-500/30' : 'bg-red-50 border border-red-200'
-              }`}>
-                <p className={`text-xs font-semibold mb-1 ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
-                  Try to Avoid
-                </p>
-                <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  {nutrition.avoid.join(', ')}
-                </p>
-              </div>
-            )}
-          </div>
+          )
         )}
       </div>
     </div>
