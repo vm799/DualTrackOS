@@ -50,26 +50,25 @@ const BrainDumpModal = ({ show, onClose }) => {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg p-4 overflow-y-auto">
-      <div className={`max-w-3xl w-full rounded-3xl relative my-8 ${
-        darkMode ? 'bg-gray-900 border-2 border-purple-500/30' : 'bg-white border-2 border-purple-200'
-      }`}>
-        {/* Sticky close button */}
-        <div className={`sticky top-0 z-10 flex justify-end p-4 ${
-          darkMode ? 'bg-gray-900' : 'bg-white'
-        } rounded-t-3xl`}>
-          <button
-            onClick={onClose}
-            className={`p-2 rounded-lg transition-all ${
-              darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <X size={24} />
-          </button>
-        </div>
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-lg overflow-y-auto">
+      <div className="min-h-screen flex items-center justify-center p-4 py-12">
+        <div className={`max-w-3xl w-full rounded-3xl relative ${
+          darkMode ? 'bg-gray-900 border-2 border-purple-500/30' : 'bg-white border-2 border-purple-200'
+        }`}>
+          {/* Close button at top */}
+          <div className="flex justify-end p-4">
+            <button
+              onClick={onClose}
+              className={`p-2 rounded-lg transition-all ${
+                darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <X size={24} />
+            </button>
+          </div>
 
-        {/* Scrollable content */}
-        <div className="px-8 pb-8">
+          {/* Content */}
+          <div className="px-8 pb-8">
 
         <div className="flex items-center gap-3 mb-2">
           <PenTool className={darkMode ? 'text-purple-400' : 'text-purple-600'} size={32} />
@@ -288,7 +287,8 @@ const BrainDumpModal = ({ show, onClose }) => {
             {ndm.brainDump ? 'Already Complete' : 'Mark Complete'}
           </button>
         </div>
-        </div> {/* End scrollable content */}
+        </div> {/* End content */}
+        </div>
       </div>
     </div>
   );
