@@ -105,17 +105,18 @@ const MoodModal = ({
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-        <div
-          className={`max-w-lg w-full max-h-[80vh] overflow-y-auto pointer-events-auto rounded-2xl shadow-2xl ${
-            darkMode ? 'bg-gray-900 border-2 border-gray-700' : 'bg-white border-2 border-gray-200'
-          }`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className={`sticky top-0 z-10 flex items-center justify-between p-6 border-b backdrop-blur-xl ${
-            darkMode ? 'bg-gray-900/95 border-gray-800' : 'bg-white/95 border-gray-200'
-          }`}>
+      <div className="fixed inset-0 z-50 overflow-y-auto pointer-events-none">
+        <div className="min-h-screen flex items-center justify-center p-4 py-12">
+          <div
+            className={`max-w-lg w-full pointer-events-auto rounded-2xl shadow-2xl ${
+              darkMode ? 'bg-gray-900 border-2 border-gray-700' : 'bg-white border-2 border-gray-200'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className={`flex items-center justify-between p-6 border-b ${
+              darkMode ? 'border-gray-800' : 'border-gray-200'
+            }`}>
             <div className="flex items-center space-x-3">
               <Heart className={colorClasses.text} size={28} />
               <div>
@@ -230,20 +231,21 @@ const MoodModal = ({
             )}
           </div>
 
-          {/* Footer */}
-          <div className={`sticky bottom-0 p-4 border-t backdrop-blur-xl ${
-            darkMode ? 'bg-gray-900/95 border-gray-800' : 'bg-white/95 border-gray-200'
-          }`}>
-            <button
-              onClick={onClose}
-              className={`w-full py-3 rounded-lg font-medium transition-all ${
-                darkMode
-                  ? 'bg-gray-800 hover:bg-gray-700 text-gray-200'
-                  : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-              }`}
-            >
-              Close
-            </button>
+            {/* Footer */}
+            <div className={`p-4 border-t ${
+              darkMode ? 'border-gray-800' : 'border-gray-200'
+            }`}>
+              <button
+                onClick={onClose}
+                className={`w-full py-3 rounded-lg font-medium transition-all ${
+                  darkMode
+                    ? 'bg-gray-800 hover:bg-gray-700 text-gray-200'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                }`}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       </div>
