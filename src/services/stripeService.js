@@ -1,65 +1,28 @@
-import { loadStripe } from '@stripe/stripe-js';
+import { supabase } from '../supabaseClient';
 
 /**
- * Stripe Service
- * Handles all Stripe payment processing for subscriptions
+ * Stripe Service - Server-Side Implementation
+ * All Stripe operations go through Supabase Edge Functions for security
  *
  * SETUP REQUIRED:
- * 1. Create Stripe account at https://stripe.com
- * 2. Get your publishable key from https://dashboard.stripe.com/apikeys
- * 3. Create products and prices in Stripe Dashboard
- * 4. Replace STRIPE_PUBLISHABLE_KEY and price IDs below
+ * 1. Deploy Supabase Edge Functions (see /supabase/functions/README.md)
+ * 2. Configure Stripe secrets in Supabase
+ * 3. Set up Stripe webhook
  */
 
-// TODO: Replace with your actual Stripe publishable key
-// Get from: https://dashboard.stripe.com/apikeys
-const STRIPE_PUBLISHABLE_KEY = process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'pk_test_YOUR_KEY_HERE';
-
-// Initialize Stripe (lazy loaded)
-let stripePromise = null;
-const getStripe = () => {
-  if (!stripePromise) {
-    stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
-  }
-  return stripePromise;
-};
+const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL;
 
 /**
- * Stripe Price IDs
+ * Create Checkout Session via Backend
  *
- * TODO: Create these products in your Stripe Dashboard:
- * 1. Go to https://dashboard.stripe.com/products
- * 2. Create a product for each tier (Starter, Premium, Gold)
- * 3. Add both monthly and annual prices to each product
- * 4. Copy the price IDs (they start with 'price_') and paste below
- *
- * IMPORTANT: These are placeholder IDs - replace with your actual Stripe price IDs
- */
-export const STRIPE_PRICE_IDS = {
-  starter: {
-    monthly: process.env.REACT_APP_STRIPE_STARTER_MONTHLY || 'price_starter_monthly_placeholder',
-    annual: process.env.REACT_APP_STRIPE_STARTER_ANNUAL || 'price_starter_annual_placeholder',
-  },
-  premium: {
-    monthly: process.env.REACT_APP_STRIPE_PREMIUM_MONTHLY || 'price_premium_monthly_placeholder',
-    annual: process.env.REACT_APP_STRIPE_PREMIUM_ANNUAL || 'price_premium_annual_placeholder',
-  },
-  gold: {
-    monthly: process.env.REACT_APP_STRIPE_GOLD_MONTHLY || 'price_gold_monthly_placeholder',
-    annual: process.env.REACT_APP_STRIPE_GOLD_ANNUAL || 'price_gold_annual_placeholder',
-  },
-};
-
-/**
- * Create Checkout Session and redirect to Stripe Checkout
+ * Calls Supabase Edge Function which creates a Stripe Checkout session
  *
  * @param {string} tier - Subscription tier (starter, premium, gold)
  * @param {string} billingPeriod - Billing period (monthly, annual)
  * @param {object} options - Additional options
- * @param {string} options.customerEmail - Customer email (optional)
  * @param {string} options.successUrl - URL to redirect after success (optional)
  * @param {string} options.cancelUrl - URL to redirect if cancelled (optional)
- * @returns {Promise<{error?: string}>}
+ * @returns {Promise<{sessionId?: string, url?: string, error?: string}>}
  */
 export const createCheckoutSession = async (tier, billingPeriod, options = {}) => {
   try {
@@ -71,18 +34,19 @@ export const createCheckoutSession = async (tier, billingPeriod, options = {}) =
       throw new Error(`Invalid billing period: ${billingPeriod}`);
     }
 
-    // Get the price ID
-    const priceId = STRIPE_PRICE_IDS[tier]?.[billingPeriod];
-    if (!priceId || priceId.includes('placeholder')) {
+    if (!supabase) {
       return {
-        error: 'Stripe is not configured yet. Please set up your Stripe account and add price IDs to the environment variables.',
+        error: 'Supabase is not configured. Please set up your environment variables.',
       };
     }
 
-    // Get Stripe instance
-    const stripe = await getStripe();
-    if (!stripe) {
-      throw new Error('Failed to load Stripe');
+    // Get current user session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+    if (sessionError || !session) {
+      return {
+        error: 'You must be logged in to upgrade your subscription.',
+      };
     }
 
     // Build success and cancel URLs
@@ -90,46 +54,37 @@ export const createCheckoutSession = async (tier, billingPeriod, options = {}) =
     const successUrl = options.successUrl || `${baseUrl}/dashboard?session_id={CHECKOUT_SESSION_ID}&upgrade_success=true`;
     const cancelUrl = options.cancelUrl || `${baseUrl}/pricing?upgrade_cancelled=true`;
 
-    // For production, this should be done server-side for security
-    // For now, we'll use client-side checkout (simpler setup)
-    //
-    // PRODUCTION TODO: Move this to a backend API endpoint
-    // The backend should:
-    // 1. Create the checkout session via Stripe API
-    // 2. Return the session ID to the client
-    // 3. Client redirects to checkout using the session ID
-
-    console.log('Creating checkout session:', {
-      tier,
-      billingPeriod,
-      priceId,
-      successUrl,
-      cancelUrl,
+    // Call backend Edge Function to create checkout session
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/create-checkout-session`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        tier,
+        billingPeriod,
+        successUrl,
+        cancelUrl,
+      }),
     });
 
-    // Redirect to Stripe Checkout
-    // Note: This uses Stripe's client-side checkout for simplicity
-    // In production, create session server-side for better security
-    const { error } = await stripe.redirectToCheckout({
-      lineItems: [{
-        price: priceId,
-        quantity: 1,
-      }],
-      mode: 'subscription',
-      successUrl,
-      cancelUrl,
-      customerEmail: options.customerEmail,
-      // Optional: Add metadata for tracking
-      clientReferenceId: options.userId || 'guest',
-    });
-
-    if (error) {
-      console.error('Stripe checkout error:', error);
-      return { error: error.message };
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to create checkout session');
     }
 
-    // If we reach here, redirect is happening
-    return {};
+    const data = await response.json();
+
+    // Redirect to Stripe Checkout
+    if (data.url) {
+      window.location.href = data.url;
+    }
+
+    return {
+      sessionId: data.sessionId,
+      url: data.url,
+    };
 
   } catch (err) {
     console.error('Checkout session error:', err);
@@ -138,28 +93,119 @@ export const createCheckoutSession = async (tier, billingPeriod, options = {}) =
 };
 
 /**
+ * Get User's Current Subscription
+ *
+ * Fetches subscription details from Supabase
+ *
+ * @returns {Promise<{tier: string, status: string, periodEnd: string, error?: string}>}
+ */
+export const getUserSubscription = async () => {
+  try {
+    if (!supabase) {
+      return { error: 'Supabase not configured', tier: 'free', status: 'active' };
+    }
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return { error: 'Not authenticated', tier: 'free', status: 'active' };
+    }
+
+    // Query subscriptions table
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+
+    if (error) {
+      // User doesn't have a subscription record yet
+      if (error.code === 'PGRST116') {
+        return { tier: 'free', status: 'active' };
+      }
+      throw error;
+    }
+
+    return {
+      tier: data.subscription_tier || 'free',
+      status: data.subscription_status || 'active',
+      periodEnd: data.current_period_end,
+      cancelAtPeriodEnd: data.cancel_at_period_end,
+      billingPeriod: data.billing_period,
+      stripeCustomerId: data.stripe_customer_id,
+    };
+
+  } catch (err) {
+    console.error('Error fetching subscription:', err);
+    return { error: err.message, tier: 'free', status: 'active' };
+  }
+};
+
+/**
  * Create Customer Portal Session
  * Allows users to manage their subscription (upgrade, downgrade, cancel)
  *
- * REQUIRES: Backend implementation with Stripe API
- * This is a placeholder - needs server-side implementation
+ * TODO: Implement Edge Function for this
  *
- * @param {string} customerId - Stripe customer ID
  * @returns {Promise<{url?: string, error?: string}>}
  */
-export const createCustomerPortalSession = async (customerId) => {
-  // TODO: Implement backend endpoint for this
-  // Backend should:
-  // 1. Verify user authentication
-  // 2. Get their Stripe customer ID from database
-  // 3. Create portal session via Stripe API
-  // 4. Return portal URL to client
+export const createCustomerPortalSession = async () => {
+  try {
+    if (!supabase) {
+      return { error: 'Supabase not configured' };
+    }
 
-  console.log('Customer portal requested for:', customerId);
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-  return {
-    error: 'Customer portal requires backend implementation. For now, contact support to manage your subscription.',
-  };
+    if (sessionError || !session) {
+      return { error: 'You must be logged in' };
+    }
+
+    // TODO: Create edge function for customer portal
+    // For now, redirect to Stripe's customer portal manually
+    // This requires creating a customer portal edge function
+
+    return {
+      error: 'Customer portal is not yet implemented. Please contact support to manage your subscription.',
+    };
+
+  } catch (err) {
+    console.error('Customer portal error:', err);
+    return { error: err.message || 'Failed to create portal session' };
+  }
+};
+
+/**
+ * Cancel Subscription
+ * Cancels the user's subscription at the end of the billing period
+ *
+ * TODO: Implement Edge Function for this
+ *
+ * @returns {Promise<{success?: boolean, error?: string}>}
+ */
+export const cancelSubscription = async () => {
+  try {
+    if (!supabase) {
+      return { error: 'Supabase not configured' };
+    }
+
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+    if (sessionError || !session) {
+      return { error: 'You must be logged in' };
+    }
+
+    // TODO: Create edge function for cancellation
+    // This should call Stripe API to cancel subscription at period end
+
+    return {
+      error: 'Cancellation is not yet implemented. Please contact support.',
+    };
+
+  } catch (err) {
+    console.error('Cancellation error:', err);
+    return { error: err.message || 'Failed to cancel subscription' };
+  }
 };
 
 /**
@@ -167,17 +213,7 @@ export const createCustomerPortalSession = async (customerId) => {
  * @returns {boolean}
  */
 export const isStripeConfigured = () => {
-  // Check if publishable key is set
-  if (!STRIPE_PUBLISHABLE_KEY || STRIPE_PUBLISHABLE_KEY.includes('YOUR_KEY_HERE')) {
-    return false;
-  }
-
-  // Check if at least one price ID is set
-  const hasRealPriceId = Object.values(STRIPE_PRICE_IDS).some(tier =>
-    Object.values(tier).some(priceId => !priceId.includes('placeholder'))
-  );
-
-  return hasRealPriceId;
+  return !!SUPABASE_URL && !!supabase;
 };
 
 /**
@@ -196,10 +232,38 @@ export const getCheckoutStatus = () => {
   };
 };
 
+/**
+ * Sync subscription status with Stripe
+ * Useful after user returns from checkout to ensure latest status
+ *
+ * The webhook should handle this automatically, but this provides
+ * a manual sync option if needed
+ *
+ * @returns {Promise<{success?: boolean, error?: string}>}
+ */
+export const syncSubscriptionStatus = async () => {
+  try {
+    // Just refetch from database - webhook should have updated it
+    const subscription = await getUserSubscription();
+
+    if (subscription.error) {
+      return { error: subscription.error };
+    }
+
+    return { success: true, subscription };
+
+  } catch (err) {
+    console.error('Sync error:', err);
+    return { error: err.message || 'Failed to sync subscription' };
+  }
+};
+
 export default {
   createCheckoutSession,
+  getUserSubscription,
   createCustomerPortalSession,
+  cancelSubscription,
   isStripeConfigured,
   getCheckoutStatus,
-  STRIPE_PRICE_IDS,
+  syncSubscriptionStatus,
 };
