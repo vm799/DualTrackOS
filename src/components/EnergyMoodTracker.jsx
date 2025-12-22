@@ -1,10 +1,10 @@
 import React from 'react';
-import { Zap, Heart } from 'lucide-react';
+import { Zap, Heart, Lock } from 'lucide-react';
 import useEnergyMoodStore from '../store/useEnergyMoodStore';
 import useStore from '../store/useStore';
 import EnergyMoodModals from './EnergyMoodModals';
 
-const EnergyMoodTracker = () => {
+const EnergyMoodTracker = ({ previewMode = false, previewLimits = {} }) => {
   const darkMode = useStore((state) => state.darkMode);
   const {
     energyTracking,
@@ -185,7 +185,27 @@ const EnergyMoodTracker = () => {
         {renderEnergySelector()}
         {renderMoodSelector()}
       </div>
-      <EnergyMoodModals />
+
+      {/* Preview Mode Limitation Notice */}
+      {previewMode && (
+        <div className={`mt-4 p-4 rounded-lg border-2 ${
+          darkMode
+            ? 'bg-purple-500/10 border-purple-500/30'
+            : 'bg-purple-50 border-purple-200'
+        }`}>
+          <div className="flex items-center gap-2 mb-2">
+            <Lock size={14} className={darkMode ? 'text-purple-400' : 'text-purple-600'} />
+            <p className={`text-xs font-semibold ${darkMode ? 'text-purple-400' : 'text-purple-700'}`}>
+              AI Insights Locked
+            </p>
+          </div>
+          <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            You're seeing basic suggestions only. Upgrade to Premium for AI-powered insights, trend analysis, and personalized recommendations!
+          </p>
+        </div>
+      )}
+
+      <EnergyMoodModals previewMode={previewMode} />
     </>
   );
 };
