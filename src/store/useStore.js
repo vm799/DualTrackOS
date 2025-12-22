@@ -10,6 +10,7 @@ const useStore = create((set) => ({
     initials: '',
     age: null,
     weight: null, // in lbs, for protein calculation
+    lifeStage: null, // 'reproductive' (18-44) | 'perimenopause' (45-55) | 'menopause' (55+) | 'postmenopause' (60+)
     avatar: '🥚', // Everyone starts with an egg that grows into a Kitsune
     hasCompletedOnboarding: false,
     disclaimerAccepted: false
