@@ -71,7 +71,7 @@ const FeaturePreview = ({
         </div>
         <button
           onClick={() => setShowUpgradePrompt(!showUpgradePrompt)}
-          className={`text-xs font-semibold flex items-center gap-1 transition-all ${
+          className={`text-xs font-semibold flex items-center gap-1 transition-all animate-pulse hover:animate-none ${
             darkMode ? 'text-purple-400 hover:text-purple-300' : 'text-purple-600 hover:text-purple-700'
           }`}
         >
