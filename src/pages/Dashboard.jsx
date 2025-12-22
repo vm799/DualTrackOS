@@ -18,6 +18,7 @@ import ProteinTracker from '../components/ProteinTracker';
 import VoiceDiary from '../components/VoiceDiary';
 import CycleTracker from '../components/CycleTracker';
 import LearningLibrary from '../components/LearningLibrary';
+import SectionHeader from '../components/SectionHeader';
 import MovementDetailModal from '../components/MovementDetailModal';
 import NutritionDetailModal from '../components/NutritionDetailModal';
 import BrainDumpModal from '../components/BrainDumpModal';
@@ -201,8 +202,8 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-4 py-1">
           <div className="flex items-center justify-between">
 
-            {/* LEFT: LOGO */}
-            <div className={`flex items-center gap-2 transition-opacity duration-300 ${isScrolled ? 'opacity-0' : 'opacity-100'}`}>
+            {/* LEFT: LOGO - Always visible */}
+            <div className={`flex items-center gap-2 transition-all duration-300 ${isScrolled ? 'scale-75' : 'scale-100'}`}>
               <img
                 src="/lioness-logo.png"
                 alt="DualTrack OS"
@@ -210,32 +211,42 @@ const Dashboard = () => {
               />
             </div>
 
-            {/* CENTER: TIME + POMODORO HINT - Primary Action */}
+            {/* CENTER: TIME + WELCOME - Primary Action */}
             <button
               onClick={togglePomodoroMode}
               className="flex flex-col items-center cursor-pointer select-none transition-transform hover:scale-105"
             >
-              <div className={`text-3xl md:text-4xl font-semibold tracking-tight ${
+              {/* Welcome Message - Always visible, personalized */}
+              {userProfile.initials && !isScrolled && (
+                <div className={`text-sm md:text-base font-semibold mb-1 ${
+                  darkMode
+                    ? 'bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent'
+                    : 'text-purple-600'
+                }`}>
+                  {welcomeMessage}, {userProfile.initials}! 👋
+                </div>
+              )}
+              {userProfile.initials && !isScrolled && (
+                <div className={`text-xs mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Welcome back - let's make today count!
+                </div>
+              )}
+
+              {/* Time Display */}
+              <div className={`${isScrolled ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'} font-semibold tracking-tight transition-all ${
                 darkMode
                   ? 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
                   : 'text-gray-900'
               }`}>
                 {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false })}
               </div>
-              <div className={`text-[11px] md:text-xs ${
+
+              {/* Pomodoro Hint */}
+              <div className={`text-[10px] md:text-xs ${
                 darkMode ? 'text-purple-400' : 'text-purple-600'
-              } ${isScrolled ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}>
-                Tap for Focus Timer
+              }`}>
+                {isScrolled ? '⏱️' : '⏱️ Tap for Focus Timer'}
               </div>
-              {userProfile.initials && (
-                <div className={`text-xs md:text-sm font-medium mt-1 ${
-                  darkMode
-                    ? 'bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent'
-                    : 'text-pink-600'
-                } ${isScrolled ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}>
-                  {welcomeMessage}, {userProfile.initials}
-                </div>
-              )}
             </button>
 
             {/* RIGHT: USER MENU or DARK MODE TOGGLE */}
@@ -357,7 +368,12 @@ const Dashboard = () => {
       {/* MAIN CONTENT */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-6 pb-32 relative z-10">
-          {/* NDM Status Bar */}
+          {/* NDM Status Bar - Must-Dos for Today */}
+          <SectionHeader
+            emoji="✨"
+            title="Your Must-Dos for Today"
+            description="Complete these 4 core habits - the foundation of your day"
+          />
           <NDMStatusBar
             ndm={ndm}
             darkMode={darkMode}
@@ -367,31 +383,69 @@ const Dashboard = () => {
             openBrainDump={openBrainDump}
           />
 
-          {/* Render HourlyTaskDisplay */}
+          {/* Hourly Task Display */}
+          <SectionHeader
+            emoji="⏰"
+            title="Your Hour-by-Hour Game Plan"
+            description="Pick what you're attacking now, then crush it with focus mode"
+          />
           <HourlyTaskDisplay />
 
-          {/* Render EnergyMoodTracker */}
+          {/* Energy & Mood Tracker */}
+          <SectionHeader
+            emoji="💪"
+            title="How Are You Feeling?"
+            description="Quick check-in helps us suggest the right tasks for your energy"
+            badge="Preview Mode"
+          />
           <FeatureGate feature="energyMoodTracking" requiredTier="premium">
             <EnergyMoodTracker />
           </FeatureGate>
 
-          {/* Render ProteinTracker */}
+          {/* Protein Tracker */}
+          <SectionHeader
+            emoji="🍗"
+            title="Fuel Your Body Right"
+            description="Hit your protein goal - your future self will thank you"
+          />
           <ProteinTracker openNutrition={openNutrition} />
 
-          {/* Render VoiceDiary */}
+          {/* Voice Diary */}
+          <SectionHeader
+            emoji="🎤"
+            title="Quick Voice Check-in"
+            description="Talk it out in 30 seconds - no typing needed"
+            badge="Free: 30s"
+          />
           <FeatureGate feature="voiceTranscription" requiredTier="starter">
             <VoiceDiary />
           </FeatureGate>
 
-          {/* Render CycleTracker */}
+          {/* Cycle Tracker */}
+          <SectionHeader
+            emoji="🌙"
+            title="Your Cycle-Aware Companion"
+            description="Workouts & nutrition that sync with your hormones"
+            badge="Preview: Today's tips"
+          />
           <FeatureGate feature="cycleTracking" requiredTier="starter">
             <CycleTracker />
           </FeatureGate>
 
-          {/* Render LearningLibrary */}
+          {/* Learning Library */}
+          <SectionHeader
+            emoji="📚"
+            title="Your Knowledge Hub"
+            description="Save useful resources and ideas for later"
+          />
           <LearningLibrary />
 
-          {/* Render Kanban Board */}
+          {/* Kanban Board */}
+          <SectionHeader
+            emoji="📋"
+            title="Organize Your Chaos"
+            description="Brain dump everything, then drag tasks where they belong"
+          />
           <KanbanBoard />
         </div>
       </div>
