@@ -175,29 +175,29 @@ const SettingsPage = () => {
               </div>
             </div>
           ) : (
-            <form onSubmit={handleWaitlistSubmit} className="flex gap-2">
+            <form onSubmit={handleWaitlistSubmit} className="flex flex-col sm:flex-row gap-2">
               <input
                 type="email"
                 value={waitlistEmail}
                 onChange={(e) => setWaitlistEmail(e.target.value)}
                 placeholder="Enter your email"
-                className={`flex-1 px-4 py-2 rounded-lg border-2 ${
+                className={`flex-1 px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 ${
                   darkMode
-                    ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-purple-500'
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-purple-500'
+                    ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-purple-500 focus:ring-purple-500/50'
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500/50'
                 }`}
                 required
               />
               <button
                 type="submit"
-                className={`px-6 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
+                className={`px-6 py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 whitespace-nowrap ${
                   darkMode
                     ? 'bg-purple-500 hover:bg-purple-600 text-white'
                     : 'bg-purple-600 hover:bg-purple-700 text-white'
                 }`}
               >
                 <Send size={18} />
-                Join
+                Join Waitlist
               </button>
             </form>
           )}
