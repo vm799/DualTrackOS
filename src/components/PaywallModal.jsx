@@ -31,25 +31,26 @@ const PaywallModal = ({ feature, currentTier, requiredTier, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg p-4 overflow-y-auto">
-      <div className={`max-w-5xl w-full rounded-3xl relative my-8 ${
-        darkMode ? 'bg-gray-900 border-2 border-purple-500/30' : 'bg-white border-2 border-purple-200'
-      }`}>
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-lg overflow-y-auto">
+      <div className="min-h-screen flex items-center justify-center p-4 py-12">
+        <div className={`max-w-5xl w-full rounded-3xl ${
+          darkMode ? 'bg-gray-900 border-2 border-purple-500/30' : 'bg-white border-2 border-purple-200'
+        }`}>
 
-        {/* Close button */}
-        <div className={`sticky top-0 z-10 flex justify-end p-4 ${darkMode ? 'bg-gray-900' : 'bg-white'} rounded-t-3xl`}>
-          <button
-            onClick={onClose}
-            className={`p-2 rounded-lg transition-all ${
-              darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-            }`}
-          >
-            <X size={24} className={darkMode ? 'text-gray-400' : 'text-gray-600'} />
-          </button>
-        </div>
+          {/* Close button */}
+          <div className="flex justify-end p-4">
+            <button
+              onClick={onClose}
+              className={`p-2 rounded-lg transition-all ${
+                darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+              }`}
+            >
+              <X size={24} className={darkMode ? 'text-gray-400' : 'text-gray-600'} />
+            </button>
+          </div>
 
-        {/* Content */}
-        <div className="px-8 pb-8">
+          {/* Content */}
+          <div className="px-8 pb-8">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 mb-4">
@@ -94,6 +95,7 @@ const PaywallModal = ({ feature, currentTier, requiredTier, onClose }) => {
             <p className={`text-sm ${darkMode ? 'text-purple-400' : 'text-purple-700'}`}>
               💡 All paid plans include unlimited tasks, full NDM system, voice transcription, and smart nutrition logging!
             </p>
+          </div>
           </div>
         </div>
       </div>
