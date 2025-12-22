@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Check, Zap, Crown, Sparkles } from 'lucide-react';
+import { X, Check, Zap, Crown, Sparkles, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import {
@@ -207,8 +207,5 @@ const PricingCard = ({ tier, isRecommended, isCurrent, darkMode, tierIcon, onSel
     </div>
   );
 };
-
-// Import Lock icon
-import { Lock } from 'lucide-react';
 
 export default PaywallModal;
