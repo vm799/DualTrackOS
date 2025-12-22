@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Check, ArrowLeft, Crown, Zap, Sparkles, Heart } from 'lucide-react';
+import { Check, ArrowLeft, Crown, Zap, Sparkles, Heart, Loader } from 'lucide-react';
 import useStore from '../store/useStore';
 import useSubscriptionStore from '../store/useSubscriptionStore';
 import {
@@ -9,6 +9,7 @@ import {
   TIER_NAMES,
   TIER_TAGLINES
 } from '../constants/subscription';
+import { createCheckoutSession, isStripeConfigured, getCheckoutStatus } from '../services/stripeService';
 
 /**
  * PricingPage - Full pricing page with all tiers
@@ -17,21 +18,82 @@ const PricingPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const darkMode = useStore((state) => state.darkMode);
+  const user = useStore((state) => state.user);
   const currentTier = useSubscriptionStore((state) => state.subscriptionTier);
+  const setTier = useSubscriptionStore((state) => state.setTier);
 
   const [billingPeriod, setBillingPeriod] = useState('monthly'); // 'monthly' or 'annual'
+  const [loadingTier, setLoadingTier] = useState(null); // Track which tier is loading
+  const [error, setError] = useState(null);
   const highlightedTier = searchParams.get('upgrade') || 'premium'; // Which tier to highlight
+  const stripeConfigured = isStripeConfigured();
 
-  const handleSelectPlan = (tier) => {
+  // Check for successful checkout on mount
+  useEffect(() => {
+    const status = getCheckoutStatus();
+
+    if (status.success && status.sessionId) {
+      // User just completed a checkout
+      // TODO: Verify session with backend and update tier
+      // For now, show success message
+      alert('🎉 Payment successful! Your subscription is now active.');
+
+      // Clear URL params
+      window.history.replaceState({}, document.title, '/pricing');
+    } else if (status.cancelled) {
+      setError('Checkout was cancelled. Feel free to try again!');
+
+      // Clear URL params after showing message
+      setTimeout(() => {
+        window.history.replaceState({}, document.title, '/pricing');
+        setError(null);
+      }, 5000);
+    }
+  }, []);
+
+  const handleSelectPlan = async (tier) => {
+    setError(null);
+
     if (tier === 'free') {
       // Already on free, redirect to dashboard
       navigate('/dashboard');
       return;
     }
 
-    // TODO: Implement Stripe checkout
-    alert(`Stripe checkout for ${tier} plan (${billingPeriod}) coming soon!`);
-    // navigate('/checkout?tier=' + tier + '&period=' + billingPeriod);
+    if (tier === currentTier) {
+      // Already on this tier
+      navigate('/dashboard');
+      return;
+    }
+
+    // Check if Stripe is configured
+    if (!stripeConfigured) {
+      setError(
+        '⚠️ Payment system is not configured yet. Please contact support or try again later.'
+      );
+      return;
+    }
+
+    try {
+      setLoadingTier(tier);
+
+      // Create Stripe checkout session
+      const result = await createCheckoutSession(tier, billingPeriod, {
+        customerEmail: user?.email,
+        userId: user?.id,
+      });
+
+      if (result.error) {
+        setError(result.error);
+        setLoadingTier(null);
+      }
+      // If successful, user will be redirected to Stripe
+      // No need to clear loading state as page will redirect
+    } catch (err) {
+      console.error('Checkout error:', err);
+      setError('Failed to start checkout. Please try again.');
+      setLoadingTier(null);
+    }
   };
 
   const tierIcons = {
@@ -81,6 +143,17 @@ const PricingPage = () => {
         }`}>
           Choose the plan that's right for you. Upgrade or downgrade anytime.
         </p>
+
+        {/* Error message */}
+        {error && (
+          <div className={`max-w-2xl mx-auto mb-6 p-4 rounded-xl ${
+            darkMode ? 'bg-red-500/20 border-2 border-red-500/30' : 'bg-red-50 border-2 border-red-200'
+          }`}>
+            <p className={`text-sm ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
+              {error}
+            </p>
+          </div>
+        )}
 
         {/* Billing toggle */}
         <div className="flex items-center justify-center gap-4 mb-8">
@@ -134,6 +207,7 @@ const PricingPage = () => {
                 isCurrent={isCurrent}
                 darkMode={darkMode}
                 tierIcon={tierIcons[tier]}
+                isLoading={loadingTier === tier}
                 onSelect={() => handleSelectPlan(tier)}
               />
             );
@@ -186,7 +260,7 @@ const PricingPage = () => {
 /**
  * Individual pricing tier card
  */
-const PricingTierCard = ({ tier, billingPeriod, isHighlighted, isCurrent, darkMode, tierIcon, onSelect }) => {
+const PricingTierCard = ({ tier, billingPeriod, isHighlighted, isCurrent, darkMode, tierIcon, isLoading, onSelect }) => {
   const tierName = TIER_NAMES[tier];
   const tagline = TIER_TAGLINES[tier];
   const features = TIER_FEATURES[tier];
@@ -278,9 +352,9 @@ const PricingTierCard = ({ tier, billingPeriod, isHighlighted, isCurrent, darkMo
       {/* CTA */}
       <button
         onClick={onSelect}
-        disabled={isCurrent}
-        className={`w-full py-3 rounded-lg font-semibold transition-all ${
-          isCurrent
+        disabled={isCurrent || isLoading}
+        className={`w-full py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 ${
+          isCurrent || isLoading
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
             : isHighlighted
               ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl'
@@ -289,7 +363,8 @@ const PricingTierCard = ({ tier, billingPeriod, isHighlighted, isCurrent, darkMo
                 : 'bg-purple-600 hover:bg-purple-700 text-white'
         }`}
       >
-        {isCurrent ? 'Current Plan' : tier === 'free' ? 'Get Started' : `Upgrade to ${tierName}`}
+        {isLoading && <Loader className="animate-spin" size={18} />}
+        {isCurrent ? 'Current Plan' : isLoading ? 'Loading...' : tier === 'free' ? 'Get Started' : `Upgrade to ${tierName}`}
       </button>
     </div>
   );
