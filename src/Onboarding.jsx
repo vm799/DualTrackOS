@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { User, Weight, Cake, Sparkles, AlertTriangle, CheckCircle } from 'lucide-react';
+import { User, Weight, Cake, Sparkles, AlertTriangle, CheckCircle, Heart, Flower2 } from 'lucide-react';
 
 const Onboarding = ({ onComplete, darkMode }) => {
-  const [step, setStep] = useState(0); // 0: disclaimer, 1: profile
+  const [step, setStep] = useState(0); // 0: disclaimer, 1: profile, 2: life stage
   const [profile, setProfile] = useState({
     name: '',
     preferredName: '',
     initials: '',
     age: '',
     weight: '',
+    lifeStage: '',
     avatar: '🥚' // Everyone starts with an egg that hatches as they practice balance
   });
 
@@ -135,7 +136,207 @@ const Onboarding = ({ onComplete, darkMode }) => {
     );
   }
 
-  // Profile Setup Screen
+  // Life Stage Selection Screen (Step 2)
+  if (step === 2) {
+    const age = parseInt(profile.age);
+
+    // Auto-suggest life stage based on age
+    const suggestedStage = age < 45 ? 'reproductive' : age < 56 ? 'perimenopause' : age < 61 ? 'menopause' : 'postmenopause';
+
+    const lifeStages = [
+      {
+        id: 'reproductive',
+        name: 'Reproductive Years',
+        ageRange: '18-44',
+        emoji: '🌸',
+        description: 'Cycle tracking, energy optimization, and hormone awareness',
+        features: ['Menstrual cycle tracking', 'Phase-specific workouts & nutrition', 'Energy & mood insights'],
+        color: 'pink',
+      },
+      {
+        id: 'perimenopause',
+        name: 'Perimenopause',
+        ageRange: '45-55',
+        emoji: '💪',
+        description: 'Strength-first approach with minimal friction and maximum consistency',
+        features: ['Binary daily check-ins', 'Strength progression tracking', 'Pull-up mastery program'],
+        color: 'orange',
+      },
+      {
+        id: 'menopause',
+        name: 'Menopause',
+        ageRange: '55-60',
+        emoji: '🌟',
+        description: 'Adapt and thrive through transition with specialized support',
+        features: ['Symptom tracking', 'Energy management', 'Bone health focus'],
+        color: 'purple',
+      },
+      {
+        id: 'postmenopause',
+        name: 'Post-Menopause',
+        ageRange: '60+',
+        emoji: '✨',
+        description: 'Vitality, strength, and wisdom in your prime years',
+        features: ['Longevity focus', 'Balance & mobility', 'Cognitive wellness'],
+        color: 'blue',
+      },
+    ];
+
+    return (
+      <div className={`min-h-screen flex items-center justify-center p-4 ${
+        darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
+      }`}>
+        <div className={`max-w-4xl w-full rounded-2xl p-8 shadow-2xl ${
+          darkMode
+            ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
+            : 'bg-white border-2 border-gray-100'
+        }`}>
+          <div className="text-center mb-8">
+            <Heart className={`mx-auto mb-4 ${darkMode ? 'text-pink-400' : 'text-pink-600'}`} size={48} />
+            <h1 className={`text-3xl font-bold mb-2 ${
+              darkMode
+                ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+                : 'text-gray-900'
+            }`}>
+              Personalize Your Journey
+            </h1>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Every woman's journey is unique. Choose the experience that feels right for you.
+            </p>
+          </div>
+
+          {/* Suggested stage banner */}
+          <div className={`mb-6 p-4 rounded-lg ${
+            darkMode ? 'bg-purple-500/10 border border-purple-500/30' : 'bg-purple-50 border border-purple-200'
+          }`}>
+            <p className={`text-sm text-center ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+              💡 Based on your age ({age}), we suggest <strong>{lifeStages.find(s => s.id === suggestedStage)?.name}</strong>
+              <br />
+              <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                But you know yourself best - choose what feels right!
+              </span>
+            </p>
+          </div>
+
+          {/* Life stage cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            {lifeStages.map((stage) => {
+              const isSelected = profile.lifeStage === stage.id;
+              const isSuggested = stage.id === suggestedStage;
+
+              return (
+                <button
+                  key={stage.id}
+                  onClick={() => setProfile({ ...profile, lifeStage: stage.id })}
+                  className={`p-6 rounded-xl text-left transition-all ${
+                    isSelected
+                      ? darkMode
+                        ? `bg-${stage.color}-500/20 border-2 border-${stage.color}-500/50 ring-2 ring-${stage.color}-500/50`
+                        : `bg-${stage.color}-100 border-2 border-${stage.color}-400 ring-2 ring-${stage.color}-400/50`
+                      : isSuggested
+                        ? darkMode
+                          ? 'bg-gray-800/50 border-2 border-purple-500/30 hover:border-purple-500/50'
+                          : 'bg-gray-50 border-2 border-purple-300 hover:border-purple-400'
+                        : darkMode
+                          ? 'bg-gray-800/30 border-2 border-gray-700 hover:border-gray-600'
+                          : 'bg-gray-50 border-2 border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  {isSuggested && !isSelected && (
+                    <div className={`mb-2 text-xs font-semibold ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
+                      ⭐ Recommended for you
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-4xl">{stage.emoji}</span>
+                    <div className="flex-1">
+                      <h3 className={`text-lg font-bold ${
+                        isSelected
+                          ? darkMode ? 'text-white' : 'text-gray-900'
+                          : darkMode ? 'text-gray-200' : 'text-gray-900'
+                      }`}>
+                        {stage.name}
+                      </h3>
+                      <p className={`text-xs ${
+                        isSelected
+                          ? darkMode ? `text-${stage.color}-400` : `text-${stage.color}-700`
+                          : darkMode ? 'text-gray-500' : 'text-gray-600'
+                      }`}>
+                        Ages {stage.ageRange}
+                      </p>
+                    </div>
+                    {isSelected && (
+                      <CheckCircle className={`text-${stage.color}-500`} size={24} />
+                    )}
+                  </div>
+
+                  <p className={`text-sm mb-3 ${
+                    isSelected
+                      ? darkMode ? 'text-gray-300' : 'text-gray-700'
+                      : darkMode ? 'text-gray-400' : 'text-gray-600'
+                  }`}>
+                    {stage.description}
+                  </p>
+
+                  <div className="space-y-1">
+                    {stage.features.map((feature, idx) => (
+                      <div key={idx} className={`text-xs flex items-start gap-2 ${
+                        isSelected
+                          ? darkMode ? 'text-gray-400' : 'text-gray-600'
+                          : darkMode ? 'text-gray-500' : 'text-gray-500'
+                      }`}>
+                        <span className={isSelected ? `text-${stage.color}-500` : 'text-gray-500'}>✓</span>
+                        <span>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Complete button */}
+          <div className="flex gap-4">
+            <button
+              onClick={() => setStep(1)}
+              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                darkMode
+                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+              }`}
+            >
+              ← Back
+            </button>
+            <button
+              onClick={handleComplete}
+              disabled={!profile.lifeStage}
+              className={`flex-1 py-4 rounded-xl font-bold text-lg transition-all ${
+                !profile.lifeStage
+                  ? darkMode
+                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : darkMode
+                    ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
+                    : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+              }`}
+            >
+              {!profile.lifeStage ? (
+                'Please Select Your Life Stage'
+              ) : (
+                <span className="flex items-center justify-center space-x-2">
+                  <CheckCircle size={20} />
+                  <span>Let's Go!</span>
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Profile Setup Screen (Step 1 - Default)
   return (
     <div className={`min-h-screen flex items-center justify-center p-4 ${
       darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
@@ -304,7 +505,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
 
         <div className="mt-8">
           <button
-            onClick={handleComplete}
+            onClick={() => setStep(2)}
             disabled={!profile.name || !profile.age || !profile.weight}
             className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
               !profile.name || !profile.age || !profile.weight
@@ -320,8 +521,8 @@ const Onboarding = ({ onComplete, darkMode }) => {
               'Please Complete All Fields'
             ) : (
               <span className="flex items-center justify-center space-x-2">
-                <CheckCircle size={20} />
-                <span>Let's Go!</span>
+                <span>Continue</span>
+                <span>→</span>
               </span>
             )}
           </button>
