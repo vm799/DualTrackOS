@@ -4,6 +4,7 @@
   "description": "The operating system for perimenopausal women running dual careers",
   "private": true,
   "dependencies": {
+    "@sentry/react": "^10.32.1",
     "@stripe/stripe-js": "^8.6.0",
     "@supabase/supabase-js": "^2.87.1",
     "date-fns": "^2.30.0",
