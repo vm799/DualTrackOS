@@ -19,6 +19,7 @@
 
 import React from 'react';
 import AppRouter from './Router';
+import ErrorBoundary from './components/ErrorBoundary';
 import { useAuthInitialization } from './hooks/useAuthInitialization';
 import { useDataPersistence } from './hooks/useDataPersistence';
 
@@ -29,8 +30,12 @@ const DualTrackOS = () => {
   // Auto-save data to localStorage and Supabase
   useDataPersistence();
 
-  // Render the application
-  return <AppRouter />;
+  // Render the application wrapped in Error Boundary for production error handling
+  return (
+    <ErrorBoundary>
+      <AppRouter />
+    </ErrorBoundary>
+  );
 };
 
 export default DualTrackOS;
