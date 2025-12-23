@@ -38,7 +38,7 @@ export const DAILY_TARGETS = {
   ndms: 4,           // 4 non-negotiables
 };
 
-// Spirit Animal Score Thresholds
+// Avatar Score Thresholds
 export const SPIRIT_ANIMAL_STAGES = {
   egg: 0,           // 0-19%
   kit: 20,          // 20-39%
