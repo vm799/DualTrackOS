@@ -366,6 +366,7 @@ describe('useEnergyMoodStore', () => {
       expect(suggestions.title).toBe('Grounding & Soothing');
       expect(suggestions.activities).toBeDefined();
       expect(Array.isArray(suggestions.activities)).toBe(true);
+      expect(suggestions.activities.length).toBeGreaterThan(0);
     });
 
     it('should provide overwhelmed mood wellness suggestions', () => {
@@ -376,6 +377,7 @@ describe('useEnergyMoodStore', () => {
       expect(suggestions).toBeDefined();
       expect(suggestions.title).toBe('🌸 GENTLE MODE ACTIVATED');
       expect(suggestions.activities).toBeDefined();
+      expect(Array.isArray(suggestions.activities)).toBe(true);
     });
 
     it('should provide energized mood wellness suggestions', () => {
@@ -384,7 +386,9 @@ describe('useEnergyMoodStore', () => {
       const suggestions = result.current.getMoodBasedWellness('energized');
 
       expect(suggestions).toBeDefined();
+      expect(suggestions.title).toBe('Channel Your Energy Wisely');
       expect(suggestions.activities).toBeDefined();
+      expect(Array.isArray(suggestions.activities)).toBe(true);
     });
 
     it('should provide focused mood wellness suggestions', () => {
@@ -393,7 +397,9 @@ describe('useEnergyMoodStore', () => {
       const suggestions = result.current.getMoodBasedWellness('focused');
 
       expect(suggestions).toBeDefined();
+      expect(suggestions.title).toBe('Deep Work Opportunity');
       expect(suggestions.activities).toBeDefined();
+      expect(Array.isArray(suggestions.activities)).toBe(true);
     });
 
     it('should provide calm mood wellness suggestions', () => {
@@ -404,6 +410,7 @@ describe('useEnergyMoodStore', () => {
       expect(suggestions).toBeDefined();
       expect(suggestions.title).toBe('Reflective State');
       expect(suggestions.activities).toBeDefined();
+      expect(Array.isArray(suggestions.activities)).toBe(true);
     });
 
     it('should provide tired mood wellness suggestions', () => {
@@ -414,6 +421,7 @@ describe('useEnergyMoodStore', () => {
       expect(suggestions).toBeDefined();
       expect(suggestions.title).toBe('Rest & Recovery Mode');
       expect(suggestions.activities).toBeDefined();
+      expect(Array.isArray(suggestions.activities)).toBe(true);
     });
 
     it('should return null for unknown mood', () => {
