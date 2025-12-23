@@ -18,7 +18,9 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
   const [waterGlasses, setWaterGlasses] = useState(0);
   const [stepCount, setStepCount] = useState(0);
   const [stretchCount, setStretchCount] = useState(0);
+  const [resistanceCount, setResistanceCount] = useState(0);
   const [breathingActive, setBreathingActive] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
 
   const activities = [
     {
@@ -31,6 +33,11 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
       unit: 'glass',
       motivation: "Your body is 60% water. Let's refresh and rehydrate!",
       benefits: ['Boosts energy', 'Improves focus', 'Supports metabolism'],
+      instructions: [
+        'Fill a glass with 8oz of water',
+        'Drink slowly over 1-2 minutes',
+        'Notice how refreshing it feels',
+      ],
     },
     {
       id: 'steps',
@@ -41,7 +48,13 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
       target: 100,
       unit: 'steps',
       motivation: "Just 100 steps! Get your blood flowing and energy up.",
-      benefits: ['Increases circulation', 'Reduces stiffness', 'Boosts mood'],
+      benefits: ['Increases circulation', 'Reduces stiffness', 'Boosts mood', 'Stabilizes blood sugar'],
+      instructions: [
+        'Stand up and find a clear space',
+        'Walk at a comfortable pace',
+        'Count to 100 or use the counter',
+        'Around the room or up/down stairs works great!',
+      ],
     },
     {
       id: 'stretch',
@@ -53,6 +66,30 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
       unit: 'stretches',
       motivation: "Release tension in 60 seconds. Your body will thank you!",
       benefits: ['Relieves tension', 'Improves posture', 'Increases flexibility'],
+      instructions: [
+        'Stand or sit comfortably',
+        'Complete each stretch slowly',
+        'Hold each for 10 seconds',
+        'Breathe deeply throughout',
+      ],
+    },
+    {
+      id: 'resistance',
+      name: 'Resistance Snack',
+      icon: Activity,
+      color: 'red',
+      emoji: '💪',
+      target: 4,
+      unit: 'exercises',
+      motivation: "Quick resistance moves to maintain muscle and regulate blood sugar!",
+      benefits: ['Builds strength', 'Stabilizes blood sugar', 'Boosts metabolism', 'Increases insulin sensitivity'],
+      instructions: [
+        'No equipment needed - use your bodyweight',
+        'Complete each exercise for 30-60 seconds',
+        'Focus on controlled movements',
+        'Rest 10 seconds between exercises',
+        'Blood sugar tip: Muscle activity helps glucose uptake without insulin spikes',
+      ],
     },
     {
       id: 'breathing',
@@ -63,7 +100,18 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
       target: 4,
       unit: 'cycles',
       motivation: "4 breaths to calm your nervous system and reset.",
-      benefits: ['Reduces stress', 'Increases focus', 'Calms mind'],
+      benefits: ['Reduces stress', 'Increases focus', 'Calms mind', 'Lowers cortisol'],
+      instructions: [
+        'Find a comfortable seated position',
+        'Close your eyes or soften your gaze',
+        'Follow the visual guide for each phase:',
+        '  • Breathe IN for 4 seconds',
+        '  • HOLD for 4 seconds',
+        '  • Breathe OUT for 4 seconds',
+        '  • HOLD for 4 seconds',
+        'Complete 4 full cycles',
+        'Notice the calming effect on your nervous system',
+      ],
     },
     {
       id: 'mindful',
@@ -75,6 +123,12 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
       unit: 'minute',
       motivation: "60 seconds of presence. Notice what's around you.",
       benefits: ['Reduces anxiety', 'Improves awareness', 'Boosts gratitude'],
+      instructions: [
+        'Pause what you\'re doing',
+        'Take 5 deep breaths',
+        'Notice your surroundings using all senses',
+        'Let thoughts pass without judgment',
+      ],
     },
   ];
 
@@ -82,7 +136,12 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
 
   const startActivity = (activityId) => {
     setSelectedActivity(activityId);
-    if (activityId === 'breathing') {
+    setShowInstructions(true);
+  };
+
+  const startActivityFromInstructions = () => {
+    setShowInstructions(false);
+    if (selectedActivity === 'breathing') {
       setBreathingActive(true);
     }
   };
@@ -93,7 +152,9 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
     setWaterGlasses(0);
     setStepCount(0);
     setStretchCount(0);
+    setResistanceCount(0);
     setBreathingActive(false);
+    setShowInstructions(false);
     setShowWellnessSnackModal(false);
   };
 
@@ -102,7 +163,9 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
     setWaterGlasses(0);
     setStepCount(0);
     setStretchCount(0);
+    setResistanceCount(0);
     setBreathingActive(false);
+    setShowInstructions(false);
   };
 
   // Water tracking visual
@@ -215,6 +278,52 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
     );
   };
 
+  // Resistance exercises visual
+  const renderResistanceExercises = () => {
+    const exercises = [
+      { name: 'Gorilla Rows', tip: 'Hinge forward, pull elbows back alternating sides' },
+      { name: 'Air Squats', tip: 'Feet shoulder-width, lower hips below knees' },
+      { name: 'Calf Raises', tip: 'Rise onto toes, hold 2 seconds, lower slowly' },
+      { name: 'Press Ups', tip: 'Modified on knees or full plank position' },
+    ];
+    return (
+      <div className="my-6 space-y-3">
+        {exercises.map((exercise, idx) => (
+          <button
+            key={idx}
+            onClick={() => setResistanceCount(Math.max(resistanceCount, idx + 1))}
+            className={`w-full p-4 rounded-xl transition-all ${
+              resistanceCount > idx
+                ? darkMode
+                  ? 'bg-red-500/20 border-2 border-red-500/50'
+                  : 'bg-red-100 border-2 border-red-300'
+                : darkMode
+                ? 'bg-gray-800/50 border-2 border-gray-700 hover:border-gray-600'
+                : 'bg-gray-100 border-2 border-gray-300 hover:border-gray-400'
+            }`}
+          >
+            <div className="flex flex-col items-start">
+              <div className="flex items-center justify-between w-full mb-1">
+                <span className="font-semibold">{exercise.name}</span>
+                {resistanceCount > idx && (
+                  <Check className="text-red-400" size={20} />
+                )}
+              </div>
+              <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                {exercise.tip}
+              </span>
+            </div>
+          </button>
+        ))}
+        <div className={`mt-4 p-3 rounded-lg ${darkMode ? 'bg-blue-900/20 border border-blue-500/30' : 'bg-blue-50 border border-blue-200'}`}>
+          <p className={`text-xs ${darkMode ? 'text-blue-300' : 'text-blue-700'}`}>
+            💡 <strong>Blood Sugar Tip:</strong> Resistance exercise increases insulin sensitivity and helps muscles absorb glucose without causing insulin spikes. Perfect for hormonal balance!
+          </p>
+        </div>
+      </div>
+    );
+  };
+
   // Mindful moment timer
   const renderMindfulTimer = () => {
     return (
@@ -240,13 +349,107 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
 
   if (!showWellnessSnackModal) return null;
 
+  // Instructions screen (shown before activity starts)
+  if (showInstructions && selectedActivity) {
+    const activity = getActivity(selectedActivity);
+    return (
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-lg">
+        <div className="min-h-screen flex items-center justify-center p-4 py-12">
+          <div className={`max-w-2xl w-full rounded-3xl ${
+            darkMode ? 'bg-gray-900 border-2 border-purple-500/30' : 'bg-white border-2 border-purple-200'
+          }`}>
+            {/* Close button */}
+            <div className="flex justify-end p-4">
+              <button
+                onClick={cancelActivity}
+                className={`p-2 rounded-lg transition-all ${
+                  darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="px-8 pb-8">
+              <div className="text-center mb-6">
+                <div className="text-6xl mb-3">{activity.emoji}</div>
+                <h3 className={`text-2xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {activity.name}
+                </h3>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {activity.motivation}
+                </p>
+              </div>
+
+              {/* Instructions */}
+              <div className={`p-6 rounded-xl mb-6 ${
+                darkMode ? 'bg-gray-800/50 border-2 border-purple-500/30' : 'bg-purple-50 border-2 border-purple-200'
+              }`}>
+                <h4 className={`text-lg font-bold mb-3 ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+                  📋 Instructions
+                </h4>
+                <ul className="space-y-2">
+                  {activity.instructions.map((instruction, idx) => (
+                    <li key={idx} className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      {instruction}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Benefits */}
+              <div className={`p-4 rounded-xl mb-6 ${
+                darkMode ? 'bg-gray-800/50' : 'bg-gray-50'
+              }`}>
+                <h4 className={`text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Benefits:
+                </h4>
+                <ul className="space-y-1">
+                  {activity.benefits.map((benefit, idx) => (
+                    <li key={idx} className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      ✓ {benefit}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Start button */}
+              <div className="flex gap-3">
+                <button
+                  onClick={cancelActivity}
+                  className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all ${
+                    darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-400' : 'bg-gray-200 hover:bg-gray-300 text-gray-600'
+                  }`}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={startActivityFromInstructions}
+                  className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all ${
+                    darkMode
+                      ? 'bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border-2 border-purple-500/50'
+                      : 'bg-purple-600 hover:bg-purple-700 text-white'
+                  }`}
+                >
+                  Start Activity →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Activity in progress view
-  if (selectedActivity && !breathingActive) {
+  if (selectedActivity && !breathingActive && !showInstructions) {
     const activity = getActivity(selectedActivity);
     const isComplete =
       (selectedActivity === 'water' && waterGlasses >= 1) ||
       (selectedActivity === 'steps' && stepCount >= 100) ||
       (selectedActivity === 'stretch' && stretchCount >= 3) ||
+      (selectedActivity === 'resistance' && resistanceCount >= 4) ||
       (selectedActivity === 'mindful');
 
     return (
@@ -283,6 +486,7 @@ const WellnessSnackModal = ({ currentTime, setDailyMetrics, setSpiritAnimalScore
               {selectedActivity === 'water' && renderWaterGlasses()}
               {selectedActivity === 'steps' && renderStepsCounter()}
               {selectedActivity === 'stretch' && renderStretchCounter()}
+              {selectedActivity === 'resistance' && renderResistanceExercises()}
               {selectedActivity === 'mindful' && renderMindfulTimer()}
 
               {/* Benefits */}
