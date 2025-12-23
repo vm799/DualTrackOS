@@ -2,14 +2,31 @@
 
 This guide covers deploying Supabase Edge Functions to production for DualTrack OS.
 
+---
+
+## ⚠️ CRITICAL: Run Database Migration First!
+
+**STOP! Before deploying Edge Functions, you MUST run the database migration.**
+
+Your database currently has ONLY the `user_data` table, but Edge Functions require 3 additional tables:
+- `subscriptions` - Stores payment/subscription data
+- `stripe_events` - Prevents duplicate charges (idempotency)
+- `audit_logs` - GDPR compliance tracking
+
+**➡️ Follow `DATABASE_MIGRATION_GUIDE.md` first (5 minutes)**
+
+Without these tables, payment processing will fail with database errors!
+
+---
+
 ## 📋 Prerequisites
 
 Before deploying, ensure you have:
 
+- [ ] **DATABASE MIGRATION COMPLETED** ← **CRITICAL - DO THIS FIRST!**
 - [ ] Supabase CLI installed (`npm install -g supabase`)
 - [ ] Supabase project created ([dashboard.supabase.com](https://dashboard.supabase.com))
 - [ ] Stripe account with API keys
-- [ ] Database schema deployed (see `/supabase/migrations/`)
 - [ ] Environment variables configured
 
 ---
