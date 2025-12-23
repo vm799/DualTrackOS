@@ -130,7 +130,7 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
             <p className="font-bold text-xl">
-              From the founder's deep Indian heritage and the sacred traditions of Shakti, we chose the lioness—Durga's divine companion—as our spirit animal.
+              From the founder's deep Indian heritage and the sacred traditions of Shakti, we chose the lioness—Durga's divine companion—as our guiding symbol.
             </p>
 
             <div className="space-y-4">
