@@ -115,7 +115,35 @@
 
 ---
 
-## ⚠️ CRITICAL: 3 User Actions Required Before Launch
+## ⚠️ CRITICAL: 4 User Actions Required Before Launch
+
+### Action 0: Run Database Migration 🗄️
+**Why**: Edge Functions require 3 additional database tables
+**Time**: 5 minutes
+**Priority**: CRITICAL - MUST DO FIRST
+
+**Current State**:
+- ✅ You have: `user_data` table
+- ❌ You need: `subscriptions`, `stripe_events`, `audit_logs` tables
+
+**Steps** (detailed in `DATABASE_MIGRATION_GUIDE.md`):
+
+**Option A: CLI (Recommended)**
+```bash
+supabase login
+supabase link --project-ref YOUR_PROJECT_REF
+supabase db push
+```
+
+**Option B: Dashboard (Manual)**
+1. Go to Supabase Dashboard → SQL Editor
+2. Copy contents of `supabase/migrations/20251222000000_initial_schema.sql`
+3. Paste and run
+4. Verify 3 new tables appear in Table Editor
+
+**Impact if skipped**: Edge Functions will fail with "relation 'subscriptions' does not exist" errors. Payment processing won't work.
+
+---
 
 ### Action 1: Rotate Supabase API Keys 🔐
 **Why**: Keys exposed in git history
@@ -143,6 +171,7 @@
 **Why**: Payments won't work without backend functions
 **Time**: 1 hour
 **Priority**: CRITICAL for paid features
+**Prerequisite**: Database migration MUST be completed first (Action 0)
 
 **Steps** (detailed in `EDGE_FUNCTIONS_DEPLOYMENT.md`):
 
@@ -394,16 +423,19 @@ supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_xxxxx
 - [ ] E2E tests
 - [ ] Analytics integration
 
-### 🔴 BLOCKERS (MUST complete before launch)
-- [ ] **Rotate Supabase API keys** ← USER ACTION REQUIRED
-- [ ] **Deploy Edge Functions** ← USER ACTION REQUIRED
-- [ ] **Get legal docs reviewed** ← USER ACTION REQUIRED
+### 🔴 BLOCKERS (MUST complete before launch - IN ORDER!)
+- [ ] **Run database migration** ← USER ACTION REQUIRED (5 min - DO FIRST!)
+- [ ] **Rotate Supabase API keys** ← USER ACTION REQUIRED (30 min)
+- [ ] **Deploy Edge Functions** ← USER ACTION REQUIRED (1 hour)
+- [ ] **Get legal docs reviewed** ← USER ACTION REQUIRED (1-2 weeks)
 
 ---
 
 ## 📞 Support & Resources
 
 ### Documentation Created
+- ✅ `PRODUCTION_LAUNCH_SUMMARY.md` - Complete launch guide (YOU ARE HERE)
+- ✅ `DATABASE_MIGRATION_GUIDE.md` - Database setup (MUST DO FIRST!)
 - ✅ `EDGE_FUNCTIONS_DEPLOYMENT.md` - Backend deployment guide
 - ✅ `SENTRY_SETUP.md` - Error monitoring setup
 - ✅ `legal/README.md` - Legal implementation guide
@@ -427,7 +459,8 @@ supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_xxxxx
 
 ## ✅ Final Pre-Launch Checklist
 
-### CRITICAL (Do First)
+### CRITICAL (Do First - IN ORDER!)
+- [ ] **Run database migration** (5 min) ← MUST BE FIRST!
 - [ ] **Rotate Supabase API keys** (30 min)
 - [ ] **Deploy Edge Functions to production** (1 hour)
 - [ ] **Get legal docs reviewed** (2-4 hours + 1-2 weeks)
@@ -458,10 +491,11 @@ supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_xxxxx
 
 ## 🎉 Conclusion
 
-**DualTrack OS is ready for a controlled beta launch** after completing the 3 critical user actions:
-1. Rotate API keys (30 min)
-2. Deploy Edge Functions (1 hour)
-3. Legal review (1-2 weeks)
+**DualTrack OS is ready for a controlled beta launch** after completing the 4 critical user actions:
+1. **Run database migration** (5 min) ← DO THIS FIRST!
+2. Rotate API keys (30 min)
+3. Deploy Edge Functions (1 hour)
+4. Legal review (1-2 weeks)
 
 **Current State**: 73/100 production readiness
 **Target for Public Launch**: 85-90/100
@@ -484,4 +518,6 @@ supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_xxxxx
 
 ---
 
-🚀 **Ready to launch! Complete the 3 user actions above and you're live.**
+🚀 **Ready to launch! Complete the 4 user actions above and you're live.**
+
+**⚠️ REMEMBER: Run database migration FIRST before anything else!**
