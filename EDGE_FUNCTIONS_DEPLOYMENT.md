@@ -29,6 +29,15 @@ Before deploying, ensure you have:
 - [ ] Stripe account with API keys
 - [ ] Environment variables configured
 
+### ✅ Docker NOT Required for Production Deployment
+
+**IMPORTANT**: You do NOT need Docker installed to deploy Edge Functions to production!
+
+- **Docker is ONLY needed for**: Local testing with `supabase start` (optional)
+- **Docker is NOT needed for**: Production deployment with `supabase functions deploy`
+
+The `deploy` command pushes your functions directly to Supabase's cloud infrastructure. If you see Docker-related errors, you can safely ignore them as long as `supabase functions deploy` works.
+
 ---
 
 ## 🚀 Quick Deploy (Production)
@@ -259,6 +268,26 @@ Look for:
 ---
 
 ## 🔧 Troubleshooting
+
+### Error: "Docker not found" or "Docker daemon not running"
+
+**Symptom**: CLI warns about Docker when running `supabase functions deploy`
+
+**Solution**: **You can safely ignore Docker warnings for production deployment!**
+
+Docker is ONLY needed for local testing (`supabase start`), NOT for production deployment. The `supabase functions deploy` command works without Docker - it deploys directly to Supabase cloud.
+
+If you see Docker errors but `supabase functions deploy` still completes successfully, **everything is working fine**.
+
+**Example of safe output**:
+```bash
+$ supabase functions deploy create-checkout-session
+Warning: Docker not available for local testing
+Deploying create-checkout-session (project ref: xyz123)
+Deployed create-checkout-session (status: ACTIVE)  ← ✅ This means success!
+```
+
+---
 
 ### Error: "Invalid JWT"
 
