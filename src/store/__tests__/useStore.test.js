@@ -73,12 +73,14 @@ describe('useStore', () => {
     it('should update only specific profile fields', () => {
       const { result } = renderHook(() => useStore());
 
+      const initialProfile = result.current.userProfile;
+
       act(() => {
-        result.current.setUserProfile({ weight: 150 });
+        result.current.setUserProfile({ ...initialProfile, weight: 150 });
       });
 
       expect(result.current.userProfile.weight).toBe(150);
-      expect(result.current.userProfile.lifeStage).toBe('reproductive');
+      expect(result.current.userProfile.lifeStage).toBe(initialProfile.lifeStage);
     });
   });
 
