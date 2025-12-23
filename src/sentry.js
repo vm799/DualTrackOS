@@ -29,17 +29,8 @@ export const initSentry = () => {
 
     // Performance Monitoring
     integrations: [
-      // Browser tracing for performance monitoring
-      new Sentry.BrowserTracing({
-        // Trace all routes
-        tracePropagationTargets: [
-          'localhost',
-          /^\//,
-          /^https:\/\/.*\.supabase\.co/,
-        ],
-      }),
       // Replay sessions for debugging
-      new Sentry.Replay({
+      Sentry.replayIntegration({
         maskAllText: true, // Mask all text for privacy
         blockAllMedia: true, // Block all media for privacy
       }),
