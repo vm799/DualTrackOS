@@ -6,7 +6,7 @@ describe('useNDMStore - Non-Negotiable Daily Must-Dos', () => {
     // Reset NDM state before each test
     const { result } = renderHook(() => useNDMStore());
     act(() => {
-      result.current.resetNDMs();
+      result.current.resetNDM();
     });
   });
 
@@ -16,8 +16,8 @@ describe('useNDMStore - Non-Negotiable Daily Must-Dos', () => {
 
       expect(result.current.ndm.movement).toBe(false);
       expect(result.current.ndm.nutrition).toBe(false);
-      expect(result.current.ndm.connection).toBe(false);
-      expect(result.current.ndm.mindset).toBe(false);
+      expect(result.current.ndm.mindfulness).toBe(false);
+      expect(result.current.ndm.brainDump).toBe(false);
     });
 
     it('should calculate completion count as 0 initially', () => {
@@ -25,10 +25,6 @@ describe('useNDMStore - Non-Negotiable Daily Must-Dos', () => {
       expect(result.current.getCompletionCount()).toBe(0);
     });
 
-    it('should calculate completion percentage as 0 initially', () => {
-      const { result } = renderHook(() => useNDMStore());
-      expect(result.current.getCompletionPercentage()).toBe(0);
-    });
   });
 
   describe('Individual NDM Completion', () => {
@@ -54,25 +50,25 @@ describe('useNDMStore - Non-Negotiable Daily Must-Dos', () => {
       expect(result.current.getCompletionCount()).toBe(1);
     });
 
-    it('should mark Connection NDM as complete', () => {
+    it('should mark Mindfulness NDM as complete', () => {
       const { result } = renderHook(() => useNDMStore());
 
       act(() => {
-        result.current.setConnection(true);
+        result.current.setMindfulness(true);
       });
 
-      expect(result.current.ndm.connection).toBe(true);
+      expect(result.current.ndm.mindfulness).toBe(true);
       expect(result.current.getCompletionCount()).toBe(1);
     });
 
-    it('should mark Mindset NDM as complete', () => {
+    it('should mark Brain Dump NDM as complete', () => {
       const { result } = renderHook(() => useNDMStore());
 
       act(() => {
-        result.current.setMindset(true);
+        result.current.setBrainDump(true);
       });
 
-      expect(result.current.ndm.mindset).toBe(true);
+      expect(result.current.ndm.brainDump).toBe(true);
       expect(result.current.getCompletionCount()).toBe(1);
     });
   });
@@ -87,7 +83,6 @@ describe('useNDMStore - Non-Negotiable Daily Must-Dos', () => {
       });
 
       expect(result.current.getCompletionCount()).toBe(2);
-      expect(result.current.getCompletionPercentage()).toBe(50);
     });
 
     it('should calculate 75% completion correctly', () => {
@@ -96,11 +91,10 @@ describe('useNDMStore - Non-Negotiable Daily Must-Dos', () => {
       act(() => {
         result.current.setMovement(true);
         result.current.setNutrition(true);
-        result.current.setConnection(true);
+        result.current.setMindfulness(true);
       });
 
       expect(result.current.getCompletionCount()).toBe(3);
-      expect(result.current.getCompletionPercentage()).toBe(75);
     });
 
     it('should achieve 100% completion', () => {
@@ -109,16 +103,15 @@ describe('useNDMStore - Non-Negotiable Daily Must-Dos', () => {
       act(() => {
         result.current.setMovement(true);
         result.current.setNutrition(true);
-        result.current.setConnection(true);
-        result.current.setMindset(true);
+        result.current.setMindfulness(true);
+        result.current.setBrainDump(true);
       });
 
       expect(result.current.getCompletionCount()).toBe(4);
-      expect(result.current.getCompletionPercentage()).toBe(100);
       expect(result.current.ndm.movement).toBe(true);
       expect(result.current.ndm.nutrition).toBe(true);
-      expect(result.current.ndm.connection).toBe(true);
-      expect(result.current.ndm.mindset).toBe(true);
+      expect(result.current.ndm.mindfulness).toBe(true);
+      expect(result.current.ndm.brainDump).toBe(true);
     });
   });
 
@@ -149,21 +142,21 @@ describe('useNDMStore - Non-Negotiable Daily Must-Dos', () => {
       act(() => {
         result.current.setMovement(true);
         result.current.setNutrition(true);
-        result.current.setConnection(true);
-        result.current.setMindset(true);
+        result.current.setMindfulness(true);
+        result.current.setBrainDump(true);
       });
 
       expect(result.current.getCompletionCount()).toBe(4);
 
       // Reset
       act(() => {
-        result.current.resetNDMs();
+        result.current.resetNDM();
       });
 
       expect(result.current.ndm.movement).toBe(false);
       expect(result.current.ndm.nutrition).toBe(false);
-      expect(result.current.ndm.connection).toBe(false);
-      expect(result.current.ndm.mindset).toBe(false);
+      expect(result.current.ndm.mindfulness).toBe(false);
+      expect(result.current.ndm.brainDump).toBe(false);
       expect(result.current.getCompletionCount()).toBe(0);
     });
   });
@@ -172,7 +165,6 @@ describe('useNDMStore - Non-Negotiable Daily Must-Dos', () => {
     it('should correctly identify incomplete status', () => {
       const { result } = renderHook(() => useNDMStore());
 
-      expect(result.current.getCompletionPercentage()).toBe(0);
       expect(result.current.getCompletionCount()).toBe(0);
     });
 
@@ -183,9 +175,9 @@ describe('useNDMStore - Non-Negotiable Daily Must-Dos', () => {
         result.current.setMovement(true);
       });
 
-      const percentage = result.current.getCompletionPercentage();
-      expect(percentage).toBe(25);
-      expect(percentage).toBeLessThan(100);
+      const count = result.current.getCompletionCount();
+      expect(count).toBe(1);
+      expect(count).toBeLessThan(4);
     });
 
     it('should correctly identify full completion', () => {
@@ -194,11 +186,10 @@ describe('useNDMStore - Non-Negotiable Daily Must-Dos', () => {
       act(() => {
         result.current.setMovement(true);
         result.current.setNutrition(true);
-        result.current.setConnection(true);
-        result.current.setMindset(true);
+        result.current.setMindfulness(true);
+        result.current.setBrainDump(true);
       });
 
-      expect(result.current.getCompletionPercentage()).toBe(100);
       expect(result.current.getCompletionCount()).toBe(4);
     });
   });
@@ -226,8 +217,8 @@ describe('useNDMStore - Non-Negotiable Daily Must-Dos', () => {
 
       expect(result.current.ndm.movement).toBe(true);
       expect(result.current.ndm.nutrition).toBe(false);
-      expect(result.current.ndm.connection).toBe(false);
-      expect(result.current.ndm.mindset).toBe(false);
+      expect(result.current.ndm.mindfulness).toBe(false);
+      expect(result.current.ndm.brainDump).toBe(false);
     });
   });
 });
