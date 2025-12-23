@@ -2,9 +2,9 @@ import React from 'react';
 import { Sparkles } from 'lucide-react';
 
 /**
- * SpiritAnimalCard - Gamified Spirit Animal Display Component
+ * SpiritAnimalCard - Gamified Avatar Display Component
  *
- * Shows the user's current spirit animal evolution stage with:
+ * Shows the user's current avatar evolution stage with:
  * - Japanese name and romanji
  * - Description
  * - XP progress bar to next level
@@ -52,7 +52,7 @@ const SpiritAnimalCard = ({ spiritAnimalScore, darkMode, onClick, getSpiritAnima
           ? 'hover:bg-purple-900/20 border-2 border-purple-500/30 hover:border-purple-400/60'
           : 'hover:bg-purple-50 border-2 border-purple-200 hover:border-purple-400'
       } rounded-xl p-2 cursor-pointer`}
-      title="Click to view spirit animal details"
+      title="Click to view avatar details"
     >
       <div className="flex items-center space-x-2">
         {/* Emoji with pulse animation */}

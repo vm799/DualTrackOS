@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Calendar, Activity, User } from 'lucide-react';
+import { Home, Calendar, Activity, User, Heart } from 'lucide-react';
 import useStore from '../store/useStore';
 
 const BottomNavigation = () => {
@@ -21,6 +21,7 @@ const BottomNavigation = () => {
   const navItems = [
     { path: '/dashboard', icon: Home, label: 'Home' },
     getCycleTab(),
+    { path: '/hormonal-health', icon: Heart, label: 'Health' },
     { path: '/settings', icon: User, label: 'Settings' },
   ];
 
