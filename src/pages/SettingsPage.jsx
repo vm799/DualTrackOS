@@ -87,14 +87,14 @@ const SettingsPage = () => {
                     Weight
                   </label>
                   <p className={`mt-1 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                    {userProfile.weight} lbs
+                    {userProfile.weight} {userProfile.weightUnit || 'lbs'}
                   </p>
                 </div>
               )}
               {userProfile.spiritAnimal && (
                 <div>
                   <label className={`text-sm font-semibold ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Spirit Animal
+                    Avatar
                   </label>
                   <p className={`mt-1 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
                     {userProfile.spiritAnimal}

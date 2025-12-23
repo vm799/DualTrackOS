@@ -3,24 +3,24 @@ import { User, Weight, Cake, Sparkles, AlertTriangle, CheckCircle, Heart, Flower
 
 const Onboarding = ({ onComplete, darkMode }) => {
   const [step, setStep] = useState(0); // 0: disclaimer, 1: profile, 2: life stage
+  const [weightUnit, setWeightUnit] = useState('lbs'); // 'lbs' or 'kg'
   const [profile, setProfile] = useState({
     name: '',
     preferredName: '',
     initials: '',
     age: '',
     weight: '',
+    weightUnit: 'lbs',
     lifeStage: '',
     avatar: '🥚' // Everyone starts with an egg that hatches as they practice balance
   });
-
-  // Note: Avatar will evolve automatically based on your balance score
-  // No need to choose - your spirit animal will grow with you!
 
   const handleComplete = () => {
     onComplete({
       ...profile,
       age: parseInt(profile.age) || null,
       weight: parseInt(profile.weight) || null,
+      weightUnit: weightUnit,
       hasCompletedOnboarding: true,
       disclaimerAccepted: true
     });
@@ -361,7 +361,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
         </div>
 
         <div className="space-y-6">
-          {/* Spirit Animal Introduction */}
+          {/* Welcome Message */}
           <div className={`p-6 rounded-2xl ${
             darkMode
               ? 'bg-gradient-to-r from-purple-900/30 to-pink-900/30 border-2 border-purple-500/30'
@@ -374,15 +374,14 @@ const Onboarding = ({ onComplete, darkMode }) => {
                   ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
                   : 'text-purple-700'
               }`}>
-                Your Spirit Animal Awaits
+                Your Journey Begins
               </h3>
             </div>
             <p className={`text-sm text-center leading-relaxed ${
               darkMode ? 'text-gray-300' : 'text-gray-700'
             }`}>
-              Everyone begins with an <span className="font-semibold">egg</span> that will hatch and grow into a
-              mystical <span className="font-semibold">Kitsune (fox spirit)</span> as you practice balance and self-care.
-              Your spirit animal evolves based on how well you honor your energy, emotions, and body.
+              Everyone begins with an <span className="font-semibold">egg</span> that will hatch and grow as you practice balance and self-care.
+              Your avatar evolves based on how well you honor your energy, emotions, and body.
             </p>
             <p className={`text-xs text-center mt-3 italic ${
               darkMode ? 'text-gray-500' : 'text-gray-600'
@@ -482,15 +481,57 @@ const Onboarding = ({ onComplete, darkMode }) => {
           <div>
             <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               <Weight size={16} className="inline mr-2" />
-              Your Weight (lbs)
+              Your Weight
             </label>
+
+            {/* Unit Toggle */}
+            <div className="flex gap-2 mb-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setWeightUnit('lbs');
+                  setProfile({ ...profile, weightUnit: 'lbs' });
+                }}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                  weightUnit === 'lbs'
+                    ? darkMode
+                      ? 'bg-purple-600 text-white border-2 border-purple-500'
+                      : 'bg-purple-600 text-white border-2 border-purple-500'
+                    : darkMode
+                      ? 'bg-gray-800 text-gray-400 border-2 border-gray-700 hover:border-gray-600'
+                      : 'bg-gray-100 text-gray-600 border-2 border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                lbs
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setWeightUnit('kg');
+                  setProfile({ ...profile, weightUnit: 'kg' });
+                }}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                  weightUnit === 'kg'
+                    ? darkMode
+                      ? 'bg-purple-600 text-white border-2 border-purple-500'
+                      : 'bg-purple-600 text-white border-2 border-purple-500'
+                    : darkMode
+                      ? 'bg-gray-800 text-gray-400 border-2 border-gray-700 hover:border-gray-600'
+                      : 'bg-gray-100 text-gray-600 border-2 border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                kg
+              </button>
+            </div>
+
             <input
               type="number"
               value={profile.weight}
               onChange={(e) => setProfile({ ...profile, weight: e.target.value })}
-              placeholder="e.g., 150"
-              min="50"
-              max="500"
+              placeholder={weightUnit === 'lbs' ? 'e.g., 150' : 'e.g., 68'}
+              min={weightUnit === 'lbs' ? '50' : '20'}
+              max={weightUnit === 'lbs' ? '500' : '250'}
+              step="0.1"
               className={`w-full px-4 py-3 rounded-lg transition-all ${
                 darkMode
                   ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
@@ -498,7 +539,8 @@ const Onboarding = ({ onComplete, darkMode }) => {
               }`}
             />
             <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-              Used to calculate your daily protein needs (0.8-1g per lb of body weight)
+              Used to calculate your daily protein needs
+              {weightUnit === 'lbs' ? ' (0.8-1g per lb of body weight)' : ' (1.8-2.2g per kg of body weight)'}
             </p>
           </div>
         </div>
