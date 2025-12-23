@@ -1,11 +1,12 @@
 import React from 'react';
+import * as Sentry from '@sentry/react';
 
 /**
  * Error Boundary Component
  * Catches JavaScript errors anywhere in the child component tree
  * Displays a fallback UI instead of crashing the whole app
  *
- * Production-ready error handling
+ * Production-ready error handling with Sentry integration
  */
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -13,7 +14,8 @@ class ErrorBoundary extends React.Component {
     this.state = {
       hasError: false,
       error: null,
-      errorInfo: null
+      errorInfo: null,
+      eventId: null // Sentry event ID for user feedback
     };
   }
 
@@ -26,25 +28,43 @@ class ErrorBoundary extends React.Component {
     // Log error to console in development
     console.error('ErrorBoundary caught an error:', error, errorInfo);
 
+    // Log to Sentry
+    const eventId = Sentry.captureException(error, {
+      contexts: {
+        react: {
+          componentStack: errorInfo.componentStack,
+        },
+      },
+      tags: {
+        component: this.props.componentName || 'unknown',
+        boundary: 'ErrorBoundary',
+      },
+      level: 'error',
+    });
+
     // Store error details in state
-    this.state = {
+    this.setState({
       hasError: true,
       error,
-      errorInfo
-    };
-
-    // TODO: Log to error reporting service (Sentry, LogRocket, etc.)
-    // Example:
-    // Sentry.captureException(error, {
-    //   extra: errorInfo,
-    //   tags: {
-    //     component: this.props.componentName || 'unknown'
-    //   }
-    // });
+      errorInfo,
+      eventId,
+    });
   }
 
   handleReset = () => {
-    this.setState({ hasError: false, error: null, errorInfo: null });
+    this.setState({ hasError: false, error: null, errorInfo: null, eventId: null });
+  };
+
+  handleFeedback = () => {
+    // Show Sentry user feedback dialog
+    if (this.state.eventId) {
+      Sentry.showReportDialog({
+        eventId: this.state.eventId,
+        title: 'It looks like we\'re having issues.',
+        subtitle: 'Our team has been notified. If you\'d like to help, tell us what happened below.',
+        labelComments: 'What happened?',
+      });
+    }
   };
 
   render() {
@@ -96,8 +116,19 @@ class ErrorBoundary extends React.Component {
                 </button>
               </div>
 
+              {this.state.eventId && (
+                <button
+                  onClick={this.handleFeedback}
+                  className="mt-4 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 underline"
+                >
+                  Report this issue
+                </button>
+              )}
+
               <p className="mt-6 text-sm text-gray-500 dark:text-gray-500">
-                If this problem persists, please contact support.
+                {this.state.eventId
+                  ? 'Our team has been automatically notified of this error.'
+                  : 'If this problem persists, please contact support.'}
               </p>
             </div>
           </div>
