@@ -1,27 +1,17 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Calendar, Activity, User, Heart } from 'lucide-react';
+import { Home, Heart, Target, User } from 'lucide-react';
 import useStore from '../store/useStore';
 
 const BottomNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const darkMode = useStore((state) => state.darkMode);
-  const userProfile = useStore((state) => state.userProfile);
-
-  // Determine which tab to show based on life stage
-  const getCycleTab = () => {
-    if (userProfile.lifeStage === 'perimenopause') {
-      return { path: '/strong50', icon: Activity, label: 'Strong50' };
-    } else {
-      return { path: '/cycle', icon: Calendar, label: 'Cycle' };
-    }
-  };
 
   const navItems = [
     { path: '/dashboard', icon: Home, label: 'Home' },
-    getCycleTab(),
-    { path: '/hormonal-health', icon: Heart, label: 'Health' },
+    { path: '/health', icon: Heart, label: 'Health' },
+    { path: '/productivity', icon: Target, label: 'Productivity' },
     { path: '/settings', icon: User, label: 'Settings' },
   ];
 
