@@ -19,12 +19,16 @@ const useDailyMetricsStore = create((set) => ({
   setQuickWinInput: (input) => set({ quickWinInput: input }),
 
   // Derived Actions/Logic
-  addQuickWin: () => {
+  addQuickWin: (category = 'productivity') => {
     set((state) => {
       if (state.quickWinInput.trim()) {
         const newMetrics = {
           ...state.dailyMetrics,
-          wins: [...state.dailyMetrics.wins, { text: state.quickWinInput.trim(), timestamp: new Date() }]
+          wins: [...state.dailyMetrics.wins, {
+            text: state.quickWinInput.trim(),
+            timestamp: new Date(),
+            category: category
+          }]
         };
         return {
           dailyMetrics: newMetrics,
