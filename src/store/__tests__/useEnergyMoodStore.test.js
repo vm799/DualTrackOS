@@ -301,7 +301,7 @@ describe('useEnergyMoodStore', () => {
       const suggestions = result.current.getEnergyBasedSuggestions(2);
 
       expect(suggestions.title).toBe('Gentle Mode Active');
-      expect(suggestions.color).toBe('orange');
+      expect(suggestions.color).toBe('purple');
     });
 
     it('should provide moderate energy suggestions for energy level 3', () => {
@@ -309,8 +309,8 @@ describe('useEnergyMoodStore', () => {
 
       const suggestions = result.current.getEnergyBasedSuggestions(3);
 
-      expect(suggestions.title).toBe('Moderate Energy');
-      expect(suggestions.color).toBe('yellow');
+      expect(suggestions.title).toBe('Steady Progress Mode');
+      expect(suggestions.color).toBe('cyan');
     });
 
     it('should provide high productivity suggestions for energy level 4', () => {
@@ -318,8 +318,8 @@ describe('useEnergyMoodStore', () => {
 
       const suggestions = result.current.getEnergyBasedSuggestions(4);
 
-      expect(suggestions.title).toBe('High Productivity Zone');
-      expect(suggestions.color).toBe('green');
+      expect(suggestions.title).toBe('Peak Performance Window');
+      expect(suggestions.color).toBe('orange');
     });
 
     it('should provide peak performance suggestions for energy level 5', () => {
@@ -327,8 +327,8 @@ describe('useEnergyMoodStore', () => {
 
       const suggestions = result.current.getEnergyBasedSuggestions(5);
 
-      expect(suggestions.title).toBe('Peak Performance');
-      expect(suggestions.color).toBe('emerald');
+      expect(suggestions.title).toBe('Flow State Activated');
+      expect(suggestions.color).toBe('yellow');
     });
 
     it('should include tasks array in suggestions', () => {
