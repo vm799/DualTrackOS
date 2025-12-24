@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User, Weight, Cake, Sparkles, AlertTriangle, CheckCircle, Heart, Flower2 } from 'lucide-react';
+import Logo from './components/Logo';
 
 const Onboarding = ({ onComplete, darkMode }) => {
   const [step, setStep] = useState(0); // 0: disclaimer, 1: profile, 2: life stage
@@ -12,7 +13,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
     weight: '',
     weightUnit: 'lbs',
     lifeStage: '',
-    avatar: '🥚' // Everyone starts with an egg that hatches as they practice balance
+    avatar: '🦁' // Lioness - symbol of strength and adaptability
   });
 
   const handleComplete = () => {
@@ -32,6 +33,11 @@ const Onboarding = ({ onComplete, darkMode }) => {
       <div className={`min-h-screen flex items-center justify-center p-4 ${
         darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
       }`}>
+        {/* Logo - Top Left */}
+        <div className="fixed top-4 left-4 z-50">
+          <Logo size="large" />
+        </div>
+
         <div className={`max-w-2xl w-full rounded-2xl p-8 shadow-2xl ${
           darkMode
             ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
@@ -186,6 +192,11 @@ const Onboarding = ({ onComplete, darkMode }) => {
       <div className={`min-h-screen flex items-center justify-center p-4 ${
         darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
       }`}>
+        {/* Logo - Top Left */}
+        <div className="fixed top-4 left-4 z-50">
+          <Logo size="large" />
+        </div>
+
         <div className={`max-w-4xl w-full rounded-2xl p-8 shadow-2xl ${
           darkMode
             ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
@@ -341,6 +352,11 @@ const Onboarding = ({ onComplete, darkMode }) => {
     <div className={`min-h-screen flex items-center justify-center p-4 ${
       darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
     }`}>
+      {/* Logo - Top Left */}
+      <div className="fixed top-4 left-4 z-50">
+        <Logo size="large" />
+      </div>
+
       <div className={`max-w-lg w-full rounded-2xl p-8 shadow-2xl ${
         darkMode
           ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
@@ -362,34 +378,6 @@ const Onboarding = ({ onComplete, darkMode }) => {
 
         <div className="space-y-6">
           {/* Welcome Message */}
-          <div className={`p-6 rounded-2xl ${
-            darkMode
-              ? 'bg-gradient-to-r from-purple-900/30 to-pink-900/30 border-2 border-purple-500/30'
-              : 'bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200'
-          }`}>
-            <div className="text-center mb-4">
-              <div className="text-6xl mb-3">🥚✨</div>
-              <h3 className={`font-bold text-lg mb-2 ${
-                darkMode
-                  ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
-                  : 'text-purple-700'
-              }`}>
-                Your Journey Begins
-              </h3>
-            </div>
-            <p className={`text-sm text-center leading-relaxed ${
-              darkMode ? 'text-gray-300' : 'text-gray-700'
-            }`}>
-              Everyone begins with an <span className="font-semibold">egg</span> that will hatch and grow as you practice balance and self-care.
-              Your avatar evolves based on how well you honor your energy, emotions, and body.
-            </p>
-            <p className={`text-xs text-center mt-3 italic ${
-              darkMode ? 'text-gray-500' : 'text-gray-600'
-            }`}>
-              🥚 → 🐣 → 🦊 → ✨🦊 → 🌟🦊✨
-            </p>
-          </div>
-
           {/* Name */}
           <div>
             <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>

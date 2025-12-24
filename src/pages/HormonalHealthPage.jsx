@@ -9,6 +9,7 @@ import WeeklyTrainingSchedule from '../components/WeeklyTrainingSchedule';
 import SectionHeader from '../components/SectionHeader';
 import FeaturePreview from '../components/FeaturePreview';
 import BottomNavigation from '../components/BottomNavigation';
+import Logo from '../components/Logo';
 
 const HormonalHealthPage = () => {
   const navigate = useNavigate();
@@ -26,29 +27,32 @@ const HormonalHealthPage = () => {
           : 'bg-white/95 border-gray-200/50'
       }`}>
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className={`p-2 rounded-lg transition-all ${
-                darkMode
-                  ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
-                  : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <ArrowLeft size={24} />
-            </button>
-            <div>
-              <h1 className={`text-2xl font-bold ${
-                darkMode ? 'text-white' : 'text-gray-900'
-              }`}>
-                Hormonal Health
-              </h1>
-              <p className={`text-sm ${
-                darkMode ? 'text-gray-400' : 'text-gray-600'
-              }`}>
-                Your personalized wellness tracking
-              </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/dashboard')}
+                className={`p-2 rounded-lg transition-all ${
+                  darkMode
+                    ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                    : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <ArrowLeft size={24} />
+              </button>
+              <div>
+                <h1 className={`text-2xl font-bold ${
+                  darkMode ? 'text-white' : 'text-gray-900'
+                }`}>
+                  Hormonal Health
+                </h1>
+                <p className={`text-sm ${
+                  darkMode ? 'text-gray-400' : 'text-gray-600'
+                }`}>
+                  Your personalized wellness tracking
+                </p>
+              </div>
             </div>
+            <Logo size="medium" />
           </div>
         </div>
       </div>

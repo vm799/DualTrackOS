@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowLeft, Target, Zap, Heart, ArrowRight } from 'lucide-react';
+import Logo from './components/Logo';
 
 const StoryPage = ({ onBack, onEnter, darkMode }) => {
   return (
@@ -9,17 +10,20 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
       {/* Back button */}
       <div className="sticky top-0 z-20 backdrop-blur-xl border-b">
         <div className="max-w-4xl mx-auto px-6 py-4">
-          <button
-            onClick={onBack}
-            className={`flex items-center space-x-2 transition-all ${
-              darkMode
-                ? 'text-purple-400 hover:text-purple-300'
-                : 'text-purple-600 hover:text-purple-700'
-            }`}
-          >
-            <ArrowLeft size={20} />
-            <span className="font-medium">Back</span>
-          </button>
+          <div className="flex items-center justify-between">
+            <button
+              onClick={onBack}
+              className={`flex items-center space-x-2 transition-all ${
+                darkMode
+                  ? 'text-purple-400 hover:text-purple-300'
+                  : 'text-purple-600 hover:text-purple-700'
+              }`}
+            >
+              <ArrowLeft size={20} />
+              <span className="font-medium">Back</span>
+            </button>
+            <Logo size="medium" />
+          </div>
         </div>
       </div>
 

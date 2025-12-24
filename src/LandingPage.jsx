@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowRight, LogIn } from 'lucide-react';
 import { signInWithGoogle } from './services/dataService';
+import Logo from './components/Logo';
 
 const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
   const [signingIn, setSigningIn] = useState(false);
@@ -60,11 +61,9 @@ const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
 
         {/* TOP — Brand Anchor */}
         <div className="pt-3 sm:pt-6 md:pt-10">
-          <img
-            src="/lioness-logo.png"
-            alt="DualTrack OS Lioness Logo"
-            className="mx-auto w-[280px] h-[280px] sm:w-[480px] sm:h-[480px] md:w-[720px] md:h-[720px] drop-shadow-2xl animate-fade-in"
-          />
+          <div className="flex justify-center">
+            <Logo size="xlarge" className="w-[280px] h-[280px] sm:w-[480px] sm:h-[480px] md:w-[720px] md:h-[720px] animate-fade-in" />
+          </div>
 
           <h1 className="mt-[-12px] text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
             <span className={darkMode ? 'text-gray-100' : 'text-gray-900'}>
