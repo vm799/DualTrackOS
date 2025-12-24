@@ -101,6 +101,17 @@ const ProductivityPage = () => {
   // Detect "Gentle Mode" (low energy + overwhelmed mood)
   const isGentleMode = currentEnergy && currentEnergy <= 2 && currentMood === 'overwhelmed';
 
+  // Scroll detection for sticky header
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Pomodoro ticker
   useEffect(() => {
     if (!pomodoroRunning) return;
@@ -122,15 +133,18 @@ const ProductivityPage = () => {
     <div className={`min-h-screen ${
       darkMode ? 'bg-[#191919]' : 'bg-gray-50'
     }`}>
-      {/* Header */}
-      <div className={`sticky top-0 z-20 backdrop-blur-xl border-b ${
+      {/* Glassmorphism Sticky Header */}
+      <div className={`sticky top-0 z-20 backdrop-blur-xl border-b transition-all duration-300 ${
         darkMode
           ? 'bg-gray-900/95 border-gray-800/50'
           : 'bg-white/95 border-gray-200/50'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+      } ${isScrolled ? 'shadow-lg' : ''}`}>
+        <div className={`max-w-7xl mx-auto px-4 transition-all duration-300 ${
+          isScrolled ? 'py-2' : 'py-4'
+        }`}>
+          <div className="flex items-center justify-between gap-4">
+            {/* Left: Back button + Title */}
+            <div className="flex items-center gap-4 flex-1">
               <button
                 onClick={() => navigate('/dashboard')}
                 className={`p-2 rounded-lg transition-all ${
@@ -149,12 +163,47 @@ const ProductivityPage = () => {
                 </h1>
                 <p className={`text-sm ${
                   darkMode ? 'text-gray-400' : 'text-gray-600'
-                }`}>
+                } ${isScrolled ? 'hidden' : ''}`}>
                   Task management and focus tools
                 </p>
               </div>
             </div>
-            <Logo size="medium" />
+
+            {/* Center: Pomodoro Timer */}
+            <div className={`flex items-center gap-3 ${
+              darkMode ? 'text-orange-400' : 'text-orange-600'
+            }`}>
+              <div className="text-2xl font-mono font-bold">
+                {formatTime(pomodoroSeconds)}
+              </div>
+              <div className="flex gap-1">
+                <button
+                  onClick={pomodoroRunning ? pausePomodoro : startPomodoro}
+                  className={`p-2 rounded-lg transition-all ${
+                    darkMode
+                      ? 'hover:bg-gray-800 text-orange-400'
+                      : 'hover:bg-gray-100 text-orange-600'
+                  }`}
+                  title={pomodoroRunning ? 'Pause' : 'Start'}
+                >
+                  {pomodoroRunning ? <Pause size={18} /> : <Play size={18} />}
+                </button>
+                <button
+                  onClick={resetPomodoro}
+                  className={`p-2 rounded-lg transition-all ${
+                    darkMode
+                      ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                      : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                  }`}
+                  title="Reset"
+                >
+                  <RotateCcw size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* Right: Logo */}
+            <Logo size="medium" navigateTo="/dashboard" />
           </div>
         </div>
       </div>

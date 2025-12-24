@@ -1,8 +1,9 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-const Logo = ({ size = 'medium', className = '' }) => {
+const Logo = ({ size = 'medium', className = '', navigateTo = null }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const sizeClasses = {
     small: 'w-12 h-12',
@@ -12,10 +13,15 @@ const Logo = ({ size = 'medium', className = '' }) => {
   };
 
   const handleClick = () => {
-    // Reset to landing page
-    navigate('/');
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // If custom navigation target is provided, use it
+    if (navigateTo) {
+      navigate(navigateTo);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Default: go to landing page
+      navigate('/');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (
