@@ -201,32 +201,14 @@ const Dashboard = () => {
             ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
             : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
-        <div className={`max-w-7xl mx-auto px-4 transition-all duration-300 ${
-          isScrolled ? 'py-1' : 'py-2'
-        }`}>
+        <div className="max-w-7xl mx-auto px-4 py-2">
           <div className="flex items-center justify-between gap-4">
 
             {/* LEFT: LOGO - Always visible, full size */}
             <Logo size="large" navigateTo="/dashboard" />
 
-            {/* CENTER: TIME + WELCOME + POMODORO */}
-            <div className="flex flex-col items-center flex-1">
-              {/* Welcome Message - Hidden when scrolled */}
-              {userProfile.initials && !isScrolled && (
-                <div className={`text-sm md:text-base font-semibold mb-1 ${
-                  darkMode
-                    ? 'bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent'
-                    : 'text-purple-600'
-                }`}>
-                  {welcomeMessage}, {userProfile.initials}! 👋
-                </div>
-              )}
-              {userProfile.initials && !isScrolled && (
-                <div className={`text-xs mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Welcome back - let's make today count!
-                </div>
-              )}
-
+            {/* CENTER: TIME + POMODORO */}
+            <div className="flex items-center gap-4">
               {/* Time Display - Full size always */}
               <button
                 onClick={togglePomodoroMode}
@@ -239,64 +221,53 @@ const Dashboard = () => {
                 }`}>
                   {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false })}
                 </div>
-
-                {/* Pomodoro Hint - Hidden when scrolled */}
-                {!isScrolled && (
-                  <div className={`text-[10px] md:text-xs ${
-                    darkMode ? 'text-purple-400' : 'text-purple-600'
-                  }`}>
-                    ⏱️ Tap for Focus Timer
-                  </div>
-                )}
               </button>
 
-              {/* Pomodoro Timer - Show when scrolled */}
-              {isScrolled && (
-                <div className={`flex items-center gap-2 mt-1 ${
-                  darkMode ? 'text-orange-400' : 'text-orange-600'
-                }`}>
-                  <div className="text-lg font-mono font-bold">
-                    {formatTime(pomodoroSeconds)}
-                  </div>
-                  <div className="flex gap-1">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        pomodoroRunning ? setPomodoroRunning(false) : setPomodoroRunning(true);
-                      }}
-                      className={`p-1 rounded-lg transition-all ${
-                        darkMode
-                          ? 'hover:bg-gray-800 text-orange-400'
-                          : 'hover:bg-gray-100 text-orange-600'
-                      }`}
-                      title={pomodoroRunning ? 'Pause' : 'Start'}
-                    >
-                      {pomodoroRunning ? <Pause size={16} /> : <Play size={16} />}
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setPomodoroSeconds(25 * 60);
-                      }}
-                      className={`p-1 rounded-lg transition-all ${
-                        darkMode
-                          ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
-                          : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-                      }`}
-                      title="Reset"
-                    >
-                      <RotateCcw size={16} />
-                    </button>
-                  </div>
+              {/* Pomodoro Timer - Always visible */}
+              <div className={`flex items-center gap-2 ${
+                darkMode ? 'text-orange-400' : 'text-orange-600'
+              }`}>
+                <div className="text-xl font-mono font-bold">
+                  {formatTime(pomodoroSeconds)}
                 </div>
-              )}
+                <div className="flex gap-1">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      pomodoroRunning ? setPomodoroRunning(false) : setPomodoroRunning(true);
+                    }}
+                    className={`p-1.5 rounded-lg transition-all ${
+                      darkMode
+                        ? 'hover:bg-gray-800 text-orange-400'
+                        : 'hover:bg-gray-100 text-orange-600'
+                    }`}
+                    title={pomodoroRunning ? 'Pause' : 'Start'}
+                  >
+                    {pomodoroRunning ? <Pause size={18} /> : <Play size={18} />}
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPomodoroSeconds(25 * 60);
+                    }}
+                    className={`p-1.5 rounded-lg transition-all ${
+                      darkMode
+                        ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                        : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                    }`}
+                    title="Reset"
+                  >
+                    <RotateCcw size={18} />
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* RIGHT: USER MENU or DARK MODE TOGGLE */}
             {user ? (
               <div className="relative group">
                 <button
-                  className={`p-2 rounded-full transition-all flex items-center gap-2 ${
+                  className={`p-2 rounded-full transition-all flex flex-col items-center gap-1 ${
                     darkMode
                       ? 'hover:bg-white/10 text-gray-400 hover:text-gray-300'
                       : 'hover:bg-gray-100 text-gray-600 hover:text-gray-700'
@@ -304,6 +275,13 @@ const Dashboard = () => {
                   title="User Menu"
                 >
                   <User className="w-5 h-5 md:w-6 md:h-6" />
+                  {userProfile.initials && (
+                    <span className={`text-xs font-semibold ${
+                      darkMode ? 'text-gray-400' : 'text-gray-600'
+                    }`}>
+                      {userProfile.initials}
+                    </span>
+                  )}
                 </button>
 
                 {/* Dropdown menu */}
