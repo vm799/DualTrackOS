@@ -191,7 +191,7 @@ const Dashboard = () => {
         </button>
       </div>
 
-      {/* HEADER - Glassmorphism Sticky Header */}
+      {/* HEADER - Compact Glassmorphism Sticky Header */}
       <div className={`sticky top-0 z-20 backdrop-blur-xl transition-all duration-300 ${
         isScrolled
           ? darkMode
@@ -201,82 +201,72 @@ const Dashboard = () => {
             ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
             : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 py-2">
+        <div className="max-w-7xl mx-auto px-4 py-1">
           <div className="flex items-center justify-between gap-4">
 
-            {/* LEFT: LOGO - Always visible, full size */}
-            <Logo size="large" navigateTo="/dashboard" />
+            {/* LEFT: LOGO - Small, compact */}
+            <Logo size="small" navigateTo="/dashboard" />
 
-            {/* CENTER: TIME + POMODORO */}
-            <div className="flex items-center gap-4">
-              {/* Time Display - Full size always */}
+            {/* CENTER: POMODORO TIMER - Main focus */}
+            <div className="flex items-center gap-3">
               <button
                 onClick={togglePomodoroMode}
-                className="cursor-pointer select-none transition-transform hover:scale-105"
-              >
-                <div className={`text-3xl md:text-4xl font-semibold tracking-tight transition-all ${
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${
                   darkMode
-                    ? 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
-                    : 'text-gray-900'
-                }`}>
-                  {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false })}
-                </div>
-              </button>
-
-              {/* Pomodoro Timer - Always visible */}
-              <div className={`flex items-center gap-2 ${
-                darkMode ? 'text-orange-400' : 'text-orange-600'
-              }`}>
-                <div className="text-xl font-mono font-bold">
+                    ? 'hover:bg-orange-500/10 text-orange-400'
+                    : 'hover:bg-orange-50 text-orange-600'
+                }`}
+              >
+                <div className="text-2xl font-mono font-bold">
                   {formatTime(pomodoroSeconds)}
                 </div>
-                <div className="flex gap-1">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      pomodoroRunning ? setPomodoroRunning(false) : setPomodoroRunning(true);
-                    }}
-                    className={`p-1.5 rounded-lg transition-all ${
-                      darkMode
-                        ? 'hover:bg-gray-800 text-orange-400'
-                        : 'hover:bg-gray-100 text-orange-600'
-                    }`}
-                    title={pomodoroRunning ? 'Pause' : 'Start'}
-                  >
-                    {pomodoroRunning ? <Pause size={18} /> : <Play size={18} />}
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setPomodoroSeconds(25 * 60);
-                    }}
-                    className={`p-1.5 rounded-lg transition-all ${
-                      darkMode
-                        ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
-                        : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-                    }`}
-                    title="Reset"
-                  >
-                    <RotateCcw size={18} />
-                  </button>
-                </div>
+              </button>
+              <div className="flex gap-1">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    pomodoroRunning ? setPomodoroRunning(false) : setPomodoroRunning(true);
+                  }}
+                  className={`p-1.5 rounded-lg transition-all ${
+                    darkMode
+                      ? 'hover:bg-gray-800 text-orange-400'
+                      : 'hover:bg-gray-100 text-orange-600'
+                  }`}
+                  title={pomodoroRunning ? 'Pause' : 'Start'}
+                >
+                  {pomodoroRunning ? <Pause size={18} /> : <Play size={18} />}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPomodoroSeconds(25 * 60);
+                  }}
+                  className={`p-1.5 rounded-lg transition-all ${
+                    darkMode
+                      ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                      : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                  }`}
+                  title="Reset"
+                >
+                  <RotateCcw size={18} />
+                </button>
               </div>
             </div>
 
-            {/* RIGHT: USER MENU or DARK MODE TOGGLE */}
+            {/* RIGHT: USER MENU */}
             {user ? (
               <div className="relative group">
                 <button
-                  className={`p-2 rounded-full transition-all flex flex-col items-center gap-1 ${
+                  className={`p-1.5 rounded-full transition-all flex flex-col items-center gap-0.5 ${
                     darkMode
                       ? 'hover:bg-white/10 text-gray-400 hover:text-gray-300'
                       : 'hover:bg-gray-100 text-gray-600 hover:text-gray-700'
                   }`}
                   title="User Menu"
                 >
-                  <User className="w-5 h-5 md:w-6 md:h-6" />
+                  <User className="w-5 h-5" />
                   {userProfile.initials && (
-                    <span className={`text-xs font-semibold ${
+                    <span className={`text-[10px] font-semibold ${
                       darkMode ? 'text-gray-400' : 'text-gray-600'
                     }`}>
                       {userProfile.initials}
