@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Heart, Zap, Brain, Sparkles, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Target, Zap, Heart, ArrowRight } from 'lucide-react';
 
 const StoryPage = ({ onBack, onEnter, darkMode }) => {
   return (
@@ -24,212 +24,143 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
       </div>
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-6 py-12 space-y-12">
-        {/* Hero section */}
-        <div className="text-center space-y-6">
+      <div className="max-w-3xl mx-auto px-6 py-12 space-y-10">
+        {/* Hero */}
+        <div className="text-center space-y-4">
           <h1 className={`text-4xl md:text-5xl font-bold ${
             darkMode ? 'text-gray-100' : 'text-gray-900'
           }`}>
-            The Story Behind{' '}
+            Your Energy Has{' '}
             <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
-              DualTrack OS
+              Cycles
             </span>
           </h1>
-          <p className={`text-lg md:text-xl leading-relaxed ${
+          <p className={`text-xl leading-relaxed ${
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
-            A personal operating system born from a simple truth: no woman should have to choose between her power and her peace.
+            Your strength training shouldn't ignore them.
           </p>
         </div>
 
-        {/* The Reality */}
+        {/* Problem */}
         <div className={`rounded-2xl p-8 ${
           darkMode
             ? 'bg-gradient-to-br from-rose-900/30 via-pink-900/20 to-rose-900/30 border-2 border-rose-500/30'
             : 'bg-gradient-to-br from-rose-50 to-pink-50 border-2 border-rose-200'
         }`}>
-          <h2 className={`text-2xl md:text-3xl font-bold mb-6 flex items-center ${
+          <h2 className={`text-2xl font-bold mb-4 flex items-center ${
             darkMode ? 'text-rose-300' : 'text-rose-800'
           }`}>
-            <Heart className="mr-3" size={32} />
-            The Reality We Navigate
+            <Heart className="mr-3" size={28} />
+            The Problem
           </h2>
-          <div className={`space-y-4 text-base md:text-lg leading-relaxed ${
+          <div className={`space-y-3 text-lg ${
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
+            <p className="font-medium">
+              You're 45–55. Perimenopause is real. Your energy swings wildly.
+            </p>
             <p>
-              Every day, women are expected to show up fully present, high-performing, emotionally available in every domain of life.
+              Some days you're a 5/5—crushing meetings, leading projects, ready to train hard.
             </p>
-            <p className="font-medium">
-              At work: Strategic thinker. Leader. Expert. Always one step ahead.
+            <p>
+              Other days you're a 2/5—brain fog, low motivation, body begging for rest.
             </p>
-            <p className="font-medium">
-              With family: Nurturing presence. Patient listener. Rock-solid support.
-            </p>
-            <p className="font-medium">
-              In relationships: Emotionally available. Deeply connected. Fully engaged.
-            </p>
-            <p className="font-medium">
-              For friendships: Present. Supportive. The one who shows up.
-            </p>
-            <p className="font-medium">
-              Building a side business: Visionary. Hustler. Risk-taker.
-            </p>
-            <p className="mt-6 italic">
-              And society expects you to do all of this at the same capacity, every single day.
+            <p className="font-bold mt-4">
+              Yet every fitness app treats you like a 25-year-old male with linear energy.
             </p>
           </div>
         </div>
 
-        {/* The Internal Reality */}
+        {/* What We Do */}
         <div className={`rounded-2xl p-8 ${
           darkMode
             ? 'bg-gradient-to-br from-purple-900/30 via-pink-900/20 to-purple-900/30 border-2 border-purple-500/30'
             : 'bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200'
         }`}>
-          <h2 className={`text-2xl md:text-3xl font-bold mb-6 flex items-center ${
+          <h2 className={`text-2xl font-bold mb-4 flex items-center ${
             darkMode ? 'text-purple-300' : 'text-purple-800'
           }`}>
-            <Zap className="mr-3" size={32} />
-            But Here's What They Don't Tell You
+            <Target className="mr-3" size={28} />
+            What DualTrack OS Does
           </h2>
-          <div className={`space-y-4 text-base md:text-lg leading-relaxed ${
+          <div className={`space-y-4 text-lg ${
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
-            <p className="font-bold text-xl">
-              Your biology operates on cycles. Your energy ebbs and flows. Your hormones create natural rhythms.
-            </p>
-            <p>
-              Some days you wake up with a 5/5 energy—ready to conquer the world, close the deal, lead the meeting, write the proposal.
-            </p>
-            <p>
-              Other days you're at 2/5—brain fog thick, motivation low, body asking for rest—but the world still demands your full presence.
-            </p>
-            <p className="mt-6 font-medium">
-              The truth? Your menstrual cycle affects your energy. Stress impacts your hormones. Sleep deprivation changes your capacity. Perimenopause and menopause bring tidal waves of change. Postpartum recovery is real. ADHD makes executive function variable.
-            </p>
-            <p className="mt-6 italic bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent font-bold text-xl">
-              And NO productivity system accounts for this.
-            </p>
-          </div>
-        </div>
-
-        {/* The Lioness - Shakti */}
-        <div className={`rounded-2xl p-8 ${
-          darkMode
-            ? 'bg-gradient-to-br from-orange-900/30 via-amber-900/20 to-orange-900/30 border-2 border-orange-500/30'
-            : 'bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-orange-200'
-        }`}>
-          <h2 className={`text-2xl md:text-3xl font-bold mb-6 flex items-center ${
-            darkMode ? 'text-orange-300' : 'text-orange-800'
-          }`}>
-            <Sparkles className="mr-3" size={32} />
-            Enter the Lioness: Shakti in Motion
-          </h2>
-          <div className={`space-y-6 text-base md:text-lg leading-relaxed ${
-            darkMode ? 'text-gray-300' : 'text-gray-700'
-          }`}>
-            <p className="font-bold text-xl">
-              From the founder's deep Indian heritage and the sacred traditions of Shakti, we chose the lioness—Durga's divine companion—as our guiding symbol.
-            </p>
-
-            <div className="space-y-4">
-              <p className="font-medium flex items-start gap-3">
-                <img src="/lioness-logo.png" alt="Lioness" className="w-12 h-12 inline-block flex-shrink-0" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
-                <strong>The Lioness represents controlled power, not aggression.</strong>
-              </p>
-              <p className="pl-8">
-                She doesn't roar at every challenge. She observes. She waits. She chooses her battles. She knows when to pounce and when to rest in the tall grass.
-              </p>
-
-              <p className="font-medium flex items-start gap-3">
-                <img src="/lioness-logo.png" alt="Lioness" className="w-12 h-12 inline-block flex-shrink-0" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
-                <strong>She embodies Shakti—the primordial cosmic energy of creation.</strong>
-              </p>
-              <p className="pl-8">
-                Shakti is not about doing more. It's about harnessing your energy wisely. It's the force that creates worlds, but also the wisdom that knows rest is sacred.
-              </p>
-
-              <p className="font-medium flex items-start gap-3">
-                <img src="/lioness-logo.png" alt="Lioness" className="w-12 h-12 inline-block flex-shrink-0" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
-                <strong>She masters raw power while staying centered in chaos.</strong>
-              </p>
-              <p className="pl-8">
-                Goddess Durga rides the lioness into battle against demons—but she doesn't fight frantically. She moves with intention. She protects what matters. She destroys only what threatens balance.
-              </p>
-
-              <p className="font-medium flex items-start gap-3">
-                <img src="/lioness-logo.png" alt="Lioness" className="w-12 h-12 inline-block flex-shrink-0" style={{ filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.6))' }} />
-                <strong>She balances fierceness with nurturing.</strong>
-              </p>
-              <p className="pl-6">
-                The lioness hunts to feed her pride. She protects her young. She leads with strength and cares with depth. She doesn't choose between power and love—she IS both.
-              </p>
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">✅</span>
+              <p><strong>Tracks your energy, mood, and cycle</strong> — so you know what your body needs today</p>
             </div>
-
-            <div className={`mt-8 p-6 rounded-xl ${
-              darkMode
-                ? 'bg-gradient-to-r from-cyan-900/40 to-purple-900/40 border border-cyan-500/30'
-                : 'bg-gradient-to-r from-cyan-100 to-purple-100 border border-cyan-300'
-            }`}>
-              <p className="font-bold text-xl mb-3 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
-                This is DualTrack OS.
-              </p>
-              <p>
-                A system that honors your inner lioness. One that recognizes your 2/5 energy days are not failures—they're part of your natural rhythm. One that celebrates your 5/5 days as opportunities to leap, not obligations to overextend.
-              </p>
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">✅</span>
+              <p><strong>Adjusts your training volume</strong> — strength on high days, active recovery on low days</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">✅</span>
+              <p><strong>Prioritizes protein and muscle</strong> — because menopause accelerates muscle loss</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">✅</span>
+              <p><strong>Keeps you consistent</strong> — even on 2/5 days, you show up (just differently)</p>
             </div>
           </div>
         </div>
 
-        {/* The Vision */}
+        {/* How It Works */}
         <div className={`rounded-2xl p-8 ${
           darkMode
             ? 'bg-gradient-to-br from-cyan-900/30 via-blue-900/20 to-cyan-900/30 border-2 border-cyan-500/30'
             : 'bg-gradient-to-br from-cyan-50 to-blue-50 border-2 border-cyan-200'
         }`}>
-          <h2 className={`text-2xl md:text-3xl font-bold mb-6 flex items-center ${
+          <h2 className={`text-2xl font-bold mb-4 flex items-center ${
             darkMode ? 'text-cyan-300' : 'text-cyan-800'
           }`}>
-            <Brain className="mr-3" size={32} />
-            Why DualTrack Exists
+            <Zap className="mr-3" size={28} />
+            Your Daily Command Center
           </h2>
-          <div className={`space-y-4 text-base md:text-lg leading-relaxed ${
+          <div className={`space-y-3 text-lg ${
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
-            <p>
-              Because you deserve a system that adapts to YOU—not one that demands you adapt to it.
-            </p>
-            <p>
-              Because running a corporate career AND a side business AND a full life requires different strategies on different days.
-            </p>
-            <p>
-              Because hormonal fluctuations are not weaknesses—they're biological realities that can be worked WITH, not against.
-            </p>
-            <p>
-              Because Shakti is not about constant output—it's about intentional energy flow.
-            </p>
-            <p className="font-bold text-xl mt-6 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
-              You are not failing at balance. You are navigating a system that was never designed for your reality.
-            </p>
-            <p className="font-bold text-xl">
-              DualTrack OS is designed FOR your reality. For your cycles. For your ambitions. For your humanity.
-            </p>
+            <p><strong className="text-purple-400">Morning:</strong> Log your energy (1–5) and mood</p>
+            <p><strong className="text-purple-400">Training:</strong> Get your personalized workout (gym, home, or mobility based on your energy)</p>
+            <p><strong className="text-purple-400">Nutrition:</strong> Hit protein targets with smart suggestions</p>
+            <p><strong className="text-purple-400">Evening:</strong> Close your day, track wellness habits, evolve your avatar</p>
+          </div>
+        </div>
+
+        {/* Results */}
+        <div className={`rounded-2xl p-8 ${
+          darkMode
+            ? 'bg-gradient-to-br from-orange-900/30 via-amber-900/20 to-orange-900/30 border-2 border-orange-500/30'
+            : 'bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-orange-200'
+        }`}>
+          <h2 className={`text-2xl font-bold mb-4 ${
+            darkMode ? 'text-orange-300' : 'text-orange-800'
+          }`}>
+            The Goal
+          </h2>
+          <div className={`space-y-3 text-lg ${
+            darkMode ? 'text-gray-300' : 'text-gray-700'
+          }`}>
+            <p>🔥 <strong>Lose fat without starving</strong> — high protein keeps you full</p>
+            <p>💪 <strong>Build strength</strong> — progressive overload for pull-ups, heavy lifts</p>
+            <p>🧠 <strong>Reduce brain fog</strong> — movement + protein = mental clarity</p>
+            <p>⚡ <strong>Increase energy</strong> — training that matches your cycle improves baseline energy</p>
+            <p>🎯 <strong>Stay consistent</strong> — no shame, no streaks to break, just show up</p>
           </div>
         </div>
 
         {/* Closing */}
-        <div className="text-center space-y-6 py-8">
-          <p className="text-2xl md:text-3xl font-medium italic leading-relaxed bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 bg-clip-text text-transparent" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', textShadow: '0 0 30px rgba(236, 72, 153, 0.4)' }}>
-            "Real strength comes from vulnerability, setting boundaries, and showing up as your full, imperfect self even when the outcome is uncertain."
-          </p>
-          <p className={`text-lg font-medium ${darkMode ? 'text-pink-400' : 'text-pink-600'}`}>
-            - Brené Brown
-          </p>
-          <p className={`text-2xl md:text-3xl font-semibold mt-12 leading-relaxed ${
+        <div className="text-center space-y-6 py-6">
+          <p className={`text-2xl font-bold ${
             darkMode ? 'text-purple-400' : 'text-purple-700'
           }`}>
-            Welcome to your OS.<br />You got this.
+            Strong at 50 starts with honoring how your body works today.
+          </p>
+          <p className={`text-lg italic ${
+            darkMode ? 'text-gray-400' : 'text-gray-600'
+          }`}>
+            Not fighting it. Working with it.
           </p>
 
           {/* Enter Button */}
@@ -237,7 +168,7 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
             <div className="mt-8">
               <button
                 onClick={onEnter}
-                className={`group relative px-7 py-3 text-base sm:text-lg font-bold transition-all duration-300 hover:scale-105 ${
+                className={`group relative px-7 py-3 text-lg font-bold transition-all duration-300 hover:scale-105 ${
                   darkMode ? 'bg-gray-900' : 'bg-white'
                 }`}
                 style={{
@@ -249,7 +180,7 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
                 }}
               >
                 <span className="flex items-center gap-2 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
-                  Enter Here
+                  Let's Go
                   <ArrowRight
                     size={18}
                     className="transition-transform group-hover:translate-x-1 text-purple-500"
