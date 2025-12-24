@@ -6,6 +6,7 @@ import OnboardingPage from './pages/OnboardingPage';
 import Dashboard from './pages/Dashboard';
 import CyclePage from './pages/CyclePage';
 import Strong50Page from './pages/Strong50Page';
+import HormonalHealthPage from './pages/HormonalHealthPage';
 import SettingsPage from './pages/SettingsPage';
 import PricingPage from './pages/PricingPage';
 import useStore from './store/useStore';
@@ -54,6 +55,16 @@ const AppRouter = () => {
           element={
             userProfile.hasCompletedOnboarding ? (
               <Strong50Page />
+            ) : (
+              <Navigate to="/onboarding" replace />
+            )
+          }
+        />
+        <Route
+          path="/hormonal-health"
+          element={
+            userProfile.hasCompletedOnboarding ? (
+              <HormonalHealthPage />
             ) : (
               <Navigate to="/onboarding" replace />
             )

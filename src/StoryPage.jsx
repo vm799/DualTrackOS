@@ -58,16 +58,16 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
             <p className="font-medium">
-              You're 45–55. Perimenopause is real. Your energy swings wildly.
+              Your energy isn't linear. Whether you're 25 navigating your menstrual cycle, 35 balancing career and motherhood, 45 entering perimenopause, or 55+ in your powerful post-menopausal years—your hormones create natural energy cycles.
             </p>
             <p>
-              Some days you're a 5/5—crushing meetings, leading projects, ready to train hard.
+              Some days you're a 5/5—crushing goals, feeling unstoppable, ready to lift heavy.
             </p>
             <p>
-              Other days you're a 2/5—brain fog, low motivation, body begging for rest.
+              Other days you're a 2/5—your body asks for gentleness, rest, and recovery.
             </p>
             <p className="font-bold mt-4">
-              Yet every fitness app treats you like a 25-year-old male with linear energy.
+              Yet every fitness app treats you like a man with linear, unchanging energy.
             </p>
           </div>
         </div>
@@ -97,7 +97,7 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
             </div>
             <div className="flex items-start gap-3">
               <span className="text-2xl">✅</span>
-              <p><strong>Prioritizes protein and muscle</strong> — because menopause accelerates muscle loss</p>
+              <p><strong>Prioritizes protein and muscle</strong> — because strength is power at every age</p>
             </div>
             <div className="flex items-start gap-3">
               <span className="text-2xl">✅</span>
@@ -150,12 +150,36 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
           </div>
         </div>
 
+        {/* Cultural Heritage */}
+        <div className={`rounded-2xl p-8 ${
+          darkMode
+            ? 'bg-gradient-to-br from-amber-900/30 via-yellow-900/20 to-amber-900/30 border-2 border-amber-500/30'
+            : 'bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-200'
+        }`}>
+          <div className={`space-y-4 text-lg ${
+            darkMode ? 'text-gray-300' : 'text-gray-700'
+          }`}>
+            <p className="font-bold text-xl">
+              🦁 Inspired by Shakti — Divine Feminine Power
+            </p>
+            <p>
+              In Indian tradition, <strong>Shakti</strong> represents the divine feminine energy—creative, fierce, nurturing, and unstoppable. <strong>Goddess Durga</strong>, riding the lioness, embodies strength in all its forms.
+            </p>
+            <p className="italic">
+              The lioness doesn't fight her nature. She rests when tired. She hunts when energized. She adapts, survives, and thrives through every season.
+            </p>
+            <p className="font-medium">
+              DualTrack honors this wisdom: your strength comes from working <em>with</em> your cycles, not against them.
+            </p>
+          </div>
+        </div>
+
         {/* Closing */}
         <div className="text-center space-y-6 py-6">
           <p className={`text-2xl font-bold ${
             darkMode ? 'text-purple-400' : 'text-purple-700'
           }`}>
-            Strong at 50 starts with honoring how your body works today.
+            True strength starts with honoring how your body works today.
           </p>
           <p className={`text-lg italic ${
             darkMode ? 'text-gray-400' : 'text-gray-600'
