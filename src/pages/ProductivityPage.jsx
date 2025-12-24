@@ -23,6 +23,8 @@ const ProductivityPage = () => {
   const darkMode = useStore((state) => state.darkMode);
   const user = useStore((state) => state.user);
   const userProfile = useStore((state) => state.userProfile);
+  const currentTime = useStore((state) => state.currentTime);
+  const setCurrentTime = useStore((state) => state.setCurrentTime);
   const [showBrainDump, setShowBrainDump] = useState(false);
   const [winCategory, setWinCategory] = useState('productivity'); // Track win type
 
@@ -114,6 +116,14 @@ const ProductivityPage = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Real-time clock update every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [setCurrentTime]);
+
   // Pomodoro ticker
   useEffect(() => {
     if (!pomodoroRunning) return;
@@ -146,38 +156,51 @@ const ProductivityPage = () => {
             {/* Left: Logo - Small, compact */}
             <Logo size="small" navigateTo="/dashboard" />
 
-            {/* Center: Pomodoro Timer - Main focus */}
-            <div className="flex items-center gap-3">
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${
-                darkMode ? 'text-orange-400' : 'text-orange-600'
+            {/* Center: Clock + Pomodoro */}
+            <div className="flex items-center gap-6">
+              {/* Clock */}
+              <div className={`text-2xl font-semibold tracking-tight ${
+                darkMode
+                  ? 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
+                  : 'text-gray-900'
               }`}>
-                <div className="text-2xl font-mono font-bold">
+                {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false })}
+              </div>
+
+              {/* Divider */}
+              <div className={`h-8 w-px ${darkMode ? 'bg-gray-700' : 'bg-gray-300'}`} />
+
+              {/* Pomodoro Timer */}
+              <div className="flex items-center gap-2">
+                <div className={`text-xl font-mono font-bold ${
+                  darkMode ? 'text-orange-400' : 'text-orange-600'
+                }`}>
                   {formatTime(pomodoroSeconds)}
                 </div>
-              </div>
-              <div className="flex gap-1">
-                <button
-                  onClick={pomodoroRunning ? pausePomodoro : startPomodoro}
-                  className={`p-1.5 rounded-lg transition-all ${
-                    darkMode
-                      ? 'hover:bg-gray-800 text-orange-400'
-                      : 'hover:bg-gray-100 text-orange-600'
-                  }`}
-                  title={pomodoroRunning ? 'Pause' : 'Start'}
-                >
-                  {pomodoroRunning ? <Pause size={18} /> : <Play size={18} />}
-                </button>
-                <button
-                  onClick={resetPomodoro}
-                  className={`p-1.5 rounded-lg transition-all ${
-                    darkMode
-                      ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
-                      : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-                  }`}
-                  title="Reset"
-                >
-                  <RotateCcw size={18} />
-                </button>
+                <div className="flex gap-1">
+                  <button
+                    onClick={pomodoroRunning ? pausePomodoro : startPomodoro}
+                    className={`p-1.5 rounded-lg transition-all ${
+                      darkMode
+                        ? 'hover:bg-gray-800 text-orange-400'
+                        : 'hover:bg-gray-100 text-orange-600'
+                    }`}
+                    title={pomodoroRunning ? 'Pause' : 'Start'}
+                  >
+                    {pomodoroRunning ? <Pause size={16} /> : <Play size={16} />}
+                  </button>
+                  <button
+                    onClick={resetPomodoro}
+                    className={`p-1.5 rounded-lg transition-all ${
+                      darkMode
+                        ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                        : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                    }`}
+                    title="Reset"
+                  >
+                    <RotateCcw size={16} />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -194,9 +217,7 @@ const ProductivityPage = () => {
               >
                 <User className="w-5 h-5" />
                 {userProfile.initials && (
-                  <span className={`text-[10px] font-semibold ${
-                    darkMode ? 'text-gray-400' : 'text-gray-600'
-                  }`}>
+                  <span className="text-[10px] font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
                     {userProfile.initials}
                   </span>
                 )}
