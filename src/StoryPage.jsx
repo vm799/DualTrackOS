@@ -62,7 +62,7 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
             <p className="font-medium">
-              Your energy isn't linear. Whether you're 25 navigating your menstrual cycle, 35 balancing career and motherhood, 45 entering perimenopause, or 55+ in your powerful post-menopausal years—your hormones create natural energy cycles.
+              Your energy isn't linear. Whether you're navigating your menstrual cycle, balancing multiple roles, experiencing hormonal transitions, or in your powerful years beyond—your body has natural energy cycles.
             </p>
             <p>
               Some days you're a 5/5—crushing goals, feeling unstoppable, ready to lift heavy.
@@ -71,7 +71,7 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
               Other days you're a 2/5—your body asks for gentleness, rest, and recovery.
             </p>
             <p className="font-bold mt-4">
-              Yet every fitness app treats you like a man with linear, unchanging energy.
+              Yet most fitness apps treat everyone like they have linear, unchanging energy.
             </p>
           </div>
         </div>
@@ -126,9 +126,9 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
             <p><strong className="text-purple-400">Morning:</strong> Log your energy (1–5) and mood</p>
-            <p><strong className="text-purple-400">Training:</strong> Get your personalized workout (gym, home, or mobility based on your energy)</p>
+            <p><strong className="text-purple-400">Training:</strong> Get your personalized workout based on your energy level</p>
             <p><strong className="text-purple-400">Nutrition:</strong> Hit protein targets with smart suggestions</p>
-            <p><strong className="text-purple-400">Evening:</strong> Close your day, track wellness habits, evolve your avatar</p>
+            <p><strong className="text-purple-400">Evening:</strong> Close your day and track wellness habits</p>
           </div>
         </div>
 
@@ -147,10 +147,10 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
             <p>🔥 <strong>Lose fat without starving</strong> — high protein keeps you full</p>
-            <p>💪 <strong>Build strength</strong> — progressive overload for pull-ups, heavy lifts</p>
-            <p>🧠 <strong>Reduce brain fog</strong> — movement + protein = mental clarity</p>
-            <p>⚡ <strong>Increase energy</strong> — training that matches your cycle improves baseline energy</p>
-            <p>🎯 <strong>Stay consistent</strong> — no shame, no streaks to break, just show up</p>
+            <p>💪 <strong>Build strength</strong> — progressive overload that works for you</p>
+            <p>🧠 <strong>Improve mental clarity</strong> — movement + nutrition = sharper focus</p>
+            <p>⚡ <strong>Increase energy</strong> — training that works with your body improves how you feel</p>
+            <p>🎯 <strong>Stay consistent</strong> — no shame, no streaks to break, just show up as you are</p>
           </div>
         </div>
 
