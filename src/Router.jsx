@@ -4,9 +4,8 @@ import LandingPageView from './pages/LandingPage';
 import StoryPageView from './pages/StoryPage';
 import OnboardingPage from './pages/OnboardingPage';
 import Dashboard from './pages/Dashboard';
-import CyclePage from './pages/CyclePage';
-import Strong50Page from './pages/Strong50Page';
-import HormonalHealthPage from './pages/HormonalHealthPage';
+import HealthPage from './pages/HealthPage';
+import ProductivityPage from './pages/ProductivityPage';
 import SettingsPage from './pages/SettingsPage';
 import PricingPage from './pages/PricingPage';
 import useStore from './store/useStore';
@@ -41,35 +40,29 @@ const AppRouter = () => {
           }
         />
         <Route
-          path="/cycle"
+          path="/health"
           element={
             userProfile.hasCompletedOnboarding ? (
-              <CyclePage />
+              <HealthPage />
             ) : (
               <Navigate to="/onboarding" replace />
             )
           }
         />
         <Route
-          path="/strong50"
+          path="/productivity"
           element={
             userProfile.hasCompletedOnboarding ? (
-              <Strong50Page />
+              <ProductivityPage />
             ) : (
               <Navigate to="/onboarding" replace />
             )
           }
         />
-        <Route
-          path="/hormonal-health"
-          element={
-            userProfile.hasCompletedOnboarding ? (
-              <HormonalHealthPage />
-            ) : (
-              <Navigate to="/onboarding" replace />
-            )
-          }
-        />
+        {/* Redirect old routes to new structure */}
+        <Route path="/cycle" element={<Navigate to="/health" replace />} />
+        <Route path="/strong50" element={<Navigate to="/health" replace />} />
+        <Route path="/hormonal-health" element={<Navigate to="/health" replace />} />
         <Route
           path="/settings"
           element={<SettingsPage />}

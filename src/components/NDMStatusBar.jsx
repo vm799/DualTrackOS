@@ -16,8 +16,8 @@ const NDMStatusBar = ({ ndm, darkMode, openNutrition, openMovement, openMindfulM
   const completionPercent = (completedCount / 4) * 100;
 
   return (
-    <div className={`sticky top-0 z-20 mb-6 max-w-2xl mx-auto pt-4 pb-2 ${
-      darkMode ? 'bg-[#191919]' : 'bg-gray-50'
+    <div className={`mb-6 max-w-2xl mx-auto ${
+      darkMode ? '' : ''
     }`}>
       <div className={`rounded-2xl p-4 shadow-lg ${
         darkMode

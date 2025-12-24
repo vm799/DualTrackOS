@@ -201,11 +201,11 @@ const Dashboard = () => {
             ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
             : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 py-1">
+        <div className={`max-w-7xl mx-auto px-4 transition-all duration-300 ${isScrolled ? 'py-0.5' : 'py-1'}`}>
           <div className="flex items-center justify-between">
 
             {/* LEFT: LOGO - Always visible, clickable to reset */}
-            <div className={`transition-all duration-300 ${isScrolled ? 'scale-75' : 'scale-100'}`}>
+            <div className={`transition-all duration-300 ${isScrolled ? 'scale-50' : 'scale-100'}`}>
               <Logo size="large" />
             </div>
 
@@ -214,7 +214,7 @@ const Dashboard = () => {
               onClick={togglePomodoroMode}
               className="flex flex-col items-center cursor-pointer select-none transition-transform hover:scale-105"
             >
-              {/* Welcome Message - Always visible, personalized */}
+              {/* Welcome Message - Hidden when scrolled */}
               {userProfile.initials && !isScrolled && (
                 <div className={`text-sm md:text-base font-semibold mb-1 ${
                   darkMode
@@ -230,8 +230,8 @@ const Dashboard = () => {
                 </div>
               )}
 
-              {/* Time Display */}
-              <div className={`${isScrolled ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'} font-semibold tracking-tight transition-all ${
+              {/* Time Display - Smaller when scrolled */}
+              <div className={`${isScrolled ? 'text-lg md:text-xl' : 'text-3xl md:text-4xl'} font-semibold tracking-tight transition-all ${
                 darkMode
                   ? 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
                   : 'text-gray-900'
@@ -239,12 +239,14 @@ const Dashboard = () => {
                 {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false })}
               </div>
 
-              {/* Pomodoro Hint */}
-              <div className={`text-[10px] md:text-xs ${
-                darkMode ? 'text-purple-400' : 'text-purple-600'
-              }`}>
-                {isScrolled ? '⏱️' : '⏱️ Tap for Focus Timer'}
-              </div>
+              {/* Pomodoro Hint - Hidden when scrolled */}
+              {!isScrolled && (
+                <div className={`text-[10px] md:text-xs ${
+                  darkMode ? 'text-purple-400' : 'text-purple-600'
+                }`}>
+                  ⏱️ Tap for Focus Timer
+                </div>
+              )}
             </button>
 
             {/* RIGHT: USER MENU or DARK MODE TOGGLE */}
