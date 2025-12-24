@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Play, Pause, RotateCcw, Plus, Award, TrendingUp, FileText, Zap, Battery, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Play, Pause, RotateCcw, Plus, Award, TrendingUp, FileText, Zap, Battery, AlertCircle, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import usePomodoroStore from '../store/usePomodoroStore';
 import useDailyMetricsStore from '../store/useDailyMetricsStore';
 import useEnergyMoodStore from '../store/useEnergyMoodStore';
+import useRoleStore from '../store/useRoleStore';
 import KanbanBoard from '../components/KanbanBoard';
 import HourlyTaskDisplay from '../components/HourlyTaskDisplay';
 import SectionHeader from '../components/SectionHeader';
@@ -15,6 +16,7 @@ import DailyCommandCenterModal from '../components/DailyCommandCenterModal';
 import PomodoroFullScreen from '../components/PomodoroFullScreen';
 import SmartSuggestions from '../components/SmartSuggestions';
 import EnergyMoodModals from '../components/EnergyMoodModals';
+import RoleSetupModal from '../components/RoleSetupModal';
 
 const ProductivityPage = () => {
   const navigate = useNavigate();
@@ -51,6 +53,41 @@ const ProductivityPage = () => {
     getSmartSuggestions,
     getTimeOfDay
   } = useEnergyMoodStore();
+
+  // Role state
+  const {
+    userRoles,
+    hasCompletedRoleSetup,
+    setShowRoleSetup,
+    getTotalMentalLoad,
+    getSelfCarePercentage,
+    isSelfCareNeglected,
+    incrementRoleTaskCount
+  } = useRoleStore();
+
+  // Helper to add a win and track role task count
+  const handleAddQuickWin = () => {
+    addQuickWin(winCategory);
+    // Map category to role and increment count
+    if (hasCompletedRoleSetup) {
+      const roleMap = {
+        'productivity': ['executive', 'team-mgmt', 'side-business', 'creative'],
+        'self-care': ['self-care'],
+        'boundaries': ['self-care'],
+        'rest': ['self-care']
+      };
+
+      const rolesToIncrement = roleMap[winCategory] || [];
+      // Find the user's first matching role and increment it
+      for (const roleId of rolesToIncrement) {
+        const userRole = userRoles.find(r => r.id === roleId);
+        if (userRole) {
+          incrementRoleTaskCount(roleId);
+          break; // Only increment one role per win
+        }
+      }
+    }
+  };
 
   const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
@@ -222,6 +259,144 @@ const ProductivityPage = () => {
             </button>
           </div>
 
+          {/* Mental Load & Capacity Indicators */}
+          {hasCompletedRoleSetup && userRoles.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Mental Load Widget */}
+              <div className={`p-6 rounded-2xl ${
+                darkMode
+                  ? 'bg-gradient-to-br from-indigo-900/30 via-purple-900/20 to-indigo-900/30 border-2 border-indigo-500/30'
+                  : 'bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200'
+              }`}>
+                <div className="flex items-center gap-3 mb-3">
+                  <Users className={darkMode ? 'text-indigo-400' : 'text-indigo-600'} size={24} />
+                  <div>
+                    <h4 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Mental Load
+                    </h4>
+                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      Tasks across all roles
+                    </p>
+                  </div>
+                </div>
+                <div className={`text-3xl font-bold mb-3 ${
+                  darkMode ? 'bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent' : 'text-indigo-600'
+                }`}>
+                  {getTotalMentalLoad()} tasks
+                </div>
+
+                {/* Role Breakdown */}
+                <div className="space-y-2">
+                  {userRoles.filter(r => (r.taskCount || 0) > 0).slice(0, 3).map((role) => (
+                    <div key={role.id} className="flex items-center justify-between text-sm">
+                      <span className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
+                        {role.emoji} {role.name}
+                      </span>
+                      <span className={`font-semibold ${darkMode ? 'text-indigo-300' : 'text-indigo-700'}`}>
+                        {role.taskCount}
+                      </span>
+                    </div>
+                  ))}
+                  {userRoles.filter(r => (r.taskCount || 0) > 0).length > 3 && (
+                    <p className={`text-xs italic ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                      +{userRoles.filter(r => (r.taskCount || 0) > 0).length - 3} more roles...
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => setShowRoleSetup(true)}
+                  className={`mt-3 text-xs underline ${darkMode ? 'text-indigo-400' : 'text-indigo-600'}`}
+                >
+                  Manage roles
+                </button>
+              </div>
+
+              {/* Daily Capacity Widget */}
+              <div className={`p-6 rounded-2xl ${
+                darkMode
+                  ? 'bg-gradient-to-br from-teal-900/30 via-cyan-900/20 to-teal-900/30 border-2 border-teal-500/30'
+                  : 'bg-gradient-to-br from-teal-50 to-cyan-50 border-2 border-teal-200'
+              }`}>
+                <div className="flex items-center gap-3 mb-3">
+                  <Battery className={darkMode ? 'text-teal-400' : 'text-teal-600'} size={24} />
+                  <div>
+                    <h4 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Today's Capacity
+                    </h4>
+                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      Energy vs. mental load
+                    </p>
+                  </div>
+                </div>
+
+                {currentEnergy ? (
+                  <>
+                    <div className={`text-2xl font-bold mb-2 ${
+                      darkMode ? 'text-teal-300' : 'text-teal-700'
+                    }`}>
+                      {currentEnergy <= 2 && getTotalMentalLoad() > 5 ? '🚨 Overloaded' :
+                       currentEnergy === 3 && getTotalMentalLoad() > 8 ? '⚠️ At capacity' :
+                       currentEnergy >= 4 && getTotalMentalLoad() < 10 ? '✅ Sustainable' :
+                       '⚖️ Balanced'}
+                    </div>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {currentEnergy <= 2 && getTotalMentalLoad() > 5
+                        ? 'Low energy, high load. Time to delegate or drop tasks.'
+                        : currentEnergy === 3 && getTotalMentalLoad() > 8
+                        ? 'Medium energy, lots on your plate. Pace yourself.'
+                        : currentEnergy >= 4 && getTotalMentalLoad() < 10
+                        ? 'Good energy, manageable load. You\'ve got this!'
+                        : 'Energy and load are in balance.'}
+                    </p>
+
+                    {/* Self-Care Warning */}
+                    {isSelfCareNeglected() && (
+                      <div className={`mt-3 p-3 rounded-lg ${
+                        darkMode ? 'bg-rose-900/30 border border-rose-500/30' : 'bg-rose-100 border border-rose-300'
+                      }`}>
+                        <p className={`text-xs font-semibold ${darkMode ? 'text-rose-300' : 'text-rose-800'}`}>
+                          ⚠️ Self-care is under 10% of your tasks
+                        </p>
+                        <p className={`text-xs mt-1 ${darkMode ? 'text-rose-400' : 'text-rose-700'}`}>
+                          Remember: You can't pour from an empty cup.
+                        </p>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Track your energy to see capacity insights
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Prompt to set up roles if not done */}
+          {!hasCompletedRoleSetup && (
+            <button
+              onClick={() => setShowRoleSetup(true)}
+              className={`w-full p-6 rounded-2xl border-2 border-dashed transition-all text-left ${
+                darkMode
+                  ? 'border-purple-500/30 bg-purple-900/10 hover:bg-purple-900/20'
+                  : 'border-purple-300 bg-purple-50 hover:bg-purple-100'
+              }`}
+            >
+              <div className="flex items-center gap-4">
+                <Users className={darkMode ? 'text-purple-400' : 'text-purple-600'} size={32} />
+                <div>
+                  <h4 className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Track Your Mental Load
+                  </h4>
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Define the roles you manage and visualize your invisible labor
+                  </p>
+                </div>
+              </div>
+            </button>
+          )}
+
           {/* Smart Suggestions (Energy-Based Recommendations) */}
           {smartSuggestions && currentEnergy && (
             <SmartSuggestions
@@ -370,7 +545,7 @@ const ProductivityPage = () => {
                 type="text"
                 value={quickWinInput}
                 onChange={(e) => setQuickWinInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addQuickWin()}
+                onKeyPress={(e) => e.key === 'Enter' && handleAddQuickWin()}
                 placeholder={
                   winCategory === 'productivity' ? "e.g., Finished presentation" :
                   winCategory === 'self-care' ? "e.g., Took a 20-min walk" :
@@ -384,7 +559,7 @@ const ProductivityPage = () => {
                 }`}
               />
               <button
-                onClick={addQuickWin}
+                onClick={handleAddQuickWin}
                 className={`px-4 py-3 rounded-lg font-medium transition-all ${
                   darkMode
                     ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30'
@@ -450,6 +625,7 @@ const ProductivityPage = () => {
       <DailyCommandCenterModal />
       <PomodoroFullScreen darkMode={darkMode} />
       <EnergyMoodModals />
+      <RoleSetupModal />
 
       {/* Bottom Navigation */}
       <BottomNavigation />
