@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Play, Pause, RotateCcw, Plus, Award, TrendingUp, FileText } from 'lucide-react';
+import { ArrowLeft, Play, Pause, RotateCcw, Plus, Award, TrendingUp, FileText, Zap, Battery, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import usePomodoroStore from '../store/usePomodoroStore';
 import useDailyMetricsStore from '../store/useDailyMetricsStore';
+import useEnergyMoodStore from '../store/useEnergyMoodStore';
 import KanbanBoard from '../components/KanbanBoard';
 import HourlyTaskDisplay from '../components/HourlyTaskDisplay';
 import SectionHeader from '../components/SectionHeader';
@@ -12,11 +13,14 @@ import Logo from '../components/Logo';
 import BrainDumpModal from '../components/BrainDumpModal';
 import DailyCommandCenterModal from '../components/DailyCommandCenterModal';
 import PomodoroFullScreen from '../components/PomodoroFullScreen';
+import SmartSuggestions from '../components/SmartSuggestions';
+import EnergyMoodModals from '../components/EnergyMoodModals';
 
 const ProductivityPage = () => {
   const navigate = useNavigate();
   const darkMode = useStore((state) => state.darkMode);
   const [showBrainDump, setShowBrainDump] = useState(false);
+  const [winCategory, setWinCategory] = useState('productivity'); // Track win type
 
   // Pomodoro state
   const {
@@ -36,7 +40,29 @@ const ProductivityPage = () => {
     setShowCommandCenterModal
   } = useDailyMetricsStore();
 
+  // Energy/Mood state
+  const {
+    energyTracking,
+    currentMood,
+    setShowEnergyModal,
+    setShowMoodModal,
+    getCurrentPeriodEnergy,
+    getCurrentEnergy,
+    getSmartSuggestions,
+    getTimeOfDay
+  } = useEnergyMoodStore();
+
   const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
+
+  // Current energy and suggestions
+  const currentEnergy = getCurrentPeriodEnergy();
+  const avgEnergy = getCurrentEnergy();
+  const smartSuggestions = getSmartSuggestions();
+  const timeOfDay = getTimeOfDay();
+  const currentHour = new Date().getHours();
+
+  // Detect "Gentle Mode" (low energy + overwhelmed mood)
+  const isGentleMode = currentEnergy && currentEnergy <= 2 && currentMood === 'overwhelmed';
 
   // Pomodoro ticker
   useEffect(() => {
@@ -48,6 +74,12 @@ const ProductivityPage = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, [pomodoroRunning]);
+
+  // Helper to add task from SmartSuggestions
+  const handleAddTaskFromSuggestion = (hour, taskText) => {
+    // This would integrate with your task system
+    console.log('Adding task:', taskText, 'at hour:', hour);
+  };
 
   return (
     <div className={`min-h-screen ${
@@ -93,6 +125,112 @@ const ProductivityPage = () => {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-6 pb-32">
+
+          {/* Gentle Mode Banner */}
+          {isGentleMode && (
+            <div className={`rounded-2xl p-6 ${
+              darkMode
+                ? 'bg-gradient-to-br from-rose-900/40 via-pink-900/30 to-rose-900/40 border-2 border-rose-500/50 shadow-2xl'
+                : 'bg-gradient-to-br from-rose-100 to-pink-100 border-2 border-rose-300 shadow-lg'
+            }`}>
+              <div className="text-center space-y-3">
+                <div className="text-4xl">🌸</div>
+                <h3 className={`text-2xl font-bold ${darkMode ? 'text-rose-300' : 'text-rose-800'}`}>
+                  Gentle Mode Activated
+                </h3>
+                <p className={`text-lg ${darkMode ? 'text-rose-200' : 'text-rose-700'}`}>
+                  Your energy is low and you're feeling overwhelmed. That's completely valid.
+                </p>
+                <div className={`p-4 rounded-xl ${
+                  darkMode ? 'bg-rose-500/20 border border-rose-500/30' : 'bg-rose-50 border border-rose-200'
+                }`}>
+                  <p className={`font-semibold ${darkMode ? 'text-rose-300' : 'text-rose-800'}`}>
+                    Today's only goal: Basic self-care.
+                  </p>
+                  <p className={`text-sm mt-2 ${darkMode ? 'text-rose-200' : 'text-rose-700'}`}>
+                    Everything else can wait. Rest is productive. ❤️
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Energy Level Display */}
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              onClick={() => setShowEnergyModal(true)}
+              className={`p-6 rounded-2xl transition-all text-left ${
+                darkMode
+                  ? 'bg-gradient-to-br from-yellow-900/30 via-orange-900/20 to-yellow-900/30 border-2 border-yellow-500/30 hover:border-yellow-500/50'
+                  : 'bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-200 hover:border-yellow-300'
+              }`}
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <Battery className={darkMode ? 'text-yellow-400' : 'text-yellow-600'} size={28} />
+                <div>
+                  <h4 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Your Energy
+                  </h4>
+                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {timeOfDay}
+                  </p>
+                </div>
+              </div>
+              <div className={`text-4xl font-bold mb-2 ${
+                darkMode ? 'bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent' : 'text-yellow-600'
+              }`}>
+                {currentEnergy || '?'}/5
+              </div>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                {currentEnergy ? (
+                  currentEnergy <= 2 ? '🌸 Gentle mode recommended' :
+                  currentEnergy === 3 ? '⚖️ Moderate capacity' :
+                  '🚀 Good energy for focused work'
+                ) : 'Tap to track your energy'}
+              </p>
+            </button>
+
+            <button
+              onClick={() => setShowMoodModal(true)}
+              className={`p-6 rounded-2xl transition-all text-left ${
+                darkMode
+                  ? 'bg-gradient-to-br from-purple-900/30 via-pink-900/20 to-purple-900/30 border-2 border-purple-500/30 hover:border-purple-500/50'
+                  : 'bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 hover:border-purple-300'
+              }`}
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <Zap className={darkMode ? 'text-purple-400' : 'text-purple-600'} size={28} />
+                <div>
+                  <h4 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    How You Feel
+                  </h4>
+                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Current mood
+                  </p>
+                </div>
+              </div>
+              <div className={`text-lg font-semibold mb-2 ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+                {currentMood ? (
+                  <span className="capitalize">{currentMood}</span>
+                ) : (
+                  <span className="text-gray-500">Not tracked</span>
+                )}
+              </div>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Tap to update
+              </p>
+            </button>
+          </div>
+
+          {/* Smart Suggestions (Energy-Based Recommendations) */}
+          {smartSuggestions && currentEnergy && (
+            <SmartSuggestions
+              suggestions={smartSuggestions}
+              darkMode={darkMode}
+              onAddTask={handleAddTaskFromSuggestion}
+              currentHour={currentHour}
+            />
+          )}
 
           {/* Pomodoro Timer Widget */}
           <div className={`rounded-2xl p-6 ${
@@ -188,7 +326,7 @@ const ProductivityPage = () => {
             </button>
           </div>
 
-          {/* Quick Wins */}
+          {/* Quick Wins with Categories */}
           <div className={`rounded-2xl p-6 ${
             darkMode
               ? 'bg-gradient-to-br from-emerald-900/30 via-green-900/20 to-emerald-900/30 border-2 border-emerald-500/30'
@@ -197,16 +335,48 @@ const ProductivityPage = () => {
             <div className="flex items-center gap-3 mb-4">
               <Award className={darkMode ? 'text-emerald-400' : 'text-emerald-600'} size={24} />
               <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                Quick Wins Today
+                Celebrate Your Wins
               </h3>
             </div>
+
+            {/* Category Selector */}
+            <div className="flex gap-2 mb-3 flex-wrap">
+              {[
+                { id: 'productivity', label: 'Work', emoji: '💼' },
+                { id: 'self-care', label: 'Self-Care', emoji: '💆' },
+                { id: 'boundaries', label: 'Boundaries', emoji: '🚫' },
+                { id: 'rest', label: 'Rest', emoji: '😴' }
+              ].map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setWinCategory(cat.id)}
+                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
+                    winCategory === cat.id
+                      ? darkMode
+                        ? 'bg-emerald-500/30 text-emerald-300 border border-emerald-500/50'
+                        : 'bg-emerald-200 text-emerald-800 border border-emerald-400'
+                      : darkMode
+                        ? 'bg-gray-800/50 text-gray-400 hover:bg-gray-700/50'
+                        : 'bg-white/50 text-gray-600 hover:bg-white'
+                  }`}
+                >
+                  {cat.emoji} {cat.label}
+                </button>
+              ))}
+            </div>
+
             <div className="flex gap-2 mb-4">
               <input
                 type="text"
                 value={quickWinInput}
                 onChange={(e) => setQuickWinInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addQuickWin()}
-                placeholder="What's a win you had today?"
+                placeholder={
+                  winCategory === 'productivity' ? "e.g., Finished presentation" :
+                  winCategory === 'self-care' ? "e.g., Took a 20-min walk" :
+                  winCategory === 'boundaries' ? "e.g., Said no to extra meeting" :
+                  "e.g., Took a nap instead of pushing through"
+                }
                 className={`flex-1 px-4 py-3 rounded-lg border-2 ${
                   darkMode
                     ? 'bg-gray-900/50 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-emerald-400/50'
@@ -224,22 +394,36 @@ const ProductivityPage = () => {
                 <Plus size={18} />
               </button>
             </div>
+
             {dailyMetrics.wins.length > 0 && (
               <div className="space-y-2">
-                {dailyMetrics.wins.slice(-3).reverse().map((win, idx) => (
-                  <div
-                    key={idx}
-                    className={`px-4 py-2 rounded-lg ${
-                      darkMode ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-emerald-100/50 border border-emerald-200'
-                    }`}
-                  >
-                    <p className={`text-sm ${darkMode ? 'text-emerald-300' : 'text-emerald-800'}`}>
-                      🎉 {win.text}
-                    </p>
-                  </div>
-                ))}
+                {dailyMetrics.wins.slice(-5).reverse().map((win, idx) => {
+                  // Map category to emoji
+                  const categoryEmoji =
+                    win.category === 'productivity' ? '💼' :
+                    win.category === 'self-care' ? '💆' :
+                    win.category === 'boundaries' ? '🚫' :
+                    win.category === 'rest' ? '😴' : '🎉';
+
+                  return (
+                    <div
+                      key={idx}
+                      className={`px-4 py-2 rounded-lg ${
+                        darkMode ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-emerald-100/50 border border-emerald-200'
+                      }`}
+                    >
+                      <p className={`text-sm ${darkMode ? 'text-emerald-300' : 'text-emerald-800'}`}>
+                        {categoryEmoji} {win.text}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             )}
+
+            <p className={`text-xs mt-3 italic ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+              💡 Rest and boundaries are wins too. Celebrate taking care of yourself.
+            </p>
           </div>
 
           {/* Hourly Task Display */}
@@ -265,6 +449,7 @@ const ProductivityPage = () => {
       <BrainDumpModal show={showBrainDump} onClose={() => setShowBrainDump(false)} />
       <DailyCommandCenterModal />
       <PomodoroFullScreen darkMode={darkMode} />
+      <EnergyMoodModals />
 
       {/* Bottom Navigation */}
       <BottomNavigation />
