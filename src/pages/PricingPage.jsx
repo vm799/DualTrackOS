@@ -10,6 +10,7 @@ import {
   TIER_TAGLINES
 } from '../constants/subscription';
 import { createCheckoutSession, isStripeConfigured, getCheckoutStatus } from '../services/stripeService';
+import Logo from '../components/Logo';
 
 /**
  * PricingPage - Full pricing page with all tiers
@@ -126,7 +127,7 @@ const PricingPage = () => {
             <div className="text-center flex-1">
               <h1 className="text-2xl font-bold">Choose Your Plan</h1>
             </div>
-            <div className="w-20"></div> {/* Spacer for centering */}
+            <Logo size="medium" />
           </div>
         </div>
       </div>

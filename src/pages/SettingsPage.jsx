@@ -4,6 +4,7 @@ import { Settings, User, Bell, Moon, Sun, Mail, Send, ArrowLeft, CheckCircle, Cr
 import useStore from '../store/useStore';
 import useSubscriptionStore from '../store/useSubscriptionStore';
 import { TIER_PRICING } from '../constants/subscription';
+import Logo from '../components/Logo';
 
 /**
  * Settings Page
@@ -43,19 +44,22 @@ const SettingsPage = () => {
         darkMode ? 'bg-gray-900/95 border-gray-800 backdrop-blur-lg' : 'bg-white/95 border-gray-200 backdrop-blur-lg'
       }`}>
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className={`p-2 rounded-lg transition-all ${
-                darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <ArrowLeft size={20} />
-            </button>
-            <div className="flex items-center gap-3">
-              <Settings className={darkMode ? 'text-purple-400' : 'text-purple-600'} size={28} />
-              <h1 className="text-2xl font-bold">Settings</h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/dashboard')}
+                className={`p-2 rounded-lg transition-all ${
+                  darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <div className="flex items-center gap-3">
+                <Settings className={darkMode ? 'text-purple-400' : 'text-purple-600'} size={28} />
+                <h1 className="text-2xl font-bold">Settings</h1>
+              </div>
             </div>
+            <Logo size="medium" />
           </div>
         </div>
       </div>

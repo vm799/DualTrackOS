@@ -24,6 +24,7 @@ import NutritionDetailModal from '../components/NutritionDetailModal';
 import BrainDumpModal from '../components/BrainDumpModal';
 import FeatureGate from '../components/FeatureGate';
 import FeaturePreview from '../components/FeaturePreview';
+import Logo from '../components/Logo';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
 
 const Dashboard = () => {
@@ -203,13 +204,9 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-4 py-1">
           <div className="flex items-center justify-between">
 
-            {/* LEFT: LOGO - Always visible */}
-            <div className={`flex items-center gap-2 transition-all duration-300 ${isScrolled ? 'scale-75' : 'scale-100'}`}>
-              <img
-                src="/lioness-logo.png"
-                alt="DualTrack OS"
-                className="w-16 h-16 md:w-20 md:h-20 drop-shadow-xl"
-              />
+            {/* LEFT: LOGO - Always visible, clickable to reset */}
+            <div className={`transition-all duration-300 ${isScrolled ? 'scale-75' : 'scale-100'}`}>
+              <Logo size="large" />
             </div>
 
             {/* CENTER: TIME + WELCOME - Primary Action */}
