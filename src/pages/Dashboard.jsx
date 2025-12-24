@@ -201,11 +201,13 @@ const Dashboard = () => {
             ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
             : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
-        <div className={`max-w-7xl mx-auto px-4 transition-all duration-300 ${isScrolled ? 'py-0.5' : 'py-1'}`}>
+        <div className={`max-w-7xl mx-auto px-4 transition-all duration-300 origin-top ${
+          isScrolled ? 'scale-y-50 py-0' : 'py-1'
+        }`}>
           <div className="flex items-center justify-between">
 
             {/* LEFT: LOGO - Always visible, clickable to reset */}
-            <div className={`transition-all duration-300 ${isScrolled ? 'scale-50' : 'scale-100'}`}>
+            <div className={`transition-all duration-300 ${isScrolled ? 'scale-50 origin-left' : 'scale-100'}`}>
               <Logo size="large" />
             </div>
 
@@ -231,7 +233,7 @@ const Dashboard = () => {
               )}
 
               {/* Time Display - Smaller when scrolled */}
-              <div className={`${isScrolled ? 'text-lg md:text-xl' : 'text-3xl md:text-4xl'} font-semibold tracking-tight transition-all ${
+              <div className={`${isScrolled ? 'text-base md:text-lg' : 'text-3xl md:text-4xl'} font-semibold tracking-tight transition-all ${
                 darkMode
                   ? 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
                   : 'text-gray-900'
