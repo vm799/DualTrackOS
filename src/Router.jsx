@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPageView from './pages/LandingPage';
 import StoryPageView from './pages/StoryPage';
+import DashboardPreview from './pages/DashboardPreview';
 import OnboardingPage from './pages/OnboardingPage';
 import CheckInPage from './pages/CheckInPage';
 import Dashboard from './pages/Dashboard';
@@ -20,6 +21,7 @@ const AppRouter = () => {
       <Routes>
         <Route path="/" element={<LandingPageView darkMode={darkMode} />} />
         <Route path="/story" element={<StoryPageView darkMode={darkMode} />} />
+        <Route path="/preview" element={<DashboardPreview />} />
         <Route
           path="/onboarding"
           element={
