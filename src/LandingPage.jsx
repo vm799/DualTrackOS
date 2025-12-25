@@ -66,7 +66,7 @@ const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
           </div>
 
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight mb-4 sm:mb-6">
-            <span className={darkMode ? 'text-gray-100' : 'text-gray-900'}>
+            <span className={darkMode ? 'text-gray-300' : 'text-gray-900'}>
               DualTrack
             </span>{' '}
             <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
@@ -75,16 +75,17 @@ const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
           </h1>
 
           <p
-            className={`text-xl sm:text-2xl md:text-3xl font-bold leading-tight mb-6 sm:mb-8 max-w-3xl ${
-              darkMode ? 'text-gray-200' : 'text-gray-800'
+            className={`text-xl sm:text-2xl md:text-3xl font-bold leading-tight mb-8 sm:mb-10 max-w-3xl ${
+              darkMode ? 'text-gray-400' : 'text-gray-700'
             }`}
           >
             Your companion through every challenge, cycle, and chapter
           </p>
 
+          {/* Primary CTA */}
           <button
             onClick={onEnter}
-            className={`group relative px-7 py-3 text-base sm:text-lg font-bold transition-all duration-300 hover:scale-105 ${
+            className={`group relative px-7 py-3 text-base sm:text-lg font-bold transition-all duration-300 hover:scale-105 mb-4 ${
               darkMode ? 'bg-gray-900' : 'bg-white'
             }`}
             style={{
@@ -103,10 +104,22 @@ const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
               />
             </span>
           </button>
+
+          {/* Secondary CTA - Story */}
+          <button
+            onClick={onViewStory}
+            className={`px-6 py-2.5 rounded-full text-sm sm:text-base font-semibold transition-all hover:scale-105 ${
+              darkMode
+                ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40'
+                : 'bg-amber-100 hover:bg-amber-200 text-amber-700 border border-amber-300'
+            }`}
+          >
+            ✨ The Story Behind the App
+          </button>
         </div>
 
-        {/* BOTTOM — Auth & Story (Subtle) */}
-        <div className="pb-4 sm:pb-6 space-y-2">
+        {/* BOTTOM — Auth (Subtle) */}
+        <div className="pb-4 sm:pb-6">
           {!user ? (
             <>
               <button
@@ -115,18 +128,18 @@ const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
                 className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all hover:opacity-80 flex items-center gap-2 mx-auto ${
                   signingIn
                     ? 'opacity-50 cursor-not-allowed'
-                    : 'opacity-60'
+                    : 'opacity-50'
                 } ${
                   darkMode
-                    ? 'bg-white/5 hover:bg-white/10 text-gray-400 border border-white/20'
-                    : 'bg-gray-900/5 hover:bg-gray-900/10 text-gray-500 border border-gray-300'
+                    ? 'bg-white/5 hover:bg-white/10 text-gray-500 border border-white/10'
+                    : 'bg-gray-900/5 hover:bg-gray-900/10 text-gray-400 border border-gray-200'
                 }`}
               >
                 <LogIn size={14} className={signingIn ? 'animate-spin' : ''} />
                 {signingIn ? 'Signing in...' : 'Sign in with Google'}
               </button>
               {error && (
-                <div className={`text-xs ${darkMode ? 'text-red-400' : 'text-red-600'} max-w-sm mx-auto`}>
+                <div className={`text-xs mt-2 ${darkMode ? 'text-red-400' : 'text-red-600'} max-w-sm mx-auto`}>
                   {error}
                 </div>
               )}
@@ -136,17 +149,6 @@ const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
               Signed in as {user.email}
             </div>
           )}
-
-          <button
-            onClick={onViewStory}
-            className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all hover:opacity-80 opacity-60 ${
-              darkMode
-                ? 'bg-amber-500/10 hover:bg-amber-500/15 text-amber-400/80 border border-amber-500/20'
-                : 'bg-amber-100/50 hover:bg-amber-100 text-amber-600/80 border border-amber-300/50'
-            }`}
-          >
-            ✨ The Story Behind the App
-          </button>
         </div>
       </div>
 
