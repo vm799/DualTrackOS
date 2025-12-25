@@ -137,8 +137,9 @@ const Dashboard = () => {
 
   // Energy-based dark mode (default to medium energy level 5)
   // TODO: Connect to actual energy tracking when implemented
-  const [energyLevel] = useState(5);
-  useEnergyDarkMode(darkMode, energyLevel);
+  // TEMPORARILY DISABLED FOR DEBUG
+  // const [energyLevel] = useState(5);
+  // useEnergyDarkMode(darkMode, energyLevel);
 
   // Handle smart suggestion actions
   const handleSuggestionAction = (action) => {
@@ -644,14 +645,14 @@ const Dashboard = () => {
           {/* Quick Navigation */}
           <QuickNav darkMode={darkMode} />
 
-          {/* Smart Suggestion Banner */}
-          {showSuggestion && (
+          {/* Smart Suggestion Banner - TEMPORARILY DISABLED FOR DEBUG */}
+          {/* {showSuggestion && (
             <SmartSuggestionBanner
               darkMode={darkMode}
               onAction={handleSuggestionAction}
               onDismiss={() => setShowSuggestion(false)}
             />
-          )}
+          )} */}
 
           {/* User Progress & Insights - TEMPORARILY DISABLED FOR DEBUG */}
           {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -839,15 +840,15 @@ const Dashboard = () => {
       {/* FULLSCREEN POMODORO */}
       <PomodoroFullScreen darkMode={darkMode} />
 
-      {/* ONBOARDING TOUR */}
-      <OnboardingTour
+      {/* ONBOARDING TOUR - TEMPORARILY DISABLED FOR DEBUG */}
+      {/* <OnboardingTour
         darkMode={darkMode}
         onComplete={() => console.log('Onboarding tour completed!')}
         onOpenBrainDump={openBrainDump}
         onOpenNutrition={openNutrition}
         onOpenMovement={openMovement}
         onOpenPomodoro={openMindfulMoment}
-      />
+      /> */}
 
       {/* BOTTOM NAVIGATION */}
       <BottomNavigation />
