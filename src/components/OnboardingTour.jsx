@@ -202,16 +202,17 @@ const OnboardingTour = ({
 
   // Scroll to element when step changes
   useEffect(() => {
-    if (isVisible && currentStepData.scrollTo) {
+    const scrollTarget = steps[currentStep]?.scrollTo;
+    if (isVisible && scrollTarget) {
       const timer = setTimeout(() => {
-        const element = document.getElementById(currentStepData.scrollTo);
+        const element = document.getElementById(scrollTarget);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [currentStep, isVisible, currentStepData.scrollTo]);
+  }, [currentStep, isVisible]);
 
   if (!isVisible) return null;
 
@@ -263,13 +264,13 @@ const OnboardingTour = ({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-fade-in"
+        className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm animate-fade-in"
         onClick={handleSkip}
       />
 
       {/* Tour Modal */}
       <div className={`
-        fixed z-50
+        fixed z-[70]
         top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
         w-full max-w-lg mx-4
         scale-in
