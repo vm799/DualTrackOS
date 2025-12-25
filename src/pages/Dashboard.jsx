@@ -201,20 +201,22 @@ const Dashboard = () => {
             ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
             : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 py-1">
-          <div className="flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 py-1">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
 
             {/* LEFT: LOGO - Medium size */}
-            <Logo size="medium" navigateTo="/dashboard" />
+            <div className="flex-shrink-0">
+              <Logo size="medium" navigateTo="/dashboard" />
+            </div>
 
             {/* CENTER: CLOCK + POMODORO */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3 sm:gap-6 flex-shrink min-w-0">
               {/* Clock */}
               <button
                 onClick={togglePomodoroMode}
                 className="cursor-pointer select-none transition-transform hover:scale-105"
               >
-                <div className={`text-2xl font-semibold tracking-tight ${
+                <div className={`text-lg sm:text-2xl font-semibold tracking-tight ${
                   darkMode
                     ? 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
                     : 'text-gray-900'
@@ -224,26 +226,26 @@ const Dashboard = () => {
               </button>
 
               {/* Divider */}
-              <div className={`h-8 w-px ${darkMode ? 'bg-gray-700' : 'bg-gray-300'}`} />
+              <div className={`h-6 sm:h-8 w-px ${darkMode ? 'bg-gray-700' : 'bg-gray-300'}`} />
 
               {/* Pomodoro Timer with Label */}
               <div className="flex flex-col items-center">
-                <span className={`text-[10px] font-semibold mb-0.5 ${
+                <span className={`text-[9px] sm:text-[10px] font-semibold mb-0.5 ${
                   darkMode ? 'text-orange-400' : 'text-orange-600'
                 }`}>
                   FOCUS
                 </span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2">
                   <button
                     onClick={togglePomodoroMode}
-                    className={`text-xl font-mono font-bold cursor-pointer hover:scale-105 transition-transform ${
+                    className={`text-base sm:text-xl font-mono font-bold cursor-pointer hover:scale-105 transition-transform ${
                       darkMode ? 'text-orange-400' : 'text-orange-600'
                     }`}
                     title="Open Focus Mode"
                   >
                     {formatTime(pomodoroSeconds)}
                   </button>
-                  <div className="flex gap-1">
+                  <div className="flex gap-0.5 sm:gap-1">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -278,7 +280,8 @@ const Dashboard = () => {
             </div>
 
             {/* RIGHT: USER MENU */}
-            {user ? (
+            <div className="flex-shrink-0">
+              {user ? (
               <div className="relative group">
                 <button
                   className={`p-1.5 rounded-full transition-all flex flex-col items-center gap-0.5 ${
@@ -339,6 +342,7 @@ const Dashboard = () => {
                 <Settings className="w-5 h-5 md:w-6 md:h-6" />
               </button>
             )}
+            </div>
           </div>
 
           {/* Pomodoro Timer */}

@@ -6,9 +6,16 @@ import useStore from '../store/useStore';
 const LandingPageView = ({ darkMode }) => {
   const navigate = useNavigate();
   const user = useStore((state) => state.user);
+  const userProfile = useStore((state) => state.userProfile);
 
   const handleEnter = () => {
-    navigate('/onboarding');
+    // If user has completed onboarding, go to check-in
+    // If not, go to onboarding
+    if (userProfile.hasCompletedOnboarding) {
+      navigate('/check-in');
+    } else {
+      navigate('/onboarding');
+    }
   };
 
   const handleViewStory = () => {
