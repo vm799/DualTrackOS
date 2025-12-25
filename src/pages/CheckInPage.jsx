@@ -1,13 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Battery, Heart, Target, Utensils, Dumbbell, Briefcase, Sparkles, Flower2, Brain } from 'lucide-react';
 import Logo from '../components/Logo';
+import useSessionStore from '../store/useSessionStore';
 
 const CheckInPage = ({ darkMode }) => {
   const navigate = useNavigate();
   const [energyLevel, setEnergyLevel] = useState(null);
   const [mood, setMood] = useState(null);
   const [showPrioritySelection, setShowPrioritySelection] = useState(false);
+
+  // Session store for streak tracking
+  const updateStreak = useSessionStore((state) => state.updateStreak);
+
+  // Update check-in streak on mount
+  useEffect(() => {
+    updateStreak('checkIn');
+  }, [updateStreak]);
 
   const moodOptions = [
     { id: 'energized', label: 'Energized', emoji: '⚡', color: 'cyan' },
