@@ -185,13 +185,13 @@ const OnboardingTour = ({
       option.action();
     }
 
-    // Auto-advance after 1.5 seconds if at least one tile was clicked
+    // Auto-advance after 800ms - faster for better UX flow
     setTimeout(() => {
       if (currentStep < steps.length - 1) {
         setCurrentStep(currentStep + 1);
         setClickedTiles([]); // Reset for next step
       }
-    }, 1500);
+    }, 800);
   };
 
   const completeTour = () => {
@@ -386,6 +386,19 @@ const OnboardingTour = ({
             </button>
           )}
 
+          {/* Success Message (when tile clicked) */}
+          {clickedTiles.length > 0 && currentStepData.menuOptions && (
+            <div className={`mb-4 p-3 rounded-lg text-center animate-fade-in ${
+              darkMode ? 'bg-emerald-500/20 border border-emerald-500/30' : 'bg-emerald-50 border border-emerald-200'
+            }`}>
+              <p className={`text-sm font-semibold ${
+                darkMode ? 'text-emerald-300' : 'text-emerald-700'
+              }`}>
+                ✓ Great choice! Moving to next step...
+              </p>
+            </div>
+          )}
+
           {/* Progress Dots */}
           <div className="flex gap-2 mb-6">
             {steps.map((step, index) => (
@@ -451,11 +464,16 @@ const OnboardingTour = ({
                 transition-all hover:scale-105 active:scale-95
                 shadow-lg
                 flex items-center justify-center gap-2
+                ${clickedTiles.length > 0 && currentStepData.menuOptions ? 'animate-pulse' : ''}
               `}
             >
               {isLastStep ? (
                 <>
                   Get Started <Check size={20} />
+                </>
+              ) : clickedTiles.length > 0 && currentStepData.menuOptions ? (
+                <>
+                  Continue <ChevronRight size={20} />
                 </>
               ) : (
                 <>
