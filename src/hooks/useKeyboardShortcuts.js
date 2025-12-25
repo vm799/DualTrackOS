@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import useSessionStore from '../store/useSessionStore';
 
 /**
  * Keyboard Shortcuts Hook
@@ -24,6 +25,7 @@ const useKeyboardShortcuts = ({
   onCommandCenter
 }) => {
   const navigate = useNavigate();
+  const trackKeyboardShortcut = useSessionStore((state) => state.trackKeyboardShortcut);
 
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -48,24 +50,28 @@ const useKeyboardShortcuts = ({
       // Cmd/Ctrl + B: Brain dump
       if (modKey && e.key === 'b') {
         e.preventDefault();
+        trackKeyboardShortcut('brain-dump');
         if (onBrainDump) onBrainDump();
       }
 
       // Cmd/Ctrl + N: Nutrition
       if (modKey && e.key === 'n') {
         e.preventDefault();
+        trackKeyboardShortcut('nutrition');
         if (onNutrition) onNutrition();
       }
 
       // Cmd/Ctrl + M: Movement
       if (modKey && e.key === 'm') {
         e.preventDefault();
+        trackKeyboardShortcut('movement');
         if (onMovement) onMovement();
       }
 
       // Cmd/Ctrl + E: Energy tracking
       if (modKey && e.key === 'e') {
         e.preventDefault();
+        trackKeyboardShortcut('energy');
         if (onEnergy) {
           onEnergy();
         } else {
@@ -80,6 +86,7 @@ const useKeyboardShortcuts = ({
       // Cmd/Ctrl + P: Productivity / Pomodoro
       if (modKey && e.key === 'p') {
         e.preventDefault();
+        trackKeyboardShortcut('pomodoro');
         if (onPomodoro) {
           onPomodoro();
         } else {
@@ -90,6 +97,7 @@ const useKeyboardShortcuts = ({
       // Cmd/Ctrl + D: Dashboard
       if (modKey && e.key === 'd') {
         e.preventDefault();
+        trackKeyboardShortcut('dashboard');
         navigate('/dashboard');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
@@ -97,6 +105,7 @@ const useKeyboardShortcuts = ({
       // Cmd/Ctrl + H: Health page
       if (modKey && e.key === 'h') {
         e.preventDefault();
+        trackKeyboardShortcut('health');
         navigate('/health');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
@@ -104,6 +113,7 @@ const useKeyboardShortcuts = ({
       // Cmd/Ctrl + C: Command Center
       if (modKey && e.key === 'c') {
         e.preventDefault();
+        trackKeyboardShortcut('command-center');
         if (onCommandCenter) onCommandCenter();
       }
 
