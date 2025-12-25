@@ -164,6 +164,59 @@ const Dashboard = () => {
     return () => window.removeEventListener('keydown', handleEscape);
   }, []);
 
+  // Handle check-in intent (from CheckInPage)
+  useEffect(() => {
+    const intentData = localStorage.getItem('checkin_intent');
+    if (!intentData) return;
+
+    try {
+      const intent = JSON.parse(intentData);
+
+      // Check if intent is recent (within last 30 seconds)
+      const isRecent = Date.now() - intent.timestamp < 30000;
+      if (!isRecent) {
+        localStorage.removeItem('checkin_intent');
+        return;
+      }
+
+      // Handle hash-based routing (modal or section)
+      const handleIntent = () => {
+        const hash = window.location.hash.replace('#', '');
+
+        // Modal mapping
+        const modalMap = {
+          'braindump': () => setShowBrainDumpModal(true),
+          'nutrition': () => setShowNutritionModal(true),
+          'movement': () => setShowMovementModal(true),
+        };
+
+        // Open modal if specified
+        if (modalMap[hash]) {
+          setTimeout(() => modalMap[hash](), 500);
+        }
+
+        // Scroll to section if specified
+        const section = document.getElementById(hash);
+        if (section) {
+          setTimeout(() => {
+            const offset = 100; // Account for sticky header
+            const elementPosition = section.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - offset;
+            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+          }, 300);
+        }
+
+        // Clear intent after handling
+        setTimeout(() => localStorage.removeItem('checkin_intent'), 5000);
+      };
+
+      handleIntent();
+    } catch (err) {
+      console.error('Error parsing check-in intent:', err);
+      localStorage.removeItem('checkin_intent');
+    }
+  }, []);
+
   const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
   return (

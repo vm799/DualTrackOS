@@ -19,12 +19,62 @@ const CheckInPage = ({ darkMode }) => {
   ];
 
   const priorityOptions = [
-    { id: 'nutrition', label: 'Nutrition', icon: Utensils, description: 'Plan meals & track protein', route: '/dashboard', color: 'emerald' },
-    { id: 'movement', label: 'Movement', icon: Dumbbell, description: 'Log exercise & activity', route: '/dashboard', color: 'blue' },
-    { id: 'productivity', label: 'Productivity', icon: Briefcase, description: 'Manage tasks & focus time', route: '/productivity', color: 'purple' },
-    { id: 'wellness', label: 'Wellness', icon: Sparkles, description: 'Breathing, mindfulness & self-care', route: '/dashboard', color: 'pink' },
-    { id: 'energy', label: 'Energy Tracking', icon: Battery, description: 'Track patterns & get insights', route: '/dashboard', color: 'cyan' },
-    { id: 'braindump', label: 'Brain Dump', icon: Brain, description: 'Clear your mind & organize thoughts', route: '/dashboard', color: 'amber' },
+    {
+      id: 'nutrition',
+      label: 'Nutrition',
+      icon: Utensils,
+      description: 'Plan meals & track protein',
+      route: '/dashboard',
+      modal: 'nutrition',
+      scrollTo: 'nutrition',
+      color: 'emerald'
+    },
+    {
+      id: 'movement',
+      label: 'Movement',
+      icon: Dumbbell,
+      description: 'Log exercise & activity',
+      route: '/dashboard',
+      modal: 'movement',
+      scrollTo: 'nutrition',
+      color: 'blue'
+    },
+    {
+      id: 'productivity',
+      label: 'Productivity',
+      icon: Briefcase,
+      description: 'Manage tasks & focus time',
+      route: '/productivity',
+      scrollTo: 'pomodoro',
+      color: 'purple'
+    },
+    {
+      id: 'wellness',
+      label: 'Wellness',
+      icon: Sparkles,
+      description: 'Breathing, mindfulness & self-care',
+      route: '/dashboard',
+      scrollTo: 'energy',
+      color: 'pink'
+    },
+    {
+      id: 'energy',
+      label: 'Energy Tracking',
+      icon: Battery,
+      description: 'Track patterns & get insights',
+      route: '/dashboard',
+      scrollTo: 'energy',
+      color: 'cyan'
+    },
+    {
+      id: 'braindump',
+      label: 'Brain Dump',
+      icon: Brain,
+      description: 'Clear your mind & organize thoughts',
+      route: '/dashboard',
+      modal: 'braindump',
+      color: 'amber'
+    },
   ];
 
   const handleContinue = () => {
@@ -33,8 +83,21 @@ const CheckInPage = ({ darkMode }) => {
     }
   };
 
-  const handlePrioritySelect = (route) => {
-    navigate(route);
+  const handlePrioritySelect = (priority) => {
+    // Store user intent in localStorage for the destination page to read
+    const intent = {
+      priority: priority.id,
+      energy: energyLevel,
+      mood: mood,
+      timestamp: Date.now()
+    };
+    localStorage.setItem('checkin_intent', JSON.stringify(intent));
+
+    // Navigate with hash for modal/section targeting
+    const hash = priority.modal || priority.scrollTo || '';
+    const destination = hash ? `${priority.route}#${hash}` : priority.route;
+
+    navigate(destination);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

@@ -60,9 +60,11 @@ const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
       <div className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] px-6 text-center">
 
         {/* CENTERED LOGO + BRANDING */}
-        <div className="flex flex-col items-center justify-center flex-1">
-          <div className="mb-6 sm:mb-8 flex justify-center">
-            <Logo size="xlarge" className="w-[320px] h-[320px] sm:w-[420px] sm:h-[420px] md:w-[520px] md:h-[520px] animate-fade-in" />
+        <div className="flex flex-col items-center justify-center flex-1 w-full">
+          <div className="mb-6 sm:mb-8 w-full flex items-center justify-center">
+            <div className="w-[320px] h-[320px] sm:w-[420px] sm:h-[420px] md:w-[520px] md:h-[520px] flex items-center justify-center">
+              <Logo size="xlarge" className="animate-fade-in" />
+            </div>
           </div>
 
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight mb-4 sm:mb-6">
