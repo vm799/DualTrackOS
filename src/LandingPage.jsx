@@ -79,7 +79,14 @@ const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
               darkMode ? 'text-gray-300' : 'text-gray-700'
             }`}
           >
-            The operating system powering every role she runs, every day.
+            The Operating System for Women Who Manage Everything
+          </p>
+          <p
+            className={`mt-3 text-xs sm:text-sm md:text-base leading-relaxed ${
+              darkMode ? 'text-gray-400' : 'text-gray-600'
+            }`}
+          >
+            Track your energy. See your mental load. Get recommendations that work with your body—not against it.
           </p>
         </div>
 
@@ -90,7 +97,7 @@ const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
               darkMode ? 'text-purple-400' : 'text-purple-600'
             }`}
           >
-            Take a breath. You got this. Let’s do it.
+            For executive women who refuse to choose between ambition and wellness
           </p>
 
           <button
@@ -107,7 +114,7 @@ const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
             }}
           >
             <span className="flex items-center gap-2 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
-              Enter Here
+              Start Your Day
               <ArrowRight
                 size={18}
                 className="transition-transform group-hover:translate-x-1 text-purple-500"

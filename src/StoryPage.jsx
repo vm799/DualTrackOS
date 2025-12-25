@@ -36,13 +36,13 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
           }`}>
             Your Energy Has{' '}
             <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
-              Cycles
+              Patterns
             </span>
           </h1>
           <p className={`text-xl leading-relaxed ${
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
-            Your strength training shouldn't ignore them.
+            Your productivity system shouldn't ignore them.
           </p>
         </div>
 
@@ -62,16 +62,16 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
             <p className="font-medium">
-              Your energy isn't linear. Whether you're navigating your menstrual cycle, balancing multiple roles, experiencing hormonal transitions, or in your powerful years beyond—your body has natural energy cycles.
+              Your energy isn't linear. Whether you're managing multiple high-stakes roles, navigating hormonal transitions, balancing work and life, or simply honoring your body's natural rhythms—your capacity fluctuates.
             </p>
             <p>
-              Some days you're a 5/5—crushing goals, feeling unstoppable, ready to lift heavy.
+              Some days you're a 5/5—crushing goals, feeling unstoppable, ready to tackle everything.
             </p>
             <p>
-              Other days you're a 2/5—your body asks for gentleness, rest, and recovery.
+              Other days you're a 2/5—your body asks for gentleness, rest, and strategic prioritization.
             </p>
             <p className="font-bold mt-4">
-              Yet most fitness apps treat everyone like they have linear, unchanging energy.
+              Yet most productivity apps treat everyone like they have linear, unchanging energy.
             </p>
           </div>
         </div>
@@ -93,15 +93,15 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
           }`}>
             <div className="flex items-start gap-3">
               <span className="text-2xl">✅</span>
-              <p><strong>Tracks your energy, mood, and cycle</strong> — so you know what your body needs today</p>
+              <p><strong>Tracks your energy, mood, and patterns</strong> — so you know what your body needs today</p>
             </div>
             <div className="flex items-start gap-3">
               <span className="text-2xl">✅</span>
-              <p><strong>Adjusts your training volume</strong> — strength on high days, active recovery on low days</p>
+              <p><strong>Adapts recommendations to YOUR capacity</strong> — high-impact work on high-energy days, gentle mode when you need it</p>
             </div>
             <div className="flex items-start gap-3">
               <span className="text-2xl">✅</span>
-              <p><strong>Prioritizes protein and muscle</strong> — because strength is power at every age</p>
+              <p><strong>Makes your mental load visible</strong> — see tasks across all your roles, track self-care alongside work</p>
             </div>
             <div className="flex items-start gap-3">
               <span className="text-2xl">✅</span>
@@ -125,10 +125,10 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
           <div className={`space-y-3 text-lg ${
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
-            <p><strong className="text-purple-400">Morning:</strong> Log your energy (1–5) and mood</p>
-            <p><strong className="text-purple-400">Training:</strong> Get your personalized workout based on your energy level</p>
-            <p><strong className="text-purple-400">Nutrition:</strong> Hit protein targets with smart suggestions</p>
-            <p><strong className="text-purple-400">Evening:</strong> Close your day and track wellness habits</p>
+            <p><strong className="text-purple-400">Morning:</strong> 3-second energy check-in (1–5) + mood tracking</p>
+            <p><strong className="text-purple-400">Throughout Day:</strong> Get smart suggestions based on YOUR capacity today</p>
+            <p><strong className="text-purple-400">Mental Load:</strong> See tasks across all roles, track wins (work, self-care, boundaries, rest)</p>
+            <p><strong className="text-purple-400">Evening:</strong> Complete Non-Negotiables (nutrition, movement, mindfulness, brain dump)</p>
           </div>
         </div>
 
@@ -146,11 +146,11 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
           <div className={`space-y-3 text-lg ${
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
-            <p>🔥 <strong>Lose fat without starving</strong> — high protein keeps you full</p>
-            <p>💪 <strong>Build strength</strong> — progressive overload that works for you</p>
-            <p>🧠 <strong>Improve mental clarity</strong> — movement + nutrition = sharper focus</p>
-            <p>⚡ <strong>Increase energy</strong> — training that works with your body improves how you feel</p>
-            <p>🎯 <strong>Stay consistent</strong> — no shame, no streaks to break, just show up as you are</p>
+            <p>🎯 <strong>Be productive without burning out</strong> — work with your energy, not against it</p>
+            <p>🧠 <strong>See your invisible labor</strong> — mental load visualization across all roles</p>
+            <p>⚡ <strong>Make better decisions</strong> — energy-based recommendations for when to push, when to rest</p>
+            <p>💪 <strong>Honor your whole life</strong> — track work, wellness, self-care, and boundaries equally</p>
+            <p>🌸 <strong>Stay consistent</strong> — no shame, no streaks to break, just show up as you are</p>
           </div>
         </div>
 
@@ -183,7 +183,7 @@ const StoryPage = ({ onBack, onEnter, darkMode }) => {
           <p className={`text-2xl font-bold ${
             darkMode ? 'text-purple-400' : 'text-purple-700'
           }`}>
-            True strength starts with honoring how your body works today.
+            True productivity starts with honoring how your body works today.
           </p>
           <p className={`text-lg italic ${
             darkMode ? 'text-gray-400' : 'text-gray-600'
