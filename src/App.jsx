@@ -20,6 +20,8 @@
 import React from 'react';
 import AppRouter from './Router';
 import ErrorBoundary from './components/ErrorBoundary';
+import OnboardingTour from './components/OnboardingTour';
+import useStore from './store/useStore';
 import { useAuthInitialization } from './hooks/useAuthInitialization';
 import { useDataPersistence } from './hooks/useDataPersistence';
 
@@ -30,9 +32,16 @@ const DualTrackOS = () => {
   // Auto-save data to localStorage and Supabase
   useDataPersistence();
 
+  // Get dark mode state for onboarding tour
+  const darkMode = useStore((state) => state.darkMode);
+
   // Render the application wrapped in Error Boundary for production error handling
   return (
     <ErrorBoundary>
+      <OnboardingTour
+        darkMode={darkMode}
+        onComplete={() => console.log('Onboarding tour completed!')}
+      />
       <AppRouter />
     </ErrorBoundary>
   );
