@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { User, Sparkles, CheckCircle, Heart, Flower2, ArrowRight, Zap, Battery } from 'lucide-react';
+import { User, Sparkles, CheckCircle, Heart, ArrowRight, Zap, Battery, AlertTriangle, Weight, Cake } from 'lucide-react';
 import Logo from './components/Logo';
 
 const Onboarding = ({ onComplete, darkMode }) => {
-  const [step, setStep] = useState(0); // 0: Quick Win, 1: Profile, 2: Life Stage (optional)
+  // Steps: 0=QuickWin, 1=Disclaimer, 2=Profile, 3=OptionalData, 4=LifeStage
+  const [step, setStep] = useState(0);
   const [weightUnit, setWeightUnit] = useState('lbs');
 
   // Quick Win State (Step 0)
   const [energyLevel, setEnergyLevel] = useState(null);
   const [mood, setMood] = useState(null);
 
-  // Profile State (Step 1)
+  // Profile State
   const [profile, setProfile] = useState({
     name: '',
     preferredName: '',
@@ -49,7 +50,6 @@ const Onboarding = ({ onComplete, darkMode }) => {
   // STEP 0: QUICK WIN - Energy Check-In
   // ========================================
   if (step === 0) {
-    // Generate smart suggestion based on energy + mood
     const getSmartSuggestion = () => {
       if (!energyLevel) return null;
 
@@ -180,7 +180,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
             </div>
           )}
 
-          {/* Smart Suggestions (shown after both selections) */}
+          {/* Smart Suggestions */}
           {suggestion && mood && (
             <div className={`mb-6 p-6 rounded-xl ${
               darkMode
@@ -241,9 +241,407 @@ const Onboarding = ({ onComplete, darkMode }) => {
   }
 
   // ========================================
-  // STEP 2: LIFE STAGE (Optional)
+  // STEP 1: LEGAL DISCLAIMER
+  // ========================================
+  if (step === 1) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center p-4 ${
+        darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
+      }`}>
+        <div className="fixed top-4 left-4 z-50">
+          <Logo size="large" />
+        </div>
+
+        <div className={`max-w-2xl w-full rounded-2xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto ${
+          darkMode
+            ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
+            : 'bg-white border-2 border-gray-100'
+        }`}>
+          <div className="text-center mb-6">
+            <AlertTriangle className={`mx-auto mb-4 ${darkMode ? 'text-amber-400' : 'text-amber-600'}`} size={48} />
+            <h1 className={`text-3xl font-bold mb-2 ${
+              darkMode
+                ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+                : 'text-gray-900'
+            }`}>
+              Important Legal Disclaimer
+            </h1>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Please read carefully before using DualTrack OS
+            </p>
+          </div>
+
+          <div className={`space-y-4 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            <div className={`p-4 rounded-lg ${darkMode ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-amber-50 border border-amber-200'}`}>
+              <p className="font-bold mb-2">PLEASE READ CAREFULLY:</p>
+              <p className="leading-relaxed">
+                DualTrack OS is a wellness tracking and organizational tool designed to help you manage your daily life.
+                It is <strong className={darkMode ? 'text-amber-400' : 'text-amber-700'}>NOT</strong> a medical device,
+                medical service, or a substitute for professional medical advice, diagnosis, or treatment.
+              </p>
+            </div>
+
+            <div className={`space-y-3 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <p>
+                <strong>No Doctor-Patient Relationship:</strong> This app does not create a doctor-patient or
+                healthcare provider-patient relationship. All content, including suggestions, tips, and recommendations,
+                is for informational and educational purposes only.
+              </p>
+
+              <p>
+                <strong>Always Consult Your Healthcare Provider:</strong> Before starting any new health regimen,
+                exercise program, dietary changes, or making decisions about your health, you should always consult
+                with qualified healthcare professionals. This is especially important if you:
+              </p>
+
+              <ul className="list-disc pl-6 space-y-1">
+                <li>Are experiencing hormonal changes or health transitions</li>
+                <li>Have any pre-existing medical conditions</li>
+                <li>Are taking any medications or supplements</li>
+                <li>Are pregnant or nursing</li>
+                <li>Have concerns about your physical or mental health</li>
+              </ul>
+
+              <p>
+                <strong>Not FDA Approved:</strong> This app has not been evaluated or approved by the U.S. Food
+                and Drug Administration (FDA) or any other regulatory body. The features, metrics, and suggestions
+                provided are based on general wellness principles and are not intended to diagnose, treat, cure,
+                or prevent any disease or medical condition.
+              </p>
+
+              <p>
+                <strong>Emergency Situations:</strong> If you are experiencing a medical emergency, call 911 (or
+                your local emergency number) immediately. Do not rely on this app for emergency medical situations.
+              </p>
+
+              <p>
+                <strong>Individual Results May Vary:</strong> Any health and wellness outcomes discussed are not
+                guaranteed and individual results will vary. Your health depends on many factors unique to you.
+              </p>
+
+              <p>
+                <strong>Accuracy of Information:</strong> While we strive to provide accurate information, we make
+                no representations or warranties about the completeness, accuracy, or reliability of any information,
+                metrics, or calculations provided by this app.
+              </p>
+
+              <p>
+                <strong>Data Privacy:</strong> Your personal health data is sensitive. We take reasonable measures
+                to protect your information, but no system is 100% secure. You are responsible for maintaining the
+                security of your account credentials.
+              </p>
+
+              <p>
+                <strong>Limitation of Liability:</strong> To the fullest extent permitted by law, DualTrack OS and
+                its creators disclaim all liability for any injury, loss, or damage that may result from use of this app.
+              </p>
+
+              <p className="font-bold mt-4">
+                By clicking "I Understand and Agree" below, you acknowledge that you have read, understood, and agree
+                to this disclaimer. You confirm that you will seek professional medical advice before making any
+                health-related decisions and that you will not rely solely on this app for medical guidance.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 space-y-3">
+            <button
+              onClick={() => setStep(2)}
+              className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+                darkMode
+                  ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white border-2 border-emerald-500/50 shadow-lg shadow-emerald-500/20'
+                  : 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white'
+              }`}
+            >
+              I Understand and Agree
+            </button>
+
+            <p className={`text-xs text-center ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+              You must accept this disclaimer to use DualTrack OS
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ========================================
+  // STEP 2: ESSENTIAL PROFILE
   // ========================================
   if (step === 2) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center p-4 ${
+        darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
+      }`}>
+        <div className="fixed top-4 left-4 z-50">
+          <Logo size="large" />
+        </div>
+
+        <div className={`max-w-lg w-full rounded-2xl p-8 shadow-2xl ${
+          darkMode
+            ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
+            : 'bg-white border-2 border-gray-100'
+        }`}>
+          <div className="text-center mb-8">
+            <Sparkles className={`mx-auto mb-4 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} size={48} />
+            <h1 className={`text-3xl font-bold mb-2 ${
+              darkMode
+                ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+                : 'text-gray-900'
+            }`}>
+              Welcome to DualTrack OS
+            </h1>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Just a couple quick details to get started
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {/* Name */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <User size={16} className="inline mr-2" />
+                What should we call you?
+              </label>
+              <input
+                type="text"
+                value={profile.preferredName}
+                onChange={(e) => setProfile({ ...profile, preferredName: e.target.value, name: e.target.value })}
+                placeholder="e.g., Sarah or Boss Lady"
+                className={`w-full px-4 py-3 rounded-lg transition-all ${
+                  darkMode
+                    ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
+                    : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
+                }`}
+              />
+              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                This is how we'll address you throughout the app
+              </p>
+            </div>
+
+            {/* Initials */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Your Initials (for avatar)
+              </label>
+              <input
+                type="text"
+                value={profile.initials}
+                onChange={(e) => setProfile({ ...profile, initials: e.target.value.toUpperCase().slice(0, 3) })}
+                placeholder="e.g., SJ or ABC"
+                maxLength="3"
+                className={`w-full px-4 py-3 rounded-lg transition-all text-center text-2xl font-bold tracking-wider ${
+                  darkMode
+                    ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
+                    : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
+                }`}
+              />
+              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                Will be displayed with a gradient in the header (2-3 letters)
+              </p>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="mt-8 space-y-3">
+            <button
+              onClick={() => setStep(3)}
+              disabled={!profile.preferredName || !profile.initials}
+              className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+                !profile.preferredName || !profile.initials
+                  ? darkMode
+                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : darkMode
+                    ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
+                    : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+              }`}
+            >
+              {!profile.preferredName || !profile.initials ? (
+                'Please Enter Name & Initials'
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  <span>Continue</span>
+                  <ArrowRight size={20} />
+                </span>
+              )}
+            </button>
+
+            <p className={`text-xs text-center ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+              ✨ Next: Optional features (age for life stage, weight for protein recommendations)
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ========================================
+  // STEP 3: OPTIONAL DATA (Age + Weight)
+  // ========================================
+  if (step === 3) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center p-4 ${
+        darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
+      }`}>
+        <div className="fixed top-4 left-4 z-50">
+          <Logo size="large" />
+        </div>
+
+        <div className={`max-w-lg w-full rounded-2xl p-8 shadow-2xl ${
+          darkMode
+            ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
+            : 'bg-white border-2 border-gray-100'
+        }`}>
+          <div className="text-center mb-8">
+            <Sparkles className={`mx-auto mb-4 ${darkMode ? 'text-cyan-400' : 'text-cyan-600'}`} size={48} />
+            <h1 className={`text-3xl font-bold mb-2 ${
+              darkMode
+                ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+                : 'text-gray-900'
+            }`}>
+              Unlock More Features (Optional)
+            </h1>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Provide these details to unlock personalized recommendations—or skip to use core features
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {/* Age */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <Cake size={16} className="inline mr-2" />
+                Your Age <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>(optional)</span>
+              </label>
+              <input
+                type="number"
+                value={profile.age}
+                onChange={(e) => setProfile({ ...profile, age: e.target.value })}
+                placeholder="e.g., 42"
+                min="18"
+                max="100"
+                className={`w-full px-4 py-3 rounded-lg transition-all ${
+                  darkMode
+                    ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
+                    : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
+                }`}
+              />
+              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                🎯 <strong>Unlocks:</strong> Life stage personalization (energy patterns, recommendations tailored to your hormonal phase)
+              </p>
+            </div>
+
+            {/* Weight */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <Weight size={16} className="inline mr-2" />
+                Your Weight <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>(optional)</span>
+              </label>
+
+              {/* Unit Toggle */}
+              <div className="flex gap-2 mb-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWeightUnit('lbs');
+                    setProfile({ ...profile, weightUnit: 'lbs' });
+                  }}
+                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                    weightUnit === 'lbs'
+                      ? darkMode
+                        ? 'bg-purple-600 text-white border-2 border-purple-500'
+                        : 'bg-purple-600 text-white border-2 border-purple-500'
+                      : darkMode
+                        ? 'bg-gray-800 text-gray-400 border-2 border-gray-700 hover:border-gray-600'
+                        : 'bg-gray-100 text-gray-600 border-2 border-gray-300 hover:border-gray-400'
+                  }`}
+                >
+                  lbs
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWeightUnit('kg');
+                    setProfile({ ...profile, weightUnit: 'kg' });
+                  }}
+                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                    weightUnit === 'kg'
+                      ? darkMode
+                        ? 'bg-purple-600 text-white border-2 border-purple-500'
+                        : 'bg-purple-600 text-white border-2 border-purple-500'
+                      : darkMode
+                        ? 'bg-gray-800 text-gray-400 border-2 border-gray-700 hover:border-gray-600'
+                        : 'bg-gray-100 text-gray-600 border-2 border-gray-300 hover:border-gray-400'
+                  }`}
+                >
+                  kg
+                </button>
+              </div>
+
+              <input
+                type="number"
+                value={profile.weight}
+                onChange={(e) => setProfile({ ...profile, weight: e.target.value })}
+                placeholder={weightUnit === 'lbs' ? 'e.g., 150' : 'e.g., 68'}
+                min={weightUnit === 'lbs' ? '50' : '20'}
+                max={weightUnit === 'lbs' ? '500' : '250'}
+                step="0.1"
+                className={`w-full px-4 py-3 rounded-lg transition-all ${
+                  darkMode
+                    ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
+                    : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
+                }`}
+              />
+              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                🍗 <strong>Unlocks:</strong> Personalized protein recommendations
+                {weightUnit === 'lbs' ? ' (0.8-1g per lb)' : ' (1.8-2.2g per kg)'}
+              </p>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="mt-8 space-y-3">
+            {/* Skip to Dashboard */}
+            <button
+              onClick={handleComplete}
+              className={`w-full py-3 rounded-xl font-semibold transition-all ${
+                darkMode
+                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+              }`}
+            >
+              Skip - Use Core Features Only
+            </button>
+
+            {/* Continue to Life Stage */}
+            <button
+              onClick={() => profile.age ? setStep(4) : handleComplete()}
+              className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+                darkMode
+                  ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+              }`}
+            >
+              <span className="flex items-center justify-center gap-2">
+                <span>{profile.age ? 'Continue to Life Stage' : 'Save & Get Started'}</span>
+                <ArrowRight size={20} />
+              </span>
+            </button>
+
+            <p className={`text-xs text-center ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+              💡 You can always add this information later in Settings
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ========================================
+  // STEP 4: LIFE STAGE (Optional)
+  // ========================================
+  if (step === 4) {
     const age = parseInt(profile.age);
     const suggestedStage = age && age < 45 ? 'reproductive' : age < 56 ? 'perimenopause' : age < 61 ? 'menopause' : 'postmenopause';
 
@@ -306,10 +704,10 @@ const Onboarding = ({ onComplete, darkMode }) => {
                 ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
                 : 'text-gray-900'
             }`}>
-              Personalize Your Experience (Optional)
+              Choose Your Life Stage (Optional)
             </h1>
             <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              Select your life stage for tailored recommendations—or skip to use all features
+              Select your life stage for tailored energy pattern recommendations—or skip to use all features
             </p>
           </div>
 
@@ -409,7 +807,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
           {/* Action buttons */}
           <div className="flex gap-4">
             <button
-              onClick={() => setStep(1)}
+              onClick={() => setStep(3)}
               className={`px-6 py-3 rounded-xl font-semibold transition-all ${
                 darkMode
                   ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
@@ -460,137 +858,8 @@ const Onboarding = ({ onComplete, darkMode }) => {
     );
   }
 
-  // ========================================
-  // STEP 1: MINIMAL PROFILE (Default)
-  // ========================================
-  return (
-    <div className={`min-h-screen flex items-center justify-center p-4 ${
-      darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
-    }`}>
-      <div className="fixed top-4 left-4 z-50">
-        <Logo size="large" />
-      </div>
-
-      <div className={`max-w-lg w-full rounded-2xl p-8 shadow-2xl ${
-        darkMode
-          ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
-          : 'bg-white border-2 border-gray-100'
-      }`}>
-        <div className="text-center mb-8">
-          <Sparkles className={`mx-auto mb-4 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} size={48} />
-          <h1 className={`text-3xl font-bold mb-2 ${
-            darkMode
-              ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
-              : 'text-gray-900'
-          }`}>
-            Welcome to DualTrack OS
-          </h1>
-          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            Just a few quick details to personalize your experience
-          </p>
-        </div>
-
-        <div className="space-y-6">
-          {/* Name */}
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              <User size={16} className="inline mr-2" />
-              What should we call you?
-            </label>
-            <input
-              type="text"
-              value={profile.preferredName}
-              onChange={(e) => setProfile({ ...profile, preferredName: e.target.value, name: e.target.value })}
-              placeholder="e.g., Sarah or Boss Lady"
-              className={`w-full px-4 py-3 rounded-lg transition-all ${
-                darkMode
-                  ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
-                  : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
-              }`}
-            />
-            <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-              This is how we'll address you throughout the app
-            </p>
-          </div>
-
-          {/* Initials */}
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              Your Initials (for avatar)
-            </label>
-            <input
-              type="text"
-              value={profile.initials}
-              onChange={(e) => setProfile({ ...profile, initials: e.target.value.toUpperCase().slice(0, 3) })}
-              placeholder="e.g., SJ or ABC"
-              maxLength="3"
-              className={`w-full px-4 py-3 rounded-lg transition-all text-center text-2xl font-bold tracking-wider ${
-                darkMode
-                  ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
-                  : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
-              }`}
-            />
-            <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-              Will be displayed with a gradient in the header (2-3 letters)
-            </p>
-          </div>
-
-          {/* Optional: Age (for life stage suggestion) */}
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              Your Age <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>(optional, helps with recommendations)</span>
-            </label>
-            <input
-              type="number"
-              value={profile.age}
-              onChange={(e) => setProfile({ ...profile, age: e.target.value })}
-              placeholder="e.g., 42"
-              min="18"
-              max="100"
-              className={`w-full px-4 py-3 rounded-lg transition-all ${
-                darkMode
-                  ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
-                  : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
-              }`}
-            />
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="mt-8 space-y-3">
-          <button
-            onClick={() => profile.age ? setStep(2) : handleComplete()}
-            disabled={!profile.preferredName || !profile.initials}
-            className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-              !profile.preferredName || !profile.initials
-                ? darkMode
-                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : darkMode
-                  ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
-                  : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
-            }`}
-          >
-            {!profile.preferredName || !profile.initials ? (
-              'Please Enter Name & Initials'
-            ) : (
-              <span className="flex items-center justify-center gap-2">
-                <span>{profile.age ? 'Continue' : 'Get Started'}</span>
-                <ArrowRight size={20} />
-              </span>
-            )}
-          </button>
-
-          <p className={`text-xs text-center ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-            {profile.age
-              ? '💡 Next: Personalize based on your life stage (or skip to use all features)'
-              : '✨ You can add more details later in Settings'
-            }
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  // This should never render, but just in case
+  return null;
 };
 
 export default Onboarding;
