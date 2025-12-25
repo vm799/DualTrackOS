@@ -10,11 +10,11 @@ const LandingPageView = ({ darkMode }) => {
 
   const handleEnter = () => {
     // If user has completed onboarding, go to check-in
-    // If not, go to onboarding
+    // If not, show preview/demo first to demonstrate value
     if (userProfile.hasCompletedOnboarding) {
       navigate('/check-in');
     } else {
-      navigate('/onboarding');
+      navigate('/preview');
     }
   };
 
