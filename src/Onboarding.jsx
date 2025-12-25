@@ -643,44 +643,38 @@ const Onboarding = ({ onComplete, darkMode }) => {
   // ========================================
   if (step === 4) {
     const age = parseInt(profile.age);
-    const suggestedStage = age && age < 45 ? 'reproductive' : age < 56 ? 'perimenopause' : age < 61 ? 'menopause' : 'postmenopause';
+    const suggestedStage = age && age < 40 ? 'reproductive' : age < 55 ? 'perimenopause' : 'postmenopause';
 
     const lifeStages = [
       {
         id: 'reproductive',
-        name: 'Peak Performance Years',
-        ageRange: '25-45',
+        name: 'Menstruating Years',
+        ageRange: '15-45',
         emoji: '🌸',
-        description: 'Energy pattern tracking, hormone awareness, and peak productivity optimization',
-        features: ['Energy cycle tracking', 'Pattern-based recommendations', 'Productivity + wellness integration'],
+        description: 'Regular menstrual cycles with predictable hormonal patterns',
+        features: ['Cycle tracking (follicular, ovulation, luteal, menstrual)', 'Energy pattern by cycle phase', 'Hormone-aware productivity'],
+        medicalNote: 'Regular periods, ovulation, reproductive hormone cycling',
         color: 'pink',
       },
       {
         id: 'perimenopause',
-        name: 'Power Transition Years',
-        ageRange: '45-55',
+        name: 'Perimenopause',
+        ageRange: '40-55',
         emoji: '💪',
-        description: 'Navigate transitions with strength-first mindset and adaptive systems',
-        features: ['Energy pattern tracking', 'Adaptive workload management', 'Mental load visibility'],
+        description: 'Transition phase with fluctuating hormones and irregular cycles',
+        features: ['Variable energy tracking', 'Adaptive workload management', 'Hormone fluctuation support'],
+        medicalNote: 'Irregular periods, hormonal changes, can last 4-10 years before menopause',
         color: 'orange',
       },
       {
-        id: 'menopause',
-        name: 'Strength & Wisdom Years',
-        ageRange: '55-65',
-        emoji: '🌟',
-        description: 'Optimize energy, maintain strength, and thrive through transformation',
-        features: ['Energy management', 'Wellness tracking', 'Sustainable productivity'],
-        color: 'purple',
-      },
-      {
         id: 'postmenopause',
-        name: 'Longevity Years',
-        ageRange: '65+',
+        name: 'Postmenopause',
+        ageRange: '50+',
         emoji: '✨',
-        description: 'Vitality, strength, and purpose in your most powerful years',
-        features: ['Longevity focus', 'Energy optimization', 'Holistic wellness'],
-        color: 'blue',
+        description: 'Post-menopausal hormonal state, no more menstrual cycles',
+        features: ['Stable energy optimization', 'Strength & bone health focus', 'Long-term wellness'],
+        medicalNote: 'Begins 12 months after final period, new hormonal baseline',
+        color: 'purple',
       },
     ];
 
@@ -779,13 +773,23 @@ const Onboarding = ({ onComplete, darkMode }) => {
                     )}
                   </div>
 
-                  <p className={`text-sm mb-3 ${
+                  <p className={`text-sm mb-2 ${
                     isSelected
                       ? darkMode ? 'text-gray-300' : 'text-gray-700'
                       : darkMode ? 'text-gray-400' : 'text-gray-600'
                   }`}>
                     {stage.description}
                   </p>
+
+                  {stage.medicalNote && (
+                    <p className={`text-xs mb-3 italic ${
+                      isSelected
+                        ? darkMode ? 'text-gray-500' : 'text-gray-500'
+                        : darkMode ? 'text-gray-600' : 'text-gray-500'
+                    }`}>
+                      🩺 {stage.medicalNote}
+                    </p>
+                  )}
 
                   <div className="space-y-1">
                     {stage.features.map((feature, idx) => (

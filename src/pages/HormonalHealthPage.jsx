@@ -62,7 +62,7 @@ const HormonalHealthPage = () => {
         <div className="space-y-6 pb-32">
 
           {/* Life-Stage Specific Features */}
-          {userProfile.lifeStage === 'perimenopause' ? (
+          {userProfile.lifeStage === 'perimenopause' || userProfile.lifeStage === 'postmenopause' ? (
             <>
               {/* Strong50 Daily Check-in */}
               <SectionHeader
