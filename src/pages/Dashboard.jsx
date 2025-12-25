@@ -346,10 +346,10 @@ const Dashboard = () => {
     if (hasCheckedNDM) return;
 
     const allComplete =
-      ndm.nutrition.completed &&
-      ndm.movement.completed &&
-      ndm.mindfulness.completed &&
-      ndm.brainDump.completed;
+      ndm.nutrition &&
+      ndm.movement &&
+      ndm.mindfulness &&
+      ndm.brainDump;
 
     if (allComplete) {
       setHasCheckedNDM(true);
