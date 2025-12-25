@@ -653,14 +653,11 @@ const Dashboard = () => {
             />
           )}
 
-          {/* User Progress & Insights */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Streak Prediction */}
+          {/* User Progress & Insights - TEMPORARILY DISABLED FOR DEBUG */}
+          {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <StreakPrediction darkMode={darkMode} />
-
-            {/* Skill Level Badge */}
             <SkillLevelBadge darkMode={darkMode} showProgress={true} />
-          </div>
+          </div> */}
 
           {/* Must-Dos Section */}
           <SectionContainer
