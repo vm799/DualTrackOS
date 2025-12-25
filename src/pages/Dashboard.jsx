@@ -644,14 +644,14 @@ const Dashboard = () => {
           {/* Quick Navigation */}
           <QuickNav darkMode={darkMode} />
 
-          {/* Smart Suggestion Banner - TEMPORARILY DISABLED FOR DEBUG */}
-          {/* {showSuggestion && (
+          {/* Smart Suggestion Banner */}
+          {showSuggestion && (
             <SmartSuggestionBanner
               darkMode={darkMode}
               onAction={handleSuggestionAction}
               onDismiss={() => setShowSuggestion(false)}
             />
-          )} */}
+          )}
 
           {/* User Progress & Insights - TEMPORARILY DISABLED FOR DEBUG */}
           {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
