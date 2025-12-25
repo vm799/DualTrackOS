@@ -30,12 +30,12 @@ const HealthPage = () => {
           ? 'bg-gray-900/95 border-gray-800/50'
           : 'bg-white/95 border-gray-200/50'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink min-w-0">
               <button
                 onClick={() => navigate('/dashboard')}
-                className={`p-2 rounded-lg transition-all ${
+                className={`p-2 rounded-lg transition-all flex-shrink-0 ${
                   darkMode
                     ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
                     : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
@@ -43,20 +43,22 @@ const HealthPage = () => {
               >
                 <ArrowLeft size={24} />
               </button>
-              <div>
-                <h1 className={`text-2xl font-bold ${
+              <div className="min-w-0">
+                <h1 className={`text-lg sm:text-2xl font-bold truncate ${
                   darkMode ? 'text-white' : 'text-gray-900'
                 }`}>
                   Health & Cycle
                 </h1>
-                <p className={`text-sm ${
+                <p className={`text-xs sm:text-sm truncate ${
                   darkMode ? 'text-gray-400' : 'text-gray-600'
                 }`}>
                   Hormonal health and wellness tracking
                 </p>
               </div>
             </div>
-            <Logo size="medium" />
+            <div className="flex-shrink-0">
+              <Logo size="medium" />
+            </div>
           </div>
         </div>
       </div>
