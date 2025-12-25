@@ -327,6 +327,9 @@ const Dashboard = () => {
 
   // Welcome/Check-in Modal - Show on Dashboard entry
   useEffect(() => {
+    // TEMPORARILY DISABLED TO DEBUG
+    return;
+
     const hasSeenDashboardWelcome = localStorage.getItem('dualtrack-dashboard-welcome-seen');
     const lastCheckIn = localStorage.getItem('dualtrack-last-checkin-date');
     const today = new Date().toDateString();
