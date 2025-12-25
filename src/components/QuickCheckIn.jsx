@@ -62,7 +62,7 @@ const QuickCheckIn = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in">
-      <div className={`max-w-lg w-full mx-4 p-6 rounded-2xl shadow-2xl ${
+      <div className={`relative max-w-lg w-full mx-4 p-6 rounded-2xl shadow-2xl ${
         darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'
       }`}>
         {/* Close Button */}
