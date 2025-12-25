@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, Pause, RotateCcw, TrendingUp, Settings, LogOut, User } from 'lucide-react';
+import { Play, Pause, RotateCcw, TrendingUp, Settings, LogOut, User, Sparkles, Clock, Battery, Utensils, Mic, BookOpen, Trello } from 'lucide-react';
 import { signOut } from '../services/dataService';
 import usePomodoroStore from '../store/usePomodoroStore';
 import useStore from '../store/useStore';
@@ -19,6 +19,8 @@ import VoiceDiary from '../components/VoiceDiary';
 import LearningLibrary from '../components/LearningLibrary';
 import BottomNavigation from '../components/BottomNavigation';
 import SectionHeader from '../components/SectionHeader';
+import SectionContainer from '../components/SectionContainer';
+import QuickNav from '../components/QuickNav';
 import MovementDetailModal from '../components/MovementDetailModal';
 import NutritionDetailModal from '../components/NutritionDetailModal';
 import BrainDumpModal from '../components/BrainDumpModal';
@@ -405,109 +407,140 @@ const Dashboard = () => {
       {/* MAIN CONTENT */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-6 pb-32 relative z-10">
-          {/* NDM Status Bar - Must-Dos for Today */}
-          <SectionHeader
-            emoji="✨"
+          {/* Quick Navigation */}
+          <QuickNav darkMode={darkMode} />
+
+          {/* Must-Dos Section */}
+          <SectionContainer
+            id="must-dos"
+            icon={Sparkles}
             title="Your Must-Dos for Today"
             description="Complete these 4 core habits - the foundation of your day"
-          />
-          <NDMStatusBar
-            ndm={ndm}
+            accentColor="emerald"
             darkMode={darkMode}
-            openNutrition={openNutrition}
-            openMovement={openMovement}
-            openMindfulMoment={openMindfulMoment}
-            openBrainDump={openBrainDump}
-          />
+          >
+            <NDMStatusBar
+              ndm={ndm}
+              darkMode={darkMode}
+              openNutrition={openNutrition}
+              openMovement={openMovement}
+              openMindfulMoment={openMindfulMoment}
+              openBrainDump={openBrainDump}
+            />
+          </SectionContainer>
 
-          {/* Hourly Task Display */}
-          <SectionHeader
-            emoji="⏰"
+          {/* Schedule Section */}
+          <SectionContainer
+            id="schedule"
+            icon={Clock}
             title="Your Hour-by-Hour Game Plan"
             description="Pick what you're attacking now, then crush it with focus mode"
-          />
-          <HourlyTaskDisplay />
+            accentColor="cyan"
+            darkMode={darkMode}
+          >
+            <HourlyTaskDisplay />
+          </SectionContainer>
 
-          {/* Energy & Mood Tracker */}
-          <SectionHeader
-            emoji="💪"
+          {/* Energy Section */}
+          <SectionContainer
+            id="energy"
+            icon={Battery}
             title="How Are You Feeling?"
             description="Quick check-in helps us suggest the right tasks for your energy"
             badge="Preview Mode"
-          />
-          <FeaturePreview
-            feature="energyMoodTracking"
-            requiredTier="premium"
-            previewLimits={{
-              maxSuggestions: 3,
-              basicInsights: true,
-              description: "3 suggestions max"
-            }}
-            upgradeMessage={{
-              title: "Want Smarter Insights?",
-              benefits: [
-                "AI-powered task recommendations",
-                "Trend analysis & patterns",
-                "Unlimited suggestions",
-                "Advanced mood insights"
-              ],
-              cta: "Upgrade to Premium for $9.99/mo"
-            }}
+            accentColor="purple"
+            darkMode={darkMode}
           >
-            <EnergyMoodTracker />
-          </FeaturePreview>
+            <FeaturePreview
+              feature="energyMoodTracking"
+              requiredTier="premium"
+              previewLimits={{
+                maxSuggestions: 3,
+                basicInsights: true,
+                description: "3 suggestions max"
+              }}
+              upgradeMessage={{
+                title: "Want Smarter Insights?",
+                benefits: [
+                  "AI-powered task recommendations",
+                  "Trend analysis & patterns",
+                  "Unlimited suggestions",
+                  "Advanced mood insights"
+                ],
+                cta: "Upgrade to Premium for $9.99/mo"
+              }}
+            >
+              <EnergyMoodTracker />
+            </FeaturePreview>
+          </SectionContainer>
 
-          {/* Protein Tracker */}
-          <SectionHeader
-            emoji="🍗"
+          {/* Nutrition Section */}
+          <SectionContainer
+            id="nutrition"
+            icon={Utensils}
             title="Fuel Your Body Right"
             description="Hit your protein goal - your future self will thank you"
-          />
-          <ProteinTracker openNutrition={openNutrition} />
+            accentColor="orange"
+            darkMode={darkMode}
+          >
+            <ProteinTracker openNutrition={openNutrition} />
+          </SectionContainer>
 
-          {/* Voice Diary */}
-          <SectionHeader
-            emoji="🎤"
+          {/* Voice Section */}
+          <SectionContainer
+            id="voice"
+            icon={Mic}
             title="Quick Voice Check-in"
             description="Talk it out in 30 seconds - no typing needed"
             badge="Free: 30s"
-          />
-          <FeaturePreview
-            feature="voiceTranscription"
-            requiredTier="starter"
-            previewLimits={{
-              maxDuration: 30,
-              maxEntries: 3,
-              description: "30s max, 3 entries"
-            }}
-            upgradeMessage={{
-              title: "Love Voice Diary?",
-              benefits: [
-                "Unlimited recording time",
-                "AI transcription",
-                "Full history access"
-              ],
-              cta: "Unlock for $4.99/mo"
-            }}
+            accentColor="pink"
+            darkMode={darkMode}
           >
-            <VoiceDiary />
-          </FeaturePreview>
+            <FeaturePreview
+              feature="voiceTranscription"
+              requiredTier="starter"
+              previewLimits={{
+                maxDuration: 30,
+                maxEntries: 3,
+                description: "30s max, 3 entries"
+              }}
+              upgradeMessage={{
+                title: "Love Voice Diary?",
+                benefits: [
+                  "Unlimited recording time",
+                  "AI transcription",
+                  "Full history access"
+                ],
+                cta: "Unlock for $4.99/mo"
+              }}
+            >
+              <VoiceDiary />
+            </FeaturePreview>
+          </SectionContainer>
 
-          {/* Learning Library */}
-          <SectionHeader
-            emoji="📚"
+          {/* Library Section */}
+          <SectionContainer
+            id="library"
+            icon={BookOpen}
             title="Your Knowledge Hub"
             description="Save useful resources and ideas for later"
-          />
-          <LearningLibrary />
+            accentColor="amber"
+            darkMode={darkMode}
+          >
+            <LearningLibrary />
+          </SectionContainer>
 
-          {/* Kanban Board */}
-          <SectionHeader
-            emoji="📋"
+          {/* Tasks Section */}
+          <SectionContainer
+            id="tasks"
+            icon={Trello}
             title="Organize Your Chaos"
             description="Brain dump everything, then drag tasks where they belong"
-          />
-          <KanbanBoard />
+            accentColor="blue"
+            darkMode={darkMode}
+          >
+            <KanbanBoard />
+          </SectionContainer>
         </div>
       </div>
 
