@@ -218,8 +218,8 @@ const OnboardingTour = ({
     if (onComplete) onComplete();
   };
 
-  // Early return if tour is not visible
-  if (!isVisible) return null;
+  // Early return if tour is not visible or data is invalid
+  if (!isVisible || !currentStepData) return null;
 
   const Icon = currentStepData.icon;
   const isFirstStep = currentStep === 0;
