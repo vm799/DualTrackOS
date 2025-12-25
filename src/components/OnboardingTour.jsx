@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { X, ChevronRight, ChevronLeft, Check, Sparkles, Zap, Target, Brain, Heart, Mouse } from 'lucide-react';
 
 /**
@@ -31,17 +31,21 @@ const OnboardingTour = ({
   const [clickedTiles, setClickedTiles] = useState([]);
 
   useEffect(() => {
-    // Check if user has completed tour
-    const hasCompletedTour = localStorage.getItem('dualtrack-dashboard-tour-completed');
+    try {
+      // Check if user has completed tour
+      const hasCompletedTour = localStorage.getItem('dualtrack-dashboard-tour-completed');
 
-    if (!hasCompletedTour) {
-      // Show tour after a short delay (let Dashboard render first)
-      const timer = setTimeout(() => setIsVisible(true), 1500);
-      return () => clearTimeout(timer);
+      if (!hasCompletedTour) {
+        // Show tour after a short delay (let Dashboard render first)
+        const timer = setTimeout(() => setIsVisible(true), 1500);
+        return () => clearTimeout(timer);
+      }
+    } catch (error) {
+      console.error('OnboardingTour localStorage error:', error);
     }
   }, []);
 
-  const steps = [
+  const steps = useMemo(() => [
     {
       id: 'welcome',
       icon: Sparkles,
@@ -140,13 +144,27 @@ const OnboardingTour = ({
       position: 'center',
       color: 'purple'
     }
-  ];
+  ], [onOpenBrainDump, onOpenNutrition, onOpenMovement, onOpenPomodoro]);
+
+  // Scroll to element when step changes - MUST be before any early returns
+  useEffect(() => {
+    const scrollTarget = steps[currentStep]?.scrollTo;
+    if (isVisible && scrollTarget) {
+      const timer = setTimeout(() => {
+        const element = document.getElementById(scrollTarget);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep, isVisible, steps]);
 
   const currentStepData = steps[currentStep];
 
   const handleNext = () => {
     // Scroll to element if specified
-    if (currentStepData.scrollTo) {
+    if (currentStepData?.scrollTo) {
       const element = document.getElementById(currentStepData.scrollTo);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -171,7 +189,7 @@ const OnboardingTour = ({
   };
 
   const handleAction = () => {
-    if (currentStepData.action) {
+    if (currentStepData?.action) {
       currentStepData.action();
     }
   };
@@ -200,20 +218,7 @@ const OnboardingTour = ({
     if (onComplete) onComplete();
   };
 
-  // Scroll to element when step changes
-  useEffect(() => {
-    const scrollTarget = steps[currentStep]?.scrollTo;
-    if (isVisible && scrollTarget) {
-      const timer = setTimeout(() => {
-        const element = document.getElementById(scrollTarget);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [currentStep, isVisible]);
-
+  // Early return if tour is not visible
   if (!isVisible) return null;
 
   const Icon = currentStepData.icon;
