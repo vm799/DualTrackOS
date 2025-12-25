@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { X, ChevronRight, ChevronLeft, Check, Sparkles, Zap, Target, Brain, Heart, Mouse } from 'lucide-react';
 
 /**
@@ -41,7 +41,7 @@ const OnboardingTour = ({
     }
   }, []);
 
-  const steps = [
+  const steps = useMemo(() => [
     {
       id: 'welcome',
       icon: Sparkles,
@@ -140,13 +140,18 @@ const OnboardingTour = ({
       position: 'center',
       color: 'purple'
     }
-  ];
+  ], [onOpenBrainDump, onOpenNutrition, onOpenMovement, onOpenPomodoro]);
 
   const currentStepData = steps[currentStep];
 
+  // Safety check - if somehow currentStep is out of bounds, don't crash
+  if (!currentStepData) {
+    return null;
+  }
+
   const handleNext = () => {
     // Scroll to element if specified
-    if (currentStepData.scrollTo) {
+    if (currentStepData?.scrollTo) {
       const element = document.getElementById(currentStepData.scrollTo);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -171,7 +176,7 @@ const OnboardingTour = ({
   };
 
   const handleAction = () => {
-    if (currentStepData.action) {
+    if (currentStepData?.action) {
       currentStepData.action();
     }
   };
