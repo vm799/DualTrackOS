@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { User, Weight, Cake, Sparkles, AlertTriangle, CheckCircle, Heart, Flower2 } from 'lucide-react';
+import { User, Sparkles, CheckCircle, Heart, Flower2, ArrowRight, Zap, Battery } from 'lucide-react';
 import Logo from './components/Logo';
 
 const Onboarding = ({ onComplete, darkMode }) => {
-  const [step, setStep] = useState(0); // 0: disclaimer, 1: profile, 2: life stage
-  const [weightUnit, setWeightUnit] = useState('lbs'); // 'lbs' or 'kg'
+  const [step, setStep] = useState(0); // 0: Quick Win, 1: Profile, 2: Life Stage (optional)
+  const [weightUnit, setWeightUnit] = useState('lbs');
+
+  // Quick Win State (Step 0)
+  const [energyLevel, setEnergyLevel] = useState(null);
+  const [mood, setMood] = useState(null);
+
+  // Profile State (Step 1)
   const [profile, setProfile] = useState({
     name: '',
     preferredName: '',
@@ -13,7 +19,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
     weight: '',
     weightUnit: 'lbs',
     lifeStage: '',
-    avatar: '🦁' // Lioness - symbol of strength and adaptability
+    avatar: '🦁'
   });
 
   const handleComplete = () => {
@@ -23,17 +29,69 @@ const Onboarding = ({ onComplete, darkMode }) => {
       weight: parseInt(profile.weight) || null,
       weightUnit: weightUnit,
       hasCompletedOnboarding: true,
-      disclaimerAccepted: true
+      disclaimerAccepted: true,
+      initialEnergy: energyLevel,
+      initialMood: mood
     });
   };
 
-  // Disclaimer Screen
+  // Mood options for Quick Win
+  const moodOptions = [
+    { id: 'energized', label: 'Energized', emoji: '⚡', color: 'cyan' },
+    { id: 'focused', label: 'Focused', emoji: '🎯', color: 'purple' },
+    { id: 'calm', label: 'Calm', emoji: '😌', color: 'green' },
+    { id: 'tired', label: 'Tired', emoji: '😴', color: 'blue' },
+    { id: 'stressed', label: 'Stressed', emoji: '😰', color: 'orange' },
+    { id: 'overwhelmed', label: 'Overwhelmed', emoji: '😓', color: 'red' },
+  ];
+
+  // ========================================
+  // STEP 0: QUICK WIN - Energy Check-In
+  // ========================================
   if (step === 0) {
+    // Generate smart suggestion based on energy + mood
+    const getSmartSuggestion = () => {
+      if (!energyLevel) return null;
+
+      if (energyLevel >= 4) {
+        return {
+          title: "You're powered up!",
+          suggestions: [
+            "Tackle your most challenging task first",
+            "Schedule important meetings or decisions",
+            "Perfect time for focused deep work"
+          ],
+          color: 'emerald'
+        };
+      } else if (energyLevel === 3) {
+        return {
+          title: "Moderate capacity today",
+          suggestions: [
+            "Focus on routine tasks and follow-ups",
+            "Good for collaboration and meetings",
+            "Balance work with regular breaks"
+          ],
+          color: 'cyan'
+        };
+      } else {
+        return {
+          title: "Gentle Mode Recommended",
+          suggestions: [
+            "Prioritize only what's truly essential",
+            "This is a day for self-care, not overdelivering",
+            "Rest is productive—honor what your body needs"
+          ],
+          color: 'rose'
+        };
+      }
+    };
+
+    const suggestion = getSmartSuggestion();
+
     return (
       <div className={`min-h-screen flex items-center justify-center p-4 ${
         darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
       }`}>
-        {/* Logo - Top Left */}
         <div className="fixed top-4 left-4 z-50">
           <Logo size="large" />
         </div>
@@ -43,147 +101,187 @@ const Onboarding = ({ onComplete, darkMode }) => {
             ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
             : 'bg-white border-2 border-gray-100'
         }`}>
-          <div className="text-center mb-6">
-            <AlertTriangle className={`mx-auto mb-4 ${darkMode ? 'text-amber-400' : 'text-amber-600'}`} size={48} />
+          <div className="text-center mb-8">
+            <Zap className={`mx-auto mb-4 ${darkMode ? 'text-cyan-400' : 'text-cyan-600'}`} size={48} />
             <h1 className={`text-3xl font-bold mb-2 ${
               darkMode
                 ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
                 : 'text-gray-900'
             }`}>
-              Important Medical Disclaimer
+              Let's Start With a 3-Second Check-In
             </h1>
-          </div>
-
-          <div className={`space-y-4 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-            <div className={`p-4 rounded-lg ${darkMode ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-amber-50 border border-amber-200'}`}>
-              <p className="font-bold mb-2">PLEASE READ CAREFULLY:</p>
-              <p className="leading-relaxed">
-                DualTrack OS is a wellness tracking and organizational tool designed to help you manage your daily life.
-                It is <strong className={darkMode ? 'text-amber-400' : 'text-amber-700'}>NOT</strong> a medical device,
-                medical service, or a substitute for professional medical advice, diagnosis, or treatment.
-              </p>
-            </div>
-
-            <div className={`space-y-3 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              <p>
-                <strong>No Doctor-Patient Relationship:</strong> This app does not create a doctor-patient or
-                healthcare provider-patient relationship. All content, including suggestions, tips, and recommendations,
-                is for informational and educational purposes only.
-              </p>
-
-              <p>
-                <strong>Always Consult Your Healthcare Provider:</strong> Before starting any new health regimen,
-                exercise program, dietary changes, or making decisions about your health, you should always consult
-                with qualified healthcare professionals. This is especially important if you:
-              </p>
-
-              <ul className="list-disc pl-6 space-y-1">
-                <li>Are experiencing hormonal changes or health transitions</li>
-                <li>Have any pre-existing medical conditions</li>
-                <li>Are taking any medications or supplements</li>
-                <li>Are pregnant or nursing</li>
-                <li>Have concerns about your physical or mental health</li>
-              </ul>
-
-              <p>
-                <strong>Not FDA Approved:</strong> This app has not been evaluated or approved by the U.S. Food
-                and Drug Administration (FDA) or any other regulatory body. The features, metrics, and suggestions
-                provided are based on general wellness principles and are not intended to diagnose, treat, cure,
-                or prevent any disease or medical condition.
-              </p>
-
-              <p>
-                <strong>Emergency Situations:</strong> If you are experiencing a medical emergency, call 911 (or
-                your local emergency number) immediately. Do not rely on this app for emergency medical situations.
-              </p>
-
-              <p>
-                <strong>Individual Results May Vary:</strong> Any health and wellness outcomes discussed are not
-                guaranteed and individual results will vary. Your health depends on many factors unique to you.
-              </p>
-
-              <p>
-                <strong>Accuracy of Information:</strong> While we strive to provide accurate information, we make
-                no representations or warranties about the completeness, accuracy, or reliability of any information,
-                metrics, or calculations provided by this app.
-              </p>
-
-              <p>
-                <strong>Limitation of Liability:</strong> To the fullest extent permitted by law, DualTrack OS and
-                its creators disclaim all liability for any injury, loss, or damage that may result from use of this app.
-              </p>
-
-              <p className="font-bold mt-4">
-                By clicking "I Understand and Agree" below, you acknowledge that you have read, understood, and agree
-                to this disclaimer. You confirm that you will seek professional medical advice before making any
-                health-related decisions and that you will not rely solely on this app for medical guidance.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-8 space-y-3">
-            <button
-              onClick={() => setStep(1)}
-              className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-                darkMode
-                  ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white border-2 border-emerald-500/50 shadow-lg shadow-emerald-500/20'
-                  : 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white'
-              }`}
-            >
-              I Understand and Agree
-            </button>
-
-            <p className={`text-xs text-center ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-              You must accept this disclaimer to use DualTrack OS
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Experience the power of DualTrack OS before we ask for anything else
             </p>
           </div>
+
+          {/* Energy Level Selector */}
+          <div className="mb-6">
+            <label className={`block text-lg font-semibold mb-4 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+              <Battery className="inline mr-2" size={20} />
+              How's your energy right now?
+            </label>
+            <div className="grid grid-cols-5 gap-2">
+              {[1, 2, 3, 4, 5].map((level) => (
+                <button
+                  key={level}
+                  onClick={() => setEnergyLevel(level)}
+                  className={`py-4 rounded-xl text-2xl font-bold transition-all ${
+                    energyLevel === level
+                      ? darkMode
+                        ? 'bg-cyan-500/30 border-2 border-cyan-400 ring-2 ring-cyan-400/50 scale-105'
+                        : 'bg-cyan-200 border-2 border-cyan-500 ring-2 ring-cyan-400/50 scale-105'
+                      : darkMode
+                        ? 'bg-gray-800/50 border-2 border-gray-700 hover:border-gray-600 hover:scale-105'
+                        : 'bg-gray-50 border-2 border-gray-200 hover:border-gray-300 hover:scale-105'
+                  }`}
+                >
+                  {level}
+                </button>
+              ))}
+            </div>
+            <p className={`text-xs mt-2 text-center ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+              1 = Exhausted • 5 = Energized
+            </p>
+          </div>
+
+          {/* Mood Selector */}
+          {energyLevel && (
+            <div className="mb-6">
+              <label className={`block text-lg font-semibold mb-4 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                How are you feeling?
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {moodOptions.map((moodOption) => (
+                  <button
+                    key={moodOption.id}
+                    onClick={() => setMood(moodOption.id)}
+                    className={`p-4 rounded-xl text-left transition-all ${
+                      mood === moodOption.id
+                        ? darkMode
+                          ? 'bg-purple-500/30 border-2 border-purple-400 ring-2 ring-purple-400/50'
+                          : 'bg-purple-200 border-2 border-purple-500 ring-2 ring-purple-400/50'
+                        : darkMode
+                          ? 'bg-gray-800/50 border-2 border-gray-700 hover:border-gray-600'
+                          : 'bg-gray-50 border-2 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="text-2xl mb-1">{moodOption.emoji}</div>
+                    <div className={`text-sm font-medium ${
+                      mood === moodOption.id
+                        ? darkMode ? 'text-white' : 'text-gray-900'
+                        : darkMode ? 'text-gray-400' : 'text-gray-700'
+                    }`}>
+                      {moodOption.label}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Smart Suggestions (shown after both selections) */}
+          {suggestion && mood && (
+            <div className={`mb-6 p-6 rounded-xl ${
+              darkMode
+                ? `bg-${suggestion.color}-500/10 border-2 border-${suggestion.color}-500/30`
+                : `bg-${suggestion.color}-50 border-2 border-${suggestion.color}-200`
+            }`}>
+              <h3 className={`text-xl font-bold mb-3 ${
+                darkMode ? `text-${suggestion.color}-300` : `text-${suggestion.color}-800`
+              }`}>
+                ✨ {suggestion.title}
+              </h3>
+              <p className={`text-sm mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Based on your energy ({energyLevel}/5) and mood ({moodOptions.find(m => m.id === mood)?.label.toLowerCase()}), here's what to prioritize today:
+              </p>
+              <ul className="space-y-2">
+                {suggestion.suggestions.map((item, idx) => (
+                  <li key={idx} className={`flex items-start gap-2 text-sm ${
+                    darkMode ? 'text-gray-300' : 'text-gray-700'
+                  }`}>
+                    <span className={`text-${suggestion.color}-500 mt-0.5`}>•</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Continue Button */}
+          <button
+            onClick={() => setStep(1)}
+            disabled={!energyLevel || !mood}
+            className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+              !energyLevel || !mood
+                ? darkMode
+                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : darkMode
+                  ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+            }`}
+          >
+            {!energyLevel || !mood ? (
+              'Select Your Energy & Mood'
+            ) : (
+              <span className="flex items-center justify-center gap-2">
+                <span>Continue</span>
+                <ArrowRight size={20} />
+              </span>
+            )}
+          </button>
+
+          <p className={`text-xs text-center mt-4 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+            💡 This is how DualTrack works—we adapt to YOUR capacity, every single day
+          </p>
         </div>
       </div>
     );
   }
 
-  // Life Stage Selection Screen (Step 2)
+  // ========================================
+  // STEP 2: LIFE STAGE (Optional)
+  // ========================================
   if (step === 2) {
     const age = parseInt(profile.age);
-
-    // Auto-suggest life stage based on age
-    const suggestedStage = age < 45 ? 'reproductive' : age < 56 ? 'perimenopause' : age < 61 ? 'menopause' : 'postmenopause';
+    const suggestedStage = age && age < 45 ? 'reproductive' : age < 56 ? 'perimenopause' : age < 61 ? 'menopause' : 'postmenopause';
 
     const lifeStages = [
       {
         id: 'reproductive',
-        name: 'Reproductive Years',
-        ageRange: '18-44',
+        name: 'Peak Performance Years',
+        ageRange: '25-45',
         emoji: '🌸',
-        description: 'Cycle tracking, energy optimization, and hormone awareness',
-        features: ['Menstrual cycle tracking', 'Phase-specific workouts & nutrition', 'Energy & mood insights'],
+        description: 'Energy pattern tracking, hormone awareness, and peak productivity optimization',
+        features: ['Energy cycle tracking', 'Pattern-based recommendations', 'Productivity + wellness integration'],
         color: 'pink',
       },
       {
         id: 'perimenopause',
-        name: 'Perimenopause',
+        name: 'Power Transition Years',
         ageRange: '45-55',
         emoji: '💪',
-        description: 'Strength-first approach with minimal friction and maximum consistency',
-        features: ['Binary daily check-ins', 'Strength progression tracking', 'Pull-up mastery program'],
+        description: 'Navigate transitions with strength-first mindset and adaptive systems',
+        features: ['Energy pattern tracking', 'Adaptive workload management', 'Mental load visibility'],
         color: 'orange',
       },
       {
         id: 'menopause',
-        name: 'Menopause',
-        ageRange: '55-60',
+        name: 'Strength & Wisdom Years',
+        ageRange: '55-65',
         emoji: '🌟',
-        description: 'Adapt and thrive through transition with specialized support',
-        features: ['Symptom tracking', 'Energy management', 'Bone health focus'],
+        description: 'Optimize energy, maintain strength, and thrive through transformation',
+        features: ['Energy management', 'Wellness tracking', 'Sustainable productivity'],
         color: 'purple',
       },
       {
         id: 'postmenopause',
-        name: 'Post-Menopause',
-        ageRange: '60+',
+        name: 'Longevity Years',
+        ageRange: '65+',
         emoji: '✨',
-        description: 'Vitality, strength, and wisdom in your prime years',
-        features: ['Longevity focus', 'Balance & mobility', 'Cognitive wellness'],
+        description: 'Vitality, strength, and purpose in your most powerful years',
+        features: ['Longevity focus', 'Energy optimization', 'Holistic wellness'],
         color: 'blue',
       },
     ];
@@ -192,7 +290,6 @@ const Onboarding = ({ onComplete, darkMode }) => {
       <div className={`min-h-screen flex items-center justify-center p-4 ${
         darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
       }`}>
-        {/* Logo - Top Left */}
         <div className="fixed top-4 left-4 z-50">
           <Logo size="large" />
         </div>
@@ -209,25 +306,27 @@ const Onboarding = ({ onComplete, darkMode }) => {
                 ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
                 : 'text-gray-900'
             }`}>
-              Personalize Your Journey
+              Personalize Your Experience (Optional)
             </h1>
             <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              Every woman's journey is unique. Choose the experience that feels right for you.
+              Select your life stage for tailored recommendations—or skip to use all features
             </p>
           </div>
 
           {/* Suggested stage banner */}
-          <div className={`mb-6 p-4 rounded-lg ${
-            darkMode ? 'bg-purple-500/10 border border-purple-500/30' : 'bg-purple-50 border border-purple-200'
-          }`}>
-            <p className={`text-sm text-center ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
-              💡 Based on your age ({age}), we suggest <strong>{lifeStages.find(s => s.id === suggestedStage)?.name}</strong>
-              <br />
-              <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                But you know yourself best - choose what feels right!
-              </span>
-            </p>
-          </div>
+          {age && (
+            <div className={`mb-6 p-4 rounded-lg ${
+              darkMode ? 'bg-purple-500/10 border border-purple-500/30' : 'bg-purple-50 border border-purple-200'
+            }`}>
+              <p className={`text-sm text-center ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+                💡 Based on your age ({age}), we suggest <strong>{lifeStages.find(s => s.id === suggestedStage)?.name}</strong>
+                <br />
+                <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  But you know yourself best—choose what feels right or skip this step!
+                </span>
+              </p>
+            </div>
+          )}
 
           {/* Life stage cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -307,7 +406,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
             })}
           </div>
 
-          {/* Complete button */}
+          {/* Action buttons */}
           <div className="flex gap-4">
             <button
               onClick={() => setStep(1)}
@@ -319,6 +418,20 @@ const Onboarding = ({ onComplete, darkMode }) => {
             >
               ← Back
             </button>
+
+            {/* Skip Button */}
+            <button
+              onClick={handleComplete}
+              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                darkMode
+                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+              }`}
+            >
+              Skip (Use All Features)
+            </button>
+
+            {/* Continue with Selection */}
             <button
               onClick={handleComplete}
               disabled={!profile.lifeStage}
@@ -332,13 +445,13 @@ const Onboarding = ({ onComplete, darkMode }) => {
                     : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
               }`}
             >
-              {!profile.lifeStage ? (
-                'Please Select Your Life Stage'
-              ) : (
+              {profile.lifeStage ? (
                 <span className="flex items-center justify-center space-x-2">
                   <CheckCircle size={20} />
                   <span>Let's Go!</span>
                 </span>
+              ) : (
+                'Select a Life Stage'
               )}
             </button>
           </div>
@@ -347,12 +460,13 @@ const Onboarding = ({ onComplete, darkMode }) => {
     );
   }
 
-  // Profile Setup Screen (Step 1 - Default)
+  // ========================================
+  // STEP 1: MINIMAL PROFILE (Default)
+  // ========================================
   return (
     <div className={`min-h-screen flex items-center justify-center p-4 ${
       darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
     }`}>
-      {/* Logo - Top Left */}
       <div className="fixed top-4 left-4 z-50">
         <Logo size="large" />
       </div>
@@ -372,41 +486,22 @@ const Onboarding = ({ onComplete, darkMode }) => {
             Welcome to DualTrack OS
           </h1>
           <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            Let's personalize your experience
+            Just a few quick details to personalize your experience
           </p>
         </div>
 
         <div className="space-y-6">
-          {/* Welcome Message */}
           {/* Name */}
           <div>
             <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               <User size={16} className="inline mr-2" />
-              Your Name
-            </label>
-            <input
-              type="text"
-              value={profile.name}
-              onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-              placeholder="e.g., Sarah Johnson"
-              className={`w-full px-4 py-3 rounded-lg transition-all ${
-                darkMode
-                  ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
-                  : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
-              }`}
-            />
-          </div>
-
-          {/* Preferred Name */}
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              What Should We Call You?
+              What should we call you?
             </label>
             <input
               type="text"
               value={profile.preferredName}
-              onChange={(e) => setProfile({ ...profile, preferredName: e.target.value })}
-              placeholder="e.g., Sarah or Boss Lady 😊"
+              onChange={(e) => setProfile({ ...profile, preferredName: e.target.value, name: e.target.value })}
+              placeholder="e.g., Sarah or Boss Lady"
               className={`w-full px-4 py-3 rounded-lg transition-all ${
                 darkMode
                   ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
@@ -414,15 +509,14 @@ const Onboarding = ({ onComplete, darkMode }) => {
               }`}
             />
             <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-              This is how the app will address you in messages
+              This is how we'll address you throughout the app
             </p>
           </div>
 
           {/* Initials */}
           <div>
             <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              <User size={16} className="inline mr-2" />
-              Your Initials
+              Your Initials (for avatar)
             </label>
             <input
               type="text"
@@ -437,21 +531,20 @@ const Onboarding = ({ onComplete, darkMode }) => {
               }`}
             />
             <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-              Will be displayed in the header (2-3 letters max)
+              Will be displayed with a gradient in the header (2-3 letters)
             </p>
           </div>
 
-          {/* Age */}
+          {/* Optional: Age (for life stage suggestion) */}
           <div>
             <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              <Cake size={16} className="inline mr-2" />
-              Your Age
+              Your Age <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>(optional, helps with recommendations)</span>
             </label>
             <input
               type="number"
               value={profile.age}
               onChange={(e) => setProfile({ ...profile, age: e.target.value })}
-              placeholder="e.g., 48"
+              placeholder="e.g., 42"
               min="18"
               max="100"
               className={`w-full px-4 py-3 rounded-lg transition-all ${
@@ -460,85 +553,16 @@ const Onboarding = ({ onComplete, darkMode }) => {
                   : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
               }`}
             />
-            <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-              Helps us provide age-appropriate health and wellness tips
-            </p>
-          </div>
-
-          {/* Weight */}
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              <Weight size={16} className="inline mr-2" />
-              Your Weight
-            </label>
-
-            {/* Unit Toggle */}
-            <div className="flex gap-2 mb-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setWeightUnit('lbs');
-                  setProfile({ ...profile, weightUnit: 'lbs' });
-                }}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
-                  weightUnit === 'lbs'
-                    ? darkMode
-                      ? 'bg-purple-600 text-white border-2 border-purple-500'
-                      : 'bg-purple-600 text-white border-2 border-purple-500'
-                    : darkMode
-                      ? 'bg-gray-800 text-gray-400 border-2 border-gray-700 hover:border-gray-600'
-                      : 'bg-gray-100 text-gray-600 border-2 border-gray-300 hover:border-gray-400'
-                }`}
-              >
-                lbs
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setWeightUnit('kg');
-                  setProfile({ ...profile, weightUnit: 'kg' });
-                }}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
-                  weightUnit === 'kg'
-                    ? darkMode
-                      ? 'bg-purple-600 text-white border-2 border-purple-500'
-                      : 'bg-purple-600 text-white border-2 border-purple-500'
-                    : darkMode
-                      ? 'bg-gray-800 text-gray-400 border-2 border-gray-700 hover:border-gray-600'
-                      : 'bg-gray-100 text-gray-600 border-2 border-gray-300 hover:border-gray-400'
-                }`}
-              >
-                kg
-              </button>
-            </div>
-
-            <input
-              type="number"
-              value={profile.weight}
-              onChange={(e) => setProfile({ ...profile, weight: e.target.value })}
-              placeholder={weightUnit === 'lbs' ? 'e.g., 150' : 'e.g., 68'}
-              min={weightUnit === 'lbs' ? '50' : '20'}
-              max={weightUnit === 'lbs' ? '500' : '250'}
-              step="0.1"
-              className={`w-full px-4 py-3 rounded-lg transition-all ${
-                darkMode
-                  ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
-                  : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
-              }`}
-            />
-            <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-              Used to calculate your daily protein needs
-              {weightUnit === 'lbs' ? ' (0.8-1g per lb of body weight)' : ' (1.8-2.2g per kg of body weight)'}
-            </p>
           </div>
         </div>
 
-        <div className="mt-8">
+        {/* Action Buttons */}
+        <div className="mt-8 space-y-3">
           <button
-            onClick={() => setStep(2)}
-            disabled={!profile.name || !profile.age || !profile.weight}
+            onClick={() => profile.age ? setStep(2) : handleComplete()}
+            disabled={!profile.preferredName || !profile.initials}
             className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-              !profile.name || !profile.age || !profile.weight
+              !profile.preferredName || !profile.initials
                 ? darkMode
                   ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -547,15 +571,22 @@ const Onboarding = ({ onComplete, darkMode }) => {
                   : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
             }`}
           >
-            {!profile.name || !profile.age || !profile.weight ? (
-              'Please Complete All Fields'
+            {!profile.preferredName || !profile.initials ? (
+              'Please Enter Name & Initials'
             ) : (
-              <span className="flex items-center justify-center space-x-2">
-                <span>Continue</span>
-                <span>→</span>
+              <span className="flex items-center justify-center gap-2">
+                <span>{profile.age ? 'Continue' : 'Get Started'}</span>
+                <ArrowRight size={20} />
               </span>
             )}
           </button>
+
+          <p className={`text-xs text-center ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+            {profile.age
+              ? '💡 Next: Personalize based on your life stage (or skip to use all features)'
+              : '✨ You can add more details later in Settings'
+            }
+          </p>
         </div>
       </div>
     </div>
