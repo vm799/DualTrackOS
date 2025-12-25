@@ -9,7 +9,7 @@ const Logo = ({ size = 'medium', className = '', navigateTo = null }) => {
     small: 'w-12 h-12',
     medium: 'w-20 h-20',
     large: 'w-32 h-32',
-    xlarge: 'w-40 h-40'
+    xlarge: 'w-full h-full max-w-[520px] max-h-[520px]'
   };
 
   const handleClick = () => {

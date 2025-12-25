@@ -7,6 +7,7 @@ import useStore from '../store/useStore';
 import useWellnessStore from '../store/useWellnessStore';
 import useDailyMetricsStore from '../store/useDailyMetricsStore';
 import useNDMStore from '../store/useNDMStore';
+import useSessionStore from '../store/useSessionStore';
 import WellnessSnackModal from '../components/WellnessSnackModal';
 import DailyCommandCenterModal from '../components/DailyCommandCenterModal';
 import NDMStatusBar from '../components/NDMStatusBar';
@@ -27,6 +28,9 @@ import BrainDumpModal from '../components/BrainDumpModal';
 import FeatureGate from '../components/FeatureGate';
 import FeaturePreview from '../components/FeaturePreview';
 import Logo from '../components/Logo';
+import CelebrationModal from '../components/CelebrationModal';
+import SmartSuggestionBanner from '../components/SmartSuggestionBanner';
+import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
 
 const Dashboard = () => {
@@ -50,11 +54,27 @@ const Dashboard = () => {
   // NDM Store
   const ndm = useNDMStore((state) => state.ndm);
 
+  // Session Store - Context preservation, streaks, suggestions
+  const {
+    startSession,
+    endSession,
+    trackNavigation,
+    trackModalOpen,
+    trackFeatureUse,
+    updateStreak,
+    streaks
+  } = useSessionStore();
+
   // Local UI state
   const [isScrolled, setIsScrolled] = useState(false);
   const [showMovementModal, setShowMovementModal] = useState(false);
   const [showNutritionModal, setShowNutritionModal] = useState(false);
   const [showBrainDumpModal, setShowBrainDumpModal] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationType, setCelebrationType] = useState(null);
+  const [celebrationData, setCelebrationData] = useState(null);
+  const [showSuggestion, setShowSuggestion] = useState(true);
+  const [hasCheckedNDM, setHasCheckedNDM] = useState(false);
 
   // Get welcome message based on time of day
   const getWelcomeMessage = () => {
@@ -76,14 +96,60 @@ const Dashboard = () => {
 
   const openBrainDump = () => {
     setShowBrainDumpModal(true);
+    trackModalOpen('braindump');
+    trackFeatureUse('braindump');
   };
 
   const openNutrition = () => {
     setShowNutritionModal(true);
+    trackModalOpen('nutrition');
+    trackFeatureUse('nutrition');
   };
 
   const openMovement = () => {
     setShowMovementModal(true);
+    trackModalOpen('movement');
+    trackFeatureUse('movement');
+  };
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onBrainDump: openBrainDump,
+    onNutrition: openNutrition,
+    onMovement: openMovement,
+    onPomodoro: () => {
+      usePomodoroStore.getState().setShowFullScreen(true);
+      trackFeatureUse('pomodoro');
+    },
+    onCommandCenter: () => {
+      setShowCommandCenterModal(true);
+      trackFeatureUse('command-center');
+    }
+  });
+
+  // Handle smart suggestion actions
+  const handleSuggestionAction = (action) => {
+    switch (action) {
+      case 'check-in':
+        navigate('/check-in');
+        break;
+      case 'start-pomodoro':
+        usePomodoroStore.getState().setShowFullScreen(true);
+        trackFeatureUse('pomodoro');
+        break;
+      case 'open-nutrition':
+        openNutrition();
+        break;
+      case 'brain-dump':
+        openBrainDump();
+        break;
+      case 'resume-braindump':
+        openBrainDump();
+        break;
+      default:
+        console.log('Unknown action:', action);
+    }
+    setShowSuggestion(false);
   };
 
   // Scroll listener for header animation
@@ -163,6 +229,124 @@ const Dashboard = () => {
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, []);
+
+  // Handle check-in intent (from CheckInPage)
+  useEffect(() => {
+    const intentData = localStorage.getItem('checkin_intent');
+    if (!intentData) return;
+
+    try {
+      const intent = JSON.parse(intentData);
+
+      // Check if intent is recent (within last 30 seconds)
+      const isRecent = Date.now() - intent.timestamp < 30000;
+      if (!isRecent) {
+        localStorage.removeItem('checkin_intent');
+        return;
+      }
+
+      // Handle hash-based routing (modal or section)
+      const handleIntent = () => {
+        const hash = window.location.hash.replace('#', '');
+
+        // Modal mapping
+        const modalMap = {
+          'braindump': () => setShowBrainDumpModal(true),
+          'nutrition': () => setShowNutritionModal(true),
+          'movement': () => setShowMovementModal(true),
+        };
+
+        // Open modal if specified
+        if (modalMap[hash]) {
+          setTimeout(() => modalMap[hash](), 500);
+        }
+
+        // Scroll to section if specified
+        const section = document.getElementById(hash);
+        if (section) {
+          setTimeout(() => {
+            const offset = 100; // Account for sticky header
+            const elementPosition = section.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - offset;
+            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+          }, 300);
+        }
+
+        // Clear intent after handling
+        setTimeout(() => localStorage.removeItem('checkin_intent'), 5000);
+      };
+
+      handleIntent();
+    } catch (err) {
+      console.error('Error parsing check-in intent:', err);
+      localStorage.removeItem('checkin_intent');
+    }
+  }, []);
+
+  // Session tracking - Start session on mount
+  useEffect(() => {
+    startSession();
+    trackNavigation('/dashboard');
+
+    // End session on unmount
+    return () => {
+      endSession();
+    };
+  }, []);
+
+  // NDM Completion check - Celebrate when all 4 are complete
+  useEffect(() => {
+    if (hasCheckedNDM) return;
+
+    const allComplete =
+      ndm.nutrition.completed &&
+      ndm.movement.completed &&
+      ndm.mindfulness.completed &&
+      ndm.brainDump.completed;
+
+    if (allComplete) {
+      setHasCheckedNDM(true);
+
+      // Update NDM streak
+      updateStreak('ndm');
+
+      // Show celebration
+      setTimeout(() => {
+        setCelebrationType('ndm-complete');
+        setCelebrationData({ streakCount: streaks.ndmCompletions + 1 });
+        setShowCelebration(true);
+      }, 500);
+    }
+  }, [ndm, hasCheckedNDM, updateStreak, streaks.ndmCompletions]);
+
+  // Check for streak milestones
+  useEffect(() => {
+    const checkInStreak = streaks.checkIns;
+
+    // Celebrate streak milestones
+    if (checkInStreak === 3 && !localStorage.getItem('celebrated-streak-3')) {
+      setTimeout(() => {
+        setCelebrationType('streak-3');
+        setCelebrationData({ streakCount: 3 });
+        setShowCelebration(true);
+        localStorage.setItem('celebrated-streak-3', 'true');
+      }, 1000);
+    } else if (checkInStreak === 7 && !localStorage.getItem('celebrated-streak-7')) {
+      setTimeout(() => {
+        setCelebrationType('streak-7');
+        setCelebrationData({ streakCount: 7 });
+        setShowCelebration(true);
+        localStorage.setItem('celebrated-streak-7', 'true');
+      }, 1000);
+    } else if (checkInStreak === 30 && !localStorage.getItem('celebrated-streak-30')) {
+      setTimeout(() => {
+        setCelebrationType('streak-30');
+        setCelebrationData({ streakCount: 30 });
+        setShowCelebration(true);
+        localStorage.setItem('celebrated-streak-30', 'true');
+      }, 1000);
+    }
+  }, [streaks.checkIns]);
 
   const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
@@ -410,6 +594,15 @@ const Dashboard = () => {
           {/* Quick Navigation */}
           <QuickNav darkMode={darkMode} />
 
+          {/* Smart Suggestion Banner */}
+          {showSuggestion && (
+            <SmartSuggestionBanner
+              darkMode={darkMode}
+              onAction={handleSuggestionAction}
+              onDismiss={() => setShowSuggestion(false)}
+            />
+          )}
+
           {/* Must-Dos Section */}
           <SectionContainer
             id="must-dos"
@@ -554,6 +747,15 @@ const Dashboard = () => {
       <MovementDetailModal show={showMovementModal} onClose={() => setShowMovementModal(false)} />
       <NutritionDetailModal show={showNutritionModal} onClose={() => setShowNutritionModal(false)} />
       <BrainDumpModal show={showBrainDumpModal} onClose={() => setShowBrainDumpModal(false)} />
+
+      {/* CELEBRATION MODAL */}
+      <CelebrationModal
+        show={showCelebration}
+        onClose={() => setShowCelebration(false)}
+        type={celebrationType}
+        data={celebrationData}
+        darkMode={darkMode}
+      />
 
       {/* FULLSCREEN POMODORO */}
       <PomodoroFullScreen darkMode={darkMode} />
