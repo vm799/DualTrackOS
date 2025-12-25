@@ -57,15 +57,15 @@ const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
       </div>
 
       {/* CONTENT */}
-      <div className="relative z-10 flex flex-col min-h-[100dvh] px-6 text-center">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] px-6 text-center">
 
-        {/* TOP — Brand Anchor */}
-        <div className="pt-3 sm:pt-6 md:pt-10">
-          <div className="flex justify-center">
-            <Logo size="xlarge" className="w-[280px] h-[280px] sm:w-[480px] sm:h-[480px] md:w-[720px] md:h-[720px] animate-fade-in" />
+        {/* CENTERED LOGO + BRANDING */}
+        <div className="flex flex-col items-center justify-center flex-1">
+          <div className="mb-6 sm:mb-8">
+            <Logo size="xlarge" className="w-[320px] h-[320px] sm:w-[420px] sm:h-[420px] md:w-[520px] md:h-[520px] animate-fade-in mx-auto" />
           </div>
 
-          <h1 className="mt-[-12px] text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight mb-4 sm:mb-6">
             <span className={darkMode ? 'text-gray-100' : 'text-gray-900'}>
               DualTrack
             </span>{' '}
@@ -75,26 +75,8 @@ const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
           </h1>
 
           <p
-            className={`mt-2 text-sm sm:text-base md:text-lg leading-snug font-medium ${
-              darkMode ? 'text-gray-300' : 'text-gray-700'
-            }`}
-          >
-            The Operating System for Women Who Manage Everything
-          </p>
-          <p
-            className={`mt-3 text-xs sm:text-sm md:text-base leading-relaxed ${
-              darkMode ? 'text-gray-400' : 'text-gray-600'
-            }`}
-          >
-            Track your energy. See your mental load. Get recommendations that work with your body—not against it.
-          </p>
-        </div>
-
-        {/* MIDDLE — Motivation + CTA */}
-        <div className="flex flex-col items-center justify-center flex-grow gap-2 py-3 sm:py-4 md:py-6">
-          <p
-            className={`text-sm sm:text-base italic font-light ${
-              darkMode ? 'text-purple-400' : 'text-purple-600'
+            className={`text-xl sm:text-2xl md:text-3xl font-bold leading-tight mb-6 sm:mb-8 max-w-3xl ${
+              darkMode ? 'text-gray-200' : 'text-gray-800'
             }`}
           >
             Your companion through every challenge, cycle, and chapter
@@ -123,57 +105,45 @@ const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
           </button>
         </div>
 
-        {/* BOTTOM — Auth & Story */}
-        <div className="mt-3 sm:mt-4 md:mt-6 pb-4 sm:pb-6 space-y-3">
+        {/* BOTTOM — Auth & Story (Subtle) */}
+        <div className="pb-4 sm:pb-6 space-y-2">
           {!user ? (
             <>
               <button
                 onClick={handleGoogleSignIn}
                 disabled={signingIn}
-                className={`px-8 py-3 rounded-full text-sm sm:text-base font-medium transition-all hover:scale-105 flex items-center gap-2 mx-auto ${
+                className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all hover:opacity-80 flex items-center gap-2 mx-auto ${
                   signingIn
                     ? 'opacity-50 cursor-not-allowed'
-                    : ''
+                    : 'opacity-60'
                 } ${
                   darkMode
-                    ? 'bg-white/10 hover:bg-white/20 text-white border border-white/30'
-                    : 'bg-gray-900 hover:bg-gray-800 text-white border border-gray-700'
+                    ? 'bg-white/5 hover:bg-white/10 text-gray-400 border border-white/20'
+                    : 'bg-gray-900/5 hover:bg-gray-900/10 text-gray-500 border border-gray-300'
                 }`}
-                style={{
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: darkMode
-                    ? '0 0 20px rgba(255, 255, 255, 0.2)'
-                    : '0 0 20px rgba(0, 0, 0, 0.2)',
-                }}
               >
-                <LogIn size={18} className={signingIn ? 'animate-spin' : ''} />
+                <LogIn size={14} className={signingIn ? 'animate-spin' : ''} />
                 {signingIn ? 'Signing in...' : 'Sign in with Google'}
               </button>
               {error && (
-                <div className={`text-sm ${darkMode ? 'text-red-400' : 'text-red-600'} max-w-sm mx-auto`}>
+                <div className={`text-xs ${darkMode ? 'text-red-400' : 'text-red-600'} max-w-sm mx-auto`}>
                   {error}
                 </div>
               )}
             </>
           ) : (
-            <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
               Signed in as {user.email}
             </div>
           )}
 
           <button
             onClick={onViewStory}
-            className={`px-8 py-3 rounded-full text-sm sm:text-base font-medium transition-all hover:scale-105 ${
+            className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all hover:opacity-80 opacity-60 ${
               darkMode
-                ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40'
-                : 'bg-amber-100 hover:bg-amber-200 text-amber-700 border border-amber-300'
+                ? 'bg-amber-500/10 hover:bg-amber-500/15 text-amber-400/80 border border-amber-500/20'
+                : 'bg-amber-100/50 hover:bg-amber-100 text-amber-600/80 border border-amber-300/50'
             }`}
-            style={{
-              backdropFilter: 'blur(10px)',
-              boxShadow: darkMode
-                ? '0 0 25px rgba(251, 191, 36, 0.35)'
-                : '0 0 25px rgba(252, 211, 77, 0.45)',
-            }}
           >
             ✨ The Story Behind the App
           </button>
