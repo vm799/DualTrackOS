@@ -32,6 +32,7 @@ import CelebrationModal from '../components/CelebrationModal';
 import SmartSuggestionBanner from '../components/SmartSuggestionBanner';
 import StreakPrediction from '../components/StreakPrediction';
 import { SkillLevelBadge } from '../components/AdaptiveUI';
+import OnboardingTour from '../components/OnboardingTour';
 import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import useEnergyDarkMode from '../hooks/useEnergyDarkMode';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
@@ -776,6 +777,19 @@ const Dashboard = () => {
 
       {/* FULLSCREEN POMODORO */}
       <PomodoroFullScreen darkMode={darkMode} />
+
+      {/* ONBOARDING TOUR */}
+      <OnboardingTour
+        darkMode={darkMode}
+        onComplete={() => console.log('Onboarding tour completed!')}
+        onOpenBrainDump={openBrainDump}
+        onOpenNutrition={openNutrition}
+        onOpenMovement={openMovement}
+        onOpenPomodoro={() => {
+          usePomodoroStore.getState().setShowFullScreen(true);
+          trackFeatureUse('pomodoro');
+        }}
+      />
 
       {/* BOTTOM NAVIGATION */}
       <BottomNavigation />
