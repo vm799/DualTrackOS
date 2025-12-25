@@ -785,10 +785,7 @@ const Dashboard = () => {
         onOpenBrainDump={openBrainDump}
         onOpenNutrition={openNutrition}
         onOpenMovement={openMovement}
-        onOpenPomodoro={() => {
-          usePomodoroStore.getState().setShowFullScreen(true);
-          trackFeatureUse('pomodoro');
-        }}
+        onOpenPomodoro={openMindfulMoment}
       />
 
       {/* BOTTOM NAVIGATION */}

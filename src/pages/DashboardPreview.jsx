@@ -21,6 +21,7 @@ const DashboardPreview = () => {
   const darkMode = useStore((state) => state.darkMode);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const [tourCompleted, setTourCompleted] = useState(false);
+  const [previewModal, setPreviewModal] = useState(null);
 
   // Demo data for preview
   const demoNDM = {
@@ -50,6 +51,12 @@ const DashboardPreview = () => {
   const handleSkipSignup = () => {
     // Let them explore the preview more
     setShowSignupPrompt(false);
+  };
+
+  const handleOpenFeature = (featureName) => {
+    setPreviewModal(featureName);
+    // Auto-close after 2 seconds
+    setTimeout(() => setPreviewModal(null), 2000);
   };
 
   return (
@@ -231,11 +238,44 @@ const DashboardPreview = () => {
       <OnboardingTour
         darkMode={darkMode}
         onComplete={handleTourComplete}
-        onOpenBrainDump={() => console.log('Preview: Brain Dump clicked')}
-        onOpenNutrition={() => console.log('Preview: Nutrition clicked')}
-        onOpenMovement={() => console.log('Preview: Movement clicked')}
-        onOpenPomodoro={() => console.log('Preview: Pomodoro clicked')}
+        onOpenBrainDump={() => handleOpenFeature('Brain Dump')}
+        onOpenNutrition={() => handleOpenFeature('Nutrition')}
+        onOpenMovement={() => handleOpenFeature('Movement')}
+        onOpenPomodoro={() => handleOpenFeature('Mindfulness')}
       />
+
+      {/* PREVIEW MODAL - Shows when clicking features */}
+      {previewModal && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className={`max-w-sm mx-4 p-8 rounded-2xl shadow-2xl ${
+            darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+          }`}>
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <div className={`p-4 rounded-full ${
+                  darkMode ? 'bg-emerald-500/20' : 'bg-emerald-100'
+                }`}>
+                  <CheckCircle className="text-emerald-500" size={40} />
+                </div>
+              </div>
+              <h3 className={`text-xl font-bold ${
+                darkMode ? 'text-white' : 'text-gray-900'
+              }`}>
+                {previewModal} Feature Preview
+              </h3>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                This is what the {previewModal} feature would look like. Sign up to unlock the full experience!
+              </p>
+              <button
+                onClick={handleSignup}
+                className="w-full px-6 py-3 rounded-xl font-semibold bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white transition-all"
+              >
+                Sign Up to Unlock
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* SIGNUP PROMPT MODAL */}
       {showSignupPrompt && (

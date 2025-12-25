@@ -28,6 +28,7 @@ const OnboardingTour = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [clickedTiles, setClickedTiles] = useState([]);
 
   useEffect(() => {
     // Check if user has completed tour
@@ -55,14 +56,42 @@ const OnboardingTour = ({
     {
       id: 'ndm',
       icon: Target,
-      title: 'Your Must-Dos (NDM)',
-      description: 'Start with the 4 non-negotiables: Nutrition, Movement, Mindfulness, and Brain Dump. Try clicking Brain Dump now!',
-      action: () => {
-        if (onOpenBrainDump) onOpenBrainDump();
-        // Auto-advance after action
-        setTimeout(() => setCurrentStep(2), 1000);
-      },
-      actionLabel: '📝 Try Brain Dump',
+      title: 'What Do You Want to Do First?',
+      description: 'Click on any of the 4 non-negotiables to try them out. Each one helps you build a complete day.',
+      menuOptions: [
+        {
+          id: 'nutrition',
+          icon: '🥗',
+          label: 'Nutrition',
+          description: 'Track your meals',
+          action: onOpenNutrition
+        },
+        {
+          id: 'movement',
+          icon: '🏃',
+          label: 'Movement',
+          description: 'Log your exercise',
+          action: onOpenMovement
+        },
+        {
+          id: 'mindfulness',
+          icon: '🧘',
+          label: 'Mindfulness',
+          description: 'Box breathing',
+          action: () => {
+            // In Dashboard this would open mindful moment
+            // In preview this is just visual feedback
+            if (onOpenPomodoro) onOpenPomodoro(); // Placeholder
+          }
+        },
+        {
+          id: 'braindump',
+          icon: '🧠',
+          label: 'Brain Dump',
+          description: 'Clear your mind',
+          action: onOpenBrainDump
+        }
+      ],
       scrollTo: 'must-dos',
       position: 'center',
       color: 'emerald'
@@ -145,6 +174,24 @@ const OnboardingTour = ({
     if (currentStepData.action) {
       currentStepData.action();
     }
+  };
+
+  const handleMenuTileClick = (option) => {
+    // Mark as clicked for visual feedback
+    setClickedTiles(prev => [...prev, option.id]);
+
+    // Execute the action
+    if (option.action) {
+      option.action();
+    }
+
+    // Auto-advance after 1.5 seconds if at least one tile was clicked
+    setTimeout(() => {
+      if (currentStep < steps.length - 1) {
+        setCurrentStep(currentStep + 1);
+        setClickedTiles([]); // Reset for next step
+      }
+    }, 1500);
   };
 
   const completeTour = () => {
@@ -277,6 +324,51 @@ const OnboardingTour = ({
           `}>
             {currentStepData.description}
           </p>
+
+          {/* Menu Tiles (if available) */}
+          {currentStepData.menuOptions && (
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {currentStepData.menuOptions.map((option) => {
+                const isClicked = clickedTiles.includes(option.id);
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => handleMenuTileClick(option)}
+                    className={`
+                      p-4 rounded-xl text-center transition-all
+                      ${isClicked
+                        ? darkMode
+                          ? 'bg-emerald-500/30 border-2 border-emerald-500/70 scale-95'
+                          : 'bg-emerald-100 border-2 border-emerald-500 scale-95'
+                        : darkMode
+                        ? 'bg-slate-700/50 border-2 border-slate-600 hover:border-emerald-500/50 hover:scale-105'
+                        : 'bg-white/50 border-2 border-gray-300 hover:border-emerald-400 hover:scale-105'
+                      }
+                      active:scale-95
+                      shadow-md hover:shadow-lg
+                    `}
+                  >
+                    <div className="text-3xl mb-2">{option.icon}</div>
+                    <div className={`text-sm font-semibold mb-1 ${
+                      darkMode ? 'text-white' : 'text-slate-900'
+                    }`}>
+                      {option.label}
+                    </div>
+                    <div className={`text-xs ${
+                      darkMode ? 'text-slate-400' : 'text-slate-600'
+                    }`}>
+                      {option.description}
+                    </div>
+                    {isClicked && (
+                      <div className="mt-2">
+                        <Check size={16} className="text-emerald-500 mx-auto" />
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Action Button (if available) */}
           {currentStepData.action && (
