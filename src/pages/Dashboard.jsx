@@ -653,11 +653,11 @@ const Dashboard = () => {
             />
           )}
 
-          {/* User Progress & Insights - TEMPORARILY DISABLED FOR DEBUG */}
-          {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* User Progress & Insights */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <StreakPrediction darkMode={darkMode} />
             <SkillLevelBadge darkMode={darkMode} showProgress={true} />
-          </div> */}
+          </div>
 
           {/* Must-Dos Section */}
           <SectionContainer
