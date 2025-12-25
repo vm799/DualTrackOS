@@ -30,7 +30,10 @@ import FeaturePreview from '../components/FeaturePreview';
 import Logo from '../components/Logo';
 import CelebrationModal from '../components/CelebrationModal';
 import SmartSuggestionBanner from '../components/SmartSuggestionBanner';
+import StreakPrediction from '../components/StreakPrediction';
+import { SkillLevelBadge } from '../components/AdaptiveUI';
 import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
+import useEnergyDarkMode from '../hooks/useEnergyDarkMode';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
 
 const Dashboard = () => {
@@ -126,6 +129,11 @@ const Dashboard = () => {
       trackFeatureUse('command-center');
     }
   });
+
+  // Energy-based dark mode (default to medium energy level 5)
+  // TODO: Connect to actual energy tracking when implemented
+  const [energyLevel] = useState(5);
+  useEnergyDarkMode(darkMode, energyLevel);
 
   // Handle smart suggestion actions
   const handleSuggestionAction = (action) => {
@@ -602,6 +610,15 @@ const Dashboard = () => {
               onDismiss={() => setShowSuggestion(false)}
             />
           )}
+
+          {/* User Progress & Insights */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Streak Prediction */}
+            <StreakPrediction darkMode={darkMode} />
+
+            {/* Skill Level Badge */}
+            <SkillLevelBadge darkMode={darkMode} showProgress={true} />
+          </div>
 
           {/* Must-Dos Section */}
           <SectionContainer
