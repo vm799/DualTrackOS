@@ -120,7 +120,10 @@ const useSessionStore = create(
         mostUsedFeature: null,
         preferredTime: null, // 'morning', 'afternoon', 'evening'
         averageSessionDuration: 0,
-        totalSessions: 0
+        totalSessions: 0,
+        peakHours: [],
+        energyTaskCorrelation: {},
+        consistencyScore: 0
       },
 
       trackFeatureUse: (feature) => set((state) => {
@@ -132,8 +135,18 @@ const useSessionStore = create(
         const allFeatures = { ...featureUseCount, [feature]: newCount };
         const mostUsed = Object.entries(allFeatures).reduce((a, b) => a[1] > b[1] ? a : b)[0];
 
+        // Update time patterns
+        const hour = new Date().getHours();
+        const timePatterns = state.timePatterns || {};
+        const productivityByHour = timePatterns.productivityByHour || {};
+        productivityByHour[hour] = (productivityByHour[hour] || 0) + 1;
+
         return {
           featureUseCount: allFeatures,
+          timePatterns: {
+            ...timePatterns,
+            productivityByHour
+          },
           behaviorPatterns: {
             ...state.behaviorPatterns,
             mostUsedFeature: mostUsed
@@ -142,6 +155,27 @@ const useSessionStore = create(
       }),
 
       featureUseCount: {},
+      keyboardShortcutUses: 0,
+      timePatterns: {},
+      energyHistory: [],
+
+      // Track keyboard shortcut usage (for adaptive UI)
+      trackKeyboardShortcut: (shortcut) => set((state) => ({
+        keyboardShortcutUses: state.keyboardShortcutUses + 1
+      })),
+
+      // Track energy levels over time
+      trackEnergy: (level, mood) => set((state) => ({
+        energyHistory: [
+          ...state.energyHistory,
+          {
+            level,
+            mood,
+            timestamp: Date.now(),
+            date: new Date().toDateString()
+          }
+        ].slice(-30) // Keep last 30 entries
+      })),
 
       // ========================================
       // SMART SUGGESTIONS
@@ -335,11 +369,17 @@ const useSessionStore = create(
         completionHistory: [],
         drafts: {},
         featureUseCount: {},
+        keyboardShortcutUses: 0,
+        timePatterns: {},
+        energyHistory: [],
         behaviorPatterns: {
           mostUsedFeature: null,
           preferredTime: null,
           averageSessionDuration: 0,
-          totalSessions: 0
+          totalSessions: 0,
+          peakHours: [],
+          energyTaskCorrelation: {},
+          consistencyScore: 0
         }
       })
     }),
