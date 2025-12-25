@@ -19,10 +19,10 @@ const QuickCheckIn = ({
   onOpenMindfulness
 }) => {
   const completedCount = [
-    ndm?.nutrition?.completed,
-    ndm?.movement?.completed,
-    ndm?.mindfulness?.completed,
-    ndm?.brainDump?.completed
+    ndm?.nutrition,
+    ndm?.movement,
+    ndm?.mindfulness,
+    ndm?.brainDump
   ].filter(Boolean).length;
 
   const tiles = [
@@ -31,7 +31,7 @@ const QuickCheckIn = ({
       icon: '🧠',
       label: 'Brain Dump',
       description: 'Clear your mind',
-      completed: ndm?.brainDump?.completed,
+      completed: ndm?.brainDump,
       action: onOpenBrainDump
     },
     {
@@ -39,7 +39,7 @@ const QuickCheckIn = ({
       icon: '🥗',
       label: 'Nutrition',
       description: 'Track meals',
-      completed: ndm?.nutrition?.completed,
+      completed: ndm?.nutrition,
       action: onOpenNutrition
     },
     {
@@ -47,7 +47,7 @@ const QuickCheckIn = ({
       icon: '🏃',
       label: 'Movement',
       description: 'Log exercise',
-      completed: ndm?.movement?.completed,
+      completed: ndm?.movement,
       action: onOpenMovement
     },
     {
@@ -55,14 +55,14 @@ const QuickCheckIn = ({
       icon: '🧘',
       label: 'Mindfulness',
       description: 'Box breathing',
-      completed: ndm?.mindfulness?.completed,
+      completed: ndm?.mindfulness,
       action: onOpenMindfulness
     }
   ];
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in">
-      <div className={`max-w-lg w-full mx-4 p-6 rounded-2xl shadow-2xl ${
+      <div className={`relative max-w-lg w-full mx-4 p-6 rounded-2xl shadow-2xl ${
         darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'
       }`}>
         {/* Close Button */}
