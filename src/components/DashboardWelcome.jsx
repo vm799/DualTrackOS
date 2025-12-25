@@ -11,7 +11,7 @@ import { Sparkles, Target, Zap, TrendingUp, X } from 'lucide-react';
 const DashboardWelcome = ({ darkMode, onClose, onGetStarted }) => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className={`max-w-2xl w-full mx-4 p-8 rounded-2xl shadow-2xl ${
+      <div className={`relative max-w-2xl w-full mx-4 p-8 rounded-2xl shadow-2xl ${
         darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'
       }`}>
         {/* Close Button */}
