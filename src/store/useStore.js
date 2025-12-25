@@ -16,7 +16,7 @@ const useStore = create((set) => ({
     disclaimerAccepted: false
   },
   currentTime: new Date(), // Global current time
-  spiritAnimalScore: 0, // Balance score (0-100) for spirit animal growth
+  spiritAnimalScore: 0, // Balance score (0-100) for avatar growth
   currentView: 'dashboard', // Current view: 'dashboard' | 'food' | 'exercise' | 'learn'
 
   // Actions
