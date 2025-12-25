@@ -31,13 +31,17 @@ const OnboardingTour = ({
   const [clickedTiles, setClickedTiles] = useState([]);
 
   useEffect(() => {
-    // Check if user has completed tour
-    const hasCompletedTour = localStorage.getItem('dualtrack-dashboard-tour-completed');
+    try {
+      // Check if user has completed tour
+      const hasCompletedTour = localStorage.getItem('dualtrack-dashboard-tour-completed');
 
-    if (!hasCompletedTour) {
-      // Show tour after a short delay (let Dashboard render first)
-      const timer = setTimeout(() => setIsVisible(true), 1500);
-      return () => clearTimeout(timer);
+      if (!hasCompletedTour) {
+        // Show tour after a short delay (let Dashboard render first)
+        const timer = setTimeout(() => setIsVisible(true), 1500);
+        return () => clearTimeout(timer);
+      }
+    } catch (error) {
+      console.error('OnboardingTour localStorage error:', error);
     }
   }, []);
 
@@ -142,12 +146,21 @@ const OnboardingTour = ({
     }
   ], [onOpenBrainDump, onOpenNutrition, onOpenMovement, onOpenPomodoro]);
 
-  const currentStepData = steps[currentStep];
+  // Scroll to element when step changes - MUST be before any early returns
+  useEffect(() => {
+    const scrollTarget = steps[currentStep]?.scrollTo;
+    if (isVisible && scrollTarget) {
+      const timer = setTimeout(() => {
+        const element = document.getElementById(scrollTarget);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep, isVisible, steps]);
 
-  // Safety check - if somehow currentStep is out of bounds, don't crash
-  if (!currentStepData) {
-    return null;
-  }
+  const currentStepData = steps[currentStep];
 
   const handleNext = () => {
     // Scroll to element if specified
@@ -205,20 +218,7 @@ const OnboardingTour = ({
     if (onComplete) onComplete();
   };
 
-  // Scroll to element when step changes
-  useEffect(() => {
-    const scrollTarget = steps[currentStep]?.scrollTo;
-    if (isVisible && scrollTarget) {
-      const timer = setTimeout(() => {
-        const element = document.getElementById(scrollTarget);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [currentStep, isVisible]);
-
+  // Early return if tour is not visible
   if (!isVisible) return null;
 
   const Icon = currentStepData.icon;
