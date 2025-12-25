@@ -33,6 +33,8 @@ import SmartSuggestionBanner from '../components/SmartSuggestionBanner';
 import StreakPrediction from '../components/StreakPrediction';
 import { SkillLevelBadge } from '../components/AdaptiveUI';
 import OnboardingTour from '../components/OnboardingTour';
+import DashboardWelcome from '../components/DashboardWelcome';
+import QuickCheckIn from '../components/QuickCheckIn';
 import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import useEnergyDarkMode from '../hooks/useEnergyDarkMode';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
@@ -79,6 +81,8 @@ const Dashboard = () => {
   const [celebrationData, setCelebrationData] = useState(null);
   const [showSuggestion, setShowSuggestion] = useState(true);
   const [hasCheckedNDM, setHasCheckedNDM] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showQuickCheckIn, setShowQuickCheckIn] = useState(false);
 
   // Get welcome message based on time of day
   const getWelcomeMessage = () => {
@@ -159,6 +163,24 @@ const Dashboard = () => {
         console.log('Unknown action:', action);
     }
     setShowSuggestion(false);
+  };
+
+  // Handle welcome modal
+  const handleWelcomeClose = () => {
+    localStorage.setItem('dualtrack-dashboard-welcome-seen', 'true');
+    setShowWelcome(false);
+  };
+
+  const handleWelcomeGetStarted = () => {
+    localStorage.setItem('dualtrack-dashboard-welcome-seen', 'true');
+    setShowWelcome(false);
+    // OnboardingTour will appear automatically if not completed
+  };
+
+  // Handle quick check-in
+  const handleQuickCheckInClose = () => {
+    localStorage.setItem('dualtrack-last-checkin-date', new Date().toDateString());
+    setShowQuickCheckIn(false);
   };
 
   // Scroll listener for header animation
@@ -301,6 +323,22 @@ const Dashboard = () => {
     return () => {
       endSession();
     };
+  }, []);
+
+  // Welcome/Check-in Modal - Show on Dashboard entry
+  useEffect(() => {
+    const hasSeenDashboardWelcome = localStorage.getItem('dualtrack-dashboard-welcome-seen');
+    const lastCheckIn = localStorage.getItem('dualtrack-last-checkin-date');
+    const today = new Date().toDateString();
+
+    // First-time users: Show welcome
+    if (!hasSeenDashboardWelcome) {
+      setTimeout(() => setShowWelcome(true), 800);
+    }
+    // Returning users: Show quick check-in if they haven't checked in today
+    else if (lastCheckIn !== today) {
+      setTimeout(() => setShowQuickCheckIn(true), 800);
+    }
   }, []);
 
   // NDM Completion check - Celebrate when all 4 are complete
@@ -774,6 +812,29 @@ const Dashboard = () => {
         data={celebrationData}
         darkMode={darkMode}
       />
+
+      {/* WELCOME MODAL - First-time users */}
+      {showWelcome && (
+        <DashboardWelcome
+          darkMode={darkMode}
+          onClose={handleWelcomeClose}
+          onGetStarted={handleWelcomeGetStarted}
+        />
+      )}
+
+      {/* QUICK CHECK-IN - Returning users */}
+      {showQuickCheckIn && (
+        <QuickCheckIn
+          darkMode={darkMode}
+          onClose={handleQuickCheckInClose}
+          ndm={ndm}
+          streaks={streaks}
+          onOpenBrainDump={openBrainDump}
+          onOpenNutrition={openNutrition}
+          onOpenMovement={openMovement}
+          onOpenMindfulness={openMindfulMoment}
+        />
+      )}
 
       {/* FULLSCREEN POMODORO */}
       <PomodoroFullScreen darkMode={darkMode} />
