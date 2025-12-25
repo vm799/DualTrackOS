@@ -15,6 +15,7 @@ import BrainDumpModal from '../components/BrainDumpModal';
 import DailyCommandCenterModal from '../components/DailyCommandCenterModal';
 import PomodoroFullScreen from '../components/PomodoroFullScreen';
 import SmartSuggestions from '../components/SmartSuggestions';
+import SmartScheduler from '../components/SmartScheduler';
 import EnergyMoodModals from '../components/EnergyMoodModals';
 import RoleSetupModal from '../components/RoleSetupModal';
 
@@ -686,6 +687,20 @@ const ProductivityPage = () => {
               💡 Rest and boundaries are wins too. Celebrate taking care of yourself.
             </p>
           </div>
+
+          {/* Smart Scheduler */}
+          <SectionHeader
+            emoji="🤖"
+            title="AI Task Scheduler"
+            description="Let AI suggest the optimal time for your tasks based on energy patterns"
+          />
+          <SmartScheduler
+            darkMode={darkMode}
+            onSchedule={(task) => {
+              console.log('Task scheduled:', task);
+              // TODO: Integrate with HourlyTaskDisplay to add scheduled tasks
+            }}
+          />
 
           {/* Hourly Task Display */}
           <SectionHeader
