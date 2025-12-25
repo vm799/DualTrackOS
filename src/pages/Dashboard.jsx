@@ -137,9 +137,8 @@ const Dashboard = () => {
 
   // Energy-based dark mode (default to medium energy level 5)
   // TODO: Connect to actual energy tracking when implemented
-  // TEMPORARILY DISABLED FOR DEBUG
-  // const [energyLevel] = useState(5);
-  // useEnergyDarkMode(darkMode, energyLevel);
+  const [energyLevel] = useState(5);
+  useEnergyDarkMode(darkMode, energyLevel);
 
   // Handle smart suggestion actions
   const handleSuggestionAction = (action) => {
