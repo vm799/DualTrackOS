@@ -1,34 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { X, ChevronRight, ChevronLeft, Check, Sparkles, Zap, Target, Brain, Heart } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft, Check, Sparkles, Zap, Target, Brain, Heart, Mouse } from 'lucide-react';
 
 /**
  * OnboardingTour Component
  *
- * Interactive product tour for first-time users
- * - Highlights key features
+ * Interactive product tour for first-time Dashboard users
+ * - Highlights key features with actual interactions
  * - Skippable at any time
  * - Remembers completion in localStorage
- * - Responsive and accessible
+ * - Scrolls to and highlights real elements
  *
  * Tour Steps:
  * 1. Welcome & Overview
- * 2. Daily Check-In
- * 3. NDM (Must-Dos)
- * 4. Smart Features (keyboard shortcuts, suggestions)
- * 5. Pomodoro & Focus
+ * 2. NDM Must-Dos (with action button)
+ * 3. Smart Suggestions (with action button)
+ * 4. Streak Tracking (scrolls to element)
+ * 5. Keyboard Shortcuts (interactive)
  * 6. Complete
  */
-const OnboardingTour = ({ darkMode = false, onComplete }) => {
+const OnboardingTour = ({
+  darkMode = false,
+  onComplete,
+  onOpenBrainDump,
+  onOpenNutrition,
+  onOpenMovement,
+  onOpenPomodoro
+}) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     // Check if user has completed tour
-    const hasCompletedTour = localStorage.getItem('dualtrack-tour-completed');
+    const hasCompletedTour = localStorage.getItem('dualtrack-dashboard-tour-completed');
 
     if (!hasCompletedTour) {
-      // Show tour after a short delay
-      const timer = setTimeout(() => setIsVisible(true), 1000);
+      // Show tour after a short delay (let Dashboard render first)
+      const timer = setTimeout(() => setIsVisible(true), 1500);
       return () => clearTimeout(timer);
     }
   }, []);
@@ -37,54 +44,70 @@ const OnboardingTour = ({ darkMode = false, onComplete }) => {
     {
       id: 'welcome',
       icon: Sparkles,
-      title: 'Welcome to DualTrack OS',
-      description: 'Your operating system for managing energy, hormones, and productivity. Let\'s take a quick tour!',
-      highlight: null,
+      title: 'Welcome to Your Dashboard!',
+      description: 'This is your command center for managing energy, productivity, and wellbeing. Let\'s explore the key features together.',
+      action: null,
+      actionLabel: null,
+      scrollTo: null,
       position: 'center',
       color: 'purple'
-    },
-    {
-      id: 'checkin',
-      icon: Heart,
-      title: 'Start with Check-In',
-      description: 'Begin each day by checking in with your energy and mood. This helps us personalize your experience.',
-      highlight: 'header', // Could highlight specific elements
-      position: 'top',
-      color: 'pink'
     },
     {
       id: 'ndm',
       icon: Target,
       title: 'Your Must-Dos (NDM)',
-      description: 'Nutrition, Movement, Mindfulness, and Brain Dump - the 4 non-negotiables for your wellbeing. Complete these daily!',
-      highlight: 'ndm-section',
-      position: 'left',
+      description: 'Start with the 4 non-negotiables: Nutrition, Movement, Mindfulness, and Brain Dump. Try clicking Brain Dump now!',
+      action: () => {
+        if (onOpenBrainDump) onOpenBrainDump();
+        // Auto-advance after action
+        setTimeout(() => setCurrentStep(2), 1000);
+      },
+      actionLabel: '📝 Try Brain Dump',
+      scrollTo: 'must-dos',
+      position: 'center',
       color: 'emerald'
     },
     {
-      id: 'smart-features',
+      id: 'suggestions',
       icon: Zap,
-      title: 'Smart Features',
-      description: 'We track your streaks, save drafts automatically, and suggest next actions based on patterns. Try keyboard shortcuts (Cmd+B for Brain Dump)!',
-      highlight: 'smart-banner',
-      position: 'top',
+      title: 'Smart Suggestions',
+      description: 'We suggest what to do next based on time of day, your patterns, and streaks. These appear at the top of your dashboard.',
+      action: null,
+      actionLabel: null,
+      scrollTo: null,
+      position: 'center',
       color: 'amber'
     },
     {
-      id: 'pomodoro',
-      icon: Brain,
-      title: 'Focus with Pomodoro',
-      description: 'When you\'re ready to focus, use the Pomodoro timer for deep work sessions. It adapts to your energy levels.',
-      highlight: 'pomodoro',
-      position: 'right',
+      id: 'streaks',
+      icon: Heart,
+      title: 'Track Your Streaks',
+      description: 'Build momentum with streak tracking! See your progress and get predictions on maintaining your habits.',
+      action: null,
+      actionLabel: null,
+      scrollTo: null,
+      position: 'center',
+      color: 'pink'
+    },
+    {
+      id: 'shortcuts',
+      icon: Mouse,
+      title: 'Power User Shortcuts',
+      description: 'Save time with keyboard shortcuts:\n• Cmd/Ctrl + B = Brain Dump\n• Cmd/Ctrl + N = Nutrition\n• Cmd/Ctrl + M = Movement\n• Cmd/Ctrl + P = Pomodoro',
+      action: null,
+      actionLabel: null,
+      scrollTo: null,
+      position: 'center',
       color: 'blue'
     },
     {
       id: 'complete',
       icon: Check,
-      title: 'You\'re All Set!',
-      description: 'You can always access help from the command center (Cmd+C). Ready to start your journey?',
-      highlight: null,
+      title: 'You\'re All Set! 🎉',
+      description: 'You now know the basics! Start by completing your Must-Dos, and let DualTrack OS help you manage your day.',
+      action: null,
+      actionLabel: null,
+      scrollTo: null,
       position: 'center',
       color: 'purple'
     }
@@ -93,6 +116,14 @@ const OnboardingTour = ({ darkMode = false, onComplete }) => {
   const currentStepData = steps[currentStep];
 
   const handleNext = () => {
+    // Scroll to element if specified
+    if (currentStepData.scrollTo) {
+      const element = document.getElementById(currentStepData.scrollTo);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -110,11 +141,30 @@ const OnboardingTour = ({ darkMode = false, onComplete }) => {
     completeTour();
   };
 
+  const handleAction = () => {
+    if (currentStepData.action) {
+      currentStepData.action();
+    }
+  };
+
   const completeTour = () => {
-    localStorage.setItem('dualtrack-tour-completed', 'true');
+    localStorage.setItem('dualtrack-dashboard-tour-completed', 'true');
     setIsVisible(false);
     if (onComplete) onComplete();
   };
+
+  // Scroll to element when step changes
+  useEffect(() => {
+    if (isVisible && currentStepData.scrollTo) {
+      const timer = setTimeout(() => {
+        const element = document.getElementById(currentStepData.scrollTo);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep, isVisible, currentStepData.scrollTo]);
 
   if (!isVisible) return null;
 
@@ -165,22 +215,16 @@ const OnboardingTour = ({ darkMode = false, onComplete }) => {
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-fade-in" />
+      <div
+        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-fade-in"
+        onClick={handleSkip}
+      />
 
       {/* Tour Modal */}
       <div className={`
         fixed z-50
-        ${currentStepData.position === 'center'
-          ? 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
-          : currentStepData.position === 'top'
-          ? 'top-24 left-1/2 -translate-x-1/2'
-          : currentStepData.position === 'left'
-          ? 'top-1/2 left-8 -translate-y-1/2'
-          : currentStepData.position === 'right'
-          ? 'top-1/2 right-8 -translate-y-1/2'
-          : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
-        }
-        w-full max-w-md mx-4
+        top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+        w-full max-w-lg mx-4
         scale-in
       `}>
         <div className={`
@@ -196,7 +240,7 @@ const OnboardingTour = ({ darkMode = false, onComplete }) => {
           <button
             onClick={handleSkip}
             className={`
-              absolute top-4 right-4 p-1 rounded-lg
+              absolute top-4 right-4 p-2 rounded-lg
               transition-all hover:scale-110
               ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-200'}
             `}
@@ -228,11 +272,27 @@ const OnboardingTour = ({ darkMode = false, onComplete }) => {
 
           {/* Description */}
           <p className={`
-            text-base mb-6
+            text-base mb-6 whitespace-pre-line
             ${darkMode ? 'text-slate-300' : 'text-slate-700'}
           `}>
             {currentStepData.description}
           </p>
+
+          {/* Action Button (if available) */}
+          {currentStepData.action && (
+            <button
+              onClick={handleAction}
+              className={`
+                w-full mb-4 py-3 px-6 rounded-lg font-semibold text-white
+                ${colors.button}
+                transition-all hover:scale-105 active:scale-95
+                shadow-lg
+                flex items-center justify-center gap-2
+              `}
+            >
+              {currentStepData.actionLabel}
+            </button>
+          )}
 
           {/* Progress Dots */}
           <div className="flex gap-2 mb-6">
@@ -268,12 +328,12 @@ const OnboardingTour = ({ darkMode = false, onComplete }) => {
                 `}
               >
                 <ChevronLeft size={20} />
-                Previous
+                Back
               </button>
             )}
 
-            {/* Skip Button (only show if not last step) */}
-            {!isLastStep && isFirstStep && (
+            {/* Skip Button (only on first step) */}
+            {isFirstStep && (
               <button
                 onClick={handleSkip}
                 className={`
