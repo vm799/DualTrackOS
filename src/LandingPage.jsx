@@ -97,7 +97,7 @@ const LandingPage = ({ onEnter, onViewStory, darkMode, user }) => {
               darkMode ? 'text-purple-400' : 'text-purple-600'
             }`}
           >
-            For executive women who refuse to choose between ambition and wellness
+            Your companion through every challenge, cycle, and chapter
           </p>
 
           <button

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import LandingPageView from './pages/LandingPage';
 import StoryPageView from './pages/StoryPage';
 import OnboardingPage from './pages/OnboardingPage';
+import CheckInPage from './pages/CheckInPage';
 import Dashboard from './pages/Dashboard';
 import HealthPage from './pages/HealthPage';
 import ProductivityPage from './pages/ProductivityPage';
@@ -23,9 +24,19 @@ const AppRouter = () => {
           path="/onboarding"
           element={
             userProfile.hasCompletedOnboarding ? (
-              <Navigate to="/dashboard" replace />
+              <Navigate to="/check-in" replace />
             ) : (
               <OnboardingPage darkMode={darkMode} />
+            )
+          }
+        />
+        <Route
+          path="/check-in"
+          element={
+            userProfile.hasCompletedOnboarding ? (
+              <CheckInPage darkMode={darkMode} />
+            ) : (
+              <Navigate to="/onboarding" replace />
             )
           }
         />
