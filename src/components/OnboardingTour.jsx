@@ -198,18 +198,15 @@ const OnboardingTour = ({
     // Mark as clicked for visual feedback
     setClickedTiles(prev => [...prev, option.id]);
 
-    // Execute the action
+    // Execute the action (open the modal)
     if (option.action) {
       option.action();
     }
 
-    // Auto-advance after 800ms - faster for better UX flow
+    // Close the tour after a short delay so user can interact with the modal
     setTimeout(() => {
-      if (currentStep < steps.length - 1) {
-        setCurrentStep(currentStep + 1);
-        setClickedTiles([]); // Reset for next step
-      }
-    }, 800);
+      completeTour();
+    }, 500);
   };
 
   const completeTour = () => {
