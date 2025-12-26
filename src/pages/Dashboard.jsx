@@ -651,14 +651,14 @@ const Dashboard = () => {
             />
           )}
 
-          {/* Other widgets still disabled for testing */}
-          {false && <QuickNav darkMode={darkMode} />}
-          {false && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <StreakPrediction darkMode={darkMode} />
-              <SkillLevelBadge darkMode={darkMode} showProgress={true} />
-            </div>
-          )}
+          {/* QuickNav - RE-ENABLED (all hooks unconditional) */}
+          <QuickNav darkMode={darkMode} />
+
+          {/* StreakPrediction & SkillLevelBadge - RE-ENABLED (hooks before early returns) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <StreakPrediction darkMode={darkMode} />
+            <SkillLevelBadge darkMode={darkMode} showProgress={true} />
+          </div>
 
           {/* Must-Dos Section */}
           <SectionContainer
