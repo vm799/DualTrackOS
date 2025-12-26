@@ -234,15 +234,15 @@ const DashboardPreview = () => {
         </div>
       </div>
 
-      {/* ONBOARDING TOUR */}
-      <OnboardingTour
+      {/* ONBOARDING TOUR - DISABLED: React Hooks #185 error */}
+      {/* <OnboardingTour
         darkMode={darkMode}
         onComplete={handleTourComplete}
         onOpenBrainDump={() => handleOpenFeature('Brain Dump')}
         onOpenNutrition={() => handleOpenFeature('Nutrition')}
         onOpenMovement={() => handleOpenFeature('Movement')}
         onOpenPomodoro={() => handleOpenFeature('Mindfulness')}
-      />
+      /> */}
 
       {/* PREVIEW MODAL - Shows when clicking features */}
       {previewModal && (
