@@ -826,14 +826,14 @@ const Dashboard = () => {
         />
       )}
 
-      {/* CelebrationModal DISABLED - testing safe components first */}
-      {false && <CelebrationModal
+      {/* CelebrationModal - RE-ENABLED (hooks before early return) */}
+      <CelebrationModal
         show={showCelebration}
         onClose={() => setShowCelebration(false)}
         type={celebrationType}
         data={celebrationData}
         darkMode={darkMode}
-      />}
+      />
 
       {/* FULLSCREEN POMODORO */}
       <PomodoroFullScreen darkMode={darkMode} />
