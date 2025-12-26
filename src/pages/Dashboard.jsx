@@ -839,15 +839,15 @@ const Dashboard = () => {
       {/* FULLSCREEN POMODORO */}
       <PomodoroFullScreen darkMode={darkMode} />
 
-      {/* ONBOARDING TOUR - DISABLED: React Hooks #185 error persists */}
-      {/* <OnboardingTour
+      {/* ONBOARDING TOUR - REWRITTEN with stable hooks architecture */}
+      <OnboardingTour
         darkMode={darkMode}
         onComplete={() => console.log('Onboarding tour completed!')}
         onOpenBrainDump={openBrainDump}
         onOpenNutrition={openNutrition}
         onOpenMovement={openMovement}
         onOpenPomodoro={openMindfulMoment}
-      /> */}
+      />
 
       {/* BOTTOM NAVIGATION */}
       <BottomNavigation />
