@@ -641,21 +641,19 @@ const Dashboard = () => {
       {/* MAIN CONTENT */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-6 pb-32 relative z-10">
-          {/* ALL WIDGETS DISABLED - CORE MUST-DOS ONLY */}
-          {false && <QuickNav darkMode={darkMode} />}
-          {false && showSuggestion && (
+          {/* WIDGETS - SYSTEMATICALLY RE-ENABLED */}
+          <QuickNav darkMode={darkMode} />
+          {showSuggestion && (
             <SmartSuggestionBanner
               darkMode={darkMode}
               onAction={handleSuggestionAction}
               onDismiss={() => setShowSuggestion(false)}
             />
           )}
-          {false && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <StreakPrediction darkMode={darkMode} />
-              <SkillLevelBadge darkMode={darkMode} showProgress={true} />
-            </div>
-          )}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <StreakPrediction darkMode={darkMode} />
+            <SkillLevelBadge darkMode={darkMode} showProgress={true} />
+          </div>
 
           {/* Must-Dos Section */}
           <SectionContainer
@@ -802,17 +800,17 @@ const Dashboard = () => {
       <NutritionDetailModal show={showNutritionModal} onClose={() => setShowNutritionModal(false)} />
       <BrainDumpModal show={showBrainDumpModal} onClose={() => setShowBrainDumpModal(false)} />
 
-      {/* CELEBRATION MODAL - DISABLED (has hooks issue) */}
-      {false && <CelebrationModal
+      {/* CELEBRATION MODAL - RE-ENABLED (hooks are correct) */}
+      <CelebrationModal
         show={showCelebration}
         onClose={() => setShowCelebration(false)}
         type={celebrationType}
         data={celebrationData}
         darkMode={darkMode}
-      />}
+      />
 
-      {/* WELCOME MODAL - DISABLED (testing for hooks issue) */}
-      {false && showWelcome && (
+      {/* WELCOME MODAL - RE-ENABLED (no hooks) */}
+      {showWelcome && (
         <DashboardWelcome
           darkMode={darkMode}
           onClose={handleWelcomeClose}
@@ -820,8 +818,8 @@ const Dashboard = () => {
         />
       )}
 
-      {/* QUICK CHECK-IN - DISABLED (testing for hooks issue) */}
-      {false && showQuickCheckIn && (
+      {/* QUICK CHECK-IN - RE-ENABLED (no hooks) */}
+      {showQuickCheckIn && (
         <QuickCheckIn
           darkMode={darkMode}
           onClose={handleQuickCheckInClose}
@@ -837,15 +835,15 @@ const Dashboard = () => {
       {/* FULLSCREEN POMODORO */}
       <PomodoroFullScreen darkMode={darkMode} />
 
-      {/* ONBOARDING TOUR - DISABLED UNTIL HOOKS ISSUE FULLY RESOLVED */}
-      {false && <OnboardingTour
+      {/* ONBOARDING TOUR - RE-ENABLED (hooks verified correct) */}
+      <OnboardingTour
         darkMode={darkMode}
         onComplete={() => console.log('Onboarding tour completed!')}
         onOpenBrainDump={openBrainDump}
         onOpenNutrition={openNutrition}
         onOpenMovement={openMovement}
         onOpenPomodoro={openMindfulMoment}
-      />}
+      />
 
       {/* BOTTOM NAVIGATION */}
       <BottomNavigation />
