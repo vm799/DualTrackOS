@@ -52,7 +52,25 @@ class ErrorBoundary extends React.Component {
   }
 
   handleReset = () => {
+    // Try to recover by resetting state first
     this.setState({ hasError: false, error: null, errorInfo: null, eventId: null });
+
+    // If state reset doesn't work, navigate to a safe location
+    setTimeout(() => {
+      // Get last known good path or default to home
+      const lastGoodPath = localStorage.getItem('last-good-path') || '/';
+
+      // If we're still on an error state after reset, navigate away
+      if (this.state.hasError) {
+        window.location.href = lastGoodPath;
+      }
+    }, 100);
+  };
+
+  handleGoHome = () => {
+    // Clear error state and go to home page
+    localStorage.setItem('last-good-path', '/');
+    window.location.href = '/';
   };
 
   handleFeedback = () => {
@@ -109,7 +127,7 @@ class ErrorBoundary extends React.Component {
                   Try Again
                 </button>
                 <button
-                  onClick={() => window.location.href = '/'}
+                  onClick={this.handleGoHome}
                   className="px-6 py-3 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold rounded-lg transition-all"
                 >
                   Go Home
