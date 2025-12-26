@@ -641,15 +641,18 @@ const Dashboard = () => {
       {/* MAIN CONTENT */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-6 pb-32 relative z-10">
-          {/* WIDGETS DISABLED - INVESTIGATING HOOKS ERROR */}
-          {false && <QuickNav darkMode={darkMode} />}
-          {false && showSuggestion && (
+          {/* WIDGETS - RE-ENABLING SYSTEMATICALLY */}
+          {/* SmartSuggestionBanner - RE-ENABLED (hook before early return) */}
+          {showSuggestion && (
             <SmartSuggestionBanner
               darkMode={darkMode}
               onAction={handleSuggestionAction}
               onDismiss={() => setShowSuggestion(false)}
             />
           )}
+
+          {/* Other widgets still disabled for testing */}
+          {false && <QuickNav darkMode={darkMode} />}
           {false && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <StreakPrediction darkMode={darkMode} />
