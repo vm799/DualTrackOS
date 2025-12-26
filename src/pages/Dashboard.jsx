@@ -642,7 +642,7 @@ const Dashboard = () => {
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-6 pb-32 relative z-10">
           {/* ALL WIDGETS DISABLED - CORE MUST-DOS ONLY */}
-          {false && <QuickNav darkMode={darkMode} />}
+          <QuickNav darkMode={darkMode} />
           {false && showSuggestion && (
             <SmartSuggestionBanner
               darkMode={darkMode}
