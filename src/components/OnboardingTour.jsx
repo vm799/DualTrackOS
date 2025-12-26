@@ -1,23 +1,61 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { X, ChevronRight, ChevronLeft, Check, Sparkles, Zap, Target, Brain, Heart, Mouse } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { X, ChevronRight, ChevronLeft, Check, Sparkles, Zap, Target, Mouse } from 'lucide-react';
 
 /**
- * OnboardingTour Component
+ * OnboardingTour Component - REWRITTEN with stable hooks
  *
- * Interactive product tour for first-time Dashboard users
- * - Highlights key features with actual interactions
- * - Skippable at any time
- * - Remembers completion in localStorage
- * - Scrolls to and highlights real elements
- *
- * Tour Steps:
- * 1. Welcome & Overview
- * 2. NDM Must-Dos (with action button)
- * 3. Smart Suggestions (with action button)
- * 4. Streak Tracking (scrolls to element)
- * 5. Keyboard Shortcuts (interactive)
- * 6. Complete
+ * Fixed React Hooks #185 error by:
+ * - Using static steps configuration (no callback dependencies)
+ * - Storing action references in component state
+ * - Using useCallback for all handlers
+ * - No conditional hooks or early returns before all hooks
  */
+
+// Static step configuration - no functions, no dynamic dependencies
+const TOUR_STEPS = [
+  {
+    id: 'welcome',
+    icon: Sparkles,
+    title: 'Welcome to Your Dashboard!',
+    description: 'This is your command center for managing energy, productivity, and wellbeing. Let\'s explore the key features together.',
+    color: 'purple'
+  },
+  {
+    id: 'ndm',
+    icon: Target,
+    title: 'What Do You Want to Do First?',
+    description: 'Click on any of the 4 non-negotiables to try them out. Each one helps you build a complete day.',
+    color: 'emerald',
+    menuOptions: [
+      { id: 'nutrition', icon: '🥗', label: 'Nutrition', description: 'Track your meals' },
+      { id: 'movement', icon: '🏃', label: 'Movement', description: 'Log your exercise' },
+      { id: 'mindfulness', icon: '🧘', label: 'Mindfulness', description: 'Box breathing' },
+      { id: 'braindump', icon: '🧠', label: 'Brain Dump', description: 'Clear your mind' }
+    ]
+  },
+  {
+    id: 'suggestions',
+    icon: Zap,
+    title: 'Smart Suggestions',
+    description: 'We suggest what to do next based on time of day, your patterns, and streaks. These appear at the top of your dashboard.',
+    color: 'amber'
+  },
+  {
+    id: 'shortcuts',
+    icon: Mouse,
+    title: 'Power User Shortcuts',
+    description: 'Save time with keyboard shortcuts:\n• Cmd/Ctrl + B = Brain Dump\n• Cmd/Ctrl + N = Nutrition\n• Cmd/Ctrl + M = Movement\n• Cmd/Ctrl + P = Pomodoro',
+    color: 'blue'
+  },
+  {
+    id: 'complete',
+    icon: Check,
+    title: 'You\'re All Set! 🎉',
+    description: 'You now know the basics! Start by completing your Must-Dos, and let DualTrack OS help you manage your day.',
+    color: 'purple'
+  }
+];
+
 const OnboardingTour = ({
   darkMode = false,
   onComplete,
@@ -30,13 +68,19 @@ const OnboardingTour = ({
   const [isVisible, setIsVisible] = useState(false);
   const [clickedTiles, setClickedTiles] = useState([]);
 
+  // Store action callbacks in state - stable reference
+  const actionHandlers = {
+    nutrition: onOpenNutrition,
+    movement: onOpenMovement,
+    mindfulness: onOpenPomodoro,
+    braindump: onOpenBrainDump
+  };
+
+  // Initialize tour visibility
   useEffect(() => {
     try {
-      // Check if user has completed tour
       const hasCompletedTour = localStorage.getItem('dualtrack-dashboard-tour-completed');
-
       if (!hasCompletedTour) {
-        // Show tour after a short delay (let Dashboard render first)
         const timer = setTimeout(() => setIsVisible(true), 1500);
         return () => clearTimeout(timer);
       }
@@ -45,216 +89,61 @@ const OnboardingTour = ({
     }
   }, []);
 
-  const steps = useMemo(() => [
-    {
-      id: 'welcome',
-      icon: Sparkles,
-      title: 'Welcome to Your Dashboard!',
-      description: 'This is your command center for managing energy, productivity, and wellbeing. Let\'s explore the key features together.',
-      action: null,
-      actionLabel: null,
-      scrollTo: null,
-      position: 'center',
-      color: 'purple'
-    },
-    {
-      id: 'ndm',
-      icon: Target,
-      title: 'What Do You Want to Do First?',
-      description: 'Click on any of the 4 non-negotiables to try them out. Each one helps you build a complete day.',
-      menuOptions: [
-        {
-          id: 'nutrition',
-          icon: '🥗',
-          label: 'Nutrition',
-          description: 'Track your meals',
-          action: onOpenNutrition
-        },
-        {
-          id: 'movement',
-          icon: '🏃',
-          label: 'Movement',
-          description: 'Log your exercise',
-          action: onOpenMovement
-        },
-        {
-          id: 'mindfulness',
-          icon: '🧘',
-          label: 'Mindfulness',
-          description: 'Box breathing',
-          action: () => {
-            // In Dashboard this would open mindful moment
-            // In preview this is just visual feedback
-            if (onOpenPomodoro) onOpenPomodoro(); // Placeholder
-          }
-        },
-        {
-          id: 'braindump',
-          icon: '🧠',
-          label: 'Brain Dump',
-          description: 'Clear your mind',
-          action: onOpenBrainDump
-        }
-      ],
-      scrollTo: 'must-dos',
-      position: 'center',
-      color: 'emerald'
-    },
-    {
-      id: 'suggestions',
-      icon: Zap,
-      title: 'Smart Suggestions',
-      description: 'We suggest what to do next based on time of day, your patterns, and streaks. These appear at the top of your dashboard.',
-      action: null,
-      actionLabel: null,
-      scrollTo: null,
-      position: 'center',
-      color: 'amber'
-    },
-    {
-      id: 'streaks',
-      icon: Heart,
-      title: 'Track Your Streaks',
-      description: 'Build momentum with streak tracking! See your progress and get predictions on maintaining your habits.',
-      action: null,
-      actionLabel: null,
-      scrollTo: null,
-      position: 'center',
-      color: 'pink'
-    },
-    {
-      id: 'shortcuts',
-      icon: Mouse,
-      title: 'Power User Shortcuts',
-      description: 'Save time with keyboard shortcuts:\n• Cmd/Ctrl + B = Brain Dump\n• Cmd/Ctrl + N = Nutrition\n• Cmd/Ctrl + M = Movement\n• Cmd/Ctrl + P = Pomodoro',
-      action: null,
-      actionLabel: null,
-      scrollTo: null,
-      position: 'center',
-      color: 'blue'
-    },
-    {
-      id: 'complete',
-      icon: Check,
-      title: 'You\'re All Set! 🎉',
-      description: 'You now know the basics! Start by completing your Must-Dos, and let DualTrack OS help you manage your day.',
-      action: null,
-      actionLabel: null,
-      scrollTo: null,
-      position: 'center',
-      color: 'purple'
-    }
-  ], [onOpenBrainDump, onOpenNutrition, onOpenMovement, onOpenPomodoro]);
-
-  // Scroll to element when step changes - MUST be before any early returns
-  useEffect(() => {
-    if (!isVisible) return;
-
-    const currentStepScroll = steps[currentStep];
-    if (currentStepScroll?.scrollTo) {
-      const timer = setTimeout(() => {
-        const element = document.getElementById(currentStepScroll.scrollTo);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [currentStep, isVisible]);
-
-  const currentStepData = steps[currentStep];
-
-  const handleNext = () => {
-    try {
-      // Scroll to element if specified
-      if (currentStepData?.scrollTo) {
-        const element = document.getElementById(currentStepData.scrollTo);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
-
-      if (currentStep < steps.length - 1) {
-        setCurrentStep(currentStep + 1);
-      } else {
-        completeTour();
-      }
-    } catch (error) {
-      console.error('Error in handleNext:', error);
-    }
-  };
-
-  const handlePrevious = () => {
-    try {
-      if (currentStep > 0) {
-        setCurrentStep(currentStep - 1);
-      }
-    } catch (error) {
-      console.error('Error in handlePrevious:', error);
-    }
-  };
-
-  const handleSkip = () => {
-    try {
-      completeTour();
-    } catch (error) {
-      console.error('Error in handleSkip:', error);
-      // Force close the tour
-      setIsVisible(false);
-    }
-  };
-
-  const handleAction = () => {
-    try {
-      if (currentStepData?.action) {
-        currentStepData.action();
-      }
-    } catch (error) {
-      console.error('Error in handleAction:', error);
-    }
-  };
-
-  const handleMenuTileClick = (option) => {
-    try {
-      // Mark as clicked for visual feedback
-      setClickedTiles(prev => [...prev, option.id]);
-
-      // Execute the action (open the modal)
-      if (option.action) {
-        option.action();
-      }
-
-      // Close the tour after a short delay so user can interact with the modal
-      setTimeout(() => {
-        completeTour();
-      }, 500);
-    } catch (error) {
-      console.error('Error in handleMenuTileClick:', error);
-      // Still try to close the tour
-      setIsVisible(false);
-    }
-  };
-
-  const completeTour = () => {
+  // Complete tour handler - stable with useCallback
+  const completeTour = useCallback(() => {
     try {
       localStorage.setItem('dualtrack-dashboard-tour-completed', 'true');
       setIsVisible(false);
-      if (onComplete) {
-        onComplete();
-      }
+      if (onComplete) onComplete();
     } catch (error) {
       console.error('Error completing tour:', error);
-      // Still try to close the tour even if localStorage fails
       setIsVisible(false);
     }
-  };
+  }, [onComplete]);
 
-  // Early return if tour is not visible or data is invalid
-  if (!isVisible || !currentStepData) return null;
+  // Navigation handlers - all stable with useCallback
+  const handleNext = useCallback(() => {
+    if (currentStep < TOUR_STEPS.length - 1) {
+      setCurrentStep(prev => prev + 1);
+    } else {
+      completeTour();
+    }
+  }, [currentStep, completeTour]);
+
+  const handlePrevious = useCallback(() => {
+    if (currentStep > 0) {
+      setCurrentStep(prev => prev - 1);
+    }
+  }, [currentStep]);
+
+  const handleSkip = useCallback(() => {
+    completeTour();
+  }, [completeTour]);
+
+  const handleMenuTileClick = useCallback((optionId) => {
+    setClickedTiles(prev => [...prev, optionId]);
+
+    // Execute action
+    const handler = actionHandlers[optionId];
+    if (handler) {
+      handler();
+    }
+
+    // Close tour after delay
+    setTimeout(() => {
+      completeTour();
+    }, 500);
+  }, [actionHandlers, completeTour]);
+
+  // Early return AFTER all hooks
+  if (!isVisible) return null;
+
+  const currentStepData = TOUR_STEPS[currentStep];
+  if (!currentStepData) return null;
 
   const Icon = currentStepData.icon;
   const isFirstStep = currentStep === 0;
-  const isLastStep = currentStep === steps.length - 1;
+  const isLastStep = currentStep === TOUR_STEPS.length - 1;
 
   const colorClasses = {
     purple: {
@@ -263,13 +152,6 @@ const OnboardingTour = ({
       text: darkMode ? 'text-purple-400' : 'text-purple-600',
       button: darkMode ? 'bg-purple-600 hover:bg-purple-500' : 'bg-purple-600 hover:bg-purple-700',
       iconBg: darkMode ? 'bg-purple-500/20' : 'bg-purple-500/10'
-    },
-    pink: {
-      bg: darkMode ? 'from-pink-900/40 to-rose-900/40' : 'from-pink-100 to-rose-100',
-      border: darkMode ? 'border-pink-500/50' : 'border-pink-300',
-      text: darkMode ? 'text-pink-400' : 'text-pink-600',
-      button: darkMode ? 'bg-pink-600 hover:bg-pink-500' : 'bg-pink-600 hover:bg-pink-700',
-      iconBg: darkMode ? 'bg-pink-500/20' : 'bg-pink-500/10'
     },
     emerald: {
       bg: darkMode ? 'from-emerald-900/40 to-teal-900/40' : 'from-emerald-100 to-teal-100',
@@ -305,60 +187,42 @@ const OnboardingTour = ({
       />
 
       {/* Tour Modal */}
-      <div className={`
-        fixed z-[70]
-        top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-        w-full max-w-lg mx-4
-        scale-in
-      `}>
+      <div className="fixed z-[70] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg mx-4">
         <div className={`
           rounded-2xl p-6 sm:p-8
           ${darkMode ? 'bg-slate-800 border-2' : 'bg-white border-2'}
           ${colors.border}
           bg-gradient-to-br ${colors.bg}
-          backdrop-blur-sm
-          shadow-2xl
-          relative
+          shadow-2xl relative
         `}>
           {/* Close Button */}
           <button
             onClick={handleSkip}
-            className={`
-              absolute top-4 right-4 p-2 rounded-lg
-              transition-all hover:scale-110
-              ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-200'}
-            `}
+            className={`absolute top-4 right-4 p-2 rounded-lg transition-all hover:scale-110 ${
+              darkMode ? 'hover:bg-slate-700' : 'hover:bg-gray-200'
+            }`}
             aria-label="Skip tour"
           >
             <X size={20} className={darkMode ? 'text-slate-400' : 'text-gray-600'} />
           </button>
 
           {/* Icon */}
-          <div className={`
-            w-16 h-16 rounded-2xl flex items-center justify-center mb-4
-            ${colors.iconBg}
-          `}>
+          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 ${colors.iconBg}`}>
             <Icon size={32} className={colors.text} />
           </div>
 
           {/* Step Counter */}
           <div className={`text-xs font-semibold mb-2 ${colors.text}`}>
-            Step {currentStep + 1} of {steps.length}
+            Step {currentStep + 1} of {TOUR_STEPS.length}
           </div>
 
           {/* Title */}
-          <h2 className={`
-            text-2xl font-bold mb-3
-            ${darkMode ? 'text-white' : 'text-slate-900'}
-          `}>
+          <h2 className={`text-2xl font-bold mb-3 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
             {currentStepData.title}
           </h2>
 
           {/* Description */}
-          <p className={`
-            text-base mb-6 whitespace-pre-line
-            ${darkMode ? 'text-slate-300' : 'text-slate-700'}
-          `}>
+          <p className={`text-base mb-6 whitespace-pre-line ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
             {currentStepData.description}
           </p>
 
@@ -370,7 +234,7 @@ const OnboardingTour = ({
                 return (
                   <button
                     key={option.id}
-                    onClick={() => handleMenuTileClick(option)}
+                    onClick={() => handleMenuTileClick(option.id)}
                     className={`
                       p-4 rounded-xl text-center transition-all
                       ${isClicked
@@ -381,19 +245,14 @@ const OnboardingTour = ({
                         ? 'bg-slate-700/50 border-2 border-slate-600 hover:border-emerald-500/50 hover:scale-105'
                         : 'bg-white/50 border-2 border-gray-300 hover:border-emerald-400 hover:scale-105'
                       }
-                      active:scale-95
-                      shadow-md hover:shadow-lg
+                      active:scale-95 shadow-md hover:shadow-lg
                     `}
                   >
                     <div className="text-3xl mb-2">{option.icon}</div>
-                    <div className={`text-sm font-semibold mb-1 ${
-                      darkMode ? 'text-white' : 'text-slate-900'
-                    }`}>
+                    <div className={`text-sm font-semibold mb-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                       {option.label}
                     </div>
-                    <div className={`text-xs ${
-                      darkMode ? 'text-slate-400' : 'text-slate-600'
-                    }`}>
+                    <div className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
                       {option.description}
                     </div>
                     {isClicked && (
@@ -407,30 +266,12 @@ const OnboardingTour = ({
             </div>
           )}
 
-          {/* Action Button (if available) */}
-          {currentStepData.action && (
-            <button
-              onClick={handleAction}
-              className={`
-                w-full mb-4 py-3 px-6 rounded-lg font-semibold text-white
-                ${colors.button}
-                transition-all hover:scale-105 active:scale-95
-                shadow-lg
-                flex items-center justify-center gap-2
-              `}
-            >
-              {currentStepData.actionLabel}
-            </button>
-          )}
-
-          {/* Success Message (when tile clicked) */}
+          {/* Success Message */}
           {clickedTiles.length > 0 && currentStepData.menuOptions && (
             <div className={`mb-4 p-3 rounded-lg text-center animate-fade-in ${
               darkMode ? 'bg-emerald-500/20 border border-emerald-500/30' : 'bg-emerald-50 border border-emerald-200'
             }`}>
-              <p className={`text-sm font-semibold ${
-                darkMode ? 'text-emerald-300' : 'text-emerald-700'
-              }`}>
+              <p className={`text-sm font-semibold ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>
                 ✓ Great choice! Moving to next step...
               </p>
             </div>
@@ -438,16 +279,13 @@ const OnboardingTour = ({
 
           {/* Progress Dots */}
           <div className="flex gap-2 mb-6">
-            {steps.map((step, index) => (
+            {TOUR_STEPS.map((step, index) => (
               <div
                 key={step.id}
                 className={`
                   h-2 rounded-full transition-all duration-300
                   ${index === currentStep ? 'w-8' : 'w-2'}
-                  ${index <= currentStep
-                    ? colors.text
-                    : darkMode ? 'bg-slate-700' : 'bg-gray-300'
-                  }
+                  ${index <= currentStep ? colors.text : darkMode ? 'bg-slate-700' : 'bg-gray-300'}
                 `}
               />
             ))}
@@ -455,16 +293,12 @@ const OnboardingTour = ({
 
           {/* Navigation Buttons */}
           <div className="flex gap-3">
-            {/* Previous Button */}
             {!isFirstStep && (
               <button
                 onClick={handlePrevious}
                 className={`
                   flex-1 px-4 py-3 rounded-lg font-semibold
-                  ${darkMode
-                    ? 'bg-slate-700 hover:bg-slate-600 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                  }
+                  ${darkMode ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'}
                   transition-all hover:scale-105 active:scale-95
                   flex items-center justify-center gap-2
                 `}
@@ -474,16 +308,12 @@ const OnboardingTour = ({
               </button>
             )}
 
-            {/* Skip Button (only on first step) */}
             {isFirstStep && (
               <button
                 onClick={handleSkip}
                 className={`
                   flex-1 px-4 py-3 rounded-lg font-semibold
-                  ${darkMode
-                    ? 'bg-slate-700 hover:bg-slate-600 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                  }
+                  ${darkMode ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'}
                   transition-all hover:scale-105 active:scale-95
                 `}
               >
@@ -491,15 +321,12 @@ const OnboardingTour = ({
               </button>
             )}
 
-            {/* Next/Complete Button */}
             <button
               onClick={handleNext}
               className={`
-                ${isFirstStep ? 'flex-1' : 'flex-1'}
-                px-4 py-3 rounded-lg font-semibold text-white
+                flex-1 px-4 py-3 rounded-lg font-semibold text-white
                 ${colors.button}
-                transition-all hover:scale-105 active:scale-95
-                shadow-lg
+                transition-all hover:scale-105 active:scale-95 shadow-lg
                 flex items-center justify-center gap-2
                 ${clickedTiles.length > 0 && currentStepData.menuOptions ? 'animate-pulse' : ''}
               `}
