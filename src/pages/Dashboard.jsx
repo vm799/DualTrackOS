@@ -641,24 +641,21 @@ const Dashboard = () => {
       {/* MAIN CONTENT */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-6 pb-32 relative z-10">
-          {/* Quick Navigation - RE-ENABLED (Step 1: Safe component) */}
-          <QuickNav darkMode={darkMode} />
-
-          {/* Smart Suggestion Banner - RE-ENABLED (Step 2: Safe component) */}
-          {showSuggestion && (
+          {/* ALL WIDGETS DISABLED - CORE MUST-DOS ONLY */}
+          {false && <QuickNav darkMode={darkMode} />}
+          {false && showSuggestion && (
             <SmartSuggestionBanner
               darkMode={darkMode}
               onAction={handleSuggestionAction}
               onDismiss={() => setShowSuggestion(false)}
             />
           )}
-
-          {/* User Progress & Insights - StreakPrediction ONLY (Step 3: We fixed this) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <StreakPrediction darkMode={darkMode} />
-            {/* SkillLevelBadge still disabled - likely culprit */}
-            {false && <SkillLevelBadge darkMode={darkMode} showProgress={true} />}
-          </div>
+          {false && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <StreakPrediction darkMode={darkMode} />
+              <SkillLevelBadge darkMode={darkMode} showProgress={true} />
+            </div>
+          )}
 
           {/* Must-Dos Section */}
           <SectionContainer
@@ -805,17 +802,17 @@ const Dashboard = () => {
       <NutritionDetailModal show={showNutritionModal} onClose={() => setShowNutritionModal(false)} />
       <BrainDumpModal show={showBrainDumpModal} onClose={() => setShowBrainDumpModal(false)} />
 
-      {/* CELEBRATION MODAL */}
-      <CelebrationModal
+      {/* CELEBRATION MODAL - DISABLED (has hooks issue) */}
+      {false && <CelebrationModal
         show={showCelebration}
         onClose={() => setShowCelebration(false)}
         type={celebrationType}
         data={celebrationData}
         darkMode={darkMode}
-      />
+      />}
 
-      {/* WELCOME MODAL - First-time users */}
-      {showWelcome && (
+      {/* WELCOME MODAL - DISABLED (testing for hooks issue) */}
+      {false && showWelcome && (
         <DashboardWelcome
           darkMode={darkMode}
           onClose={handleWelcomeClose}
@@ -823,8 +820,8 @@ const Dashboard = () => {
         />
       )}
 
-      {/* QUICK CHECK-IN - Returning users */}
-      {showQuickCheckIn && (
+      {/* QUICK CHECK-IN - DISABLED (testing for hooks issue) */}
+      {false && showQuickCheckIn && (
         <QuickCheckIn
           darkMode={darkMode}
           onClose={handleQuickCheckInClose}
