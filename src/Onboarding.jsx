@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { User, Sparkles, CheckCircle, Heart, ArrowRight, Zap, Battery, AlertTriangle, Weight, Cake } from 'lucide-react';
 import Logo from './components/Logo';
 import ParentalConsentModal from './components/ParentalConsentModal';
@@ -28,6 +28,11 @@ const Onboarding = ({ onComplete, darkMode }) => {
   const [ageError, setAgeError] = useState('');
   const [weightError, setWeightError] = useState('');
   const [showParentalConsent, setShowParentalConsent] = useState(false);
+
+  // Input refs for auto-focus
+  const initialsInputRef = useRef(null);
+  const ageInputRef = useRef(null);
+  const weightInputRef = useRef(null);
 
   // Validation functions
   const validateAge = (age) => {
@@ -492,6 +497,11 @@ const Onboarding = ({ onComplete, darkMode }) => {
                   // Remove any numbers from the input
                   const sanitized = e.target.value.replace(/[0-9]/g, '');
                   setProfile({ ...profile, preferredName: sanitized, name: sanitized });
+
+                  // Auto-focus initials field when name has 2+ characters
+                  if (sanitized.length >= 2 && initialsInputRef.current) {
+                    setTimeout(() => initialsInputRef.current?.focus(), 100);
+                  }
                 }}
                 placeholder="e.g., Sarah or Boss Lady"
                 className={`w-full px-4 py-3 rounded-lg transition-all ${
@@ -511,6 +521,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
                 Your Initials (for avatar)
               </label>
               <input
+                ref={initialsInputRef}
                 type="text"
                 value={profile.initials}
                 onChange={(e) => {
@@ -605,12 +616,18 @@ const Onboarding = ({ onComplete, darkMode }) => {
                 Your Age <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>(optional)</span>
               </label>
               <input
+                ref={ageInputRef}
                 type="number"
                 value={profile.age}
                 onChange={(e) => {
                   const value = e.target.value;
                   setProfile({ ...profile, age: value });
-                  validateAge(value);
+                  const isValid = validateAge(value);
+
+                  // Auto-focus weight field when valid age is entered (2 digits)
+                  if (isValid && value.length >= 2 && weightInputRef.current) {
+                    setTimeout(() => weightInputRef.current?.focus(), 100);
+                  }
                 }}
                 onBlur={(e) => validateAge(e.target.value)}
                 placeholder="e.g., 42"
@@ -680,6 +697,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
               </div>
 
               <input
+                ref={weightInputRef}
                 type="number"
                 value={profile.weight}
                 onChange={(e) => {
