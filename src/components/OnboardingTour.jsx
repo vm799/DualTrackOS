@@ -1,17 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, ChevronRight, ChevronLeft, Check, Sparkles, Zap, Target, Mouse } from 'lucide-react';
 
 /**
- * OnboardingTour Component - REWRITTEN with stable hooks
+ * OnboardingTour Component - FIXED with useRef for stable handlers
  *
- * Fixed React Hooks #185 error by:
- * - Using static steps configuration (no callback dependencies)
- * - Storing action references in component state
- * - Using useCallback for all handlers
- * - No conditional hooks or early returns before all hooks
+ * React Hooks #185 Fix Strategy:
+ * - Use refs to store callback props (stable reference, latest value)
+ * - NO useCallback with unstable dependencies
+ * - NO useMemo with callback dependencies
+ * - Inline event handlers (don't need to be stable)
+ * - Early returns AFTER all hooks
  */
 
-// Static step configuration - no functions, no dynamic dependencies
+// Static step configuration
 const TOUR_STEPS = [
   {
     id: 'welcome',
@@ -68,15 +69,23 @@ const OnboardingTour = ({
   const [isVisible, setIsVisible] = useState(false);
   const [clickedTiles, setClickedTiles] = useState([]);
 
-  // Store action callbacks in state - stable reference
-  const actionHandlers = {
-    nutrition: onOpenNutrition,
-    movement: onOpenMovement,
-    mindfulness: onOpenPomodoro,
-    braindump: onOpenBrainDump
-  };
+  // Store callbacks in refs - stable reference, always latest value
+  const onCompleteRef = useRef(onComplete);
+  const onOpenBrainDumpRef = useRef(onOpenBrainDump);
+  const onOpenNutritionRef = useRef(onOpenNutrition);
+  const onOpenMovementRef = useRef(onOpenMovement);
+  const onOpenPomodoroRef = useRef(onOpenPomodoro);
 
-  // Initialize tour visibility
+  // Update refs when props change
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+    onOpenBrainDumpRef.current = onOpenBrainDump;
+    onOpenNutritionRef.current = onOpenNutrition;
+    onOpenMovementRef.current = onOpenMovement;
+    onOpenPomodoroRef.current = onOpenPomodoro;
+  });
+
+  // Initialize tour visibility - only hook with dependencies
   useEffect(() => {
     try {
       const hasCompletedTour = localStorage.getItem('dualtrack-dashboard-tour-completed');
@@ -87,53 +96,66 @@ const OnboardingTour = ({
     } catch (error) {
       console.error('OnboardingTour localStorage error:', error);
     }
-  }, []);
+  }, []); // Empty deps - only run once
 
-  // Complete tour handler - stable with useCallback
-  const completeTour = useCallback(() => {
+  // ALL event handlers are inline functions - don't need useCallback
+  const completeTour = () => {
     try {
       localStorage.setItem('dualtrack-dashboard-tour-completed', 'true');
       setIsVisible(false);
-      if (onComplete) onComplete();
+      if (onCompleteRef.current) {
+        onCompleteRef.current();
+      }
     } catch (error) {
       console.error('Error completing tour:', error);
       setIsVisible(false);
     }
-  }, [onComplete]);
+  };
 
-  // Navigation handlers - all stable with useCallback
-  const handleNext = useCallback(() => {
+  const handleNext = () => {
     if (currentStep < TOUR_STEPS.length - 1) {
       setCurrentStep(prev => prev + 1);
     } else {
       completeTour();
     }
-  }, [currentStep, completeTour]);
+  };
 
-  const handlePrevious = useCallback(() => {
+  const handlePrevious = () => {
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
     }
-  }, [currentStep]);
+  };
 
-  const handleSkip = useCallback(() => {
+  const handleSkip = () => {
     completeTour();
-  }, [completeTour]);
+  };
 
-  const handleMenuTileClick = useCallback((optionId) => {
+  const handleMenuTileClick = (optionId) => {
     setClickedTiles(prev => [...prev, optionId]);
 
-    // Execute action
-    const handler = actionHandlers[optionId];
-    if (handler) {
-      handler();
+    // Execute action using refs (always latest, stable reference)
+    switch (optionId) {
+      case 'nutrition':
+        if (onOpenNutritionRef.current) onOpenNutritionRef.current();
+        break;
+      case 'movement':
+        if (onOpenMovementRef.current) onOpenMovementRef.current();
+        break;
+      case 'mindfulness':
+        if (onOpenPomodoroRef.current) onOpenPomodoroRef.current();
+        break;
+      case 'braindump':
+        if (onOpenBrainDumpRef.current) onOpenBrainDumpRef.current();
+        break;
+      default:
+        break;
     }
 
     // Close tour after delay
     setTimeout(() => {
       completeTour();
     }, 500);
-  }, [actionHandlers, completeTour]);
+  };
 
   // Early return AFTER all hooks
   if (!isVisible) return null;
