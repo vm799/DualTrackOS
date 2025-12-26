@@ -117,30 +117,30 @@ const QuickCheckIn = ({
           {/* Quick Stats */}
           {streaks && (
             <div className="grid grid-cols-2 gap-3">
-              <div className={`p-3 rounded-lg text-center ${
-                darkMode ? 'bg-gray-700/50' : 'bg-gray-50'
+              <div className={`p-4 rounded-lg text-center ${
+                darkMode ? 'bg-gray-700/50 border border-gray-600' : 'bg-gray-50 border border-gray-200'
               }`}>
-                <div className={`text-2xl font-bold ${
-                  darkMode ? 'text-emerald-400' : 'text-emerald-600'
+                <div className={`text-4xl font-bold mb-1 ${
+                  darkMode ? 'text-white' : 'text-gray-900'
                 }`}>
                   {streaks.checkIns || 0}
                 </div>
-                <div className={`text-xs ${
-                  darkMode ? 'text-gray-400' : 'text-gray-600'
+                <div className={`text-sm font-medium ${
+                  darkMode ? 'text-gray-200' : 'text-gray-700'
                 }`}>
                   Day Streak
                 </div>
               </div>
-              <div className={`p-3 rounded-lg text-center ${
-                darkMode ? 'bg-gray-700/50' : 'bg-gray-50'
+              <div className={`p-4 rounded-lg text-center ${
+                darkMode ? 'bg-gray-700/50 border border-gray-600' : 'bg-gray-50 border border-gray-200'
               }`}>
-                <div className={`text-2xl font-bold ${
-                  darkMode ? 'text-pink-400' : 'text-pink-600'
+                <div className={`text-4xl font-bold mb-1 ${
+                  darkMode ? 'text-white' : 'text-gray-900'
                 }`}>
                   {streaks.ndmCompletions || 0}
                 </div>
-                <div className={`text-xs ${
-                  darkMode ? 'text-gray-400' : 'text-gray-600'
+                <div className={`text-sm font-medium ${
+                  darkMode ? 'text-gray-200' : 'text-gray-700'
                 }`}>
                   NDM Complete
                 </div>
