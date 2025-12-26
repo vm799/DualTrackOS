@@ -148,17 +148,19 @@ const OnboardingTour = ({
 
   // Scroll to element when step changes - MUST be before any early returns
   useEffect(() => {
-    const scrollTarget = steps[currentStep]?.scrollTo;
-    if (isVisible && scrollTarget) {
+    if (!isVisible) return;
+
+    const currentStepScroll = steps[currentStep];
+    if (currentStepScroll?.scrollTo) {
       const timer = setTimeout(() => {
-        const element = document.getElementById(scrollTarget);
+        const element = document.getElementById(currentStepScroll.scrollTo);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [currentStep, isVisible, steps]);
+  }, [currentStep, isVisible]);
 
   const currentStepData = steps[currentStep];
 
