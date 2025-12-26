@@ -839,7 +839,7 @@ const Dashboard = () => {
       {/* FULLSCREEN POMODORO */}
       <PomodoroFullScreen darkMode={darkMode} />
 
-      {/* ONBOARDING TOUR - Fixed React Hooks violation */}
+      {/* ONBOARDING TOUR */}
       <OnboardingTour
         darkMode={darkMode}
         onComplete={() => console.log('Onboarding tour completed!')}
