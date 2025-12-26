@@ -841,15 +841,15 @@ const Dashboard = () => {
       {/* FULLSCREEN POMODORO */}
       <PomodoroFullScreen darkMode={darkMode} />
 
-      {/* ONBOARDING TOUR DISABLED - INVESTIGATING HOOKS ERROR */}
-      {false && <OnboardingTour
+      {/* ONBOARDING TOUR - RE-ENABLED (useRef pattern, all hooks before early returns) */}
+      <OnboardingTour
         darkMode={darkMode}
         onComplete={() => console.log('Onboarding tour completed!')}
         onOpenBrainDump={openBrainDump}
         onOpenNutrition={openNutrition}
         onOpenMovement={openMovement}
         onOpenPomodoro={openMindfulMoment}
-      />}
+      />
 
       {/* BOTTOM NAVIGATION */}
       <BottomNavigation />
