@@ -208,21 +208,21 @@ const Onboarding = ({ onComplete, darkMode }) => {
                 <button
                   key={level}
                   onClick={() => setEnergyLevel(level)}
-                  className={`py-4 rounded-xl text-2xl font-bold transition-all ${
+                  className={`py-4 rounded-xl text-4xl font-bold transition-all ${
                     energyLevel === level
                       ? darkMode
-                        ? 'bg-cyan-500/30 border-2 border-cyan-400 ring-2 ring-cyan-400/50 scale-105'
-                        : 'bg-cyan-200 border-2 border-cyan-500 ring-2 ring-cyan-400/50 scale-105'
+                        ? 'bg-cyan-500/30 border-2 border-cyan-400 ring-2 ring-cyan-400/50 scale-105 text-white'
+                        : 'bg-cyan-200 border-2 border-cyan-500 ring-2 ring-cyan-400/50 scale-105 text-gray-900'
                       : darkMode
-                        ? 'bg-gray-800/50 border-2 border-gray-700 hover:border-gray-600 hover:scale-105'
-                        : 'bg-gray-50 border-2 border-gray-200 hover:border-gray-300 hover:scale-105'
+                        ? 'bg-gray-700/50 border-2 border-gray-600 hover:border-gray-500 hover:scale-105 text-white'
+                        : 'bg-gray-50 border-2 border-gray-200 hover:border-gray-300 hover:scale-105 text-gray-900'
                   }`}
                 >
                   {level}
                 </button>
               ))}
             </div>
-            <p className={`text-xs mt-2 text-center ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+            <p className={`text-sm mt-2 text-center font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
               1 = Exhausted • 5 = Energized
             </p>
           </div>
