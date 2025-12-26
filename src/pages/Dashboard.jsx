@@ -652,7 +652,7 @@ const Dashboard = () => {
           )}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <StreakPrediction darkMode={darkMode} />
-            {false && <SkillLevelBadge darkMode={darkMode} showProgress={true} />}
+            <SkillLevelBadge darkMode={darkMode} showProgress={true} />
           </div>
 
           {/* Must-Dos Section */}
