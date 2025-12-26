@@ -643,7 +643,7 @@ const Dashboard = () => {
         <div className="space-y-6 pb-32 relative z-10">
           {/* WIDGETS - SYSTEMATICALLY RE-ENABLED */}
           <QuickNav darkMode={darkMode} />
-          {false && showSuggestion && (
+          {showSuggestion && (
             <SmartSuggestionBanner
               darkMode={darkMode}
               onAction={handleSuggestionAction}
