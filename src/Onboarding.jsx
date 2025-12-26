@@ -90,6 +90,21 @@ const Onboarding = ({ onComplete, darkMode }) => {
     return true;
   };
 
+  // Smooth scroll to top helper function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  // Navigate to next step with auto-scroll
+  const goToStep = (nextStep) => {
+    setStep(nextStep);
+    // Small delay to ensure DOM updates before scrolling
+    setTimeout(() => scrollToTop(), 100);
+  };
+
   const handleComplete = () => {
     onComplete({
       ...profile,
@@ -277,7 +292,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
 
           {/* Continue Button */}
           <button
-            onClick={() => setStep(1)}
+            onClick={() => goToStep(1)}
             disabled={!energyLevel || !mood}
             className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
               !energyLevel || !mood
@@ -413,7 +428,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
 
           <div className="mt-8 space-y-3">
             <button
-              onClick={() => setStep(2)}
+              onClick={() => goToStep(2)}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
                 darkMode
                   ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white border-2 border-emerald-500/50 shadow-lg shadow-emerald-500/20'
@@ -520,7 +535,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
           {/* Action Buttons */}
           <div className="mt-8 space-y-3">
             <button
-              onClick={() => setStep(3)}
+              onClick={() => goToStep(3)}
               disabled={!profile.preferredName || !profile.initials}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
                 !profile.preferredName || !profile.initials
@@ -711,7 +726,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
 
             {/* Continue to Life Stage */}
             <button
-              onClick={() => profile.age ? setStep(4) : handleComplete()}
+              onClick={() => profile.age ? goToStep(4) : handleComplete()}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
                 darkMode
                   ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
@@ -906,7 +921,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
           {/* Action buttons */}
           <div className="flex gap-4">
             <button
-              onClick={() => setStep(3)}
+              onClick={() => goToStep(3)}
               className={`px-6 py-3 rounded-xl font-semibold transition-all ${
                 darkMode
                   ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
