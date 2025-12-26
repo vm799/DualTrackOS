@@ -257,15 +257,15 @@ const DashboardPreview = () => {
         </div>
       </div>
 
-      {/* ONBOARDING TOUR - REWRITTEN with stable hooks architecture */}
-      <OnboardingTour
+      {/* ONBOARDING TOUR - DISABLED UNTIL HOOKS ISSUE FULLY RESOLVED */}
+      {false && <OnboardingTour
         darkMode={darkMode}
         onComplete={handleTourComplete}
         onOpenBrainDump={() => handleOpenFeature('Brain Dump')}
         onOpenNutrition={() => handleOpenFeature('Nutrition')}
         onOpenMovement={() => handleOpenFeature('Movement')}
         onOpenPomodoro={() => handleOpenFeature('Mindfulness')}
-      />
+      />}
 
       {/* PREVIEW MODAL - Shows when clicking features */}
       {previewModal && featureInfo[previewModal] && (
