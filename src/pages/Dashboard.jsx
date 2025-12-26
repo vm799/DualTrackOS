@@ -641,19 +641,21 @@ const Dashboard = () => {
       {/* MAIN CONTENT */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-6 pb-32 relative z-10">
-          {/* WIDGETS - SYSTEMATICALLY RE-ENABLED */}
-          <QuickNav darkMode={darkMode} />
-          {showSuggestion && (
+          {/* WIDGETS DISABLED - INVESTIGATING HOOKS ERROR */}
+          {false && <QuickNav darkMode={darkMode} />}
+          {false && showSuggestion && (
             <SmartSuggestionBanner
               darkMode={darkMode}
               onAction={handleSuggestionAction}
               onDismiss={() => setShowSuggestion(false)}
             />
           )}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <StreakPrediction darkMode={darkMode} />
-            <SkillLevelBadge darkMode={darkMode} showProgress={true} />
-          </div>
+          {false && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <StreakPrediction darkMode={darkMode} />
+              <SkillLevelBadge darkMode={darkMode} showProgress={true} />
+            </div>
+          )}
 
           {/* Must-Dos Section */}
           <SectionContainer
@@ -800,17 +802,16 @@ const Dashboard = () => {
       <NutritionDetailModal show={showNutritionModal} onClose={() => setShowNutritionModal(false)} />
       <BrainDumpModal show={showBrainDumpModal} onClose={() => setShowBrainDumpModal(false)} />
 
-      {/* CELEBRATION MODAL - RE-ENABLED (hooks are correct) */}
-      <CelebrationModal
+      {/* MODALS DISABLED - INVESTIGATING HOOKS ERROR */}
+      {false && <CelebrationModal
         show={showCelebration}
         onClose={() => setShowCelebration(false)}
         type={celebrationType}
         data={celebrationData}
         darkMode={darkMode}
-      />
+      />}
 
-      {/* WELCOME MODAL - RE-ENABLED (no hooks) */}
-      {showWelcome && (
+      {false && showWelcome && (
         <DashboardWelcome
           darkMode={darkMode}
           onClose={handleWelcomeClose}
@@ -818,8 +819,7 @@ const Dashboard = () => {
         />
       )}
 
-      {/* QUICK CHECK-IN - RE-ENABLED (no hooks) */}
-      {showQuickCheckIn && (
+      {false && showQuickCheckIn && (
         <QuickCheckIn
           darkMode={darkMode}
           onClose={handleQuickCheckInClose}
@@ -835,15 +835,15 @@ const Dashboard = () => {
       {/* FULLSCREEN POMODORO */}
       <PomodoroFullScreen darkMode={darkMode} />
 
-      {/* ONBOARDING TOUR - RE-ENABLED (hooks verified correct) */}
-      <OnboardingTour
+      {/* ONBOARDING TOUR DISABLED - INVESTIGATING HOOKS ERROR */}
+      {false && <OnboardingTour
         darkMode={darkMode}
         onComplete={() => console.log('Onboarding tour completed!')}
         onOpenBrainDump={openBrainDump}
         onOpenNutrition={openNutrition}
         onOpenMovement={openMovement}
         onOpenPomodoro={openMindfulMoment}
-      />
+      />}
 
       {/* BOTTOM NAVIGATION */}
       <BottomNavigation />
