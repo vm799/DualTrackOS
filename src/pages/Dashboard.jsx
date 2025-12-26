@@ -802,16 +802,9 @@ const Dashboard = () => {
       <NutritionDetailModal show={showNutritionModal} onClose={() => setShowNutritionModal(false)} />
       <BrainDumpModal show={showBrainDumpModal} onClose={() => setShowBrainDumpModal(false)} />
 
-      {/* MODALS DISABLED - INVESTIGATING HOOKS ERROR */}
-      {false && <CelebrationModal
-        show={showCelebration}
-        onClose={() => setShowCelebration(false)}
-        type={celebrationType}
-        data={celebrationData}
-        darkMode={darkMode}
-      />}
-
-      {false && showWelcome && (
+      {/* MODALS - RE-ENABLING SYSTEMATICALLY */}
+      {/* DashboardWelcome - RE-ENABLED (no hooks, completely safe) */}
+      {showWelcome && (
         <DashboardWelcome
           darkMode={darkMode}
           onClose={handleWelcomeClose}
@@ -819,7 +812,8 @@ const Dashboard = () => {
         />
       )}
 
-      {false && showQuickCheckIn && (
+      {/* QuickCheckIn - RE-ENABLED (no hooks, completely safe) */}
+      {showQuickCheckIn && (
         <QuickCheckIn
           darkMode={darkMode}
           onClose={handleQuickCheckInClose}
@@ -831,6 +825,15 @@ const Dashboard = () => {
           onOpenMindfulness={openMindfulMoment}
         />
       )}
+
+      {/* CelebrationModal DISABLED - testing safe components first */}
+      {false && <CelebrationModal
+        show={showCelebration}
+        onClose={() => setShowCelebration(false)}
+        type={celebrationType}
+        data={celebrationData}
+        darkMode={darkMode}
+      />}
 
       {/* FULLSCREEN POMODORO */}
       <PomodoroFullScreen darkMode={darkMode} />
