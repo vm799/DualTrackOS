@@ -267,7 +267,7 @@ const CheckInPage = ({ darkMode }) => {
                   return (
                     <button
                       key={option.id}
-                      onClick={() => handlePrioritySelect(option.route)}
+                      onClick={() => handlePrioritySelect(option)}
                       className={`p-6 rounded-xl text-left transition-all hover:scale-105 ${
                         darkMode
                           ? 'bg-gray-800/50 border-2 border-gray-700 hover:border-purple-500/50'
