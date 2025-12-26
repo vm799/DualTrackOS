@@ -641,11 +641,11 @@ const Dashboard = () => {
       {/* MAIN CONTENT */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-6 pb-32 relative z-10">
-          {/* Quick Navigation */}
-          <QuickNav darkMode={darkMode} />
+          {/* Quick Navigation - TEMPORARILY DISABLED */}
+          {false && <QuickNav darkMode={darkMode} />}
 
-          {/* Smart Suggestion Banner */}
-          {showSuggestion && (
+          {/* Smart Suggestion Banner - TEMPORARILY DISABLED */}
+          {false && showSuggestion && (
             <SmartSuggestionBanner
               darkMode={darkMode}
               onAction={handleSuggestionAction}
@@ -653,11 +653,13 @@ const Dashboard = () => {
             />
           )}
 
-          {/* User Progress & Insights */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <StreakPrediction darkMode={darkMode} />
-            <SkillLevelBadge darkMode={darkMode} showProgress={true} />
-          </div>
+          {/* User Progress & Insights - TEMPORARILY DISABLED */}
+          {false && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <StreakPrediction darkMode={darkMode} />
+              <SkillLevelBadge darkMode={darkMode} showProgress={true} />
+            </div>
+          )}
 
           {/* Must-Dos Section */}
           <SectionContainer
