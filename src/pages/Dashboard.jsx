@@ -641,7 +641,7 @@ const Dashboard = () => {
       {/* MAIN CONTENT */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-6 pb-32 relative z-10">
-          {/* ALL WIDGETS DISABLED - CORE MUST-DOS ONLY */}
+          {/* WIDGETS - SYSTEMATICALLY RE-ENABLED */}
           <QuickNav darkMode={darkMode} />
           {false && showSuggestion && (
             <SmartSuggestionBanner
@@ -650,12 +650,10 @@ const Dashboard = () => {
               onDismiss={() => setShowSuggestion(false)}
             />
           )}
-          {false && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <StreakPrediction darkMode={darkMode} />
-              <SkillLevelBadge darkMode={darkMode} showProgress={true} />
-            </div>
-          )}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <StreakPrediction darkMode={darkMode} />
+            {false && <SkillLevelBadge darkMode={darkMode} showProgress={true} />}
+          </div>
 
           {/* Must-Dos Section */}
           <SectionContainer
