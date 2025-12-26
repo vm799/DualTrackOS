@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import LandingPageView from './pages/LandingPage';
 import StoryPageView from './pages/StoryPage';
 import DashboardPreview from './pages/DashboardPreview';
@@ -12,12 +12,34 @@ import SettingsPage from './pages/SettingsPage';
 import PricingPage from './pages/PricingPage';
 import useStore from './store/useStore';
 
+/**
+ * PathTracker Component
+ * Tracks the current path and saves it to localStorage for error recovery
+ */
+const PathTracker = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Save current path to localStorage for error recovery
+    // This allows the ErrorBoundary "Try Again" button to navigate back to last known good path
+    try {
+      localStorage.setItem('last-good-path', location.pathname);
+    } catch (error) {
+      // Silently fail if localStorage is not available
+      console.warn('Could not save last-good-path to localStorage:', error);
+    }
+  }, [location.pathname]);
+
+  return null;
+};
+
 const AppRouter = () => {
   const darkMode = useStore((state) => state.darkMode);
   const userProfile = useStore((state) => state.userProfile);
 
   return (
     <Router>
+      <PathTracker />
       <Routes>
         <Route path="/" element={<LandingPageView darkMode={darkMode} />} />
         <Route path="/story" element={<StoryPageView darkMode={darkMode} />} />
