@@ -163,56 +163,88 @@ const OnboardingTour = ({
   const currentStepData = steps[currentStep];
 
   const handleNext = () => {
-    // Scroll to element if specified
-    if (currentStepData?.scrollTo) {
-      const element = document.getElementById(currentStepData.scrollTo);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    try {
+      // Scroll to element if specified
+      if (currentStepData?.scrollTo) {
+        const element = document.getElementById(currentStepData.scrollTo);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
-    }
 
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      completeTour();
+      if (currentStep < steps.length - 1) {
+        setCurrentStep(currentStep + 1);
+      } else {
+        completeTour();
+      }
+    } catch (error) {
+      console.error('Error in handleNext:', error);
     }
   };
 
   const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+    try {
+      if (currentStep > 0) {
+        setCurrentStep(currentStep - 1);
+      }
+    } catch (error) {
+      console.error('Error in handlePrevious:', error);
     }
   };
 
   const handleSkip = () => {
-    completeTour();
+    try {
+      completeTour();
+    } catch (error) {
+      console.error('Error in handleSkip:', error);
+      // Force close the tour
+      setIsVisible(false);
+    }
   };
 
   const handleAction = () => {
-    if (currentStepData?.action) {
-      currentStepData.action();
+    try {
+      if (currentStepData?.action) {
+        currentStepData.action();
+      }
+    } catch (error) {
+      console.error('Error in handleAction:', error);
     }
   };
 
   const handleMenuTileClick = (option) => {
-    // Mark as clicked for visual feedback
-    setClickedTiles(prev => [...prev, option.id]);
+    try {
+      // Mark as clicked for visual feedback
+      setClickedTiles(prev => [...prev, option.id]);
 
-    // Execute the action (open the modal)
-    if (option.action) {
-      option.action();
+      // Execute the action (open the modal)
+      if (option.action) {
+        option.action();
+      }
+
+      // Close the tour after a short delay so user can interact with the modal
+      setTimeout(() => {
+        completeTour();
+      }, 500);
+    } catch (error) {
+      console.error('Error in handleMenuTileClick:', error);
+      // Still try to close the tour
+      setIsVisible(false);
     }
-
-    // Close the tour after a short delay so user can interact with the modal
-    setTimeout(() => {
-      completeTour();
-    }, 500);
   };
 
   const completeTour = () => {
-    localStorage.setItem('dualtrack-dashboard-tour-completed', 'true');
-    setIsVisible(false);
-    if (onComplete) onComplete();
+    try {
+      localStorage.setItem('dualtrack-dashboard-tour-completed', 'true');
+      setIsVisible(false);
+      if (onComplete) {
+        onComplete();
+      }
+    } catch (error) {
+      console.error('Error completing tour:', error);
+      // Still try to close the tour even if localStorage fails
+      setIsVisible(false);
+    }
   };
 
   // Early return if tour is not visible or data is invalid
