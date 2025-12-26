@@ -802,17 +802,17 @@ const Dashboard = () => {
       <NutritionDetailModal show={showNutritionModal} onClose={() => setShowNutritionModal(false)} />
       <BrainDumpModal show={showBrainDumpModal} onClose={() => setShowBrainDumpModal(false)} />
 
-      {/* CELEBRATION MODAL */}
-      <CelebrationModal
+      {/* CELEBRATION MODAL - DISABLED (has hooks issue) */}
+      {false && <CelebrationModal
         show={showCelebration}
         onClose={() => setShowCelebration(false)}
         type={celebrationType}
         data={celebrationData}
         darkMode={darkMode}
-      />
+      />}
 
-      {/* WELCOME MODAL - First-time users */}
-      {showWelcome && (
+      {/* WELCOME MODAL - DISABLED (testing for hooks issue) */}
+      {false && showWelcome && (
         <DashboardWelcome
           darkMode={darkMode}
           onClose={handleWelcomeClose}
@@ -820,8 +820,8 @@ const Dashboard = () => {
         />
       )}
 
-      {/* QUICK CHECK-IN - Returning users */}
-      {showQuickCheckIn && (
+      {/* QUICK CHECK-IN - DISABLED (testing for hooks issue) */}
+      {false && showQuickCheckIn && (
         <QuickCheckIn
           darkMode={darkMode}
           onClose={handleQuickCheckInClose}
