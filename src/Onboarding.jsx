@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Sparkles, CheckCircle, Heart, ArrowRight, Zap, Battery, AlertTriangle, Weight, Cake } from 'lucide-react';
 import Logo from './components/Logo';
+import ParentalConsentModal from './components/ParentalConsentModal';
 
 const Onboarding = ({ onComplete, darkMode }) => {
   // Steps: 0=QuickWin, 1=Disclaimer, 2=Profile, 3=OptionalData, 4=LifeStage
@@ -22,6 +23,87 @@ const Onboarding = ({ onComplete, darkMode }) => {
     lifeStage: '',
     avatar: '🦁'
   });
+
+  // Validation errors
+  const [ageError, setAgeError] = useState('');
+  const [weightError, setWeightError] = useState('');
+  const [showParentalConsent, setShowParentalConsent] = useState(false);
+
+  // Validation functions
+  const validateAge = (age) => {
+    const ageNum = parseInt(age);
+    if (!age || age === '') {
+      setAgeError('');
+      return true; // Optional field
+    }
+    if (isNaN(ageNum)) {
+      setAgeError('Please enter a valid number');
+      return false;
+    }
+    if (ageNum < 13) {
+      setAgeError('Must be at least 13 years old');
+      return false;
+    }
+    if (ageNum > 110) {
+      setAgeError('Age must be 110 or less');
+      return false;
+    }
+    if (ageNum < 18) {
+      setShowParentalConsent(true);
+    }
+    setAgeError('');
+    return true;
+  };
+
+  const validateWeight = (weight) => {
+    const weightNum = parseInt(weight);
+    if (!weight || weight === '') {
+      setWeightError('');
+      return true; // Optional field
+    }
+    if (isNaN(weightNum)) {
+      setWeightError('Please enter a valid number');
+      return false;
+    }
+
+    // Different limits for lbs vs kg
+    if (weightUnit === 'lbs') {
+      if (weightNum < 50) {
+        setWeightError('Weight must be at least 50 lbs');
+        return false;
+      }
+      if (weightNum > 500) {
+        setWeightError('Weight must be 500 lbs or less');
+        return false;
+      }
+    } else { // kg
+      if (weightNum < 23) {
+        setWeightError('Weight must be at least 23 kg');
+        return false;
+      }
+      if (weightNum > 227) {
+        setWeightError('Weight must be 227 kg or less');
+        return false;
+      }
+    }
+    setWeightError('');
+    return true;
+  };
+
+  // Smooth scroll to top helper function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  // Navigate to next step with auto-scroll
+  const goToStep = (nextStep) => {
+    setStep(nextStep);
+    // Small delay to ensure DOM updates before scrolling
+    setTimeout(() => scrollToTop(), 100);
+  };
 
   const handleComplete = () => {
     onComplete({
@@ -210,7 +292,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
 
           {/* Continue Button */}
           <button
-            onClick={() => setStep(1)}
+            onClick={() => goToStep(1)}
             disabled={!energyLevel || !mood}
             className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
               !energyLevel || !mood
@@ -346,7 +428,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
 
           <div className="mt-8 space-y-3">
             <button
-              onClick={() => setStep(2)}
+              onClick={() => goToStep(2)}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
                 darkMode
                   ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white border-2 border-emerald-500/50 shadow-lg shadow-emerald-500/20'
@@ -406,7 +488,11 @@ const Onboarding = ({ onComplete, darkMode }) => {
               <input
                 type="text"
                 value={profile.preferredName}
-                onChange={(e) => setProfile({ ...profile, preferredName: e.target.value, name: e.target.value })}
+                onChange={(e) => {
+                  // Remove any numbers from the input
+                  const sanitized = e.target.value.replace(/[0-9]/g, '');
+                  setProfile({ ...profile, preferredName: sanitized, name: sanitized });
+                }}
                 placeholder="e.g., Sarah or Boss Lady"
                 className={`w-full px-4 py-3 rounded-lg transition-all ${
                   darkMode
@@ -427,7 +513,11 @@ const Onboarding = ({ onComplete, darkMode }) => {
               <input
                 type="text"
                 value={profile.initials}
-                onChange={(e) => setProfile({ ...profile, initials: e.target.value.toUpperCase().slice(0, 3) })}
+                onChange={(e) => {
+                  // Remove any numbers, keep only letters
+                  const sanitized = e.target.value.replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 3);
+                  setProfile({ ...profile, initials: sanitized });
+                }}
                 placeholder="e.g., SJ or ABC"
                 maxLength="3"
                 className={`w-full px-4 py-3 rounded-lg transition-all text-center text-2xl font-bold tracking-wider ${
@@ -445,7 +535,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
           {/* Action Buttons */}
           <div className="mt-8 space-y-3">
             <button
-              onClick={() => setStep(3)}
+              onClick={() => goToStep(3)}
               disabled={!profile.preferredName || !profile.initials}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
                 !profile.preferredName || !profile.initials
@@ -517,16 +607,26 @@ const Onboarding = ({ onComplete, darkMode }) => {
               <input
                 type="number"
                 value={profile.age}
-                onChange={(e) => setProfile({ ...profile, age: e.target.value })}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setProfile({ ...profile, age: value });
+                  validateAge(value);
+                }}
+                onBlur={(e) => validateAge(e.target.value)}
                 placeholder="e.g., 42"
-                min="18"
-                max="100"
+                min="13"
+                max="110"
                 className={`w-full px-4 py-3 rounded-lg transition-all ${
+                  ageError ? 'border-red-500 focus:border-red-500' : ''
+                } ${
                   darkMode
                     ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
                     : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
                 }`}
               />
+              {ageError && (
+                <p className="mt-1 text-sm text-red-500 font-medium">⚠️ {ageError}</p>
+              )}
               <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
                 🎯 <strong>Unlocks:</strong> Life stage personalization (energy patterns, recommendations tailored to your hormonal phase)
               </p>
@@ -582,17 +682,27 @@ const Onboarding = ({ onComplete, darkMode }) => {
               <input
                 type="number"
                 value={profile.weight}
-                onChange={(e) => setProfile({ ...profile, weight: e.target.value })}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setProfile({ ...profile, weight: value });
+                  validateWeight(value);
+                }}
+                onBlur={(e) => validateWeight(e.target.value)}
                 placeholder={weightUnit === 'lbs' ? 'e.g., 150' : 'e.g., 68'}
-                min={weightUnit === 'lbs' ? '50' : '20'}
-                max={weightUnit === 'lbs' ? '500' : '250'}
+                min={weightUnit === 'lbs' ? '50' : '23'}
+                max={weightUnit === 'lbs' ? '500' : '227'}
                 step="0.1"
                 className={`w-full px-4 py-3 rounded-lg transition-all ${
+                  weightError ? 'border-red-500 focus:border-red-500' : ''
+                } ${
                   darkMode
                     ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
                     : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
                 }`}
               />
+              {weightError && (
+                <p className="mt-1 text-sm text-red-500 font-medium">⚠️ {weightError}</p>
+              )}
               <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
                 🍗 <strong>Unlocks:</strong> Personalized protein recommendations
                 {weightUnit === 'lbs' ? ' (0.8-1g per lb)' : ' (1.8-2.2g per kg)'}
@@ -616,7 +726,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
 
             {/* Continue to Life Stage */}
             <button
-              onClick={() => profile.age ? setStep(4) : handleComplete()}
+              onClick={() => profile.age ? goToStep(4) : handleComplete()}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
                 darkMode
                   ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
@@ -811,7 +921,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
           {/* Action buttons */}
           <div className="flex gap-4">
             <button
-              onClick={() => setStep(3)}
+              onClick={() => goToStep(3)}
               className={`px-6 py-3 rounded-xl font-semibold transition-all ${
                 darkMode
                   ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
@@ -862,8 +972,22 @@ const Onboarding = ({ onComplete, darkMode }) => {
     );
   }
 
-  // This should never render, but just in case
-  return null;
+  // Render Parental Consent Modal if triggered
+  return (
+    <>
+      {showParentalConsent && (
+        <ParentalConsentModal
+          darkMode={darkMode}
+          onConsent={() => setShowParentalConsent(false)}
+          onGoBack={() => {
+            setProfile({ ...profile, age: '' });
+            setAgeError('');
+            setShowParentalConsent(false);
+          }}
+        />
+      )}
+    </>
+  );
 };
 
 export default Onboarding;
