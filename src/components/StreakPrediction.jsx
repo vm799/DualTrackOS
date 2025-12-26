@@ -17,6 +17,7 @@ import useSessionStore from '../store/useSessionStore';
  * - Milestone tracking
  */
 const StreakPrediction = ({ darkMode = false }) => {
+  // HOOKS MUST ALWAYS BE CALLED IN SAME ORDER - TOP OF COMPONENT
   const [prediction, setPrediction] = useState(null);
 
   const sessionData = useSessionStore((state) => ({
@@ -33,6 +34,7 @@ const StreakPrediction = ({ darkMode = false }) => {
     setPrediction(result);
   }, [sessionData]);
 
+  // Early return AFTER all hooks - this is safe
   if (!prediction) return null;
 
   const { likelihood, currentStreak, prediction: status, recommendation, confidenceLevel } = prediction;
