@@ -8,7 +8,7 @@ import CheckInPage from './pages/CheckInPage';
 import Dashboard from './pages/Dashboard';
 import HealthPage from './pages/HealthPage';
 import ProductivityPage from './pages/ProductivityPage';
-// import StoryBankPage from './pages/StoryBankPage'; // TEMPORARILY DISABLED - INVESTIGATING DASHBOARD ISSUE
+import StoryBankPage from './pages/StoryBankPage';
 import SettingsPage from './pages/SettingsPage';
 import PricingPage from './pages/PricingPage';
 import useStore from './store/useStore';
@@ -95,8 +95,8 @@ const AppRouter = () => {
             )
           }
         />
-        {/* STORY BANK ROUTE TEMPORARILY DISABLED - INVESTIGATING DASHBOARD ISSUE */}
-        {/* <Route
+        {/* Story Bank - Storytelling Practice */}
+        <Route
           path="/story-bank"
           element={
             userProfile.hasCompletedOnboarding ? (
@@ -105,7 +105,7 @@ const AppRouter = () => {
               <Navigate to="/onboarding" replace />
             )
           }
-        /> */}
+        />
         {/* Redirect old routes to new structure */}
         <Route path="/cycle" element={<Navigate to="/health" replace />} />
         <Route path="/strong50" element={<Navigate to="/health" replace />} />
