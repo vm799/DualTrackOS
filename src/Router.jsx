@@ -95,7 +95,8 @@ const AppRouter = () => {
             )
           }
         />
-        <Route
+        {/* STORY BANK ROUTE TEMPORARILY DISABLED - INVESTIGATING DASHBOARD ISSUE */}
+        {/* <Route
           path="/story-bank"
           element={
             userProfile.hasCompletedOnboarding ? (
@@ -104,7 +105,7 @@ const AppRouter = () => {
               <Navigate to="/onboarding" replace />
             )
           }
-        />
+        /> */}
         {/* Redirect old routes to new structure */}
         <Route path="/cycle" element={<Navigate to="/health" replace />} />
         <Route path="/strong50" element={<Navigate to="/health" replace />} />
