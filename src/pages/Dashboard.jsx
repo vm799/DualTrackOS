@@ -641,21 +641,24 @@ const Dashboard = () => {
       {/* MAIN CONTENT */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-6 pb-32 relative z-10">
-          {/* WIDGETS DISABLED - INVESTIGATING HOOKS ERROR */}
-          {false && <QuickNav darkMode={darkMode} />}
-          {false && showSuggestion && (
+          {/* WIDGETS - RE-ENABLING SYSTEMATICALLY */}
+          {/* SmartSuggestionBanner - RE-ENABLED (hook before early return) */}
+          {showSuggestion && (
             <SmartSuggestionBanner
               darkMode={darkMode}
               onAction={handleSuggestionAction}
               onDismiss={() => setShowSuggestion(false)}
             />
           )}
-          {false && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <StreakPrediction darkMode={darkMode} />
-              <SkillLevelBadge darkMode={darkMode} showProgress={true} />
-            </div>
-          )}
+
+          {/* QuickNav - RE-ENABLED (all hooks unconditional) */}
+          <QuickNav darkMode={darkMode} />
+
+          {/* StreakPrediction & SkillLevelBadge - RE-ENABLED (hooks before early returns) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <StreakPrediction darkMode={darkMode} />
+            <SkillLevelBadge darkMode={darkMode} showProgress={true} />
+          </div>
 
           {/* Must-Dos Section */}
           <SectionContainer
@@ -802,16 +805,9 @@ const Dashboard = () => {
       <NutritionDetailModal show={showNutritionModal} onClose={() => setShowNutritionModal(false)} />
       <BrainDumpModal show={showBrainDumpModal} onClose={() => setShowBrainDumpModal(false)} />
 
-      {/* MODALS DISABLED - INVESTIGATING HOOKS ERROR */}
-      {false && <CelebrationModal
-        show={showCelebration}
-        onClose={() => setShowCelebration(false)}
-        type={celebrationType}
-        data={celebrationData}
-        darkMode={darkMode}
-      />}
-
-      {false && showWelcome && (
+      {/* MODALS - RE-ENABLING SYSTEMATICALLY */}
+      {/* DashboardWelcome - RE-ENABLED (no hooks, completely safe) */}
+      {showWelcome && (
         <DashboardWelcome
           darkMode={darkMode}
           onClose={handleWelcomeClose}
@@ -819,7 +815,8 @@ const Dashboard = () => {
         />
       )}
 
-      {false && showQuickCheckIn && (
+      {/* QuickCheckIn - RE-ENABLED (no hooks, completely safe) */}
+      {showQuickCheckIn && (
         <QuickCheckIn
           darkMode={darkMode}
           onClose={handleQuickCheckInClose}
@@ -832,18 +829,27 @@ const Dashboard = () => {
         />
       )}
 
+      {/* CelebrationModal - RE-ENABLED (hooks before early return) */}
+      <CelebrationModal
+        show={showCelebration}
+        onClose={() => setShowCelebration(false)}
+        type={celebrationType}
+        data={celebrationData}
+        darkMode={darkMode}
+      />
+
       {/* FULLSCREEN POMODORO */}
       <PomodoroFullScreen darkMode={darkMode} />
 
-      {/* ONBOARDING TOUR DISABLED - INVESTIGATING HOOKS ERROR */}
-      {false && <OnboardingTour
+      {/* ONBOARDING TOUR - RE-ENABLED (useRef pattern, all hooks before early returns) */}
+      <OnboardingTour
         darkMode={darkMode}
         onComplete={() => console.log('Onboarding tour completed!')}
         onOpenBrainDump={openBrainDump}
         onOpenNutrition={openNutrition}
         onOpenMovement={openMovement}
         onOpenPomodoro={openMindfulMoment}
-      />}
+      />
 
       {/* BOTTOM NAVIGATION */}
       <BottomNavigation />

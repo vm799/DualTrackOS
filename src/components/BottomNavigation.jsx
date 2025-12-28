@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Heart, Target, User } from 'lucide-react';
+import { Home, Heart, BookOpen, Target, User } from 'lucide-react';
 import useStore from '../store/useStore';
 
 const BottomNavigation = () => {
@@ -11,7 +11,8 @@ const BottomNavigation = () => {
   const navItems = [
     { path: '/dashboard', icon: Home, label: 'Home' },
     { path: '/health', icon: Heart, label: 'Health' },
-    { path: '/productivity', icon: Target, label: 'Productivity' },
+    { path: '/story-bank', icon: BookOpen, label: 'Stories' },
+    { path: '/productivity', icon: Target, label: 'Focus' },
     { path: '/settings', icon: User, label: 'Settings' },
   ];
 
