@@ -11,7 +11,7 @@ const BottomNavigation = () => {
   const navItems = [
     { path: '/dashboard', icon: Home, label: 'Home' },
     { path: '/health', icon: Heart, label: 'Health' },
-    { path: '/story-bank', icon: BookOpen, label: 'Stories' },
+    // { path: '/story-bank', icon: BookOpen, label: 'Stories' }, // TEMPORARILY DISABLED
     { path: '/productivity', icon: Target, label: 'Focus' },
     { path: '/settings', icon: User, label: 'Settings' },
   ];
