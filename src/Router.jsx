@@ -8,7 +8,7 @@ import CheckInPage from './pages/CheckInPage';
 import Dashboard from './pages/Dashboard';
 import HealthPage from './pages/HealthPage';
 import ProductivityPage from './pages/ProductivityPage';
-import StoryBankPage from './pages/StoryBankPage';
+// import StoryBankPage from './pages/StoryBankPage'; // TEMPORARILY DISABLED - INVESTIGATING DASHBOARD ISSUE
 import SettingsPage from './pages/SettingsPage';
 import PricingPage from './pages/PricingPage';
 import useStore from './store/useStore';
