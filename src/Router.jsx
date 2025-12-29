@@ -11,6 +11,7 @@ import ProductivityPage from './pages/ProductivityPage';
 import StoryBankPage from './pages/StoryBankPage';
 import SettingsPage from './pages/SettingsPage';
 import PricingPage from './pages/PricingPage';
+import StickyLogoBanner from './components/StickyLogoBanner';
 import useStore from './store/useStore';
 
 /**
@@ -41,6 +42,7 @@ const AppRouter = () => {
   return (
     <Router>
       <PathTracker />
+      <StickyLogoBanner />
       <Routes>
         <Route path="/" element={<LandingPageView darkMode={darkMode} />} />
         <Route path="/story" element={<StoryPageView darkMode={darkMode} />} />
