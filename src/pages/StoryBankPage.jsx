@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Plus, Mic, TrendingUp, Search, Filter, Grid, List, Calendar } from 'lucide-react';
+import { BookOpen, Plus, Mic, TrendingUp, Search, Filter, Grid, List, Calendar, Bell, BellOff } from 'lucide-react';
 import useStore from '../store/useStore';
 import useStoryBankStore from '../store/useStoryBankStore';
 import StoryEditor from '../components/StoryBank/StoryEditor';
@@ -21,8 +21,10 @@ const StoryBankPage = () => {
     stories,
     filters,
     viewMode,
+    reminderSettings,
     setSearchQuery,
     setViewMode,
+    setReminderEnabled,
     getFilteredStories,
     getYearlyProgress
   } = useStoryBankStore();
@@ -60,6 +62,22 @@ const StoryBankPage = () => {
 
             {/* Actions */}
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => setReminderEnabled(!reminderSettings.enabled)}
+                className={`p-2 rounded-lg transition-all ${
+                  reminderSettings.enabled
+                    ? darkMode
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-purple-600 text-white'
+                    : darkMode
+                      ? 'bg-gray-800 hover:bg-gray-700 text-gray-400'
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                }`}
+                title={reminderSettings.enabled ? 'Disable daily reminder' : 'Enable daily reminder'}
+              >
+                {reminderSettings.enabled ? <Bell size={20} /> : <BellOff size={20} />}
+              </button>
+
               <button
                 onClick={() => setShowEditor(true)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
