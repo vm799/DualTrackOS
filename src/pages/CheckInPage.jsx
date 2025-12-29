@@ -104,6 +104,93 @@ const CheckInPage = ({ darkMode }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Get time-based recommendations
+  const getTimeBasedGuidance = (energy) => {
+    if (!energy) return null;
+
+    const hour = new Date().getHours();
+    let timeOfDay, mealSuggestion, workSuggestion, color;
+
+    // Determine time of day and base recommendations
+    if (hour >= 5 && hour < 11) {
+      timeOfDay = 'Morning';
+      color = 'amber';
+      mealSuggestion = energy >= 3
+        ? '🍳 Fuel up: Protein-rich breakfast (eggs, Greek yogurt, protein shake)'
+        : '🥤 Keep it light: Smoothie or oatmeal with berries';
+
+      if (energy >= 4) {
+        workSuggestion = '💪 Peak time: Tackle your most challenging task or important decision';
+      } else if (energy === 3) {
+        workSuggestion = '📧 Moderate capacity: Handle emails, meetings, routine tasks';
+      } else {
+        workSuggestion = '🧘‍♀️ Gentle mode: Light tasks only, consider a short walk or breathing exercise';
+      }
+    } else if (hour >= 11 && hour < 14) {
+      timeOfDay = 'Midday';
+      color = 'emerald';
+      mealSuggestion = energy >= 3
+        ? '🥗 Balanced lunch: Protein + veggies + complex carbs (salmon salad, chicken bowl)'
+        : '🍲 Easy digest: Light soup or sandwich, avoid heavy meals';
+
+      if (energy >= 4) {
+        workSuggestion = '🎯 Focus time: Deep work session or important presentations';
+      } else if (energy === 3) {
+        workSuggestion = '🤝 Collaboration: Team meetings, brainstorming, lighter work';
+      } else {
+        workSuggestion = '💆‍♀️ Rest mode: Take a break, short nap (20 min), or mindfulness';
+      }
+    } else if (hour >= 14 && hour < 17) {
+      timeOfDay = 'Afternoon';
+      color = 'cyan';
+      mealSuggestion = energy >= 3
+        ? '🥜 Energy boost: Nuts, protein bar, apple with almond butter'
+        : '🍵 Gentle pick-me-up: Green tea, handful of berries, dark chocolate';
+
+      if (energy >= 4) {
+        workSuggestion = '⚡ Power through: Finish tasks, prepare for tomorrow, strategic planning';
+      } else if (energy === 3) {
+        workSuggestion = '📝 Wrap up: Organize notes, reply to messages, light admin work';
+      } else {
+        workSuggestion = '🌿 Wind down: Delegate if possible, postpone non-urgent items';
+      }
+    } else if (hour >= 17 && hour < 21) {
+      timeOfDay = 'Evening';
+      color = 'purple';
+      mealSuggestion = energy >= 3
+        ? '🍽️ Balanced dinner: Lean protein + veggies + healthy fats (grilled fish, stir-fry)'
+        : '🥣 Light dinner: Soup, salad, or small portion to aid sleep';
+
+      if (energy >= 4) {
+        workSuggestion = '📚 Personal growth: Learn something new, plan tomorrow, creative projects';
+      } else if (energy === 3) {
+        workSuggestion = '🏠 Home mode: Family time, light chores, prepare for next day';
+      } else {
+        workSuggestion = '🛀 Self-care: Bath, gentle stretching, early bedtime prep';
+      }
+    } else {
+      timeOfDay = 'Night';
+      color = 'indigo';
+      mealSuggestion = '💤 Wind down: Avoid food 2-3 hours before bed, herbal tea if needed';
+
+      if (energy >= 4) {
+        workSuggestion = '😴 Still wired? Journal, read, meditation - no screens 1hr before bed';
+      } else {
+        workSuggestion = '🌙 Rest mode: Wind-down routine, dim lights, prepare for restful sleep';
+      }
+    }
+
+    return {
+      timeOfDay,
+      color,
+      mealSuggestion,
+      workSuggestion,
+      energyLevel: energy
+    };
+  };
+
+  const guidance = getTimeBasedGuidance(energyLevel);
+
   return (
     <div className={`min-h-screen ${
       darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50'
@@ -166,6 +253,47 @@ const CheckInPage = ({ darkMode }) => {
                   1 = Exhausted • 5 = Energized
                 </p>
               </div>
+
+              {/* Time-Based Guidance */}
+              {guidance && (
+                <div className={`mb-6 p-6 rounded-xl border-2 ${
+                  darkMode
+                    ? `bg-${guidance.color}-500/10 border-${guidance.color}-500/30`
+                    : `bg-${guidance.color}-50 border-${guidance.color}-200`
+                }`}>
+                  <h3 className={`text-xl font-bold mb-4 ${
+                    darkMode ? `text-${guidance.color}-300` : `text-${guidance.color}-700`
+                  }`}>
+                    ✨ {guidance.timeOfDay} Recommendations (Energy: {guidance.energyLevel}/5)
+                  </h3>
+
+                  <div className="space-y-4">
+                    {/* Meal Suggestion */}
+                    <div>
+                      <h4 className={`text-sm font-semibold mb-2 ${
+                        darkMode ? 'text-gray-300' : 'text-gray-700'
+                      }`}>
+                        Nutrition
+                      </h4>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {guidance.mealSuggestion}
+                      </p>
+                    </div>
+
+                    {/* Work Suggestion */}
+                    <div>
+                      <h4 className={`text-sm font-semibold mb-2 ${
+                        darkMode ? 'text-gray-300' : 'text-gray-700'
+                      }`}>
+                        Work & Productivity
+                      </h4>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {guidance.workSuggestion}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Buttons */}
               <div className="mt-8 space-y-3">
