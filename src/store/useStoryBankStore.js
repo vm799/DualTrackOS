@@ -43,6 +43,14 @@ const useStoryBankStore = create(
       // Progress
       yearlyGoal: 365,
 
+      // Reminder Settings
+      reminderSettings: {
+        enabled: true,
+        time: '20:00', // 8 PM default
+        snoozed: null, // Timestamp when snoozed
+        dismissed: [], // Array of dates when dismissed
+      },
+
       // ========================================
       // STORY ACTIONS
       // ========================================
@@ -445,17 +453,90 @@ const useStoryBankStore = create(
           console.error('Import failed:', error);
           return { success: false, error: error.message };
         }
+      },
+
+      // ========================================
+      // REMINDER ACTIONS
+      // ========================================
+
+      /**
+       * Enable/disable daily reminders
+       */
+      setReminderEnabled: (enabled) =>
+        set((state) => ({
+          reminderSettings: { ...state.reminderSettings, enabled }
+        })),
+
+      /**
+       * Set reminder time
+       */
+      setReminderTime: (time) =>
+        set((state) => ({
+          reminderSettings: { ...state.reminderSettings, time }
+        })),
+
+      /**
+       * Snooze reminder for specified hours
+       */
+      snoozeReminder: (hours = 2) => {
+        const snoozeUntil = Date.now() + (hours * 60 * 60 * 1000);
+        set((state) => ({
+          reminderSettings: { ...state.reminderSettings, snoozed: snoozeUntil }
+        }));
+      },
+
+      /**
+       * Dismiss reminder for today
+       */
+      dismissReminderToday: () => {
+        const today = new Date().toDateString();
+        set((state) => ({
+          reminderSettings: {
+            ...state.reminderSettings,
+            dismissed: [...state.reminderSettings.dismissed, today]
+          }
+        }));
+      },
+
+      /**
+       * Check if should show reminder
+       */
+      shouldShowReminder: () => {
+        const state = get();
+        const today = new Date().toDateString();
+
+        // Check if disabled
+        if (!state.reminderSettings.enabled) return false;
+
+        // Check if dismissed today
+        if (state.reminderSettings.dismissed.includes(today)) return false;
+
+        // Check if snoozed
+        if (state.reminderSettings.snoozed && Date.now() < state.reminderSettings.snoozed) {
+          return false;
+        }
+
+        // Check if already documented today
+        const hasDocumentedToday = state.stories.some(story => {
+          const storyDate = new Date(story.storyDate || story.createdAt).toDateString();
+          return storyDate === today;
+        });
+
+        if (hasDocumentedToday) return false;
+
+        return true;
       }
     }),
     {
       name: 'story-bank-storage',
       version: 1,
-      // Only persist stories, not UI state
+      // Only persist stories and reminder settings, not UI state
       partialize: (state) => ({
         stories: state.stories,
         newsStories: state.newsStories,
         lastNewsFetch: state.lastNewsFetch,
-        yearlyGoal: state.yearlyGoal
+        yearlyGoal: state.yearlyGoal,
+        reminderSettings: state.reminderSettings
       })
     }
   )
