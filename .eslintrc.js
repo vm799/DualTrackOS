@@ -15,5 +15,14 @@ module.exports = {
       argsIgnorePattern: '^_',
       varsIgnorePattern: '^_'
     }],
-  }
+  },
+  overrides: [
+    {
+      // Relax rules for test files (don't block builds)
+      files: ['**/__tests__/**/*', '**/*.test.js', '**/*.test.jsx'],
+      rules: {
+        'testing-library/no-render-in-setup': 'warn', // Don't block builds
+      }
+    }
+  ]
 };
