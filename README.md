@@ -4,6 +4,17 @@
 
 Because your energy and mood aren't constant. Your cycles (menstrual, sleep, stress, life) create natural fluctuations. DualTrack OS helps you adapt, not fight your biology.
 
+---
+
+## 📚 Documentation
+
+- **Developers**: See [IMPLEMENTATION_GUIDE.md](./IMPLEMENTATION_GUIDE.md) for development workflow, error fixes, and deployment
+- **Contributors**: See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines
+- **Security**: See [SECURITY.md](./SECURITY.md) for security policy and reporting
+- **Features**: See [docs/](./docs/) for feature-specific guides (OAuth, Stripe, subscriptions, etc.)
+
+---
+
 ## 🎯 What It Does
 
 DualTrack OS helps you:
