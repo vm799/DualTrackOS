@@ -15,7 +15,6 @@ const Onboarding = ({ onComplete, darkMode }) => {
   // Profile State
   const [profile, setProfile] = useState({
     name: '',
-    preferredName: '',
     initials: '',
     age: '',
     weight: '',
@@ -484,37 +483,6 @@ const Onboarding = ({ onComplete, darkMode }) => {
           </div>
 
           <div className="space-y-6">
-            {/* Name */}
-            <div>
-              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                <User size={16} className="inline mr-2" />
-                What should we call you?
-              </label>
-              <input
-                type="text"
-                value={profile.preferredName}
-                onChange={(e) => {
-                  // Remove any numbers from the input
-                  const sanitized = e.target.value.replace(/[0-9]/g, '');
-                  setProfile({ ...profile, preferredName: sanitized, name: sanitized });
-
-                  // Auto-focus initials field when name has 2+ characters
-                  if (sanitized.length >= 2 && initialsInputRef.current) {
-                    setTimeout(() => initialsInputRef.current?.focus(), 100);
-                  }
-                }}
-                placeholder="e.g., Sarah or Boss Lady"
-                className={`w-full px-4 py-3 rounded-lg transition-all ${
-                  darkMode
-                    ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
-                    : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
-                }`}
-              />
-              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                This is how we'll address you throughout the app
-              </p>
-            </div>
-
             {/* Initials */}
             <div>
               <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -547,9 +515,9 @@ const Onboarding = ({ onComplete, darkMode }) => {
           <div className="mt-8 space-y-3">
             <button
               onClick={() => goToStep(3)}
-              disabled={!profile.preferredName || !profile.initials}
+              disabled={!profile.initials}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-                !profile.preferredName || !profile.initials
+                !profile.initials
                   ? darkMode
                     ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -558,8 +526,8 @@ const Onboarding = ({ onComplete, darkMode }) => {
                     : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
               }`}
             >
-              {!profile.preferredName || !profile.initials ? (
-                'Please Enter Name & Initials'
+              {!profile.initials ? (
+                'Enter Your Initials'
               ) : (
                 <span className="flex items-center justify-center gap-2">
                   <span>Continue</span>

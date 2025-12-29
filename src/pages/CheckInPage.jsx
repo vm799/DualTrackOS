@@ -7,25 +7,15 @@ import useSessionStore from '../store/useSessionStore';
 const CheckInPage = ({ darkMode }) => {
   const navigate = useNavigate();
   const [energyLevel, setEnergyLevel] = useState(null);
-  const [mood, setMood] = useState(null);
   const [showPrioritySelection, setShowPrioritySelection] = useState(false);
 
   // Session store for streak tracking
-  const updateStreak = useSessionStore((state) => state.updateStreak);
+  const updateStreak = useSessionStore ((state) => state.updateStreak);
 
   // Update check-in streak on mount
   useEffect(() => {
     updateStreak('checkIn');
   }, [updateStreak]);
-
-  const moodOptions = [
-    { id: 'energized', label: 'Energized', emoji: '⚡', color: 'cyan' },
-    { id: 'focused', label: 'Focused', emoji: '🎯', color: 'purple' },
-    { id: 'calm', label: 'Calm', emoji: '😌', color: 'green' },
-    { id: 'tired', label: 'Tired', emoji: '😴', color: 'blue' },
-    { id: 'stressed', label: 'Stressed', emoji: '😰', color: 'orange' },
-    { id: 'overwhelmed', label: 'Overwhelmed', emoji: '😓', color: 'red' },
-  ];
 
   const priorityOptions = [
     {
@@ -87,7 +77,7 @@ const CheckInPage = ({ darkMode }) => {
   ];
 
   const handleContinue = () => {
-    if (energyLevel && mood) {
+    if (energyLevel) {
       setShowPrioritySelection(true);
     }
   };
@@ -97,7 +87,6 @@ const CheckInPage = ({ darkMode }) => {
     const intent = {
       priority: priority.id,
       energy: energyLevel,
-      mood: mood,
       timestamp: Date.now()
     };
     localStorage.setItem('checkin_intent', JSON.stringify(intent));
@@ -178,48 +167,13 @@ const CheckInPage = ({ darkMode }) => {
                 </p>
               </div>
 
-              {/* Mood */}
-              {energyLevel && (
-                <div className="mb-6">
-                  <label className={`block text-lg font-semibold mb-4 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                    How are you feeling?
-                  </label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {moodOptions.map((moodOption) => (
-                      <button
-                        key={moodOption.id}
-                        onClick={() => setMood(moodOption.id)}
-                        className={`p-4 rounded-xl text-left transition-all ${
-                          mood === moodOption.id
-                            ? darkMode
-                              ? 'bg-purple-500/30 border-2 border-purple-400 ring-2 ring-purple-400/50'
-                              : 'bg-purple-200 border-2 border-purple-500 ring-2 ring-purple-400/50'
-                            : darkMode
-                              ? 'bg-gray-800/50 border-2 border-gray-700 hover:border-gray-600'
-                              : 'bg-gray-50 border-2 border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="text-2xl mb-1">{moodOption.emoji}</div>
-                        <div className={`text-sm font-medium ${
-                          mood === moodOption.id
-                            ? darkMode ? 'text-white' : 'text-gray-900'
-                            : darkMode ? 'text-gray-400' : 'text-gray-700'
-                        }`}>
-                          {moodOption.label}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Buttons */}
               <div className="mt-8 space-y-3">
                 <button
                   onClick={handleContinue}
-                  disabled={!energyLevel || !mood}
+                  disabled={!energyLevel}
                   className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-                    !energyLevel || !mood
+                    !energyLevel
                       ? darkMode
                         ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -228,7 +182,7 @@ const CheckInPage = ({ darkMode }) => {
                         : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
                   }`}
                 >
-                  {!energyLevel || !mood ? 'Select Energy & Mood' : 'Continue'}
+                  {!energyLevel ? 'Select Energy Level' : 'Continue'}
                 </button>
 
                 <button
