@@ -4,18 +4,13 @@ import Logo from './components/Logo';
 import ParentalConsentModal from './components/ParentalConsentModal';
 
 const Onboarding = ({ onComplete, darkMode }) => {
-  // Steps: 0=QuickWin, 1=Disclaimer, 2=Profile, 3=OptionalData, 4=LifeStage
+  // Steps: 0=Disclaimer, 1=Profile, 2=OptionalData, 3=LifeStage
   const [step, setStep] = useState(0);
   const [weightUnit, setWeightUnit] = useState('lbs');
-
-  // Quick Win State (Step 0)
-  const [energyLevel, setEnergyLevel] = useState(null);
-  const [mood, setMood] = useState(null);
 
   // Profile State
   const [profile, setProfile] = useState({
     name: '',
-    preferredName: '',
     initials: '',
     age: '',
     weight: '',
@@ -117,220 +112,14 @@ const Onboarding = ({ onComplete, darkMode }) => {
       weight: parseInt(profile.weight) || null,
       weightUnit: weightUnit,
       hasCompletedOnboarding: true,
-      disclaimerAccepted: true,
-      initialEnergy: energyLevel,
-      initialMood: mood
+      disclaimerAccepted: true
     });
   };
 
-  // Mood options for Quick Win
-  const moodOptions = [
-    { id: 'energized', label: 'Energized', emoji: '⚡', color: 'cyan' },
-    { id: 'focused', label: 'Focused', emoji: '🎯', color: 'purple' },
-    { id: 'calm', label: 'Calm', emoji: '😌', color: 'green' },
-    { id: 'tired', label: 'Tired', emoji: '😴', color: 'blue' },
-    { id: 'stressed', label: 'Stressed', emoji: '😰', color: 'orange' },
-    { id: 'overwhelmed', label: 'Overwhelmed', emoji: '😓', color: 'red' },
-  ];
-
   // ========================================
-  // STEP 0: QUICK WIN - Energy Check-In
+  // STEP 0: LEGAL DISCLAIMER
   // ========================================
   if (step === 0) {
-    const getSmartSuggestion = () => {
-      if (!energyLevel) return null;
-
-      if (energyLevel >= 4) {
-        return {
-          title: "You're powered up!",
-          suggestions: [
-            "Tackle your most challenging task first",
-            "Schedule important meetings or decisions",
-            "Perfect time for focused deep work"
-          ],
-          color: 'emerald'
-        };
-      } else if (energyLevel === 3) {
-        return {
-          title: "Moderate capacity today",
-          suggestions: [
-            "Focus on routine tasks and follow-ups",
-            "Good for collaboration and meetings",
-            "Balance work with regular breaks"
-          ],
-          color: 'cyan'
-        };
-      } else {
-        return {
-          title: "Gentle Mode Recommended",
-          suggestions: [
-            "Prioritize only what's truly essential",
-            "This is a day for self-care, not overdelivering",
-            "Rest is productive—honor what your body needs"
-          ],
-          color: 'rose'
-        };
-      }
-    };
-
-    const suggestion = getSmartSuggestion();
-
-    return (
-      <div className={`min-h-screen flex items-center justify-center p-4 ${
-        darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
-      }`}>
-        <div className="fixed top-4 left-4 z-50">
-          <Logo size="large" />
-        </div>
-
-        <div className={`max-w-2xl w-full rounded-2xl p-8 shadow-2xl ${
-          darkMode
-            ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
-            : 'bg-white border-2 border-gray-100'
-        }`}>
-          <div className="text-center mb-8">
-            <Zap className={`mx-auto mb-4 ${darkMode ? 'text-cyan-400' : 'text-cyan-600'}`} size={48} />
-            <h1 className={`text-3xl font-bold mb-2 ${
-              darkMode
-                ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
-                : 'text-gray-900'
-            }`}>
-              Let's Start With a 3-Second Check-In
-            </h1>
-            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              Experience the power of DualTrack OS before we ask for anything else
-            </p>
-          </div>
-
-          {/* Energy Level Selector */}
-          <div className="mb-6">
-            <label className={`block text-lg font-semibold mb-4 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-              <Battery className="inline mr-2" size={20} />
-              How's your energy right now?
-            </label>
-            <div className="grid grid-cols-5 gap-2">
-              {[1, 2, 3, 4, 5].map((level) => (
-                <button
-                  key={level}
-                  onClick={() => setEnergyLevel(level)}
-                  className={`py-4 rounded-xl text-4xl font-bold transition-all ${
-                    energyLevel === level
-                      ? darkMode
-                        ? 'bg-cyan-500/30 border-2 border-cyan-400 ring-2 ring-cyan-400/50 scale-105 text-white'
-                        : 'bg-cyan-200 border-2 border-cyan-500 ring-2 ring-cyan-400/50 scale-105 text-gray-900'
-                      : darkMode
-                        ? 'bg-gray-700/50 border-2 border-gray-600 hover:border-gray-500 hover:scale-105 text-white'
-                        : 'bg-gray-50 border-2 border-gray-200 hover:border-gray-300 hover:scale-105 text-gray-900'
-                  }`}
-                >
-                  {level}
-                </button>
-              ))}
-            </div>
-            <p className={`text-sm mt-2 text-center font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-              1 = Exhausted • 5 = Energized
-            </p>
-          </div>
-
-          {/* Mood Selector */}
-          {energyLevel && (
-            <div className="mb-6">
-              <label className={`block text-lg font-semibold mb-4 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                How are you feeling?
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {moodOptions.map((moodOption) => (
-                  <button
-                    key={moodOption.id}
-                    onClick={() => setMood(moodOption.id)}
-                    className={`p-4 rounded-xl text-left transition-all ${
-                      mood === moodOption.id
-                        ? darkMode
-                          ? 'bg-purple-500/30 border-2 border-purple-400 ring-2 ring-purple-400/50'
-                          : 'bg-purple-200 border-2 border-purple-500 ring-2 ring-purple-400/50'
-                        : darkMode
-                          ? 'bg-gray-800/50 border-2 border-gray-700 hover:border-gray-600'
-                          : 'bg-gray-50 border-2 border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="text-2xl mb-1">{moodOption.emoji}</div>
-                    <div className={`text-sm font-medium ${
-                      mood === moodOption.id
-                        ? darkMode ? 'text-white' : 'text-gray-900'
-                        : darkMode ? 'text-gray-400' : 'text-gray-700'
-                    }`}>
-                      {moodOption.label}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Smart Suggestions */}
-          {suggestion && mood && (
-            <div className={`mb-6 p-6 rounded-xl ${
-              darkMode
-                ? `bg-${suggestion.color}-500/10 border-2 border-${suggestion.color}-500/30`
-                : `bg-${suggestion.color}-50 border-2 border-${suggestion.color}-200`
-            }`}>
-              <h3 className={`text-xl font-bold mb-3 ${
-                darkMode ? `text-${suggestion.color}-300` : `text-${suggestion.color}-800`
-              }`}>
-                ✨ {suggestion.title}
-              </h3>
-              <p className={`text-sm mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                Based on your energy ({energyLevel}/5) and mood ({moodOptions.find(m => m.id === mood)?.label.toLowerCase()}), here's what to prioritize today:
-              </p>
-              <ul className="space-y-2">
-                {suggestion.suggestions.map((item, idx) => (
-                  <li key={idx} className={`flex items-start gap-2 text-sm ${
-                    darkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>
-                    <span className={`text-${suggestion.color}-500 mt-0.5`}>•</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Continue Button */}
-          <button
-            onClick={() => goToStep(1)}
-            disabled={!energyLevel || !mood}
-            className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-              !energyLevel || !mood
-                ? darkMode
-                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : darkMode
-                  ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
-                  : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
-            }`}
-          >
-            {!energyLevel || !mood ? (
-              'Select Your Energy & Mood'
-            ) : (
-              <span className="flex items-center justify-center gap-2">
-                <span>Continue</span>
-                <ArrowRight size={20} />
-              </span>
-            )}
-          </button>
-
-          <p className={`text-xs text-center mt-4 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-            💡 This is how DualTrack works—we adapt to YOUR capacity, every single day
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // ========================================
-  // STEP 1: LEGAL DISCLAIMER
-  // ========================================
-  if (step === 1) {
     return (
       <div className={`min-h-screen flex items-center justify-center p-4 ${
         darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
@@ -433,7 +222,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
 
           <div className="mt-8 space-y-3">
             <button
-              onClick={() => goToStep(2)}
+              onClick={() => goToStep(1)}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
                 darkMode
                   ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white border-2 border-emerald-500/50 shadow-lg shadow-emerald-500/20'
@@ -453,9 +242,9 @@ const Onboarding = ({ onComplete, darkMode }) => {
   }
 
   // ========================================
-  // STEP 2: ESSENTIAL PROFILE
+  // STEP 1: ESSENTIAL PROFILE
   // ========================================
-  if (step === 2) {
+  if (step === 1) {
     return (
       <div className={`min-h-screen flex items-center justify-center p-4 ${
         darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
@@ -484,37 +273,6 @@ const Onboarding = ({ onComplete, darkMode }) => {
           </div>
 
           <div className="space-y-6">
-            {/* Name */}
-            <div>
-              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                <User size={16} className="inline mr-2" />
-                What should we call you?
-              </label>
-              <input
-                type="text"
-                value={profile.preferredName}
-                onChange={(e) => {
-                  // Remove any numbers from the input
-                  const sanitized = e.target.value.replace(/[0-9]/g, '');
-                  setProfile({ ...profile, preferredName: sanitized, name: sanitized });
-
-                  // Auto-focus initials field when name has 2+ characters
-                  if (sanitized.length >= 2 && initialsInputRef.current) {
-                    setTimeout(() => initialsInputRef.current?.focus(), 100);
-                  }
-                }}
-                placeholder="e.g., Sarah or Boss Lady"
-                className={`w-full px-4 py-3 rounded-lg transition-all ${
-                  darkMode
-                    ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
-                    : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
-                }`}
-              />
-              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                This is how we'll address you throughout the app
-              </p>
-            </div>
-
             {/* Initials */}
             <div>
               <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -546,10 +304,10 @@ const Onboarding = ({ onComplete, darkMode }) => {
           {/* Action Buttons */}
           <div className="mt-8 space-y-3">
             <button
-              onClick={() => goToStep(3)}
-              disabled={!profile.preferredName || !profile.initials}
+              onClick={() => goToStep(2)}
+              disabled={!profile.initials}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-                !profile.preferredName || !profile.initials
+                !profile.initials
                   ? darkMode
                     ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -558,8 +316,8 @@ const Onboarding = ({ onComplete, darkMode }) => {
                     : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
               }`}
             >
-              {!profile.preferredName || !profile.initials ? (
-                'Please Enter Name & Initials'
+              {!profile.initials ? (
+                'Enter Your Initials'
               ) : (
                 <span className="flex items-center justify-center gap-2">
                   <span>Continue</span>
@@ -578,9 +336,9 @@ const Onboarding = ({ onComplete, darkMode }) => {
   }
 
   // ========================================
-  // STEP 3: OPTIONAL DATA (Age + Weight)
+  // STEP 2: OPTIONAL DATA (Age + Weight)
   // ========================================
-  if (step === 3) {
+  if (step === 2) {
     return (
       <div className={`min-h-screen flex items-center justify-center p-4 ${
         darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
@@ -744,7 +502,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
 
             {/* Continue to Life Stage */}
             <button
-              onClick={() => profile.age ? goToStep(4) : handleComplete()}
+              onClick={() => profile.age ? goToStep(3) : handleComplete()}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
                 darkMode
                   ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
@@ -767,9 +525,9 @@ const Onboarding = ({ onComplete, darkMode }) => {
   }
 
   // ========================================
-  // STEP 4: LIFE STAGE (Optional)
+  // STEP 3: LIFE STAGE (Optional)
   // ========================================
-  if (step === 4) {
+  if (step === 3) {
     const age = parseInt(profile.age);
     const suggestedStage = age && age < 40 ? 'reproductive' : age < 55 ? 'perimenopause' : 'postmenopause';
 
@@ -939,7 +697,7 @@ const Onboarding = ({ onComplete, darkMode }) => {
           {/* Action buttons */}
           <div className="flex gap-4">
             <button
-              onClick={() => goToStep(3)}
+              onClick={() => goToStep(2)}
               className={`px-6 py-3 rounded-xl font-semibold transition-all ${
                 darkMode
                   ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'

@@ -20,6 +20,7 @@
 import React from 'react';
 import AppRouter from './Router';
 import ErrorBoundary from './components/ErrorBoundary';
+import StickyLogoBanner from './components/StickyLogoBanner';
 import { useAuthInitialization } from './hooks/useAuthInitialization';
 import { useDataPersistence } from './hooks/useDataPersistence';
 
@@ -33,6 +34,7 @@ const DualTrackOS = () => {
   // Render the application wrapped in Error Boundary for production error handling
   return (
     <ErrorBoundary>
+      <StickyLogoBanner />
       <AppRouter />
     </ErrorBoundary>
   );
