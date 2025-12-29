@@ -4,17 +4,20 @@ import { useNavigate, useLocation } from 'react-router-dom';
 /**
  * Sticky Lioness Logo Banner
  *
- * Small persistent logo banner that appears on all pages
+ * Small persistent logo banner that appears on select pages
+ * Only shows on pages without their own header/logo
  * Clickable to navigate to dashboard
- * Positioned at top-left corner
  */
 const StickyLogoBanner = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Don't show on landing page only
-  const hiddenPaths = ['/'];
-  if (hiddenPaths.includes(location.pathname)) {
+  // Only show on story page and preview page (pages without headers)
+  // Don't show on pages that already have logos in their headers:
+  // - Dashboard, Health, Productivity, Settings (have headers with logos)
+  // - CheckIn, Onboarding (have fixed logos at top)
+  const showPaths = ['/story', '/preview'];
+  if (!showPaths.includes(location.pathname)) {
     return null;
   }
 
