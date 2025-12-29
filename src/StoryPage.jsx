@@ -1,34 +1,14 @@
 import React from 'react';
-import { ArrowLeft, Target, Zap, Heart, ArrowRight } from 'lucide-react';
-import Logo from './components/Logo';
+import { Target, Zap, Heart, ArrowRight } from 'lucide-react';
 
-const StoryPage = ({ onBack, onEnter, darkMode }) => {
+const StoryPage = ({ onEnter, darkMode }) => {
   return (
     <div className={`min-h-screen overflow-x-hidden ${
       darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50'
     }`} style={{ position: 'fixed', width: '100%', height: '100%', overflowY: 'auto' }}>
-      {/* Back button */}
-      <div className="sticky top-0 z-20 backdrop-blur-xl border-b">
-        <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={onBack}
-              className={`flex items-center space-x-2 transition-all ${
-                darkMode
-                  ? 'text-purple-400 hover:text-purple-300'
-                  : 'text-purple-600 hover:text-purple-700'
-              }`}
-            >
-              <ArrowLeft size={20} />
-              <span className="font-medium">Back</span>
-            </button>
-            <Logo size="medium" />
-          </div>
-        </div>
-      </div>
 
-      {/* Content */}
-      <div className="max-w-3xl mx-auto px-6 py-12 space-y-10">
+      {/* Content - Added top padding to account for StickyLogoBanner */}
+      <div className="max-w-3xl mx-auto px-6 pt-20 pb-12 space-y-10">
         {/* Hero */}
         <div className="text-center space-y-4">
           <h1 className={`text-4xl md:text-5xl font-bold ${

@@ -12,11 +12,11 @@ const StickyLogoBanner = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Only show on story page and preview page (pages without headers)
-  // Don't show on pages that already have logos in their headers:
-  // - Dashboard, Health, Productivity, Settings (have headers with logos)
+  // Only show on story page (which doesn't have a header with navigation)
+  // Don't show on pages that already have logos/headers:
+  // - Dashboard, Health, Productivity, Settings, Preview (have headers with logos)
   // - CheckIn, Onboarding (have fixed logos at top)
-  const showPaths = ['/story', '/preview'];
+  const showPaths = ['/story'];
   if (!showPaths.includes(location.pathname)) {
     return null;
   }
