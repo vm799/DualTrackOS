@@ -35,6 +35,8 @@ import { SkillLevelBadge } from '../components/AdaptiveUI';
 import OnboardingTour from '../components/OnboardingTour';
 import DashboardWelcome from '../components/DashboardWelcome';
 import QuickCheckIn from '../components/QuickCheckIn';
+import StoryReminder from '../components/StoryBank/StoryReminder';
+import useStoryBankStore from '../store/useStoryBankStore';
 import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import useEnergyDarkMode from '../hooks/useEnergyDarkMode';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
@@ -83,6 +85,14 @@ const Dashboard = () => {
   const [hasCheckedNDM, setHasCheckedNDM] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showQuickCheckIn, setShowQuickCheckIn] = useState(false);
+
+  // Story Bank - Daily Reminder System
+  const {
+    shouldShowReminder,
+    snoozeReminder,
+    dismissReminderToday
+  } = useStoryBankStore();
+  const [showStoryReminder, setShowStoryReminder] = useState(false);
 
   // Get welcome message based on time of day
   const getWelcomeMessage = () => {
@@ -397,6 +407,43 @@ const Dashboard = () => {
       }, 1000);
     }
   }, [streaks.checkIns]);
+
+  // Story Bank reminder check - runs after page load and every 30 minutes
+  useEffect(() => {
+    // Check if should show reminder
+    const checkReminder = () => {
+      if (shouldShowReminder()) {
+        setShowStoryReminder(true);
+      }
+    };
+
+    // Wait 5 seconds after page load before first check
+    const initialTimer = setTimeout(checkReminder, 5000);
+
+    // Check every 30 minutes
+    const interval = setInterval(checkReminder, 30 * 60 * 1000);
+
+    return () => {
+      clearTimeout(initialTimer);
+      clearInterval(interval);
+    };
+  }, [shouldShowReminder]);
+
+  // Story Bank reminder handlers
+  const handleStartStory = () => {
+    setShowStoryReminder(false);
+    navigate('/story-bank');
+  };
+
+  const handleSnoozeReminder = () => {
+    snoozeReminder(2); // 2 hours
+    setShowStoryReminder(false);
+  };
+
+  const handleDismissReminder = () => {
+    dismissReminderToday();
+    setShowStoryReminder(false);
+  };
 
   const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
@@ -840,6 +887,16 @@ const Dashboard = () => {
 
       {/* FULLSCREEN POMODORO */}
       <PomodoroFullScreen darkMode={darkMode} />
+
+      {/* STORY BANK REMINDER */}
+      {showStoryReminder && (
+        <StoryReminder
+          darkMode={darkMode}
+          onStartStory={handleStartStory}
+          onSnooze={handleSnoozeReminder}
+          onDismiss={handleDismissReminder}
+        />
+      )}
 
       {/* ONBOARDING TOUR - TEMPORARILY DISABLED FOR DEBUGGING */}
       {/* <OnboardingTour
