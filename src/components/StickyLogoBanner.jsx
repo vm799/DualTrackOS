@@ -12,8 +12,8 @@ const StickyLogoBanner = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Don't show on landing page or story page
-  const hiddenPaths = ['/', '/story'];
+  // Don't show on landing page only
+  const hiddenPaths = ['/'];
   if (hiddenPaths.includes(location.pathname)) {
     return null;
   }
