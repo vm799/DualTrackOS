@@ -22,7 +22,8 @@ const StickyLogoBanner = () => {
   }
 
   const handleClick = () => {
-    navigate('/dashboard');
+    // Navigate back to landing page from story
+    navigate('/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -30,8 +31,8 @@ const StickyLogoBanner = () => {
     <button
       onClick={handleClick}
       className="fixed top-4 left-4 z-50 group"
-      title="Go to Dashboard"
-      aria-label="Go to Dashboard"
+      title="Back to Home"
+      aria-label="Back to Home"
     >
       <div className="flex items-center gap-2 px-3 py-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg rounded-full shadow-lg border-2 border-purple-200 dark:border-purple-500/50 transition-all hover:scale-105 hover:shadow-xl hover:border-purple-400 dark:hover:border-purple-400 active:scale-95">
         <img
