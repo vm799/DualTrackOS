@@ -47,34 +47,37 @@ const StoryBankPage = () => {
       }`}>
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            {/* Back Arrow */}
-            <button
-              onClick={() => navigate('/')}
-              className={`p-2 rounded-lg transition-all ${
-                darkMode
-                  ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
-                  : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-              }`}
-              title="Back to Home"
-              aria-label="Back to Home"
-            >
-              <ArrowLeft size={24} />
-            </button>
+            {/* Back Arrow and Large Logo */}
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/')}
+                className={`p-2 rounded-lg transition-all ${
+                  darkMode
+                    ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                    : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                }`}
+                title="Back to Home"
+                aria-label="Back to Home"
+              >
+                <ArrowLeft size={24} />
+              </button>
 
-            {/* Center Logo and Title */}
-            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
-              <img
-                src="/lioness-logo.png"
-                alt="DualTrack OS"
-                className="w-8 h-8 drop-shadow-lg"
-              />
-              <div className="text-center">
-                <h1 className={`text-xl sm:text-2xl font-bold ${
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="flex items-center gap-3 hover:opacity-80 transition-all"
+                title="Go to Dashboard"
+              >
+                <img
+                  src="/lioness-logo.png"
+                  alt="DualTrack OS"
+                  className="w-16 h-16 drop-shadow-lg"
+                />
+                <h1 className={`text-2xl sm:text-3xl font-bold ${
                   darkMode ? 'text-white' : 'text-gray-900'
                 }`}>
                   Story Bank
                 </h1>
-              </div>
+              </button>
             </div>
 
             {/* Actions */}

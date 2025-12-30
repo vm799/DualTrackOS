@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save, Mic, Square, Play, Pause, Trash2, Star, Tag, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import useStoryBankStore from '../../store/useStoryBankStore';
 
 /**
@@ -21,6 +22,7 @@ import useStoryBankStore from '../../store/useStoryBankStore';
  * - Category selection
  */
 const StoryEditor = ({ darkMode, onClose }) => {
+  const navigate = useNavigate();
   const { currentStory, addStory, updateStory } = useStoryBankStore();
 
   const [formData, setFormData] = useState({
@@ -195,25 +197,32 @@ const StoryEditor = ({ darkMode, onClose }) => {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg p-4 overflow-y-auto">
-      <div className={`max-w-4xl w-full rounded-3xl my-8 ${
-        darkMode ? 'bg-gray-900 border-2 border-purple-500/30' : 'bg-white border-2 border-purple-200'
-      }`}>
-        {/* Header */}
-        <div className={`sticky top-0 z-10 flex items-center justify-between p-6 border-b ${
-          darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm overflow-y-auto">
+      <div className="min-h-screen flex items-start justify-center p-4">
+        <div className={`max-w-4xl w-full my-8 rounded-3xl shadow-2xl ${
+          darkMode ? 'bg-gray-900 border-2 border-purple-500/30' : 'bg-white border-2 border-purple-200'
         }`}>
-          <div className="flex items-center gap-3">
-            <img
-              src="/lioness-logo.png"
-              alt="DualTrack OS"
-              className="w-8 h-8 drop-shadow-lg"
-            />
-            <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              {currentStory ? 'Edit Story' : 'New Story'}
-            </h2>
-          </div>
-          <button
+          {/* Header - Not Sticky */}
+          <div className={`flex items-center justify-between p-6 border-b rounded-t-3xl ${
+            darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+          }`}>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="hover:opacity-80 transition-all"
+                title="Go to Dashboard"
+              >
+                <img
+                  src="/lioness-logo.png"
+                  alt="DualTrack OS"
+                  className="w-12 h-12 drop-shadow-lg"
+                />
+              </button>
+              <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                {currentStory ? 'Edit Story' : 'New Story'}
+              </h2>
+            </div>
+            <button
             onClick={onClose}
             className={`p-2 rounded-lg transition-all ${
               darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
@@ -595,6 +604,7 @@ const StoryEditor = ({ darkMode, onClose }) => {
             <Save size={20} />
             {currentStory ? 'Update Story' : 'Save Story'}
           </button>
+        </div>
         </div>
       </div>
     </div>
