@@ -203,9 +203,16 @@ const StoryEditor = ({ darkMode, onClose }) => {
         <div className={`sticky top-0 z-10 flex items-center justify-between p-6 border-b ${
           darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
         }`}>
-          <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-            {currentStory ? 'Edit Story' : 'New Story'}
-          </h2>
+          <div className="flex items-center gap-3">
+            <img
+              src="/lioness-logo.png"
+              alt="DualTrack OS"
+              className="w-8 h-8 drop-shadow-lg"
+            />
+            <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              {currentStory ? 'Edit Story' : 'New Story'}
+            </h2>
+          </div>
           <button
             onClick={onClose}
             className={`p-2 rounded-lg transition-all ${

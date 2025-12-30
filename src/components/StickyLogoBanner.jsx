@@ -16,8 +16,8 @@ const StickyLogoBanner = () => {
   console.log('StickyLogoBanner - Current path:', location.pathname);
 
   // Only show on story page (which doesn't have a header with navigation)
-  // Also show on story-bank but position below the header
-  const showPaths = ['/story', '/story-bank'];
+  // Don't show on story-bank - logo is integrated into the header there
+  const showPaths = ['/story'];
   const shouldShow = showPaths.includes(location.pathname);
 
   console.log('StickyLogoBanner - Should show:', shouldShow);
@@ -28,10 +28,6 @@ const StickyLogoBanner = () => {
 
   console.log('StickyLogoBanner - RENDERING');
 
-  // Adjust position for pages with headers
-  const hasHeader = location.pathname === '/story-bank';
-  const topPosition = hasHeader ? '5rem' : '1rem'; // Below header on story-bank, top on story
-
   const handleClick = () => {
     // Navigate back to landing page from story
     navigate('/');
@@ -41,12 +37,12 @@ const StickyLogoBanner = () => {
   return (
     <button
       onClick={handleClick}
-      className="fixed left-4 z-[9999] group"
+      className="fixed top-4 left-4 z-[9999] group"
       title="Back to Home"
       aria-label="Back to Home"
       style={{
         position: 'fixed',
-        top: topPosition,
+        top: '1rem',
         left: '1rem',
         zIndex: 9999
       }}
