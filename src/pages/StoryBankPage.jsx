@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { BookOpen, Plus, Mic, TrendingUp, Search, Filter, Grid, List, Calendar, Bell, BellOff } from 'lucide-react';
+import { BookOpen, Plus, Mic, TrendingUp, Search, Filter, Grid, List, Calendar, Bell, BellOff, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import useStoryBankStore from '../store/useStoryBankStore';
 import StoryEditor from '../components/StoryBank/StoryEditor';
@@ -16,6 +17,7 @@ import ProgressTracker from '../components/StoryBank/ProgressTracker';
  * - Track progress toward 365-story goal
  */
 const StoryBankPage = () => {
+  const navigate = useNavigate();
   const darkMode = useStore((state) => state.darkMode);
   const {
     stories,
@@ -45,18 +47,33 @@ const StoryBankPage = () => {
       }`}>
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            {/* Title */}
-            <div className="flex items-center gap-3">
-              <BookOpen className={darkMode ? 'text-purple-400' : 'text-purple-600'} size={32} />
-              <div>
-                <h1 className={`text-2xl font-bold ${
+            {/* Back Arrow */}
+            <button
+              onClick={() => navigate('/')}
+              className={`p-2 rounded-lg transition-all ${
+                darkMode
+                  ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                  : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+              }`}
+              title="Back to Home"
+              aria-label="Back to Home"
+            >
+              <ArrowLeft size={24} />
+            </button>
+
+            {/* Center Logo and Title */}
+            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
+              <img
+                src="/lioness-logo.png"
+                alt="DualTrack OS"
+                className="w-8 h-8 drop-shadow-lg"
+              />
+              <div className="text-center">
+                <h1 className={`text-xl sm:text-2xl font-bold ${
                   darkMode ? 'text-white' : 'text-gray-900'
                 }`}>
                   Story Bank
                 </h1>
-                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Building your 365-story collection
-                </p>
               </div>
             </div>
 
