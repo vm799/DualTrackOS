@@ -11,6 +11,7 @@ import ProductivityPage from './pages/ProductivityPage';
 import StoryBankPage from './pages/StoryBankPage';
 import SettingsPage from './pages/SettingsPage';
 import PricingPage from './pages/PricingPage';
+import RedeemCodePage from './pages/RedeemCodePage';
 import StickyLogoBanner from './components/StickyLogoBanner';
 import useStore from './store/useStore';
 
@@ -119,6 +120,10 @@ const AppRouter = () => {
         <Route
           path="/pricing"
           element={<PricingPage />}
+        />
+        <Route
+          path="/redeem"
+          element={<RedeemCodePage />}
         />
         {/* Add more routes here as we break down App.jsx */}
         <Route path="*" element={<Navigate to="/" replace />} />
