@@ -12,6 +12,9 @@ import StoryBankPage from './pages/StoryBankPage';
 import SettingsPage from './pages/SettingsPage';
 import PricingPage from './pages/PricingPage';
 import RedeemCodePage from './pages/RedeemCodePage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsOfServicePage from './pages/TermsOfServicePage';
+import FAQPage from './pages/FAQPage';
 import StickyLogoBanner from './components/StickyLogoBanner';
 import useStore from './store/useStore';
 
@@ -124,6 +127,18 @@ const AppRouter = () => {
         <Route
           path="/redeem"
           element={<RedeemCodePage />}
+        />
+        <Route
+          path="/privacy"
+          element={<PrivacyPolicyPage />}
+        />
+        <Route
+          path="/terms"
+          element={<TermsOfServicePage />}
+        />
+        <Route
+          path="/faq"
+          element={<FAQPage />}
         />
         {/* Add more routes here as we break down App.jsx */}
         <Route path="*" element={<Navigate to="/" replace />} />
