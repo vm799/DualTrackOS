@@ -42,6 +42,7 @@ import useEnergyDarkMode from '../hooks/useEnergyDarkMode';
 import CycleSyncWidget from '../components/CycleSyncWidget';
 import NonZeroDayWidget from '../components/NonZeroDayWidget';
 import DayOneChecklist from '../components/DayOneChecklist';
+import MojoCycleChart from '../components/MojoCycleChart';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
 
 const Dashboard = () => {
@@ -768,10 +769,11 @@ const Dashboard = () => {
             accentColor="pink"
             darkMode={darkMode}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <CycleSyncWidget />
               <NonZeroDayWidget />
             </div>
+            <MojoCycleChart />
           </SectionContainer>
 
           {/* Nutrition Section */}

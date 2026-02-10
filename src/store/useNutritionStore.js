@@ -17,7 +17,7 @@ const useNutritionStore = create((set, get) => ({
     { name: 'Lentil Soup + Hemp', protein: 20, type: 'main', details: '1 cup Lentils + 3 tbsp Hemp Seeds', isHighLeucine: false },
     { name: 'Seitan Strips', protein: 45, type: 'main', details: '150g Seitan (Wheat Meat)', isHighLeucine: true }, // NOTE: Seitan is low in Lysine, but high protein
     { name: 'Pumpkin Seed Sprinkle', protein: 10, type: 'topping', details: '30g Pumpkin Seeds', isHighLeucine: false },
-    { name: 'Nutritional Yeast Bomb', protein: 8, type: 'topping', details: '2 tbsp Nutritional Yeast', isHighLeucine: False }
+    { name: 'Nutritional Yeast Bomb', protein: 8, type: 'topping', details: '2 tbsp Nutritional Yeast', isHighLeucine: false }
   ],
 
   // Actions
