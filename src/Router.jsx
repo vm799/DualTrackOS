@@ -42,6 +42,20 @@ const PathTracker = () => {
 const AppRouter = () => {
   const darkMode = useStore((state) => state.darkMode);
   const userProfile = useStore((state) => state.userProfile);
+  const isHydrated = useStore((state) => state.isHydrated);
+
+  // Don't render routes until initial hydration is complete to avoid redirect loops
+  // based on default fallback state
+  if (!isHydrated) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-[#191919]' : 'bg-gray-50'}`}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Loading DualTrack OS...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Router>

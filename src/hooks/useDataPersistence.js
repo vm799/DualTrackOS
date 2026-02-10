@@ -14,10 +14,13 @@ export const useDataPersistence = () => {
   const user = useStore((state) => state.user);
   const darkMode = useStore((state) => state.darkMode);
   const userProfile = useStore((state) => state.userProfile);
+  const isHydrated = useStore((state) => state.isHydrated);
 
   useEffect(() => {
+    // Only save if we are hydrated to avoid overwriting good data with default state
+    if (!isHydrated) return;
+
     // Collect data from main store
-    // Individual stores will handle their own persistence
     const dataToSave = {
       darkMode,
       userProfile,
@@ -30,5 +33,5 @@ export const useDataPersistence = () => {
     if (user && isSupabaseConfigured()) {
       saveUserData(user.id, dataToSave);
     }
-  }, [darkMode, userProfile, user]);
+  }, [darkMode, userProfile, user, isHydrated]);
 };

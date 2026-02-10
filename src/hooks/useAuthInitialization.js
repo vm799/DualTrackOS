@@ -14,45 +14,59 @@ export const useAuthInitialization = () => {
   const setUser = useStore((state) => state.setUser);
   const setDarkMode = useStore((state) => state.setDarkMode);
   const setUserProfile = useStore((state) => state.setUserProfile);
+  const setIsHydrated = useStore((state) => state.setIsHydrated);
 
   useEffect(() => {
+    let subscription = null;
+
     const initAuth = async () => {
-      if (isSupabaseConfigured()) {
-        // Supabase auth flow
-        const session = await getSession();
-        setUser(session?.user ?? null);
-
-        if (session?.user) {
-          const userData = await loadUserData(session.user.id);
-          if (userData) {
-            if (userData.darkMode !== undefined) setDarkMode(userData.darkMode);
-            if (userData.userProfile) setUserProfile(userData.userProfile);
-            // Other state hydration handled by individual store slices
-          }
-        }
-
-        // Listen for auth changes
-        const { data: { subscription } } = onAuthStateChange((_event, session) => {
+      try {
+        if (isSupabaseConfigured()) {
+          // Supabase auth flow
+          const session = await getSession();
           setUser(session?.user ?? null);
-        });
 
-        return () => subscription.unsubscribe();
-      } else {
-        // localStorage fallback for non-Supabase users
-        const saved = localStorage.getItem('dualtrack-data');
-        if (saved) {
-          try {
-            const data = JSON.parse(saved);
-            if (data.darkMode !== undefined) setDarkMode(data.darkMode);
-            if (data.userProfile) setUserProfile(data.userProfile);
-            // Other state hydration handled by individual store slices
-          } catch (e) {
-            console.error('[useAuthInitialization] Failed to parse localStorage:', e);
+          if (session?.user) {
+            const userData = await loadUserData(session.user.id);
+            if (userData) {
+              if (userData.darkMode !== undefined) setDarkMode(userData.darkMode);
+              if (userData.userProfile) setUserProfile(userData.userProfile);
+            }
           }
+
+          // Listen for auth changes
+          const { data } = onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+          });
+          subscription = data.subscription;
+
+          setIsHydrated(true);
+        } else {
+          // localStorage fallback
+          const saved = localStorage.getItem('dualtrack-data');
+          if (saved) {
+            try {
+              const data = JSON.parse(saved);
+              if (data.darkMode !== undefined) setDarkMode(data.darkMode);
+              if (data.userProfile) setUserProfile(data.userProfile);
+            } catch (e) {
+              console.error('[useAuthInitialization] Failed to parse localStorage:', e);
+            }
+          }
+          setIsHydrated(true);
         }
+      } catch (error) {
+        console.error('[useAuthInitialization] Initialization failed:', error);
+        setIsHydrated(true);
       }
     };
 
     initAuth();
-  }, [setUser, setDarkMode, setUserProfile]);
+
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+    };
+  }, [setUser, setDarkMode, setUserProfile, setIsHydrated]);
 };

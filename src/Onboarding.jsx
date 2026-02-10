@@ -2,10 +2,20 @@ import React, { useState, useRef } from 'react';
 import { User, Sparkles, CheckCircle, Heart, ArrowRight, Zap, Battery, AlertTriangle, Weight, Cake } from 'lucide-react';
 import Logo from './components/Logo';
 import ParentalConsentModal from './components/ParentalConsentModal';
+import useStore from './store/useStore';
 
 const Onboarding = ({ onComplete, darkMode }) => {
+  const userProfile = useStore((state) => state.userProfile);
   // Steps: 0=Disclaimer, 1=Profile, 2=OptionalData, 3=LifeStage
   const [step, setStep] = useState(0);
+
+  // Auto-advance if profile already has disclaimer accepted
+  React.useEffect(() => {
+    if (userProfile.disclaimerAccepted && step === 0) {
+      setStep(1);
+    }
+  }, [userProfile.disclaimerAccepted, step]);
+
   const [weightUnit, setWeightUnit] = useState('lbs');
 
   // Profile State
@@ -121,25 +131,22 @@ const Onboarding = ({ onComplete, darkMode }) => {
   // ========================================
   if (step === 0) {
     return (
-      <div className={`min-h-screen flex items-center justify-center p-4 ${
-        darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
-      }`}>
+      <div className={`min-h-screen flex items-center justify-center p-4 ${darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
+        }`}>
         <div className="fixed top-4 left-4 z-50">
           <Logo size="large" />
         </div>
 
-        <div className={`max-w-2xl w-full rounded-2xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto ${
-          darkMode
-            ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
-            : 'bg-white border-2 border-gray-100'
-        }`}>
+        <div className={`max-w-2xl w-full rounded-2xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto ${darkMode
+          ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
+          : 'bg-white border-2 border-gray-100'
+          }`}>
           <div className="text-center mb-6">
             <AlertTriangle className={`mx-auto mb-4 ${darkMode ? 'text-amber-400' : 'text-amber-600'}`} size={48} />
-            <h1 className={`text-3xl font-bold mb-2 ${
-              darkMode
-                ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
-                : 'text-gray-900'
-            }`}>
+            <h1 className={`text-3xl font-bold mb-2 ${darkMode
+              ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+              : 'text-gray-900'
+              }`}>
               Important Legal Disclaimer
             </h1>
             <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -223,11 +230,10 @@ const Onboarding = ({ onComplete, darkMode }) => {
           <div className="mt-8 space-y-3">
             <button
               onClick={() => goToStep(1)}
-              className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-                darkMode
-                  ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white border-2 border-emerald-500/50 shadow-lg shadow-emerald-500/20'
-                  : 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white'
-              }`}
+              className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${darkMode
+                ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white border-2 border-emerald-500/50 shadow-lg shadow-emerald-500/20'
+                : 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white'
+                }`}
             >
               I Understand and Agree
             </button>
@@ -246,25 +252,22 @@ const Onboarding = ({ onComplete, darkMode }) => {
   // ========================================
   if (step === 1) {
     return (
-      <div className={`min-h-screen flex items-center justify-center p-4 ${
-        darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
-      }`}>
+      <div className={`min-h-screen flex items-center justify-center p-4 ${darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
+        }`}>
         <div className="fixed top-4 left-4 z-50">
           <Logo size="large" />
         </div>
 
-        <div className={`max-w-lg w-full rounded-2xl p-8 shadow-2xl ${
-          darkMode
-            ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
-            : 'bg-white border-2 border-gray-100'
-        }`}>
+        <div className={`max-w-lg w-full rounded-2xl p-8 shadow-2xl ${darkMode
+          ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
+          : 'bg-white border-2 border-gray-100'
+          }`}>
           <div className="text-center mb-8">
             <Sparkles className={`mx-auto mb-4 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} size={48} />
-            <h1 className={`text-3xl font-bold mb-2 ${
-              darkMode
-                ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
-                : 'text-gray-900'
-            }`}>
+            <h1 className={`text-3xl font-bold mb-2 ${darkMode
+              ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+              : 'text-gray-900'
+              }`}>
               Welcome to DualTrack OS
             </h1>
             <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -289,11 +292,10 @@ const Onboarding = ({ onComplete, darkMode }) => {
                 }}
                 placeholder="e.g., SJ or ABC"
                 maxLength="3"
-                className={`w-full px-4 py-3 rounded-lg transition-all text-center text-2xl font-bold tracking-wider ${
-                  darkMode
-                    ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
-                    : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
-                }`}
+                className={`w-full px-4 py-3 rounded-lg transition-all text-center text-2xl font-bold tracking-wider ${darkMode
+                  ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
+                  : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
+                  }`}
               />
               <p className={`mt-1 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
                 Will be displayed with a gradient in the header (2-3 letters)
@@ -306,15 +308,14 @@ const Onboarding = ({ onComplete, darkMode }) => {
             <button
               onClick={() => goToStep(2)}
               disabled={!profile.initials}
-              className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-                !profile.initials
-                  ? darkMode
-                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : darkMode
-                    ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
-                    : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
-              }`}
+              className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${!profile.initials
+                ? darkMode
+                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : darkMode
+                  ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+                }`}
             >
               {!profile.initials ? (
                 'Enter Your Initials'
@@ -340,25 +341,22 @@ const Onboarding = ({ onComplete, darkMode }) => {
   // ========================================
   if (step === 2) {
     return (
-      <div className={`min-h-screen flex items-center justify-center p-4 ${
-        darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
-      }`}>
+      <div className={`min-h-screen flex items-center justify-center p-4 ${darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
+        }`}>
         <div className="fixed top-4 left-4 z-50">
           <Logo size="large" />
         </div>
 
-        <div className={`max-w-lg w-full rounded-2xl p-8 shadow-2xl ${
-          darkMode
-            ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
-            : 'bg-white border-2 border-gray-100'
-        }`}>
+        <div className={`max-w-lg w-full rounded-2xl p-8 shadow-2xl ${darkMode
+          ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
+          : 'bg-white border-2 border-gray-100'
+          }`}>
           <div className="text-center mb-8">
             <Sparkles className={`mx-auto mb-4 ${darkMode ? 'text-cyan-400' : 'text-cyan-600'}`} size={48} />
-            <h1 className={`text-3xl font-bold mb-2 ${
-              darkMode
-                ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
-                : 'text-gray-900'
-            }`}>
+            <h1 className={`text-3xl font-bold mb-2 ${darkMode
+              ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+              : 'text-gray-900'
+              }`}>
               Unlock More Features (Optional)
             </h1>
             <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -391,13 +389,11 @@ const Onboarding = ({ onComplete, darkMode }) => {
                 placeholder="e.g., 42"
                 min="13"
                 max="110"
-                className={`w-full px-4 py-3 rounded-lg transition-all ${
-                  ageError ? 'border-red-500 focus:border-red-500' : ''
-                } ${
-                  darkMode
+                className={`w-full px-4 py-3 rounded-lg transition-all ${ageError ? 'border-red-500 focus:border-red-500' : ''
+                  } ${darkMode
                     ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
                     : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
-                }`}
+                  }`}
               />
               {ageError && (
                 <p className="mt-1 text-sm text-red-500 font-medium">⚠️ {ageError}</p>
@@ -422,15 +418,14 @@ const Onboarding = ({ onComplete, darkMode }) => {
                     setWeightUnit('lbs');
                     setProfile({ ...profile, weightUnit: 'lbs' });
                   }}
-                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
-                    weightUnit === 'lbs'
-                      ? darkMode
-                        ? 'bg-purple-600 text-white border-2 border-purple-500'
-                        : 'bg-purple-600 text-white border-2 border-purple-500'
-                      : darkMode
-                        ? 'bg-gray-800 text-gray-400 border-2 border-gray-700 hover:border-gray-600'
-                        : 'bg-gray-100 text-gray-600 border-2 border-gray-300 hover:border-gray-400'
-                  }`}
+                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${weightUnit === 'lbs'
+                    ? darkMode
+                      ? 'bg-purple-600 text-white border-2 border-purple-500'
+                      : 'bg-purple-600 text-white border-2 border-purple-500'
+                    : darkMode
+                      ? 'bg-gray-800 text-gray-400 border-2 border-gray-700 hover:border-gray-600'
+                      : 'bg-gray-100 text-gray-600 border-2 border-gray-300 hover:border-gray-400'
+                    }`}
                 >
                   lbs
                 </button>
@@ -440,15 +435,14 @@ const Onboarding = ({ onComplete, darkMode }) => {
                     setWeightUnit('kg');
                     setProfile({ ...profile, weightUnit: 'kg' });
                   }}
-                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
-                    weightUnit === 'kg'
-                      ? darkMode
-                        ? 'bg-purple-600 text-white border-2 border-purple-500'
-                        : 'bg-purple-600 text-white border-2 border-purple-500'
-                      : darkMode
-                        ? 'bg-gray-800 text-gray-400 border-2 border-gray-700 hover:border-gray-600'
-                        : 'bg-gray-100 text-gray-600 border-2 border-gray-300 hover:border-gray-400'
-                  }`}
+                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${weightUnit === 'kg'
+                    ? darkMode
+                      ? 'bg-purple-600 text-white border-2 border-purple-500'
+                      : 'bg-purple-600 text-white border-2 border-purple-500'
+                    : darkMode
+                      ? 'bg-gray-800 text-gray-400 border-2 border-gray-700 hover:border-gray-600'
+                      : 'bg-gray-100 text-gray-600 border-2 border-gray-300 hover:border-gray-400'
+                    }`}
                 >
                   kg
                 </button>
@@ -468,13 +462,11 @@ const Onboarding = ({ onComplete, darkMode }) => {
                 min={weightUnit === 'lbs' ? '50' : '23'}
                 max={weightUnit === 'lbs' ? '500' : '227'}
                 step="0.1"
-                className={`w-full px-4 py-3 rounded-lg transition-all ${
-                  weightError ? 'border-red-500 focus:border-red-500' : ''
-                } ${
-                  darkMode
+                className={`w-full px-4 py-3 rounded-lg transition-all ${weightError ? 'border-red-500 focus:border-red-500' : ''
+                  } ${darkMode
                     ? 'bg-gray-900/50 border-2 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-purple-500/50'
                     : 'bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500'
-                }`}
+                  }`}
               />
               {weightError && (
                 <p className="mt-1 text-sm text-red-500 font-medium">⚠️ {weightError}</p>
@@ -491,11 +483,10 @@ const Onboarding = ({ onComplete, darkMode }) => {
             {/* Skip to Dashboard */}
             <button
               onClick={handleComplete}
-              className={`w-full py-3 rounded-xl font-semibold transition-all ${
-                darkMode
-                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-              }`}
+              className={`w-full py-3 rounded-xl font-semibold transition-all ${darkMode
+                ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                }`}
             >
               Skip - Use Core Features Only
             </button>
@@ -503,11 +494,10 @@ const Onboarding = ({ onComplete, darkMode }) => {
             {/* Continue to Life Stage */}
             <button
               onClick={() => profile.age ? goToStep(3) : handleComplete()}
-              className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-                darkMode
-                  ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
-                  : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
-              }`}
+              className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${darkMode
+                ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
+                : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+                }`}
             >
               <span className="flex items-center justify-center gap-2">
                 <span>{profile.age ? 'Continue to Life Stage' : 'Save & Get Started'}</span>
@@ -565,25 +555,22 @@ const Onboarding = ({ onComplete, darkMode }) => {
     ];
 
     return (
-      <div className={`min-h-screen flex items-center justify-center p-4 ${
-        darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
-      }`}>
+      <div className={`min-h-screen flex items-center justify-center p-4 ${darkMode ? 'bg-[#191919]' : 'bg-gradient-to-br from-purple-50 to-pink-50'
+        }`}>
         <div className="fixed top-4 left-4 z-50">
           <Logo size="large" />
         </div>
 
-        <div className={`max-w-4xl w-full rounded-2xl p-8 shadow-2xl ${
-          darkMode
-            ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
-            : 'bg-white border-2 border-gray-100'
-        }`}>
+        <div className={`max-w-4xl w-full rounded-2xl p-8 shadow-2xl ${darkMode
+          ? 'bg-gray-800/50 border-2 border-gray-700/50 backdrop-blur-xl'
+          : 'bg-white border-2 border-gray-100'
+          }`}>
           <div className="text-center mb-8">
             <Heart className={`mx-auto mb-4 ${darkMode ? 'text-pink-400' : 'text-pink-600'}`} size={48} />
-            <h1 className={`text-3xl font-bold mb-2 ${
-              darkMode
-                ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
-                : 'text-gray-900'
-            }`}>
+            <h1 className={`text-3xl font-bold mb-2 ${darkMode
+              ? 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent'
+              : 'text-gray-900'
+              }`}>
               Choose Your Life Stage (Optional)
             </h1>
             <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -593,9 +580,8 @@ const Onboarding = ({ onComplete, darkMode }) => {
 
           {/* Suggested stage banner */}
           {age && (
-            <div className={`mb-6 p-4 rounded-lg ${
-              darkMode ? 'bg-purple-500/10 border border-purple-500/30' : 'bg-purple-50 border border-purple-200'
-            }`}>
+            <div className={`mb-6 p-4 rounded-lg ${darkMode ? 'bg-purple-500/10 border border-purple-500/30' : 'bg-purple-50 border border-purple-200'
+              }`}>
               <p className={`text-sm text-center ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
                 💡 Based on your age ({age}), we suggest <strong>{lifeStages.find(s => s.id === suggestedStage)?.name}</strong>
                 <br />
@@ -616,19 +602,18 @@ const Onboarding = ({ onComplete, darkMode }) => {
                 <button
                   key={stage.id}
                   onClick={() => setProfile({ ...profile, lifeStage: stage.id })}
-                  className={`p-6 rounded-xl text-left transition-all ${
-                    isSelected
+                  className={`p-6 rounded-xl text-left transition-all ${isSelected
+                    ? darkMode
+                      ? `bg-${stage.color}-500/20 border-2 border-${stage.color}-500/50 ring-2 ring-${stage.color}-500/50`
+                      : `bg-${stage.color}-100 border-2 border-${stage.color}-400 ring-2 ring-${stage.color}-400/50`
+                    : isSuggested
                       ? darkMode
-                        ? `bg-${stage.color}-500/20 border-2 border-${stage.color}-500/50 ring-2 ring-${stage.color}-500/50`
-                        : `bg-${stage.color}-100 border-2 border-${stage.color}-400 ring-2 ring-${stage.color}-400/50`
-                      : isSuggested
-                        ? darkMode
-                          ? 'bg-gray-800/50 border-2 border-purple-500/30 hover:border-purple-500/50'
-                          : 'bg-gray-50 border-2 border-purple-300 hover:border-purple-400'
-                        : darkMode
-                          ? 'bg-gray-800/30 border-2 border-gray-700 hover:border-gray-600'
-                          : 'bg-gray-50 border-2 border-gray-200 hover:border-gray-300'
-                  }`}
+                        ? 'bg-gray-800/50 border-2 border-purple-500/30 hover:border-purple-500/50'
+                        : 'bg-gray-50 border-2 border-purple-300 hover:border-purple-400'
+                      : darkMode
+                        ? 'bg-gray-800/30 border-2 border-gray-700 hover:border-gray-600'
+                        : 'bg-gray-50 border-2 border-gray-200 hover:border-gray-300'
+                    }`}
                 >
                   {isSuggested && !isSelected && (
                     <div className={`mb-2 text-xs font-semibold ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
@@ -639,18 +624,16 @@ const Onboarding = ({ onComplete, darkMode }) => {
                   <div className="flex items-center gap-3 mb-3">
                     <span className="text-4xl">{stage.emoji}</span>
                     <div className="flex-1">
-                      <h3 className={`text-lg font-bold ${
-                        isSelected
-                          ? darkMode ? 'text-white' : 'text-gray-900'
-                          : darkMode ? 'text-gray-200' : 'text-gray-900'
-                      }`}>
+                      <h3 className={`text-lg font-bold ${isSelected
+                        ? darkMode ? 'text-white' : 'text-gray-900'
+                        : darkMode ? 'text-gray-200' : 'text-gray-900'
+                        }`}>
                         {stage.name}
                       </h3>
-                      <p className={`text-xs ${
-                        isSelected
-                          ? darkMode ? `text-${stage.color}-400` : `text-${stage.color}-700`
-                          : darkMode ? 'text-gray-500' : 'text-gray-600'
-                      }`}>
+                      <p className={`text-xs ${isSelected
+                        ? darkMode ? `text-${stage.color}-400` : `text-${stage.color}-700`
+                        : darkMode ? 'text-gray-500' : 'text-gray-600'
+                        }`}>
                         Ages {stage.ageRange}
                       </p>
                     </div>
@@ -659,31 +642,28 @@ const Onboarding = ({ onComplete, darkMode }) => {
                     )}
                   </div>
 
-                  <p className={`text-sm mb-2 ${
-                    isSelected
-                      ? darkMode ? 'text-gray-300' : 'text-gray-700'
-                      : darkMode ? 'text-gray-400' : 'text-gray-600'
-                  }`}>
+                  <p className={`text-sm mb-2 ${isSelected
+                    ? darkMode ? 'text-gray-300' : 'text-gray-700'
+                    : darkMode ? 'text-gray-400' : 'text-gray-600'
+                    }`}>
                     {stage.description}
                   </p>
 
                   {stage.medicalNote && (
-                    <p className={`text-xs mb-3 italic ${
-                      isSelected
-                        ? darkMode ? 'text-gray-500' : 'text-gray-500'
-                        : darkMode ? 'text-gray-600' : 'text-gray-500'
-                    }`}>
+                    <p className={`text-xs mb-3 italic ${isSelected
+                      ? darkMode ? 'text-gray-500' : 'text-gray-500'
+                      : darkMode ? 'text-gray-600' : 'text-gray-500'
+                      }`}>
                       🩺 {stage.medicalNote}
                     </p>
                   )}
 
                   <div className="space-y-1">
                     {stage.features.map((feature, idx) => (
-                      <div key={idx} className={`text-xs flex items-start gap-2 ${
-                        isSelected
-                          ? darkMode ? 'text-gray-400' : 'text-gray-600'
-                          : darkMode ? 'text-gray-500' : 'text-gray-500'
-                      }`}>
+                      <div key={idx} className={`text-xs flex items-start gap-2 ${isSelected
+                        ? darkMode ? 'text-gray-400' : 'text-gray-600'
+                        : darkMode ? 'text-gray-500' : 'text-gray-500'
+                        }`}>
                         <span className={isSelected ? `text-${stage.color}-500` : 'text-gray-500'}>✓</span>
                         <span>{feature}</span>
                       </div>
@@ -698,11 +678,10 @@ const Onboarding = ({ onComplete, darkMode }) => {
           <div className="flex gap-4">
             <button
               onClick={() => goToStep(2)}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-                darkMode
-                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-              }`}
+              className={`px-6 py-3 rounded-xl font-semibold transition-all ${darkMode
+                ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                }`}
             >
               ← Back
             </button>
@@ -710,11 +689,10 @@ const Onboarding = ({ onComplete, darkMode }) => {
             {/* Skip Button */}
             <button
               onClick={handleComplete}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-                darkMode
-                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-              }`}
+              className={`px-6 py-3 rounded-xl font-semibold transition-all ${darkMode
+                ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                }`}
             >
               Skip (Use All Features)
             </button>
@@ -723,15 +701,14 @@ const Onboarding = ({ onComplete, darkMode }) => {
             <button
               onClick={handleComplete}
               disabled={!profile.lifeStage}
-              className={`flex-1 py-4 rounded-xl font-bold text-lg transition-all ${
-                !profile.lifeStage
-                  ? darkMode
-                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : darkMode
-                    ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
-                    : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
-              }`}
+              className={`flex-1 py-4 rounded-xl font-bold text-lg transition-all ${!profile.lifeStage
+                ? darkMode
+                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : darkMode
+                  ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:via-pink-500 hover:to-purple-500 text-white border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+                }`}
             >
               {profile.lifeStage ? (
                 <span className="flex items-center justify-center space-x-2">

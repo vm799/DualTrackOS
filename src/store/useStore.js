@@ -16,6 +16,7 @@ const useStore = create((set) => ({
     hasCompletedOnboarding: false,
     disclaimerAccepted: false
   },
+  isHydrated: false, // Prevents saving default data over existing data
   currentTime: new Date(), // Global current time
   spiritAnimalScore: 0, // Balance score (0-100) for avatar growth
   currentView: 'dashboard', // Current view: 'dashboard' | 'food' | 'exercise' | 'learn'
@@ -25,6 +26,7 @@ const useStore = create((set) => ({
   setDarkMode: (darkMode) => set({ darkMode }),
   toggleOfficeDay: () => set((state) => ({ isOfficeDay: !state.isOfficeDay })),
   setUserProfile: (userProfile) => set({ userProfile }),
+  setIsHydrated: (isHydrated) => set({ isHydrated }),
   setCurrentTime: (time) => set({ currentTime: time }), // Action to update current time
   setSpiritAnimalScore: (score) => set({ spiritAnimalScore: typeof score === 'function' ? score(useStore.getState().spiritAnimalScore) : score }),
   setCurrentView: (view) => set({ currentView: view }), // Action to change view
