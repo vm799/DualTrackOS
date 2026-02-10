@@ -41,7 +41,6 @@ import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import useEnergyDarkMode from '../hooks/useEnergyDarkMode';
 import CycleSyncWidget from '../components/CycleSyncWidget';
 import NonZeroDayWidget from '../components/NonZeroDayWidget';
-import ProteinTracker from '../components/ProteinTracker';
 import DayOneChecklist from '../components/DayOneChecklist';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
 
