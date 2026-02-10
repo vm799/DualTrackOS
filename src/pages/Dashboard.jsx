@@ -39,6 +39,10 @@ import StoryReminder from '../components/StoryBank/StoryReminder';
 import useStoryBankStore from '../store/useStoryBankStore';
 import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import useEnergyDarkMode from '../hooks/useEnergyDarkMode';
+import CycleSyncWidget from '../components/CycleSyncWidget';
+import NonZeroDayWidget from '../components/NonZeroDayWidget';
+import ProteinTracker from '../components/ProteinTracker';
+import DayOneChecklist from '../components/DayOneChecklist';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
 
 const Dashboard = () => {
@@ -448,16 +452,14 @@ const Dashboard = () => {
   const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
   return (
-    <div className={`min-h-screen relative ${
-      darkMode ? 'bg-[#191919]' : 'bg-gray-50'
-    }`}>
+    <div className={`min-h-screen relative ${darkMode ? 'bg-[#191919]' : 'bg-gray-50'
+      }`}>
       {/* Daily Command Center - Top Right Side Tab */}
       <div className="fixed right-0 top-1/2 -translate-y-16 w-10 h-24 z-30">
         <button
           onClick={() => setShowCommandCenterModal(true)}
-          className={`w-full h-full rounded-l-xl flex items-center justify-center transition-all ${
-            darkMode ? 'bg-gradient-to-b from-cyan-500/20 to-purple-500/20' : 'bg-gradient-to-b from-cyan-100/40 to-purple-100/40'
-          }`}
+          className={`w-full h-full rounded-l-xl flex items-center justify-center transition-all ${darkMode ? 'bg-gradient-to-b from-cyan-500/20 to-purple-500/20' : 'bg-gradient-to-b from-cyan-100/40 to-purple-100/40'
+            }`}
           style={{
             border: '1px solid #a855f740',
             borderRight: 'none',
@@ -475,15 +477,14 @@ const Dashboard = () => {
       </div>
 
       {/* HEADER - Compact Glassmorphism Sticky Header */}
-      <div className={`sticky top-0 z-20 backdrop-blur-xl transition-all duration-300 ${
-        isScrolled
-          ? darkMode
-            ? 'bg-gray-900/10 border-b border-gray-800/10 shadow-lg'
-            : 'bg-white/10 border-b border-gray-200/10 shadow-lg'
-          : darkMode
-            ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
-            : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
-      }`}>
+      <div className={`sticky top-0 z-20 backdrop-blur-xl transition-all duration-300 ${isScrolled
+        ? darkMode
+          ? 'bg-gray-900/10 border-b border-gray-800/10 shadow-lg'
+          : 'bg-white/10 border-b border-gray-200/10 shadow-lg'
+        : darkMode
+          ? 'bg-gray-900/95 border-b border-gray-800/50 shadow-2xl shadow-purple-500/10'
+          : 'bg-white/95 border-b border-gray-200/50 shadow-lg'
+        }`}>
         <div className="max-w-7xl mx-auto px-2 sm:px-4 py-1">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
 
@@ -499,11 +500,10 @@ const Dashboard = () => {
                 onClick={togglePomodoroMode}
                 className="cursor-pointer select-none transition-transform hover:scale-105"
               >
-                <div className={`text-lg sm:text-2xl font-semibold tracking-tight ${
-                  darkMode
-                    ? 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
-                    : 'text-gray-900'
-                }`}>
+                <div className={`text-lg sm:text-2xl font-semibold tracking-tight ${darkMode
+                  ? 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
+                  : 'text-gray-900'
+                  }`}>
                   {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false })}
                 </div>
               </button>
@@ -513,17 +513,15 @@ const Dashboard = () => {
 
               {/* Pomodoro Timer with Label */}
               <div className="flex flex-col items-center">
-                <span className={`text-[9px] sm:text-[10px] font-semibold mb-0.5 ${
-                  darkMode ? 'text-orange-400' : 'text-orange-600'
-                }`}>
+                <span className={`text-[9px] sm:text-[10px] font-semibold mb-0.5 ${darkMode ? 'text-orange-400' : 'text-orange-600'
+                  }`}>
                   FOCUS
                 </span>
                 <div className="flex items-center gap-1 sm:gap-2">
                   <button
                     onClick={togglePomodoroMode}
-                    className={`text-base sm:text-xl font-mono font-bold cursor-pointer hover:scale-105 transition-transform ${
-                      darkMode ? 'text-orange-400' : 'text-orange-600'
-                    }`}
+                    className={`text-base sm:text-xl font-mono font-bold cursor-pointer hover:scale-105 transition-transform ${darkMode ? 'text-orange-400' : 'text-orange-600'
+                      }`}
                     title="Open Focus Mode"
                   >
                     {formatTime(pomodoroSeconds)}
@@ -534,11 +532,10 @@ const Dashboard = () => {
                         e.stopPropagation();
                         pomodoroRunning ? setPomodoroRunning(false) : setPomodoroRunning(true);
                       }}
-                      className={`p-1.5 rounded-lg transition-all ${
-                        darkMode
-                          ? 'hover:bg-gray-800 text-orange-400'
-                          : 'hover:bg-gray-100 text-orange-600'
-                      }`}
+                      className={`p-1.5 rounded-lg transition-all ${darkMode
+                        ? 'hover:bg-gray-800 text-orange-400'
+                        : 'hover:bg-gray-100 text-orange-600'
+                        }`}
                       title={pomodoroRunning ? 'Pause' : 'Start'}
                     >
                       {pomodoroRunning ? <Pause size={16} /> : <Play size={16} />}
@@ -548,11 +545,10 @@ const Dashboard = () => {
                         e.stopPropagation();
                         setPomodoroSeconds(25 * 60);
                       }}
-                      className={`p-1.5 rounded-lg transition-all ${
-                        darkMode
-                          ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
-                          : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-                      }`}
+                      className={`p-1.5 rounded-lg transition-all ${darkMode
+                        ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                        : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                        }`}
                       title="Reset"
                     >
                       <RotateCcw size={16} />
@@ -565,66 +561,61 @@ const Dashboard = () => {
             {/* RIGHT: USER MENU */}
             <div className="flex-shrink-0">
               {user ? (
-              <div className="relative group">
-                <button
-                  className={`p-1.5 rounded-full transition-all flex flex-col items-center gap-0.5 ${
-                    darkMode
+                <div className="relative group">
+                  <button
+                    className={`p-1.5 rounded-full transition-all flex flex-col items-center gap-0.5 ${darkMode
                       ? 'hover:bg-white/10 text-gray-400 hover:text-gray-300'
                       : 'hover:bg-gray-100 text-gray-600 hover:text-gray-700'
-                  }`}
-                  title="User Menu"
-                >
-                  <User className="w-5 h-5" />
-                  {userProfile.initials && (
-                    <span className="text-[10px] font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                      {userProfile.initials}
-                    </span>
-                  )}
-                </button>
+                      }`}
+                    title="User Menu"
+                  >
+                    <User className="w-5 h-5" />
+                    {userProfile.initials && (
+                      <span className="text-[10px] font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                        {userProfile.initials}
+                      </span>
+                    )}
+                  </button>
 
-                {/* Dropdown menu */}
-                <div className={`absolute right-0 top-full mt-2 w-56 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 ${
-                  darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-                }`}>
-                  <div className={`p-3 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                    <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Signed in as</div>
-                    <div className={`text-sm font-medium truncate ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                      {user.email}
+                  {/* Dropdown menu */}
+                  <div className={`absolute right-0 top-full mt-2 w-56 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+                    }`}>
+                    <div className={`p-3 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                      <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Signed in as</div>
+                      <div className={`text-sm font-medium truncate ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+                        {user.email}
+                      </div>
                     </div>
+                    <button
+                      onClick={() => navigate('/settings')}
+                      className={`w-full px-4 py-2.5 text-left text-sm transition-all flex items-center gap-2 ${darkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-700'
+                        }`}
+                    >
+                      <Settings size={16} />
+                      Settings
+                    </button>
+                    <button
+                      onClick={signOut}
+                      className={`w-full px-4 py-2.5 text-left text-sm transition-all flex items-center gap-2 ${darkMode ? 'hover:bg-rose-500/20 text-rose-400' : 'hover:bg-rose-50 text-rose-600'
+                        }`}
+                    >
+                      <LogOut size={16} />
+                      Sign Out
+                    </button>
                   </div>
-                  <button
-                    onClick={() => navigate('/settings')}
-                    className={`w-full px-4 py-2.5 text-left text-sm transition-all flex items-center gap-2 ${
-                      darkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-700'
-                    }`}
-                  >
-                    <Settings size={16} />
-                    Settings
-                  </button>
-                  <button
-                    onClick={signOut}
-                    className={`w-full px-4 py-2.5 text-left text-sm transition-all flex items-center gap-2 ${
-                      darkMode ? 'hover:bg-rose-500/20 text-rose-400' : 'hover:bg-rose-50 text-rose-600'
-                    }`}
-                  >
-                    <LogOut size={16} />
-                    Sign Out
-                  </button>
                 </div>
-              </div>
-            ) : (
-              <button
-                onClick={() => navigate('/settings')}
-                className={`p-2 rounded-full transition-all ${
-                  darkMode
+              ) : (
+                <button
+                  onClick={() => navigate('/settings')}
+                  className={`p-2 rounded-full transition-all ${darkMode
                     ? 'hover:bg-white/10 text-gray-400 hover:text-gray-300'
                     : 'hover:bg-gray-100 text-gray-600 hover:text-gray-700'
-                }`}
-                title="Settings"
-              >
-                <Settings className="w-5 h-5 md:w-6 md:h-6" />
-              </button>
-            )}
+                    }`}
+                  title="Settings"
+                >
+                  <Settings className="w-5 h-5 md:w-6 md:h-6" />
+                </button>
+              )}
             </div>
           </div>
 
@@ -632,47 +623,42 @@ const Dashboard = () => {
           <div className="text-center pb-1">
             {isPomodoroMode && (
               <div className="space-y-3">
-                <div className={`font-mono text-4xl sm:text-5xl font-bold transition-all ${
-                  darkMode
-                    ? pomodoroRunning
-                      ? 'bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent'
-                      : 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
-                    : pomodoroRunning ? 'text-orange-600' : 'text-purple-600'
-                }`}>
+                <div className={`font-mono text-4xl sm:text-5xl font-bold transition-all ${darkMode
+                  ? pomodoroRunning
+                    ? 'bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent'
+                    : 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
+                  : pomodoroRunning ? 'text-orange-600' : 'text-purple-600'
+                  }`}>
                   {formatTime(pomodoroSeconds)}
                 </div>
                 <div className="flex items-center justify-center space-x-3 flex-wrap gap-2">
                   {!pomodoroRunning ? (
-                    <button onClick={() => usePomodoroStore.getState().startPomodoro()} className={`px-8 py-3 rounded-xl font-semibold flex items-center space-x-2 transition-all shadow-lg ${
-                      darkMode
-                        ? 'bg-emerald-500/30 hover:bg-emerald-500/40 text-emerald-300 border-2 border-emerald-500/50'
-                        : 'bg-green-500 hover:bg-green-600 text-white border-2 border-green-600'
-                    }`}>
+                    <button onClick={() => usePomodoroStore.getState().startPomodoro()} className={`px-8 py-3 rounded-xl font-semibold flex items-center space-x-2 transition-all shadow-lg ${darkMode
+                      ? 'bg-emerald-500/30 hover:bg-emerald-500/40 text-emerald-300 border-2 border-emerald-500/50'
+                      : 'bg-green-500 hover:bg-green-600 text-white border-2 border-green-600'
+                      }`}>
                       <Play size={20} />
                       <span>Start Focus</span>
                     </button>
                   ) : (
-                    <button onClick={() => usePomodoroStore.getState().pausePomodoro()} className={`px-8 py-3 rounded-xl font-semibold flex items-center space-x-2 transition-all shadow-lg ${
-                      darkMode
-                        ? 'bg-orange-500/30 hover:bg-orange-500/40 text-orange-300 border-2 border-orange-500/50'
-                        : 'bg-orange-500 hover:bg-orange-600 text-white border-2 border-orange-600'
-                    }`}>
+                    <button onClick={() => usePomodoroStore.getState().pausePomodoro()} className={`px-8 py-3 rounded-xl font-semibold flex items-center space-x-2 transition-all shadow-lg ${darkMode
+                      ? 'bg-orange-500/30 hover:bg-orange-500/40 text-orange-300 border-2 border-orange-500/50'
+                      : 'bg-orange-500 hover:bg-orange-600 text-white border-2 border-orange-600'
+                      }`}>
                       <Pause size={20} />
                       <span>Pause</span>
                     </button>
                   )}
-                  <button onClick={() => usePomodoroStore.getState().resetPomodoro()} className={`px-6 py-3 rounded-xl font-medium transition-all ${
-                    darkMode
-                      ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                      : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
-                  }`} title="Reset Timer">
+                  <button onClick={() => usePomodoroStore.getState().resetPomodoro()} className={`px-6 py-3 rounded-xl font-medium transition-all ${darkMode
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
+                    }`} title="Reset Timer">
                     <RotateCcw size={20} />
                   </button>
-                  <button onClick={togglePomodoroMode} className={`px-6 py-3 rounded-xl font-medium transition-all ${
-                    darkMode
-                      ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                      : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
-                  }`}>
+                  <button onClick={togglePomodoroMode} className={`px-6 py-3 rounded-xl font-medium transition-all ${darkMode
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
+                    }`}>
                     Exit Timer
                   </button>
                 </div>
@@ -706,6 +692,9 @@ const Dashboard = () => {
             <StreakPrediction darkMode={darkMode} />
             <SkillLevelBadge darkMode={darkMode} showProgress={true} />
           </div> */}
+
+          {/* Day 1 Checklist */}
+          <DayOneChecklist />
 
           {/* Must-Dos Section */}
           <SectionContainer
@@ -771,12 +760,27 @@ const Dashboard = () => {
             </FeaturePreview>
           </SectionContainer>
 
+          {/* Cycle Syncing & Mojo Section */}
+          <SectionContainer
+            id="cycle-sync"
+            icon={Sparkles}
+            title="Daily Mojo & Cycle Phase"
+            description="Align your training with your biology"
+            accentColor="pink"
+            darkMode={darkMode}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CycleSyncWidget />
+              <NonZeroDayWidget />
+            </div>
+          </SectionContainer>
+
           {/* Nutrition Section */}
           <SectionContainer
             id="nutrition"
             icon={Utensils}
-            title="Fuel Your Body Right"
-            description="Hit your protein goal - your future self will thank you"
+            title="Fuel Your Fascia"
+            description="Hit your 135g protein floor - no excuses"
             accentColor="orange"
             darkMode={darkMode}
           >

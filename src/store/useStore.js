@@ -4,6 +4,7 @@ const useStore = create((set) => ({
   // State
   user: null,
   darkMode: true,
+  isOfficeDay: false, // Default context
   userProfile: {
     name: '',
     preferredName: '',
@@ -22,6 +23,7 @@ const useStore = create((set) => ({
   // Actions
   setUser: (user) => set({ user }),
   setDarkMode: (darkMode) => set({ darkMode }),
+  toggleOfficeDay: () => set((state) => ({ isOfficeDay: !state.isOfficeDay })),
   setUserProfile: (userProfile) => set({ userProfile }),
   setCurrentTime: (time) => set({ currentTime: time }), // Action to update current time
   setSpiritAnimalScore: (score) => set({ spiritAnimalScore: typeof score === 'function' ? score(useStore.getState().spiritAnimalScore) : score }),
