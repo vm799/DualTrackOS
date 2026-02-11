@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, AlertTriangle, CreditCard, UserX } from 'lucide-react';
+import { AlertTriangle, CreditCard, UserX } from 'lucide-react';
 
 export default function TermsOfServicePage() {
   const navigate = useNavigate();

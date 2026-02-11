@@ -258,7 +258,7 @@ export const syncSubscriptionStatus = async () => {
   }
 };
 
-export default {
+const stripeService = {
   createCheckoutSession,
   getUserSubscription,
   createCustomerPortalSession,
@@ -267,3 +267,5 @@ export default {
   getCheckoutStatus,
   syncSubscriptionStatus,
 };
+
+export default stripeService;

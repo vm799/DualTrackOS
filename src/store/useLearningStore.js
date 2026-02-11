@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-const useLearningStore = create((set, get) => ({
+const useLearningStore = create((set) => ({
   // State
   learningLibrary: [], // Array of { id, url, title, type, notes, actionItems: [], dateAdded }
 

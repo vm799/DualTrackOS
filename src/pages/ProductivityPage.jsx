@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Play, Pause, RotateCcw, Plus, Award, TrendingUp, FileText, Zap, Battery, AlertCircle, Users, User } from 'lucide-react';
+import { Play, Pause, RotateCcw, Plus, Award, TrendingUp, FileText, Zap, Battery, Users, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import usePomodoroStore from '../store/usePomodoroStore';
@@ -50,7 +50,6 @@ const ProductivityPage = () => {
 
   // Energy/Mood state
   const {
-    energyTracking,
     currentMood,
     setShowEnergyModal,
     setShowMoodModal,
@@ -66,7 +65,6 @@ const ProductivityPage = () => {
     hasCompletedRoleSetup,
     setShowRoleSetup,
     getTotalMentalLoad,
-    getSelfCarePercentage,
     isSelfCareNeglected,
     incrementRoleTaskCount
   } = useRoleStore();
@@ -99,7 +97,6 @@ const ProductivityPage = () => {
 
   // Current energy and suggestions
   const currentEnergy = getCurrentPeriodEnergy();
-  const avgEnergy = getCurrentEnergy();
   const smartSuggestions = getSmartSuggestions();
   const timeOfDay = getTimeOfDay();
   const currentHour = new Date().getHours();
@@ -140,19 +137,17 @@ const ProductivityPage = () => {
   // Helper to add task from SmartSuggestions
   const handleAddTaskFromSuggestion = (hour, taskText) => {
     // This would integrate with your task system
-    console.log('Adding task:', taskText, 'at hour:', hour);
+    // console.log('Adding task:', taskText, 'at hour:', hour);
   };
 
   return (
-    <div className={`min-h-screen ${
-      darkMode ? 'bg-[#191919]' : 'bg-gray-50'
-    }`}>
+    <div className={`min-h-screen ${darkMode ? 'bg-[#191919]' : 'bg-gray-50'
+      }`}>
       {/* Compact Glassmorphism Sticky Header */}
-      <div className={`sticky top-0 z-20 backdrop-blur-xl border-b transition-all duration-300 ${
-        darkMode
+      <div className={`sticky top-0 z-20 backdrop-blur-xl border-b transition-all duration-300 ${darkMode
           ? 'bg-gray-900/95 border-gray-800/50'
           : 'bg-white/95 border-gray-200/50'
-      } ${isScrolled ? 'shadow-lg' : ''}`}>
+        } ${isScrolled ? 'shadow-lg' : ''}`}>
         <div className="max-w-7xl mx-auto px-2 sm:px-4 py-1">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             {/* Left: Logo - Medium size - Can't shrink */}
@@ -163,11 +158,10 @@ const ProductivityPage = () => {
             {/* Center: Clock + Pomodoro - Can compress */}
             <div className="flex items-center gap-3 sm:gap-6 flex-shrink min-w-0">
               {/* Clock */}
-              <div className={`text-lg sm:text-2xl font-semibold tracking-tight ${
-                darkMode
+              <div className={`text-lg sm:text-2xl font-semibold tracking-tight ${darkMode
                   ? 'bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'
                   : 'text-gray-900'
-              }`}>
+                }`}>
                 {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false })}
               </div>
 
@@ -176,17 +170,15 @@ const ProductivityPage = () => {
 
               {/* Pomodoro Timer with Label */}
               <div className="flex flex-col items-center">
-                <span className={`text-[9px] sm:text-[10px] font-semibold mb-0.5 ${
-                  darkMode ? 'text-orange-400' : 'text-orange-600'
-                }`}>
+                <span className={`text-[9px] sm:text-[10px] font-semibold mb-0.5 ${darkMode ? 'text-orange-400' : 'text-orange-600'
+                  }`}>
                   FOCUS
                 </span>
                 <div className="flex items-center gap-1 sm:gap-2">
                   <button
                     onClick={() => setShowFullScreen(true)}
-                    className={`text-base sm:text-xl font-mono font-bold cursor-pointer hover:scale-105 transition-transform ${
-                      darkMode ? 'text-orange-400' : 'text-orange-600'
-                    }`}
+                    className={`text-base sm:text-xl font-mono font-bold cursor-pointer hover:scale-105 transition-transform ${darkMode ? 'text-orange-400' : 'text-orange-600'
+                      }`}
                     title="Open Focus Mode"
                   >
                     {formatTime(pomodoroSeconds)}
@@ -194,22 +186,20 @@ const ProductivityPage = () => {
                   <div className="flex gap-0.5 sm:gap-1">
                     <button
                       onClick={pomodoroRunning ? pausePomodoro : startPomodoro}
-                      className={`p-1.5 rounded-lg transition-all ${
-                        darkMode
+                      className={`p-1.5 rounded-lg transition-all ${darkMode
                           ? 'hover:bg-gray-800 text-orange-400'
                           : 'hover:bg-gray-100 text-orange-600'
-                      }`}
+                        }`}
                       title={pomodoroRunning ? 'Pause' : 'Start'}
                     >
                       {pomodoroRunning ? <Pause size={16} /> : <Play size={16} />}
                     </button>
                     <button
                       onClick={resetPomodoro}
-                      className={`p-1.5 rounded-lg transition-all ${
-                        darkMode
+                      className={`p-1.5 rounded-lg transition-all ${darkMode
                           ? 'hover:bg-gray-800 text-gray-400 hover:text-white'
                           : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-                      }`}
+                        }`}
                       title="Reset"
                     >
                       <RotateCcw size={16} />
@@ -224,11 +214,10 @@ const ProductivityPage = () => {
               {user ? (
                 <button
                   onClick={() => navigate('/dashboard')}
-                  className={`p-1.5 rounded-full transition-all flex flex-col items-center gap-0.5 ${
-                    darkMode
+                  className={`p-1.5 rounded-full transition-all flex flex-col items-center gap-0.5 ${darkMode
                       ? 'hover:bg-white/10 text-gray-400 hover:text-gray-300'
                       : 'hover:bg-gray-100 text-gray-600 hover:text-gray-700'
-                  }`}
+                    }`}
                   title="Back to Dashboard"
                 >
                   <User className="w-5 h-5" />
@@ -252,11 +241,10 @@ const ProductivityPage = () => {
 
           {/* Gentle Mode Banner */}
           {isGentleMode && (
-            <div className={`rounded-2xl p-6 ${
-              darkMode
+            <div className={`rounded-2xl p-6 ${darkMode
                 ? 'bg-gradient-to-br from-rose-900/40 via-pink-900/30 to-rose-900/40 border-2 border-rose-500/50 shadow-2xl'
                 : 'bg-gradient-to-br from-rose-100 to-pink-100 border-2 border-rose-300 shadow-lg'
-            }`}>
+              }`}>
               <div className="text-center space-y-3">
                 <div className="text-4xl">🌸</div>
                 <h3 className={`text-2xl font-bold ${darkMode ? 'text-rose-300' : 'text-rose-800'}`}>
@@ -265,9 +253,8 @@ const ProductivityPage = () => {
                 <p className={`text-lg ${darkMode ? 'text-rose-200' : 'text-rose-700'}`}>
                   Your energy is low and you're feeling overwhelmed. That's completely valid.
                 </p>
-                <div className={`p-4 rounded-xl ${
-                  darkMode ? 'bg-rose-500/20 border border-rose-500/30' : 'bg-rose-50 border border-rose-200'
-                }`}>
+                <div className={`p-4 rounded-xl ${darkMode ? 'bg-rose-500/20 border border-rose-500/30' : 'bg-rose-50 border border-rose-200'
+                  }`}>
                   <p className={`font-semibold ${darkMode ? 'text-rose-300' : 'text-rose-800'}`}>
                     Today's only goal: Basic self-care.
                   </p>
@@ -283,11 +270,10 @@ const ProductivityPage = () => {
           <div className="grid grid-cols-2 gap-4">
             <button
               onClick={() => setShowEnergyModal(true)}
-              className={`p-6 rounded-2xl transition-all text-left ${
-                darkMode
+              className={`p-6 rounded-2xl transition-all text-left ${darkMode
                   ? 'bg-gradient-to-br from-yellow-900/30 via-orange-900/20 to-yellow-900/30 border-2 border-yellow-500/30 hover:border-yellow-500/50'
                   : 'bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-200 hover:border-yellow-300'
-              }`}
+                }`}
             >
               <div className="flex items-center gap-3 mb-3">
                 <Battery className={darkMode ? 'text-yellow-400' : 'text-yellow-600'} size={28} />
@@ -300,27 +286,25 @@ const ProductivityPage = () => {
                   </p>
                 </div>
               </div>
-              <div className={`text-4xl font-bold mb-2 ${
-                darkMode ? 'bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent' : 'text-yellow-600'
-              }`}>
+              <div className={`text-4xl font-bold mb-2 ${darkMode ? 'bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent' : 'text-yellow-600'
+                }`}>
                 {currentEnergy || '?'}/5
               </div>
               <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 {currentEnergy ? (
                   currentEnergy <= 2 ? '🌸 Gentle mode recommended' :
-                  currentEnergy === 3 ? '⚖️ Moderate capacity' :
-                  '🚀 Good energy for focused work'
+                    currentEnergy === 3 ? '⚖️ Moderate capacity' :
+                      '🚀 Good energy for focused work'
                 ) : 'Tap to track your energy'}
               </p>
             </button>
 
             <button
               onClick={() => setShowMoodModal(true)}
-              className={`p-6 rounded-2xl transition-all text-left ${
-                darkMode
+              className={`p-6 rounded-2xl transition-all text-left ${darkMode
                   ? 'bg-gradient-to-br from-purple-900/30 via-pink-900/20 to-purple-900/30 border-2 border-purple-500/30 hover:border-purple-500/50'
                   : 'bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 hover:border-purple-300'
-              }`}
+                }`}
             >
               <div className="flex items-center gap-3 mb-3">
                 <Zap className={darkMode ? 'text-purple-400' : 'text-purple-600'} size={28} />
@@ -350,11 +334,10 @@ const ProductivityPage = () => {
           {hasCompletedRoleSetup && userRoles.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Mental Load Widget */}
-              <div className={`p-6 rounded-2xl ${
-                darkMode
+              <div className={`p-6 rounded-2xl ${darkMode
                   ? 'bg-gradient-to-br from-indigo-900/30 via-purple-900/20 to-indigo-900/30 border-2 border-indigo-500/30'
                   : 'bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200'
-              }`}>
+                }`}>
                 <div className="flex items-center gap-3 mb-3">
                   <Users className={darkMode ? 'text-indigo-400' : 'text-indigo-600'} size={24} />
                   <div>
@@ -366,9 +349,8 @@ const ProductivityPage = () => {
                     </p>
                   </div>
                 </div>
-                <div className={`text-3xl font-bold mb-3 ${
-                  darkMode ? 'bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent' : 'text-indigo-600'
-                }`}>
+                <div className={`text-3xl font-bold mb-3 ${darkMode ? 'bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent' : 'text-indigo-600'
+                  }`}>
                   {getTotalMentalLoad()} tasks
                 </div>
 
@@ -400,11 +382,10 @@ const ProductivityPage = () => {
               </div>
 
               {/* Daily Capacity Widget */}
-              <div className={`p-6 rounded-2xl ${
-                darkMode
+              <div className={`p-6 rounded-2xl ${darkMode
                   ? 'bg-gradient-to-br from-teal-900/30 via-cyan-900/20 to-teal-900/30 border-2 border-teal-500/30'
                   : 'bg-gradient-to-br from-teal-50 to-cyan-50 border-2 border-teal-200'
-              }`}>
+                }`}>
                 <div className="flex items-center gap-3 mb-3">
                   <Battery className={darkMode ? 'text-teal-400' : 'text-teal-600'} size={24} />
                   <div>
@@ -419,29 +400,27 @@ const ProductivityPage = () => {
 
                 {currentEnergy ? (
                   <>
-                    <div className={`text-2xl font-bold mb-2 ${
-                      darkMode ? 'text-teal-300' : 'text-teal-700'
-                    }`}>
+                    <div className={`text-2xl font-bold mb-2 ${darkMode ? 'text-teal-300' : 'text-teal-700'
+                      }`}>
                       {currentEnergy <= 2 && getTotalMentalLoad() > 5 ? '🚨 Overloaded' :
-                       currentEnergy === 3 && getTotalMentalLoad() > 8 ? '⚠️ At capacity' :
-                       currentEnergy >= 4 && getTotalMentalLoad() < 10 ? '✅ Sustainable' :
-                       '⚖️ Balanced'}
+                        currentEnergy === 3 && getTotalMentalLoad() > 8 ? '⚠️ At capacity' :
+                          currentEnergy >= 4 && getTotalMentalLoad() < 10 ? '✅ Sustainable' :
+                            '⚖️ Balanced'}
                     </div>
                     <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       {currentEnergy <= 2 && getTotalMentalLoad() > 5
                         ? 'Low energy, high load. Time to delegate or drop tasks.'
                         : currentEnergy === 3 && getTotalMentalLoad() > 8
-                        ? 'Medium energy, lots on your plate. Pace yourself.'
-                        : currentEnergy >= 4 && getTotalMentalLoad() < 10
-                        ? 'Good energy, manageable load. You\'ve got this!'
-                        : 'Energy and load are in balance.'}
+                          ? 'Medium energy, lots on your plate. Pace yourself.'
+                          : currentEnergy >= 4 && getTotalMentalLoad() < 10
+                            ? 'Good energy, manageable load. You\'ve got this!'
+                            : 'Energy and load are in balance.'}
                     </p>
 
                     {/* Self-Care Warning */}
                     {isSelfCareNeglected() && (
-                      <div className={`mt-3 p-3 rounded-lg ${
-                        darkMode ? 'bg-rose-900/30 border border-rose-500/30' : 'bg-rose-100 border border-rose-300'
-                      }`}>
+                      <div className={`mt-3 p-3 rounded-lg ${darkMode ? 'bg-rose-900/30 border border-rose-500/30' : 'bg-rose-100 border border-rose-300'
+                        }`}>
                         <p className={`text-xs font-semibold ${darkMode ? 'text-rose-300' : 'text-rose-800'}`}>
                           ⚠️ Self-care is under 10% of your tasks
                         </p>
@@ -464,11 +443,10 @@ const ProductivityPage = () => {
           {!hasCompletedRoleSetup && (
             <button
               onClick={() => setShowRoleSetup(true)}
-              className={`w-full p-6 rounded-2xl border-2 border-dashed transition-all text-left ${
-                darkMode
+              className={`w-full p-6 rounded-2xl border-2 border-dashed transition-all text-left ${darkMode
                   ? 'border-purple-500/30 bg-purple-900/10 hover:bg-purple-900/20'
                   : 'border-purple-300 bg-purple-50 hover:bg-purple-100'
-              }`}
+                }`}
             >
               <div className="flex items-center gap-4">
                 <Users className={darkMode ? 'text-purple-400' : 'text-purple-600'} size={32} />
@@ -495,11 +473,10 @@ const ProductivityPage = () => {
           )}
 
           {/* Pomodoro Timer Widget */}
-          <div className={`rounded-2xl p-6 ${
-            darkMode
+          <div className={`rounded-2xl p-6 ${darkMode
               ? 'bg-gradient-to-br from-orange-900/30 via-pink-900/20 to-orange-900/30 border-2 border-orange-500/30'
               : 'bg-gradient-to-br from-orange-50 to-pink-50 border-2 border-orange-200'
-          }`}>
+            }`}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -509,20 +486,18 @@ const ProductivityPage = () => {
                   Pomodoro technique: 25 min focus sessions
                 </p>
               </div>
-              <div className={`text-4xl font-mono font-bold ${
-                darkMode ? 'text-orange-400' : 'text-orange-600'
-              }`}>
+              <div className={`text-4xl font-mono font-bold ${darkMode ? 'text-orange-400' : 'text-orange-600'
+                }`}>
                 {formatTime(pomodoroSeconds)}
               </div>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={pomodoroRunning ? pausePomodoro : startPomodoro}
-                className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
-                  darkMode
+                className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${darkMode
                     ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/30'
                     : 'bg-orange-100 hover:bg-orange-200 text-orange-700 border border-orange-300'
-                }`}
+                  }`}
               >
                 {pomodoroRunning ? (
                   <>
@@ -538,11 +513,10 @@ const ProductivityPage = () => {
               </button>
               <button
                 onClick={resetPomodoro}
-                className={`px-4 py-3 rounded-lg transition-all ${
-                  darkMode
+                className={`px-4 py-3 rounded-lg transition-all ${darkMode
                     ? 'hover:bg-gray-700 text-gray-400 hover:text-white'
                     : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-                }`}
+                  }`}
               >
                 <RotateCcw size={18} />
               </button>
@@ -554,11 +528,10 @@ const ProductivityPage = () => {
             {/* Brain Dump */}
             <button
               onClick={() => setShowBrainDump(true)}
-              className={`p-6 rounded-2xl transition-all text-left ${
-                darkMode
+              className={`p-6 rounded-2xl transition-all text-left ${darkMode
                   ? 'bg-purple-900/30 hover:bg-purple-900/40 border-2 border-purple-500/30'
                   : 'bg-purple-50 hover:bg-purple-100 border-2 border-purple-200'
-              }`}
+                }`}
             >
               <FileText className={`mb-3 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} size={28} />
               <h4 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -572,11 +545,10 @@ const ProductivityPage = () => {
             {/* Daily Command Center */}
             <button
               onClick={() => setShowCommandCenterModal(true)}
-              className={`p-6 rounded-2xl transition-all text-left ${
-                darkMode
+              className={`p-6 rounded-2xl transition-all text-left ${darkMode
                   ? 'bg-cyan-900/30 hover:bg-cyan-900/40 border-2 border-cyan-500/30'
                   : 'bg-cyan-50 hover:bg-cyan-100 border-2 border-cyan-200'
-              }`}
+                }`}
             >
               <TrendingUp className={`mb-3 ${darkMode ? 'text-cyan-400' : 'text-cyan-600'}`} size={28} />
               <h4 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -589,11 +561,10 @@ const ProductivityPage = () => {
           </div>
 
           {/* Quick Wins with Categories */}
-          <div className={`rounded-2xl p-6 ${
-            darkMode
+          <div className={`rounded-2xl p-6 ${darkMode
               ? 'bg-gradient-to-br from-emerald-900/30 via-green-900/20 to-emerald-900/30 border-2 border-emerald-500/30'
               : 'bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-200'
-          }`}>
+            }`}>
             <div className="flex items-center gap-3 mb-4">
               <Award className={darkMode ? 'text-emerald-400' : 'text-emerald-600'} size={24} />
               <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -612,15 +583,14 @@ const ProductivityPage = () => {
                 <button
                   key={cat.id}
                   onClick={() => setWinCategory(cat.id)}
-                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
-                    winCategory === cat.id
+                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${winCategory === cat.id
                       ? darkMode
                         ? 'bg-emerald-500/30 text-emerald-300 border border-emerald-500/50'
                         : 'bg-emerald-200 text-emerald-800 border border-emerald-400'
                       : darkMode
                         ? 'bg-gray-800/50 text-gray-400 hover:bg-gray-700/50'
                         : 'bg-white/50 text-gray-600 hover:bg-white'
-                  }`}
+                    }`}
                 >
                   {cat.emoji} {cat.label}
                 </button>
@@ -635,23 +605,21 @@ const ProductivityPage = () => {
                 onKeyPress={(e) => e.key === 'Enter' && handleAddQuickWin()}
                 placeholder={
                   winCategory === 'productivity' ? "e.g., Finished presentation" :
-                  winCategory === 'self-care' ? "e.g., Took a 20-min walk" :
-                  winCategory === 'boundaries' ? "e.g., Said no to extra meeting" :
-                  "e.g., Took a nap instead of pushing through"
+                    winCategory === 'self-care' ? "e.g., Took a 20-min walk" :
+                      winCategory === 'boundaries' ? "e.g., Said no to extra meeting" :
+                        "e.g., Took a nap instead of pushing through"
                 }
-                className={`flex-1 px-4 py-3 rounded-lg border-2 ${
-                  darkMode
+                className={`flex-1 px-4 py-3 rounded-lg border-2 ${darkMode
                     ? 'bg-gray-900/50 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-emerald-400/50'
                     : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-emerald-500'
-                }`}
+                  }`}
               />
               <button
                 onClick={handleAddQuickWin}
-                className={`px-4 py-3 rounded-lg font-medium transition-all ${
-                  darkMode
+                className={`px-4 py-3 rounded-lg font-medium transition-all ${darkMode
                     ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30'
                     : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-700 border border-emerald-300'
-                }`}
+                  }`}
               >
                 <Plus size={18} />
               </button>
@@ -663,16 +631,15 @@ const ProductivityPage = () => {
                   // Map category to emoji
                   const categoryEmoji =
                     win.category === 'productivity' ? '💼' :
-                    win.category === 'self-care' ? '💆' :
-                    win.category === 'boundaries' ? '🚫' :
-                    win.category === 'rest' ? '😴' : '🎉';
+                      win.category === 'self-care' ? '💆' :
+                        win.category === 'boundaries' ? '🚫' :
+                          win.category === 'rest' ? '😴' : '🎉';
 
                   return (
                     <div
                       key={idx}
-                      className={`px-4 py-2 rounded-lg ${
-                        darkMode ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-emerald-100/50 border border-emerald-200'
-                      }`}
+                      className={`px-4 py-2 rounded-lg ${darkMode ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-emerald-100/50 border border-emerald-200'
+                        }`}
                     >
                       <p className={`text-sm ${darkMode ? 'text-emerald-300' : 'text-emerald-800'}`}>
                         {categoryEmoji} {win.text}
@@ -697,7 +664,7 @@ const ProductivityPage = () => {
           <SmartScheduler
             darkMode={darkMode}
             onSchedule={(task) => {
-              console.log('Task scheduled:', task);
+              // console.log('Task scheduled:', task);
               // TODO: Integrate with HourlyTaskDisplay to add scheduled tasks
             }}
           />
