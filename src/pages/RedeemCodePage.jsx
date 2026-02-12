@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Gift, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import { useStore } from '../store/useStore';
-import { supabase } from '../services/dataService';
+import useStore from '../store/useStore';
+import { supabase } from '../supabaseClient';
 
 export default function RedeemCodePage() {
   const [code, setCode] = useState('');

@@ -69,7 +69,7 @@ const AppRouter = () => {
           path="/onboarding"
           element={
             userProfile.hasCompletedOnboarding ? (
-              <Navigate to="/check-in" replace />
+              <Navigate to="/dashboard" replace />
             ) : (
               <OnboardingPage darkMode={darkMode} />
             )
