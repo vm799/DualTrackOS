@@ -35,11 +35,6 @@ const WeeklyTrainingSchedule = () => {
   const todayIndex = new Date().getDay(); // 0 = Sunday
   const adjustedTodayIndex = todayIndex === 0 ? 6 : todayIndex - 1; // Convert to Monday=0
 
-  const getActivityColor = (activityId) => {
-    const activity = activityTypes.find((a) => a.id === activityId);
-    return activity?.color || 'gray';
-  };
-
   return (
     <div className={`rounded-xl p-6 ${
       darkMode ? 'bg-gray-800/50 border-2 border-gray-700' : 'bg-white border-2 border-gray-200'
@@ -134,7 +129,6 @@ const WeeklyTrainingSchedule = () => {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {activityTypes.map((activity) => {
-              const Icon = activity.icon;
               return (
                 <div key={activity.id} className="space-y-1">
                   {days.map((day) => {

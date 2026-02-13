@@ -21,7 +21,6 @@ const PricingPage = () => {
   const darkMode = useStore((state) => state.darkMode);
   const user = useStore((state) => state.user);
   const currentTier = useSubscriptionStore((state) => state.subscriptionTier);
-  const setTier = useSubscriptionStore((state) => state.setTier);
 
   const [billingPeriod, setBillingPeriod] = useState('monthly'); // 'monthly' or 'annual'
   const [loadingTier, setLoadingTier] = useState(null); // Track which tier is loading

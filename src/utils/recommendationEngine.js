@@ -20,11 +20,7 @@
 export const analyzeBehaviorPatterns = (sessionData) => {
   const {
     featureUseCount = {},
-    navigationHistory = [],
-    completedToday = [],
     streaks = {},
-    lastCheckInEnergy = null,
-    lastCheckInMood = null,
     timePatterns = {}
   } = sessionData;
 
@@ -72,12 +68,9 @@ export const getRecommendations = (context, behaviorPatterns) => {
 
   const {
     energyLevel = 5,
-    moodLevel = 5,
     completedNDM = false,
     hasCheckedInToday = false,
     currentStreak = 0,
-    incompleteTasks = [],
-    timeAvailable = 60, // minutes
     lastFocusSession = null
   } = context;
 
@@ -274,7 +267,7 @@ export const getRecommendations = (context, behaviorPatterns) => {
  * @returns {object} Optimal time suggestion
  */
 export const predictOptimalTaskTime = (taskType, behaviorPatterns) => {
-  const { peakHours = [], preferredTimeOfDay = 'morning' } = behaviorPatterns;
+  const { peakHours = [] } = behaviorPatterns;
 
   const taskTimeProfiles = {
     focus: {
@@ -378,7 +371,6 @@ function getEnergyTrend(energyHistory) {
   if (!energyHistory || energyHistory.length < 3) return 'stable';
 
   const recent = energyHistory.slice(-7); // Last 7 entries
-  const avg = recent.reduce((sum, e) => sum + e.level, 0) / recent.length;
 
   const firstHalf = recent.slice(0, Math.floor(recent.length / 2));
   const secondHalf = recent.slice(Math.floor(recent.length / 2));
@@ -393,9 +385,11 @@ function getEnergyTrend(energyHistory) {
   return 'stable';
 }
 
-export default {
+const recommendationEngine = {
   analyzeBehaviorPatterns,
   getRecommendations,
   predictOptimalTaskTime,
   predictStreakContinuation
 };
+
+export default recommendationEngine;

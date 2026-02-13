@@ -43,7 +43,6 @@ const useKeyboardShortcuts = ({
       // Cmd/Ctrl + K: Quick search (placeholder for future)
       if (modKey && e.key === 'k') {
         e.preventDefault();
-        console.log('Quick search - Coming soon!');
         // Future: Open search modal
       }
 
@@ -160,7 +159,7 @@ Other:
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [navigate, onBrainDump, onNutrition, onMovement, onEnergy, onPomodoro, onCommandCenter]);
+  }, [navigate, onBrainDump, onNutrition, onMovement, onEnergy, onPomodoro, onCommandCenter, trackKeyboardShortcut]);
 };
 
 export default useKeyboardShortcuts;

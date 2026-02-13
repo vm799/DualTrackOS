@@ -1,9 +1,8 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Logo = ({ size = 'medium', className = '', navigateTo = null }) => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const sizeClasses = {
     small: 'w-12 h-12',

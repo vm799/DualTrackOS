@@ -17,13 +17,9 @@ const StickyLogoBanner = () => {
   const showPaths = ['/story'];
   const shouldShow = showPaths.includes(location.pathname);
 
-  console.log('StickyLogoBanner - Should show:', shouldShow);
-
   if (!shouldShow) {
     return null;
   }
-
-  console.log('StickyLogoBanner - RENDERING');
 
   const handleClick = () => {
     // Navigate back to landing page from story
@@ -50,10 +46,8 @@ const StickyLogoBanner = () => {
           alt="DualTrack OS"
           className="w-8 h-8 drop-shadow-lg"
           onError={(e) => {
-            console.error('Logo failed to load:', e);
             e.target.style.display = 'none';
           }}
-          onLoad={() => console.log('Logo loaded successfully')}
         />
         <span className="text-xs font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent pr-1 hidden sm:inline">
           DualTrack

@@ -41,10 +41,6 @@ const BoxBreathing = ({ darkMode, onComplete, onCancel }) => {
 
   // Timer - created once, runs until unmount or completion
   useEffect(() => {
-    if (DEBUG) {
-      console.log('[BoxBreathing] Component mounted, starting timer');
-    }
-
     mountedRef.current = true;
 
     const timer = setInterval(() => {
@@ -53,15 +49,8 @@ const BoxBreathing = ({ darkMode, onComplete, onCancel }) => {
         setTotalElapsedMs(prev => {
           const next = prev + BOX_BREATHING_UPDATE_INTERVAL_MS;
 
-          if (DEBUG && next % 1000 === 0) {
-            console.log(`[BoxBreathing] ${next}ms elapsed`);
-          }
-
           // Check completion
           if (next >= BOX_BREATHING_TOTAL_MS) {
-            if (DEBUG) {
-              console.log('[BoxBreathing] Exercise complete!');
-            }
             onCompleteRef.current();
             return BOX_BREATHING_TOTAL_MS;
           }
@@ -73,9 +62,6 @@ const BoxBreathing = ({ darkMode, onComplete, onCancel }) => {
 
     // Cleanup: mark unmounted and clear timer
     return () => {
-      if (DEBUG) {
-        console.log('[BoxBreathing] Component unmounting, clearing timer');
-      }
       mountedRef.current = false;
       clearInterval(timer);
     };
@@ -100,19 +86,8 @@ const BoxBreathing = ({ darkMode, onComplete, onCancel }) => {
       cy: path.fromY + (path.toY - path.fromY) * progress
     };
 
-    if (DEBUG && totalElapsedMs % 500 === 0) {
-      console.log('[BoxBreathing] Position:', {
-        phase: currentPhase,
-        phaseIndex,
-        progress: progress.toFixed(3),
-        countdown,
-        cycle: cycleNumber + 1,
-        position: `(${pos.cx.toFixed(1)}, ${pos.cy.toFixed(1)})`
-      });
-    }
-
     return pos;
-  }, [phaseIndex, progress, currentPhase, countdown, cycleNumber, totalElapsedMs]);
+  }, [phaseIndex, progress]);
 
   return (
     <div className={`max-w-2xl w-full rounded-3xl p-8 relative ${darkMode ? 'bg-gray-900 border-2 border-purple-500/30' : 'bg-white border-2 border-purple-200'}`}>

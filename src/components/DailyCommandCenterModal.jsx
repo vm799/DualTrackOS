@@ -23,7 +23,6 @@ const DailyCommandCenterModal = () => {
 
   // Energy and Mood tracking
   const {
-    energyTracking,
     currentMood,
     getCurrentEnergy,
     getCurrentPeriodEnergy

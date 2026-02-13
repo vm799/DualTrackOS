@@ -20,7 +20,7 @@ const FeaturePreview = ({
 }) => {
   const darkMode = useStore((state) => state.darkMode);
   const navigate = useNavigate();
-  const { hasTier, subscriptionTier } = useSubscriptionStore();
+  const { hasTier } = useSubscriptionStore();
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
 
   // Check if user has access to full feature

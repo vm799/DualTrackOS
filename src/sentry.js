@@ -7,7 +7,6 @@ import * as Sentry from '@sentry/react';
 export const initSentry = () => {
   // Only initialize Sentry in production or if explicitly enabled
   if (process.env.NODE_ENV !== 'production' && !process.env.REACT_APP_SENTRY_ENABLED) {
-    console.log('Sentry not initialized (not in production mode)');
     return;
   }
 
@@ -47,7 +46,7 @@ export const initSentry = () => {
     replaysOnErrorSampleRate: 1.0, // 100% of sessions with errors
 
     // Filter out noisy errors
-    beforeSend(event, hint) {
+    beforeSend(event, _hint) {
       // Don't send errors in development unless explicitly enabled
       if (process.env.NODE_ENV === 'development' && !process.env.REACT_APP_SENTRY_ENABLED) {
         return null;
@@ -131,7 +130,6 @@ export const initSentry = () => {
     version: process.env.REACT_APP_VERSION || '1.0.0',
   });
 
-  console.log('✅ Sentry initialized successfully');
 };
 
 /**
@@ -168,8 +166,6 @@ export const logError = (error, context = {}) => {
  * Log a custom message to Sentry
  */
 export const logMessage = (message, level = 'info', context = {}) => {
-  console.log(`[${level.toUpperCase()}]`, message, context);
-
   Sentry.captureMessage(message, {
     level,
     tags: context.tags || {},

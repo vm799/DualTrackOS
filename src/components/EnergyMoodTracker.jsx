@@ -4,30 +4,22 @@ import useEnergyMoodStore from '../store/useEnergyMoodStore';
 import useStore from '../store/useStore';
 import EnergyMoodModals from './EnergyMoodModals';
 
-const EnergyMoodTracker = ({ previewMode = false, previewLimits = {} }) => {
+const EnergyMoodTracker = ({ previewMode = false }) => {
   const darkMode = useStore((state) => state.darkMode);
   const {
-    energyTracking,
     currentMood,
     selectedEnergyActions,
     selectedMoodActions,
-    showEnergyModal,
-    showMoodModal,
     setCurrentEnergy,
     setCurrentMood,
     setShowEnergyModal,
     setShowMoodModal,
     getTimeOfDay,
     getCurrentPeriodEnergy,
-    getCurrentEnergy,
-    getEnergyBasedSuggestions,
-    getMoodBasedWellness,
     getSmartSuggestions,
   } = useEnergyMoodStore();
 
   const currentPeriodEnergy = getCurrentPeriodEnergy();
-  const welcomeMessage = useStore((state) => state.getWelcomeMessage); // Assuming getWelcomeMessage is in useStore
-  const userProfile = useStore((state) => state.userProfile);
 
   // Energy Selector
   const renderEnergySelector = () => {

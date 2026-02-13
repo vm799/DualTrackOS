@@ -63,8 +63,7 @@ const Dashboard = () => {
     trackNavigation,
     trackModalOpen,
     trackFeatureUse,
-    updateStreak,
-    streaks
+    updateStreak
   } = useSessionStore();
 
   // Local UI state
@@ -81,16 +80,6 @@ const Dashboard = () => {
     dismissReminderToday
   } = useStoryBankStore();
   const [showStoryReminder, setShowStoryReminder] = useState(false);
-
-  // Get welcome message based on time of day
-  const getWelcomeMessage = () => {
-    const hour = currentTime.getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
-  };
-
-  const welcomeMessage = getWelcomeMessage();
 
   // NDM Handler Functions
   const openMindfulMoment = () => {
@@ -137,49 +126,6 @@ const Dashboard = () => {
   // TODO: Connect to actual energy tracking when implemented
   const [energyLevel] = useState(5);
   useEnergyDarkMode(darkMode, energyLevel);
-
-  // Handle smart suggestion actions
-  const handleSuggestionAction = (action) => {
-    switch (action) {
-      case 'check-in':
-        navigate('/check-in');
-        break;
-      case 'start-pomodoro':
-        usePomodoroStore.getState().setShowFullScreen(true);
-        trackFeatureUse('pomodoro');
-        break;
-      case 'open-nutrition':
-        openNutrition();
-        break;
-      case 'brain-dump':
-        openBrainDump();
-        break;
-      case 'resume-braindump':
-        openBrainDump();
-        break;
-      default:
-        console.log('Unknown action:', action);
-    }
-    setShowSuggestion(false);
-  };
-
-  // Handle welcome modal
-  const handleWelcomeClose = () => {
-    localStorage.setItem('dualtrack-dashboard-welcome-seen', 'true');
-    setShowWelcome(false);
-  };
-
-  const handleWelcomeGetStarted = () => {
-    localStorage.setItem('dualtrack-dashboard-welcome-seen', 'true');
-    setShowWelcome(false);
-    // OnboardingTour will appear automatically if not completed
-  };
-
-  // Handle quick check-in
-  const handleQuickCheckInClose = () => {
-    localStorage.setItem('dualtrack-last-checkin-date', new Date().toDateString());
-    setShowQuickCheckIn(false);
-  };
 
   // Scroll listener for header animation
   useEffect(() => {
@@ -321,28 +267,9 @@ const Dashboard = () => {
     return () => {
       endSession();
     };
-  }, []);
+  }, [startSession, trackNavigation, endSession]);
 
-  // Welcome/Check-in Modal - Show on Dashboard entry
-  useEffect(() => {
-    // TEMPORARILY DISABLED TO DEBUG
-    return;
-
-    const hasSeenDashboardWelcome = localStorage.getItem('dualtrack-dashboard-welcome-seen');
-    const lastCheckIn = localStorage.getItem('dualtrack-last-checkin-date');
-    const today = new Date().toDateString();
-
-    // First-time users: Show welcome
-    if (!hasSeenDashboardWelcome) {
-      setTimeout(() => setShowWelcome(true), 800);
-    }
-    // Returning users: Show quick check-in if they haven't checked in today
-    else if (lastCheckIn !== today) {
-      setTimeout(() => setShowQuickCheckIn(true), 800);
-    }
-  }, []);
-
-  // NDM Completion check - Celebrate when all 4 are complete
+  // NDM Completion check - Update streak when all 4 are complete
   useEffect(() => {
     if (hasCheckedNDM) return;
 
@@ -357,44 +284,8 @@ const Dashboard = () => {
 
       // Update NDM streak
       updateStreak('ndm');
-
-      // Show celebration
-      setTimeout(() => {
-        setCelebrationType('ndm-complete');
-        setCelebrationData({ streakCount: streaks.ndmCompletions + 1 });
-        setShowCelebration(true);
-      }, 500);
     }
-  }, [ndm, hasCheckedNDM, updateStreak, streaks.ndmCompletions]);
-
-  // Check for streak milestones
-  useEffect(() => {
-    const checkInStreak = streaks.checkIns;
-
-    // Celebrate streak milestones
-    if (checkInStreak === 3 && !localStorage.getItem('celebrated-streak-3')) {
-      setTimeout(() => {
-        setCelebrationType('streak-3');
-        setCelebrationData({ streakCount: 3 });
-        setShowCelebration(true);
-        localStorage.setItem('celebrated-streak-3', 'true');
-      }, 1000);
-    } else if (checkInStreak === 7 && !localStorage.getItem('celebrated-streak-7')) {
-      setTimeout(() => {
-        setCelebrationType('streak-7');
-        setCelebrationData({ streakCount: 7 });
-        setShowCelebration(true);
-        localStorage.setItem('celebrated-streak-7', 'true');
-      }, 1000);
-    } else if (checkInStreak === 30 && !localStorage.getItem('celebrated-streak-30')) {
-      setTimeout(() => {
-        setCelebrationType('streak-30');
-        setCelebrationData({ streakCount: 30 });
-        setShowCelebration(true);
-        localStorage.setItem('celebrated-streak-30', 'true');
-      }, 1000);
-    }
-  }, [streaks.checkIns]);
+  }, [ndm, hasCheckedNDM, updateStreak]);
 
   // Story Bank reminder check - runs after page load and every 30 minutes
   useEffect(() => {
@@ -658,25 +549,6 @@ const Dashboard = () => {
       {/* MAIN CONTENT */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-6 pb-32 relative z-10">
-          {/* WIDGETS - TEMPORARILY DISABLED FOR DEBUGGING */}
-          {/* SmartSuggestionBanner */}
-          {/* {showSuggestion && (
-            <SmartSuggestionBanner
-              darkMode={darkMode}
-              onAction={handleSuggestionAction}
-              onDismiss={() => setShowSuggestion(false)}
-            />
-          )} */}
-
-          {/* QuickNav */}
-          {/* <QuickNav darkMode={darkMode} /> */}
-
-          {/* StreakPrediction & SkillLevelBadge */}
-          {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <StreakPrediction darkMode={darkMode} />
-            <SkillLevelBadge darkMode={darkMode} showProgress={true} />
-          </div> */}
-
           {/* Day 1 Checklist */}
           <DayOneChecklist />
 
@@ -841,39 +713,6 @@ const Dashboard = () => {
       <NutritionDetailModal show={showNutritionModal} onClose={() => setShowNutritionModal(false)} />
       <BrainDumpModal show={showBrainDumpModal} onClose={() => setShowBrainDumpModal(false)} />
 
-      {/* MODALS - RE-ENABLING SYSTEMATICALLY */}
-      {/* DashboardWelcome - TEMPORARILY DISABLED FOR DEBUGGING */}
-      {/* {showWelcome && (
-        <DashboardWelcome
-          darkMode={darkMode}
-          onClose={handleWelcomeClose}
-          onGetStarted={handleWelcomeGetStarted}
-        />
-      )} */}
-
-      {/* QuickCheckIn - TEMPORARILY DISABLED FOR DEBUGGING */}
-      {/* {showQuickCheckIn && (
-        <QuickCheckIn
-          darkMode={darkMode}
-          onClose={handleQuickCheckInClose}
-          ndm={ndm}
-          streaks={streaks}
-          onOpenBrainDump={openBrainDump}
-          onOpenNutrition={openNutrition}
-          onOpenMovement={openMovement}
-          onOpenMindfulness={openMindfulMoment}
-        />
-      )} */}
-
-      {/* CelebrationModal - TEMPORARILY DISABLED FOR DEBUGGING */}
-      {/* <CelebrationModal
-        show={showCelebration}
-        onClose={() => setShowCelebration(false)}
-        type={celebrationType}
-        data={celebrationData}
-        darkMode={darkMode}
-      /> */}
-
       {/* FULLSCREEN POMODORO */}
       <PomodoroFullScreen darkMode={darkMode} />
 
@@ -886,16 +725,6 @@ const Dashboard = () => {
           onDismiss={handleDismissReminder}
         />
       )}
-
-      {/* ONBOARDING TOUR - TEMPORARILY DISABLED FOR DEBUGGING */}
-      {/* <OnboardingTour
-        darkMode={darkMode}
-        onComplete={() => console.log('Onboarding tour completed!')}
-        onOpenBrainDump={openBrainDump}
-        onOpenNutrition={openNutrition}
-        onOpenMovement={openMovement}
-        onOpenPomodoro={openMindfulMoment}
-      /> */}
 
       {/* BOTTOM NAVIGATION */}
       <BottomNavigation />
