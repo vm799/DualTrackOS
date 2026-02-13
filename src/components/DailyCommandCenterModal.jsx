@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, TrendingUp, Plus, Award, Battery, Zap, Users } from 'lucide-react';
+import { X, Plus, Battery, Zap, Users } from 'lucide-react';
 import useStore from '../store/useStore';
 import useDailyMetricsStore from '../store/useDailyMetricsStore';
 import useNDMStore from '../store/useNDMStore';

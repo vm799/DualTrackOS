@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Battery, Moon, Zap, Activity, Briefcase } from 'lucide-react';
+import { Moon, Zap, Briefcase } from 'lucide-react';
 import useCycleStore from '../store/useCycleStore';
 import useStore from '../store/useStore';
 import useNutritionStore from '../store/useNutritionStore';

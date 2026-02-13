@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { User, Sparkles, CheckCircle, Heart, ArrowRight, Zap, Battery, AlertTriangle, Weight, Cake } from 'lucide-react';
+import { Sparkles, CheckCircle, Heart, ArrowRight, AlertTriangle, Weight, Cake } from 'lucide-react';
 import Logo from './components/Logo';
 import ParentalConsentModal from './components/ParentalConsentModal';
 import useStore from './store/useStore';

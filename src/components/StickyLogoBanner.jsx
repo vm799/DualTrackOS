@@ -12,9 +12,6 @@ const StickyLogoBanner = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Debug: Log current path
-  console.log('StickyLogoBanner - Current path:', location.pathname);
-
   // Only show on story page (which doesn't have a header with navigation)
   // Don't show on story-bank - logo is integrated into the header there
   const showPaths = ['/story'];

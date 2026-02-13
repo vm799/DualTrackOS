@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Zap, Brain, Target, TrendingUp, AlertCircle, Check } from 'lucide-react';
+import { Calendar, Clock, Zap, Brain, Target, TrendingUp, Check } from 'lucide-react';
 import { predictOptimalTaskTime } from '../utils/recommendationEngine';
 import useSessionStore from '../store/useSessionStore';
 

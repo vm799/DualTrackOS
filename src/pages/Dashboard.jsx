@@ -19,22 +19,12 @@ import ProteinTracker from '../components/ProteinTracker';
 import VoiceDiary from '../components/VoiceDiary';
 import LearningLibrary from '../components/LearningLibrary';
 import BottomNavigation from '../components/BottomNavigation';
-import SectionHeader from '../components/SectionHeader';
 import SectionContainer from '../components/SectionContainer';
-import QuickNav from '../components/QuickNav';
 import MovementDetailModal from '../components/MovementDetailModal';
 import NutritionDetailModal from '../components/NutritionDetailModal';
 import BrainDumpModal from '../components/BrainDumpModal';
-import FeatureGate from '../components/FeatureGate';
 import FeaturePreview from '../components/FeaturePreview';
 import Logo from '../components/Logo';
-import CelebrationModal from '../components/CelebrationModal';
-import SmartSuggestionBanner from '../components/SmartSuggestionBanner';
-import StreakPrediction from '../components/StreakPrediction';
-import { SkillLevelBadge } from '../components/AdaptiveUI';
-import OnboardingTour from '../components/OnboardingTour';
-import DashboardWelcome from '../components/DashboardWelcome';
-import QuickCheckIn from '../components/QuickCheckIn';
 import StoryReminder from '../components/StoryBank/StoryReminder';
 import useStoryBankStore from '../store/useStoryBankStore';
 import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
@@ -82,13 +72,7 @@ const Dashboard = () => {
   const [showMovementModal, setShowMovementModal] = useState(false);
   const [showNutritionModal, setShowNutritionModal] = useState(false);
   const [showBrainDumpModal, setShowBrainDumpModal] = useState(false);
-  const [showCelebration, setShowCelebration] = useState(false);
-  const [celebrationType, setCelebrationType] = useState(null);
-  const [celebrationData, setCelebrationData] = useState(null);
-  const [showSuggestion, setShowSuggestion] = useState(true);
   const [hasCheckedNDM, setHasCheckedNDM] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [showQuickCheckIn, setShowQuickCheckIn] = useState(false);
 
   // Story Bank - Daily Reminder System
   const {
