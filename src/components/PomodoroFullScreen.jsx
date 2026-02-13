@@ -9,7 +9,7 @@ import usePomodoroStore from '../store/usePomodoroStore';
  * Blocks distractions with dark background and large countdown
  * Minimal controls: Pause, Reset, Exit
  */
-const PomodoroFullScreen = ({ darkMode }) => {
+const PomodoroFullScreen = ({ _darkMode }) => {
   const {
     pomodoroSeconds,
     pomodoroRunning,

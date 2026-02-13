@@ -66,6 +66,7 @@ const SmartScheduler = ({ darkMode = false, onSchedule }) => {
     if (taskType) {
       generateSuggestedSlots(taskType, estimatedDuration);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [taskType, estimatedDuration]);
 
   const generateSuggestedSlots = (type, duration) => {
@@ -178,9 +179,6 @@ const SmartScheduler = ({ darkMode = false, onSchedule }) => {
     setTaskName('');
     setSelectedSlot(null);
   };
-
-  const selectedTaskType = taskTypes.find(t => t.id === taskType);
-  const TaskIcon = selectedTaskType?.icon || Brain;
 
   const getConfidenceColor = (confidence) => {
     if (confidence >= 80) return darkMode ? 'text-emerald-400' : 'text-emerald-600';

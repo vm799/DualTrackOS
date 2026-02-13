@@ -54,7 +54,6 @@ const ProductivityPage = () => {
     setShowEnergyModal,
     setShowMoodModal,
     getCurrentPeriodEnergy,
-    getCurrentEnergy,
     getSmartSuggestions,
     getTimeOfDay
   } = useEnergyMoodStore();
@@ -135,7 +134,7 @@ const ProductivityPage = () => {
   }, [pomodoroRunning]);
 
   // Helper to add task from SmartSuggestions
-  const handleAddTaskFromSuggestion = (hour, taskText) => {
+  const handleAddTaskFromSuggestion = (_hour, _taskText) => {
     // This would integrate with your task system
     // console.log('Adding task:', taskText, 'at hour:', hour);
   };
@@ -663,7 +662,7 @@ const ProductivityPage = () => {
           />
           <SmartScheduler
             darkMode={darkMode}
-            onSchedule={(task) => {
+            onSchedule={(_task) => {
               // console.log('Task scheduled:', task);
               // TODO: Integrate with HourlyTaskDisplay to add scheduled tasks
             }}

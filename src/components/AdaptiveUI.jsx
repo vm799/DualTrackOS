@@ -114,7 +114,7 @@ const getSkillLevelRecommendations = (level, score) => {
  *
  * Wraps child components and provides adaptive behavior
  */
-const AdaptiveUI = ({ children, darkMode = false }) => {
+const AdaptiveUI = ({ children, _darkMode = false }) => {
   const sessionData = useSessionStore((state) => ({
     streaks: state.streaks,
     featureUseCount: state.featureUseCount || {},

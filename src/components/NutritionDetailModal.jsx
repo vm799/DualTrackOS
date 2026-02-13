@@ -10,9 +10,8 @@ import useNutritionStore from '../store/useNutritionStore';
  */
 const NutritionDetailModal = ({ show, onClose }) => {
   const darkMode = useStore((state) => state.darkMode);
-  const userProfile = useStore((state) => state.userProfile);
   const { ndm, setNutrition } = useNDMStore();
-  const { proteinToday, addProtein, getProteinTarget, proteinVault, checkLeucineStatus } = useNutritionStore();
+  const { proteinToday, getProteinTarget, proteinVault, checkLeucineStatus } = useNutritionStore();
 
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [customProtein, setCustomProtein] = useState('');

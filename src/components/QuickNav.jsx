@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Sparkles, Clock, Battery, Utensils, Mic, BookOpen, Trello, Menu, X } from 'lucide-react';
 
 const QuickNav = ({ darkMode }) => {
   const [activeSection, setActiveSection] = useState('must-dos');
   const [isOpen, setIsOpen] = useState(false);
 
-  const sections = [
+  const sections = useMemo(() => [
     { id: 'must-dos', label: 'Must-Dos', icon: Sparkles, color: 'emerald' },
     { id: 'schedule', label: 'Schedule', icon: Clock, color: 'cyan' },
     { id: 'energy', label: 'Energy', icon: Battery, color: 'purple' },
@@ -13,7 +13,7 @@ const QuickNav = ({ darkMode }) => {
     { id: 'voice', label: 'Voice Diary', icon: Mic, color: 'pink' },
     { id: 'library', label: 'Library', icon: BookOpen, color: 'amber' },
     { id: 'tasks', label: 'Tasks', icon: Trello, color: 'blue' },
-  ];
+  ], []);
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -51,7 +51,7 @@ const QuickNav = ({ darkMode }) => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [sections]);
 
   return (
     <>

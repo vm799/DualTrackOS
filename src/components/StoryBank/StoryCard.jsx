@@ -12,7 +12,6 @@ const StoryCard = ({ story, viewMode = 'grid', darkMode, onClick }) => {
     what,
     who = [],
     where: location,
-    when,
     storyDate,
     category,
     tags = [],

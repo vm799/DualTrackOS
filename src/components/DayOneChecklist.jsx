@@ -16,7 +16,7 @@ const DayOneChecklist = () => {
         creatine: false
     });
 
-    const [isVisible, setIsVisible] = useState(true);
+    const [isVisible] = useState(true);
 
     useEffect(() => {
         const saved = localStorage.getItem('dayOneChecklist');

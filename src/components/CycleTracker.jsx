@@ -7,7 +7,7 @@ import useCycleStore from '../store/useCycleStore';
  * Cycle Tracker Component
  * Displays current cycle phase with workout and nutrition recommendations
  */
-const CycleTracker = ({ previewMode = false, previewLimits = {} }) => {
+const CycleTracker = ({ previewMode = false }) => {
   const darkMode = useStore((state) => state.darkMode);
   const userProfile = useStore((state) => state.userProfile);
 
@@ -15,7 +15,6 @@ const CycleTracker = ({ previewMode = false, previewLimits = {} }) => {
     cycleDay,
     lastPeriodDate,
     setLastPeriodDate,
-    getCurrentPhase,
     getPhaseInfo,
     getWorkoutRecommendations,
     getNutritionRecommendations,

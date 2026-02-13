@@ -20,16 +20,8 @@ const DashboardPreview = () => {
   const navigate = useNavigate();
   const darkMode = useStore((state) => state.darkMode);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
-  const [tourCompleted, setTourCompleted] = useState(false);
+  const [, setTourCompleted] = useState(false);
   const [previewModal, setPreviewModal] = useState(null);
-
-  // Demo data for preview
-  const demoNDM = {
-    nutrition: { completed: false },
-    movement: { completed: true },
-    mindfulness: { completed: true },
-    brainDump: { completed: false }
-  };
 
   // Clear any previous tour completion for preview mode
   useEffect(() => {

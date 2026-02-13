@@ -69,7 +69,7 @@ const useVoiceDiaryStore = create((set, get) => ({
       recognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
         if (event.error === 'no-speech') {
-          console.log('No speech detected');
+          // No speech detected - ignore silently
         } else {
           setIsRecording(false);
           alert(`Voice recognition error: ${event.error}`);
@@ -82,7 +82,7 @@ const useVoiceDiaryStore = create((set, get) => ({
           try {
             recognition.start();
           } catch (e) {
-            console.log('Recognition already started');
+            // Recognition already started
           }
         }
       };

@@ -160,7 +160,7 @@ const useSessionStore = create(
       energyHistory: [],
 
       // Track keyboard shortcut usage (for adaptive UI)
-      trackKeyboardShortcut: (shortcut) => set((state) => ({
+      trackKeyboardShortcut: (_shortcut) => set((state) => ({
         keyboardShortcutUses: state.keyboardShortcutUses + 1
       })),
 

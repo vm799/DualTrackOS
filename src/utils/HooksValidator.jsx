@@ -27,9 +27,6 @@ export function HooksValidator({ componentName, children }) {
     // Store expected hooks count from first render
     if (!hooksCountPerComponent[componentName]) {
       hooksCountPerComponent[componentName] = hooksCount.current;
-      console.log(
-        `✅ [HooksValidator] ${componentName}: ${hooksCount.current} hooks detected`
-      );
     } else {
       // Check if hooks count changed
       const expected = hooksCountPerComponent[componentName];
