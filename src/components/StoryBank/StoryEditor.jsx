@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Mic, Square, Play, Pause, Trash2, Star, Tag, Calendar } from 'lucide-react';
+import { X, Save, Mic, Square, Star, Tag, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import useStoryBankStore from '../../store/useStoryBankStore';
 

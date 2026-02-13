@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, Info, ShieldCheck } from 'lucide-react';
+import { Check, ShieldCheck } from 'lucide-react';
 import useStore from '../store/useStore';
 
 /**

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Flame, TrendingUp, TrendingDown, AlertTriangle, Calendar, Trophy, Target } from 'lucide-react';
+import { Flame, TrendingUp, AlertTriangle, Calendar, Trophy, Target } from 'lucide-react';
 import { predictStreakContinuation } from '../utils/recommendationEngine';
 import useSessionStore from '../store/useSessionStore';
 

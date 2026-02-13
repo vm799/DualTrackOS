@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { X, TrendingUp, CheckCircle } from 'lucide-react';
+import { X, CheckCircle } from 'lucide-react';
 
 const QuickCheckIn = ({
   darkMode,

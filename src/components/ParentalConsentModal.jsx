@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle, X, Check, ArrowLeft } from 'lucide-react';
+import { AlertTriangle, Check, ArrowLeft } from 'lucide-react';
 
 /**
  * ParentalConsentModal

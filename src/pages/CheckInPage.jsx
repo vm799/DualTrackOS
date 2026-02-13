@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Battery, Heart, Target, Utensils, Dumbbell, Briefcase, Sparkles, Flower2, Brain } from 'lucide-react';
+import { Battery, Heart, Target, Utensils, Dumbbell, Briefcase, Sparkles, Brain } from 'lucide-react';
 import Logo from '../components/Logo';
 import useSessionStore from '../store/useSessionStore';
 

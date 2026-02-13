@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Dumbbell, Heart, Bike, Flower2, BedDouble } from 'lucide-react';
+import { Calendar, Dumbbell, Heart, Flower2, BedDouble } from 'lucide-react';
 import useStore from '../store/useStore';
 import useStrong50Store from '../store/useStrong50Store';
 

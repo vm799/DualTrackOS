@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import useStore from './useStore'; // For userProfile.weight
 
 const useNutritionStore = create((set, get) => ({
   // State

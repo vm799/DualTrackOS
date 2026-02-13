@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Check, Bounce, Rabbit, Zap, Play } from 'lucide-react';
+import { Check, Zap } from 'lucide-react';
 import useStore from '../store/useStore';
 
 const movements = [

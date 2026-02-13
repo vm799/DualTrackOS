@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, LogIn } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { signInWithGoogle } from './services/dataService';
 import Logo from './components/Logo';
 

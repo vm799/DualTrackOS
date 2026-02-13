@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { TIERS, TIER_HIERARCHY, FEATURE_ACCESS } from '../constants/subscription';
+import { TIER_HIERARCHY, FEATURE_ACCESS } from '../constants/subscription';
 
 /**
  * Subscription Store
