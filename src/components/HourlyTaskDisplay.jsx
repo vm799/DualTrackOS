@@ -26,11 +26,6 @@ const HourlyTaskDisplay = () => {
     setTaskInput('');
   };
 
-  // Get all hours that have tasks for the full day view
-  const allHoursWithTasks = Object.keys(hourlyTasks)
-    .map(Number)
-    .sort((a, b) => a - b);
-
   // Generate display hours (6AM to 11PM)
   const dayHours = [];
   for (let h = 6; h <= 23; h++) {
