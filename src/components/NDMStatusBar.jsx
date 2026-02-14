@@ -1,4 +1,5 @@
 import React from 'react';
+import InfoTooltip from './InfoTooltip';
 
 /**
  * NDMStatusBar - Non-Negotiables Daily Tracker
@@ -25,10 +26,17 @@ const NDMStatusBar = ({ ndm, darkMode, openNutrition, openMovement, openMindfulM
           : 'bg-white border-2 border-purple-200 shadow-purple-100'
       }`}>
         <div className="flex items-center justify-between mb-3">
-          <span className={`text-sm font-bold uppercase tracking-wide ${
+          <span className={`text-sm font-bold uppercase tracking-wide flex items-center gap-1 ${
             darkMode ? 'text-gray-300' : 'text-gray-700'
           }`}>
             Today's Non-Negotiables
+            <InfoTooltip
+              title="Your 4 Non-Negotiables"
+              text="These are 4 daily habits that form the foundation of your wellbeing. The idea: no matter how busy or chaotic your day gets, these 4 things are non-negotiable. Tap each one to log it. Complete all 4 to build your streak. They reset at midnight."
+              darkMode={darkMode}
+              dismissKey="ndm-explain"
+              size={12}
+            />
           </span>
           <span className={`text-sm font-bold px-2 py-1 rounded ${
             completedCount === 4
@@ -57,11 +65,11 @@ const NDMStatusBar = ({ ndm, darkMode, openNutrition, openMovement, openMindfulM
         </div>
 
         {/* Outstanding Items - Clickable */}
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-1.5">
           {/* Nutrition */}
           <button
             onClick={openNutrition}
-            className={`text-center p-3 rounded-lg transition-all duration-200 cursor-pointer active:scale-95 ${
+            className={`text-center p-2 rounded-lg transition-all duration-200 cursor-pointer active:scale-95 ${
               ndm.nutrition
                 ? darkMode
                   ? 'bg-emerald-500/20 border-2 border-emerald-500/40 hover:bg-emerald-500/30 hover:scale-105 shadow-lg'
@@ -74,8 +82,8 @@ const NDMStatusBar = ({ ndm, darkMode, openNutrition, openMovement, openMindfulM
               boxShadow: ndm.nutrition ? '0 0 15px rgba(16, 185, 129, 0.3)' : 'none'
             }}
           >
-            <div className="text-xl mb-1">{ndm.nutrition ? '✅' : '🍽️'}</div>
-            <div className={`text-[10px] font-semibold ${
+            <div className="text-lg mb-1">{ndm.nutrition ? '✅' : '🍽️'}</div>
+            <div className={`text-[10px] font-semibold truncate ${
               ndm.nutrition
                 ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
                 : darkMode ? 'text-gray-500' : 'text-gray-600'
@@ -87,7 +95,7 @@ const NDMStatusBar = ({ ndm, darkMode, openNutrition, openMovement, openMindfulM
           {/* Movement */}
           <button
             onClick={openMovement}
-            className={`text-center p-3 rounded-lg transition-all duration-200 cursor-pointer active:scale-95 ${
+            className={`text-center p-2 rounded-lg transition-all duration-200 cursor-pointer active:scale-95 ${
               ndm.movement
                 ? darkMode
                   ? 'bg-emerald-500/20 border-2 border-emerald-500/40 hover:bg-emerald-500/30 hover:scale-105 shadow-lg'
@@ -100,8 +108,8 @@ const NDMStatusBar = ({ ndm, darkMode, openNutrition, openMovement, openMindfulM
               boxShadow: ndm.movement ? '0 0 15px rgba(16, 185, 129, 0.3)' : 'none'
             }}
           >
-            <div className="text-xl mb-1">{ndm.movement ? '✅' : '🏃'}</div>
-            <div className={`text-[10px] font-semibold ${
+            <div className="text-lg mb-1">{ndm.movement ? '✅' : '🏃'}</div>
+            <div className={`text-[10px] font-semibold truncate ${
               ndm.movement
                 ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
                 : darkMode ? 'text-gray-500' : 'text-gray-600'
@@ -113,7 +121,7 @@ const NDMStatusBar = ({ ndm, darkMode, openNutrition, openMovement, openMindfulM
           {/* Mindfulness */}
           <button
             onClick={openMindfulMoment}
-            className={`text-center p-3 rounded-lg transition-all duration-200 cursor-pointer active:scale-95 ${
+            className={`text-center p-2 rounded-lg transition-all duration-200 cursor-pointer active:scale-95 ${
               ndm.mindfulness
                 ? darkMode
                   ? 'bg-emerald-500/20 border-2 border-emerald-500/40 hover:bg-emerald-500/30 hover:scale-105 shadow-lg'
@@ -126,8 +134,8 @@ const NDMStatusBar = ({ ndm, darkMode, openNutrition, openMovement, openMindfulM
               boxShadow: ndm.mindfulness ? '0 0 15px rgba(16, 185, 129, 0.3)' : 'none'
             }}
           >
-            <div className="text-xl mb-1">{ndm.mindfulness ? '✅' : '🧘'}</div>
-            <div className={`text-[10px] font-semibold ${
+            <div className="text-lg mb-1">{ndm.mindfulness ? '✅' : '🧘'}</div>
+            <div className={`text-[10px] font-semibold truncate ${
               ndm.mindfulness
                 ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
                 : darkMode ? 'text-gray-500' : 'text-gray-600'
@@ -139,7 +147,7 @@ const NDMStatusBar = ({ ndm, darkMode, openNutrition, openMovement, openMindfulM
           {/* Brain Dump */}
           <button
             onClick={openBrainDump}
-            className={`text-center p-3 rounded-lg transition-all duration-200 cursor-pointer active:scale-95 ${
+            className={`text-center p-2 rounded-lg transition-all duration-200 cursor-pointer active:scale-95 ${
               ndm.brainDump
                 ? darkMode
                   ? 'bg-emerald-500/20 border-2 border-emerald-500/40 hover:bg-emerald-500/30 hover:scale-105 shadow-lg'
@@ -152,8 +160,8 @@ const NDMStatusBar = ({ ndm, darkMode, openNutrition, openMovement, openMindfulM
               boxShadow: ndm.brainDump ? '0 0 15px rgba(16, 185, 129, 0.3)' : 'none'
             }}
           >
-            <div className="text-xl mb-1">{ndm.brainDump ? '✅' : '📝'}</div>
-            <div className={`text-[10px] font-semibold ${
+            <div className="text-lg mb-1">{ndm.brainDump ? '✅' : '📝'}</div>
+            <div className={`text-[10px] font-semibold truncate ${
               ndm.brainDump
                 ? darkMode ? 'text-emerald-400' : 'text-emerald-700'
                 : darkMode ? 'text-gray-500' : 'text-gray-600'

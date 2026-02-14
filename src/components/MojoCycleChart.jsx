@@ -1,6 +1,7 @@
 import React from 'react';
 import useStore from '../store/useStore';
 import useCycleStore from '../store/useCycleStore';
+import InfoTooltip from './InfoTooltip';
 
 const MojoCycleChart = () => {
     const darkMode = useStore((state) => state.darkMode);
@@ -35,8 +36,15 @@ const MojoCycleChart = () => {
 
     return (
         <div className={`p-4 rounded-2xl ${darkMode ? 'bg-gray-800/40 border border-purple-500/20' : 'bg-white border border-purple-100'}`}>
-            <h4 className={`text-xs font-bold uppercase mb-4 tracking-wider ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
+            <h4 className={`text-xs font-bold uppercase mb-4 tracking-wider flex items-center gap-1 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
                 Mojo Trend vs. Cycle Phase
+                <InfoTooltip
+                    title="Reading This Chart"
+                    text="This chart shows your predicted energy ('Mojo') across your 28-day cycle. The pink dot marks today. The curve rises during your follicular phase (building energy), peaks at ovulation, then dips during the luteal phase. Use this to plan ahead — schedule demanding tasks when the curve is high, and rest/recovery when it dips."
+                    darkMode={darkMode}
+                    dismissKey="mojo-chart"
+                    size={12}
+                />
             </h4>
 
             <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible">

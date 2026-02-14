@@ -26,7 +26,7 @@ const BottomNavigation = () => {
     }`}
     style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-around py-2">
+        <div className="flex items-center justify-around py-1.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
@@ -35,7 +35,7 @@ const BottomNavigation = () => {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all min-w-[60px] ${
+                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all min-w-0 flex-1 ${
                   active
                     ? darkMode
                       ? 'text-purple-400'
@@ -46,7 +46,7 @@ const BottomNavigation = () => {
                 }`}
               >
                 <Icon
-                  size={24}
+                  size={20}
                   strokeWidth={active ? 2.5 : 2}
                   className={active ? 'mb-1' : 'mb-1'}
                 />
