@@ -15,6 +15,7 @@ const CycleTracker = ({ previewMode = false }) => {
     cycleDay,
     lastPeriodDate,
     setLastPeriodDate,
+    setCycleDay,
     getPhaseInfo,
     getWorkoutRecommendations,
     getNutritionRecommendations,
@@ -26,6 +27,7 @@ const CycleTracker = ({ previewMode = false }) => {
   const [showWorkouts, setShowWorkouts] = useState(false);
   const [showNutrition, setShowNutrition] = useState(false);
   const [periodDate, setPeriodDate] = useState('');
+  const [directDayInput, setDirectDayInput] = useState('');
 
   const phaseInfo = getPhaseInfo();
   const workouts = getWorkoutRecommendations();
@@ -126,8 +128,52 @@ const CycleTracker = ({ previewMode = false }) => {
             Start Tracking
           </button>
 
+          {/* Direct cycle day input */}
+          <div className={`pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            <p className={`text-xs font-semibold mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              OR just tell me what day you're on:
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                min="1"
+                max="35"
+                value={directDayInput}
+                onChange={(e) => setDirectDayInput(e.target.value)}
+                placeholder="e.g. 8"
+                className={`flex-1 px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 ${
+                  darkMode
+                    ? 'bg-gray-800 border-gray-700 text-white focus:border-pink-500 focus:ring-pink-500/50 placeholder-gray-500'
+                    : 'bg-white border-gray-300 text-gray-900 focus:border-pink-500 focus:ring-pink-500/50'
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const day = parseInt(directDayInput, 10);
+                  if (day >= 1 && day <= 35) {
+                    setCycleDay(day);
+                    setShowSetup(false);
+                  }
+                }}
+                disabled={!directDayInput || parseInt(directDayInput, 10) < 1}
+                className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                  directDayInput && parseInt(directDayInput, 10) >= 1
+                    ? darkMode
+                      ? 'bg-pink-500 hover:bg-pink-600 text-white'
+                      : 'bg-pink-600 hover:bg-pink-700 text-white'
+                    : darkMode
+                      ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                Set Day
+              </button>
+            </div>
+          </div>
+
           <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            🔒 Your cycle data is stored locally and never shared with third parties.
+            Your cycle data is stored locally and never shared with third parties.
           </p>
         </form>
       </div>
@@ -150,14 +196,34 @@ const CycleTracker = ({ previewMode = false }) => {
             </p>
           </div>
         </div>
-        <button
-          onClick={() => setShowSetup(true)}
-          className={`text-xs px-3 py-1.5 rounded-lg transition-all ${
-            darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-          }`}
-        >
-          Update
-        </button>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <label className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>Day</label>
+            <input
+              type="number"
+              min="1"
+              max="35"
+              value={cycleDay}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10);
+                if (val >= 1 && val <= 35) setCycleDay(val);
+              }}
+              className={`w-14 px-2 py-1 text-center text-sm font-bold rounded-lg border focus:outline-none ${
+                darkMode
+                  ? 'bg-gray-800/80 border-gray-600 text-white focus:border-purple-500'
+                  : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'
+              }`}
+            />
+          </div>
+          <button
+            onClick={() => setShowSetup(true)}
+            className={`text-xs px-3 py-1.5 rounded-lg transition-all ${
+              darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+            }`}
+          >
+            Reset
+          </button>
+        </div>
       </div>
 
       {/* Energy Level Visualization */}
