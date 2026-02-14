@@ -31,6 +31,7 @@ import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import useEnergyDarkMode from '../hooks/useEnergyDarkMode';
 import CycleSyncWidget from '../components/CycleSyncWidget';
 import NonZeroDayWidget from '../components/NonZeroDayWidget';
+import useCycleStore from '../store/useCycleStore';
 import DayOneChecklist from '../components/DayOneChecklist';
 import MojoCycleChart from '../components/MojoCycleChart';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END, POMODORO_DURATION_SECONDS } from '../constants';
@@ -65,6 +66,9 @@ const Dashboard = () => {
     trackFeatureUse,
     updateStreak
   } = useSessionStore();
+
+  // Cycle Store - auto-update cycle day on load
+  const updateCycleDay = useCycleStore((state) => state.updateCycleDay);
 
   // Local UI state
   const [isScrolled, setIsScrolled] = useState(false);
@@ -311,6 +315,11 @@ const Dashboard = () => {
       clearInterval(interval);
     };
   }, [shouldShowReminder]);
+
+  // Auto-update cycle day when dashboard loads (handles day rollover between sessions)
+  useEffect(() => {
+    updateCycleDay();
+  }, [updateCycleDay]);
 
   // Story Bank reminder handlers
   const handleStartStory = () => {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, Zap } from 'lucide-react';
 import useStore from '../store/useStore';
+import InfoTooltip from './InfoTooltip';
 
 const movements = [
     { id: 'bounce', label: 'Bouncing / Lymph', icon: '🐰', desc: '5 mins soft bouncing' },
@@ -40,9 +41,23 @@ const NonZeroDayWidget = () => {
                     <h3 className={`font-bold text-lg flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                         <Zap className="text-yellow-400" size={20} fill="currentColor" />
                         Non-Zero Day
+                        <InfoTooltip
+                            title="What is a Non-Zero Day?"
+                            text="A Non-Zero Day means you did at least ONE thing to move your body today. It's not about intensity or burning calories — it's about keeping your fascia (connective tissue) hydrated and mobile. Even 5 minutes of bouncing or stretching counts. The goal is consistency over perfection: never let a day pass with zero movement."
+                            darkMode={darkMode}
+                            dismissKey="nzd-explain"
+                            size={14}
+                        />
                     </h3>
                     <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         Keep the fascia juicy!
+                        <InfoTooltip
+                            title="What is Fascia?"
+                            text="Fascia is the connective tissue that wraps around every muscle, bone, and organ in your body like a web. When you don't move, fascia gets stiff and 'dried out', leading to pain, poor posture, and restricted movement. Regular gentle movement keeps fascia hydrated ('juicy') and supple — think of it like keeping a sponge moist vs letting it dry out and crack."
+                            darkMode={darkMode}
+                            dismissKey="fascia-explain"
+                            size={12}
+                        />
                     </p>
                 </div>
 
