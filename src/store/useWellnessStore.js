@@ -1,7 +1,10 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { WELLNESS_SNOOZE_DURATION_MS, EXERCISE_TARGETS } from '../constants'; // Assuming constants are available or will be moved
 
-const useWellnessStore = create((set, get) => ({
+const useWellnessStore = create(
+  persist(
+    (set, get) => ({
   // State
   lastWellnessHour: null,
   showWellnessSnackModal: false,
@@ -89,6 +92,16 @@ const useWellnessStore = create((set, get) => ({
     get().setMissedHourPrompt(false);
     get().dismissWellnessSnack(currentTime);
   },
-}));
+    }),
+    {
+      name: 'dualtrack-wellness',
+      partialize: (state) => ({
+        lastWellnessHour: state.lastWellnessHour,
+        wellnessSnacksDismissed: state.wellnessSnacksDismissed,
+        wellnessCompletions: state.wellnessCompletions,
+      }),
+    }
+  )
+);
 
 export default useWellnessStore;

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 /**
  * NDM Store - Non-Negotiables Daily Manager
@@ -9,7 +10,9 @@ import { create } from 'zustand';
  * - Mindfulness: Meditation/breathing practice
  * - Brain Dump: Thought capture/planning
  */
-const useNDMStore = create((set) => ({
+const useNDMStore = create(
+  persist(
+    (set) => ({
   // State
   ndm: {
     nutrition: false,
@@ -60,6 +63,14 @@ const useNDMStore = create((set) => ({
       state.ndm.brainDump
     ].filter(Boolean).length;
   }
-}));
+    }),
+    {
+      name: 'dualtrack-ndm',
+      partialize: (state) => ({
+        ndm: state.ndm,
+      }),
+    }
+  )
+);
 
 export default useNDMStore;

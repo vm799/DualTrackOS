@@ -385,7 +385,16 @@ const useSessionStore = create(
     }),
     {
       name: 'dualtrack-session',
-      getStorage: () => localStorage
+      partialize: (state) => ({
+        lastRoute: state.lastRoute,
+        streaks: state.streaks,
+        completionHistory: state.completionHistory,
+        behaviorPatterns: state.behaviorPatterns,
+        drafts: state.drafts,
+        featureUseCount: state.featureUseCount,
+        sessionCount: state.sessionCount,
+        energyHistory: state.energyHistory,
+      }),
     }
   )
 );

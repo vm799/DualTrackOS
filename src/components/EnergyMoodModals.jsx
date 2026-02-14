@@ -42,12 +42,12 @@ const EnergyMoodModals = ({ previewMode = false }) => {
     if (!showEnergyModal) return null;
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg p-4 overflow-y-auto">
+      <div className="fixed inset-0 z-[9999] flex items-start justify-center bg-black/80 backdrop-blur-lg p-4 overflow-y-auto" onClick={() => setShowEnergyModal(false)}>
         <div className={`max-w-2xl w-full rounded-3xl relative my-8 ${
           darkMode ? 'bg-gray-900 border-2 border-yellow-500/30' : 'bg-white border-2 border-yellow-200'
-        }`}>
-          {/* Sticky close button */}
-          <div className={`sticky top-0 z-10 flex justify-end p-4 ${
+        }`} onClick={(e) => e.stopPropagation()}>
+          {/* Close button */}
+          <div className={`flex justify-end p-4 ${
             darkMode ? 'bg-gray-900' : 'bg-white'
           } rounded-t-3xl`}>
             <button
@@ -61,7 +61,7 @@ const EnergyMoodModals = ({ previewMode = false }) => {
           </div>
 
           {/* Scrollable content */}
-          <div className="px-8 pb-8"  >
+          <div className="px-8 pb-8">
 
           <h3 className={`text-2xl font-bold mb-2 ${darkMode ? 'text-yellow-400' : 'text-yellow-600'}`}>
             {suggestions.title}
@@ -184,12 +184,12 @@ const EnergyMoodModals = ({ previewMode = false }) => {
     const moodData = suggestions.moodWellness;
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg p-4 overflow-y-auto">
+      <div className="fixed inset-0 z-[9999] flex items-start justify-center bg-black/80 backdrop-blur-lg p-4 overflow-y-auto" onClick={() => setShowMoodModal(false)}>
         <div className={`max-w-2xl w-full rounded-3xl relative my-8 ${
           darkMode ? 'bg-gray-900 border-2 border-pink-500/30' : 'bg-white border-2 border-pink-200'
-        }`}>
-          {/* Sticky close button */}
-          <div className={`sticky top-0 z-10 flex justify-end p-4 ${
+        }`} onClick={(e) => e.stopPropagation()}>
+          {/* Close button */}
+          <div className={`flex justify-end p-4 ${
             darkMode ? 'bg-gray-900' : 'bg-white'
           } rounded-t-3xl`}>
             <button

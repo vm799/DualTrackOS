@@ -49,7 +49,7 @@ const FeaturePreview = ({
   const message = { ...defaultMessage, ...upgradeMessage };
 
   return (
-    <div className={`relative rounded-xl overflow-hidden ${
+    <div className={`relative rounded-xl ${
       darkMode ? 'bg-gray-800/30 border-2 border-purple-500/20' : 'bg-purple-50/30 border-2 border-purple-200'
     }`}>
       {/* Preview Mode Banner */}
