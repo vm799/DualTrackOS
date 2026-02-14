@@ -90,8 +90,6 @@ const useCycleStore = create(
       // Phase info with emoji, color, description, energy level
       getPhaseInfo: () => {
         const phase = get().getPhase();
-        const day = get().cycleDay;
-
         const phases = {
           Menstrual: {
             emoji: '🌑',
