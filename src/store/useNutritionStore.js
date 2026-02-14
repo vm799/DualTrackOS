@@ -1,6 +1,9 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-const useNutritionStore = create((set, get) => ({
+const useNutritionStore = create(
+  persist(
+    (set, get) => ({
   // State
   meals: [],
   proteinToday: 0,
@@ -77,6 +80,15 @@ const useNutritionStore = create((set, get) => ({
     }
     return 'good';
   }
-}));
+    }),
+    {
+      name: 'dualtrack-nutrition',
+      partialize: (state) => ({
+        meals: state.meals,
+        proteinToday: state.proteinToday,
+      }),
+    }
+  )
+);
 
 export default useNutritionStore;

@@ -86,7 +86,7 @@ const useRoleStore = create(
     }),
     {
       name: 'role-storage', // localStorage key
-      partialPersist: (state) => ({
+      partialize: (state) => ({
         userRoles: state.userRoles,
         hasCompletedRoleSetup: state.hasCompletedRoleSetup,
       }),

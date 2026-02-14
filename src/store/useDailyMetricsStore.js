@@ -14,7 +14,11 @@ const useDailyMetricsStore = create((set) => ({
   quickWinInput: '',
 
   // Actions
-  setDailyMetrics: (metrics) => set({ dailyMetrics: metrics }),
+  setDailyMetrics: (metricsOrFn) => set((state) => ({
+    dailyMetrics: typeof metricsOrFn === 'function'
+      ? metricsOrFn(state.dailyMetrics)
+      : metricsOrFn
+  })),
   setShowCommandCenterModal: (show) => set({ showCommandCenterModal: show }),
   setQuickWinInput: (input) => set({ quickWinInput: input }),
 

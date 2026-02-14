@@ -1,6 +1,9 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-const useHourlyTaskStore = create((set) => ({
+const useHourlyTaskStore = create(
+  persist(
+    (set) => ({
   // State
   hourlyTasks: {}, // Structure: { "hour": [{ id, text, completed, type }] }
 
@@ -45,6 +48,11 @@ const useHourlyTaskStore = create((set) => ({
       };
     });
   },
-}));
+    }),
+    {
+      name: 'dualtrack-hourly-tasks',
+    }
+  )
+);
 
 export default useHourlyTaskStore;

@@ -33,7 +33,7 @@ import CycleSyncWidget from '../components/CycleSyncWidget';
 import NonZeroDayWidget from '../components/NonZeroDayWidget';
 import DayOneChecklist from '../components/DayOneChecklist';
 import MojoCycleChart from '../components/MojoCycleChart';
-import { ACTIVE_HOURS_START, ACTIVE_HOURS_END } from '../constants';
+import { ACTIVE_HOURS_START, ACTIVE_HOURS_END, POMODORO_DURATION_SECONDS } from '../constants';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -136,35 +136,39 @@ const Dashboard = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Real-time clock update every second
+  // Clock update every 60 seconds (only hour:minute displayed)
   useEffect(() => {
+    setCurrentTime(new Date());
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000);
+    }, 60000);
     return () => clearInterval(timer);
   }, [setCurrentTime]);
 
-  // Pomodoro countdown
+  // Pomodoro countdown - uses getState() to avoid stale closure and effect churn
   useEffect(() => {
     let interval;
-    if (pomodoroRunning && pomodoroSeconds > 0) {
+    if (pomodoroRunning) {
       interval = setInterval(() => {
-        setPomodoroSeconds(pomodoroSeconds - 1);
-      }, 1000);
-    } else if (pomodoroSeconds === 0 && pomodoroRunning) {
-      setPomodoroRunning(false);
-      // Track focus session in metrics
-      setDailyMetrics(prev => ({
-        ...prev,
-        focus: {
-          ...prev.focus,
-          current: Math.min(prev.focus.target, prev.focus.current + 1),
-          sessions: [...prev.focus.sessions, { duration: 20, timestamp: new Date() }]
+        const currentSeconds = usePomodoroStore.getState().pomodoroSeconds;
+        if (currentSeconds > 0) {
+          setPomodoroSeconds(currentSeconds - 1);
+        } else {
+          setPomodoroRunning(false);
+          // Track focus session in metrics
+          setDailyMetrics(prev => ({
+            ...prev,
+            focus: {
+              ...prev.focus,
+              current: Math.min(prev.focus.target, prev.focus.current + 1),
+              sessions: [...prev.focus.sessions, { duration: POMODORO_DURATION_SECONDS / 60, timestamp: new Date() }]
+            }
+          }));
         }
-      }));
+      }, 1000);
     }
     return () => clearInterval(interval);
-  }, [pomodoroRunning, pomodoroSeconds, setPomodoroSeconds, setPomodoroRunning, setDailyMetrics]);
+  }, [pomodoroRunning, setPomodoroSeconds, setPomodoroRunning, setDailyMetrics]);
 
   // Hourly wellness snack trigger
   useEffect(() => {
@@ -418,7 +422,7 @@ const Dashboard = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setPomodoroSeconds(25 * 60);
+                        setPomodoroSeconds(POMODORO_DURATION_SECONDS);
                       }}
                       className={`p-1.5 rounded-lg transition-all ${darkMode
                         ? 'hover:bg-gray-800 text-gray-400 hover:text-white'

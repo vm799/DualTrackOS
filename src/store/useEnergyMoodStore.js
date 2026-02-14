@@ -1,6 +1,9 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-const useEnergyMoodStore = create((set, get) => ({
+const useEnergyMoodStore = create(
+  persist(
+    (set, get) => ({
   // State
   energyTracking: { morning: null, afternoon: null, evening: null },
   currentMood: null, // e.g., 'energized', 'focused', 'calm', 'tired', 'anxious', 'overwhelmed'
@@ -302,6 +305,17 @@ const useEnergyMoodStore = create((set, get) => ({
         energySuggestion.title
     };
   },
-}));
+    }),
+    {
+      name: 'dualtrack-energy-mood',
+      partialize: (state) => ({
+        energyTracking: state.energyTracking,
+        currentMood: state.currentMood,
+        selectedEnergyActions: state.selectedEnergyActions,
+        selectedMoodActions: state.selectedMoodActions,
+      }),
+    }
+  )
+);
 
 export default useEnergyMoodStore;

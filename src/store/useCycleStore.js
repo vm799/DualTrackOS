@@ -289,7 +289,6 @@ const useCycleStore = create(
     }),
     {
       name: 'dualtrack-cycle-storage',
-      getStorage: () => localStorage,
     }
   )
 );
