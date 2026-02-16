@@ -8,6 +8,7 @@ import InfoTooltip from './InfoTooltip';
 const CycleSyncWidget = () => {
     const {
         cycleDay,
+        cycleLength,
         getPhase,
         getMojoMode,
         getRecommendations
@@ -55,11 +56,12 @@ const CycleSyncWidget = () => {
                         onClick={() => {
                             const day = parseInt(quickDayInput, 10);
                             if (day >= 1 && day <= 35) {
-                                useCycleStore.getState().setCycleDay(day);
-                                // Also set a synthetic cycle start so it auto-updates
+                                // Use setLastPeriodDate which correctly calculates cycleDay
+                                // from the synthetic start date, avoiding the race condition
+                                // between setCycleDay and setCycleStart
                                 const syntheticStart = new Date();
                                 syntheticStart.setDate(syntheticStart.getDate() - (day - 1));
-                                useCycleStore.getState().setCycleStart(syntheticStart.toISOString());
+                                useCycleStore.getState().setLastPeriodDate(syntheticStart.toISOString());
                             }
                         }}
                         disabled={!quickDayInput || parseInt(quickDayInput, 10) < 1}
@@ -200,7 +202,7 @@ const CycleSyncWidget = () => {
                 <div
                     className={`absolute top-0 bottom-0 left-0 transition-all duration-1000 ${isPowerMode ? 'bg-gradient-to-r from-purple-500 to-pink-500' : 'bg-gradient-to-r from-indigo-500 to-blue-500'
                         }`}
-                    style={{ width: `${(cycleDay / 28) * 100}%` }}
+                    style={{ width: `${(cycleDay / (cycleLength || 28)) * 100}%` }}
                 />
             </div>
         </div>

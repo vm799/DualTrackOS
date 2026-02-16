@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Check } from 'lucide-react';
 import useEnergyMoodStore from '../store/useEnergyMoodStore';
 import useStore from '../store/useStore';
@@ -25,6 +25,24 @@ const EnergyMoodModals = ({ previewMode = false }) => {
   const { addProtein } = useNutritionStore();
   const [loggedSnacks, setLoggedSnacks] = useState([]);
 
+  // Close on ESC key + body scroll lock
+  useEffect(() => {
+    const isOpen = showEnergyModal || showMoodModal;
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (showEnergyModal) setShowEnergyModal(false);
+        if (showMoodModal) setShowMoodModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [showEnergyModal, showMoodModal, setShowEnergyModal, setShowMoodModal]);
+
   const suggestions = getSmartSuggestions();
 
   const handleSnackClick = (snack) => {
@@ -42,7 +60,7 @@ const EnergyMoodModals = ({ previewMode = false }) => {
     if (!showEnergyModal) return null;
 
     return (
-      <div className="fixed inset-0 z-[9999] flex items-start justify-center bg-black/80 backdrop-blur-lg p-4 overflow-y-auto" onClick={() => setShowEnergyModal(false)}>
+      <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/80 backdrop-blur-lg p-4 overflow-y-auto" onClick={() => setShowEnergyModal(false)}>
         <div className={`max-w-2xl w-full rounded-3xl relative my-8 ${
           darkMode ? 'bg-gray-900 border-2 border-yellow-500/30' : 'bg-white border-2 border-yellow-200'
         }`} onClick={(e) => e.stopPropagation()}>
@@ -184,7 +202,7 @@ const EnergyMoodModals = ({ previewMode = false }) => {
     const moodData = suggestions.moodWellness;
 
     return (
-      <div className="fixed inset-0 z-[9999] flex items-start justify-center bg-black/80 backdrop-blur-lg p-4 overflow-y-auto" onClick={() => setShowMoodModal(false)}>
+      <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/80 backdrop-blur-lg p-4 overflow-y-auto" onClick={() => setShowMoodModal(false)}>
         <div className={`max-w-2xl w-full rounded-3xl relative my-8 ${
           darkMode ? 'bg-gray-900 border-2 border-pink-500/30' : 'bg-white border-2 border-pink-200'
         }`} onClick={(e) => e.stopPropagation()}>

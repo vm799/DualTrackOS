@@ -5,18 +5,20 @@ import InfoTooltip from './InfoTooltip';
 
 const MojoCycleChart = () => {
     const darkMode = useStore((state) => state.darkMode);
-    const { cycleDay } = useCycleStore();
+    const { cycleDay, cycleLength } = useCycleStore();
 
-    // Cycle length (defaulting to 28 for visualization)
-    const days = Array.from({ length: 28 }, (_, i) => i + 1);
+    const totalDays = cycleLength || 28;
+    const days = Array.from({ length: totalDays }, (_, i) => i + 1);
 
-    // Mojo curve function: 
-    // High energy (Mojo) in first half, tapering off in second half
+    // Mojo curve function scaled to user's cycle length
+    // Phase boundaries scale proportionally with cycle length
     const getMojoValue = (day) => {
-        if (day <= 14) return 70 + (day * 2); // Rising energy
-        if (day <= 16) return 98; // Peak (Ovulation)
-        if (day <= 24) return 98 - ((day - 16) * 5); // Gradual dip
-        return 50; // Menstrual floor
+        const ratio = day / totalDays;
+        if (ratio <= 0.18) return 70 + (ratio / 0.18) * 28; // Menstrual → early follicular rise
+        if (ratio <= 0.50) return 70 + ((ratio - 0.18) / 0.32) * 28; // Follicular rise
+        if (ratio <= 0.57) return 98; // Peak (Ovulation)
+        if (ratio <= 0.86) return 98 - ((ratio - 0.57) / 0.29) * 48; // Luteal gradual dip
+        return 50; // Late luteal / menstrual floor
     };
 
     const width = 400;
@@ -26,13 +28,14 @@ const MojoCycleChart = () => {
     const chartHeight = height - (padding * 2);
 
     const points = days.map(day => {
-        const x = padding + (day - 1) * (chartWidth / 27);
+        const x = padding + (day - 1) * (chartWidth / (totalDays - 1));
         const y = height - padding - (getMojoValue(day) / 100 * chartHeight);
         return `${x},${y}`;
     }).join(' ');
 
-    const currentX = padding + (cycleDay - 1) * (chartWidth / 27);
-    const currentY = height - padding - (getMojoValue(cycleDay) / 100 * chartHeight);
+    const clampedDay = Math.min(cycleDay, totalDays);
+    const currentX = padding + (clampedDay - 1) * (chartWidth / (totalDays - 1));
+    const currentY = height - padding - (getMojoValue(clampedDay) / 100 * chartHeight);
 
     return (
         <div className={`p-4 rounded-2xl ${darkMode ? 'bg-gray-800/40 border border-purple-500/20' : 'bg-white border border-purple-100'}`}>
@@ -40,7 +43,7 @@ const MojoCycleChart = () => {
                 Mojo Trend vs. Cycle Phase
                 <InfoTooltip
                     title="Reading This Chart"
-                    text="This chart shows your predicted energy ('Mojo') across your 28-day cycle. The pink dot marks today. The curve rises during your follicular phase (building energy), peaks at ovulation, then dips during the luteal phase. Use this to plan ahead — schedule demanding tasks when the curve is high, and rest/recovery when it dips."
+                    text={`This chart shows your predicted energy ('Mojo') across your ${totalDays}-day cycle. The pink dot marks today. The curve rises during your follicular phase (building energy), peaks at ovulation, then dips during the luteal phase. Use this to plan ahead — schedule demanding tasks when the curve is high, and rest/recovery when it dips.`}
                     darkMode={darkMode}
                     dismissKey="mojo-chart"
                     size={12}

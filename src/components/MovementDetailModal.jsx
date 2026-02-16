@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Check, Dumbbell, Activity } from 'lucide-react';
 import useStore from '../store/useStore';
 import useNDMStore from '../store/useNDMStore';
@@ -11,6 +11,20 @@ const MovementDetailModal = ({ show, onClose }) => {
   const darkMode = useStore((state) => state.darkMode);
   const { ndm, setMovement } = useNDMStore();
   const [completedExercises, setCompletedExercises] = useState([]);
+
+  // Close on ESC key
+  useEffect(() => {
+    if (!show) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [show, onClose]);
 
   if (!show) return null;
 
@@ -86,10 +100,10 @@ const MovementDetailModal = ({ show, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-lg overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-lg overflow-y-auto" onClick={onClose}>
       <div className="min-h-screen flex items-center justify-center p-4 py-12">
         <div className={`max-w-4xl w-full rounded-3xl ${darkMode ? 'bg-gray-900 border-2 border-orange-500/30' : 'bg-white border-2 border-orange-200'
-          }`}>
+          }`} onClick={(e) => e.stopPropagation()}>
           {/* Close button */}
           <div className="flex justify-end p-4">
             <button
