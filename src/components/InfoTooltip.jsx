@@ -33,13 +33,6 @@ const InfoTooltip = ({ title, text, children, darkMode, dismissKey, size = 16 })
     }
   };
 
-  const handleReset = () => {
-    setWasDismissed(false);
-    if (dismissKey) {
-      localStorage.removeItem(`tooltip-dismissed-${dismissKey}`);
-    }
-  };
-
   return (
     <span className="relative inline-flex items-center" ref={tooltipRef}>
       <button
