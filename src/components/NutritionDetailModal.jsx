@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Check, Apple, Plus, AlertTriangle, Zap } from 'lucide-react';
 import useStore from '../store/useStore';
 import useNDMStore from '../store/useNDMStore';
@@ -16,6 +16,20 @@ const NutritionDetailModal = ({ show, onClose }) => {
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [customProtein, setCustomProtein] = useState('');
   const [showLeucineWarning, setShowLeucineWarning] = useState(false);
+
+  // Close on ESC key
+  useEffect(() => {
+    if (!show) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [show, onClose]);
 
   if (!show) return null;
 
@@ -84,10 +98,10 @@ const NutritionDetailModal = ({ show, onClose }) => {
   const leucineStatus = checkLeucineStatus ? checkLeucineStatus() : 'neutral';
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-lg overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-lg overflow-y-auto" onClick={onClose}>
       <div className="min-h-screen flex items-center justify-center p-4 py-12">
         <div className={`max-w-4xl w-full rounded-3xl ${darkMode ? 'bg-gray-900 border-2 border-green-500/30' : 'bg-white border-2 border-green-200'
-          }`}>
+          }`} onClick={(e) => e.stopPropagation()}>
           {/* Close button */}
           <div className="flex justify-end p-4">
             <button

@@ -67,8 +67,9 @@ const Dashboard = () => {
     updateStreak
   } = useSessionStore();
 
-  // Cycle Store - auto-update cycle day on load
+  // Cycle Store - auto-update cycle day on load + derive energy from phase
   const updateCycleDay = useCycleStore((state) => state.updateCycleDay);
+  const getPhaseInfo = useCycleStore((state) => state.getPhaseInfo);
 
   // Local UI state
   const [isScrolled, setIsScrolled] = useState(false);
@@ -126,9 +127,9 @@ const Dashboard = () => {
     }
   });
 
-  // Energy-based dark mode (default to medium energy level 5)
-  // TODO: Connect to actual energy tracking when implemented
-  const [energyLevel] = useState(5);
+  // Energy-based dark mode - derive from cycle phase energy level
+  const phaseInfo = getPhaseInfo();
+  const energyLevel = phaseInfo?.energyLevel || 3;
   useEnergyDarkMode(darkMode, energyLevel);
 
   // Scroll listener for header animation

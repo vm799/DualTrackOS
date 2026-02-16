@@ -14,8 +14,9 @@ const useCycleStore = create(
       setCycleStart: (date) => {
         const start = new Date(date);
         const today = new Date();
-        const diffTime = Math.abs(today - start);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const diffTime = today - start;
+        let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        if (diffDays < 1) diffDays = 1;
 
         set({
           cycleStart: start.toISOString(),
