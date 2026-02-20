@@ -91,9 +91,17 @@ const BrainDumpModal = ({ show, onClose }) => {
           </h3>
         </div>
 
-        <p className={`mb-6 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+        <p className={`mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
           Clear your mental clutter. Write everything that's on your mind. No filter, no judgment.
         </p>
+
+        <div className={`p-3 rounded-xl mb-6 ${
+          darkMode ? 'bg-purple-500/10 border border-purple-500/20' : 'bg-purple-50 border border-purple-200'
+        }`}>
+          <p className={`text-xs leading-relaxed ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+            🧠 <strong>The science:</strong> Your working memory holds only 4-7 items at once. The Zeigarnik effect means your brain keeps looping on unfinished thoughts, draining cognitive bandwidth in the background. Writing them down signals "captured" to your brain — freeing up mental RAM and reducing anxiety by 20-30%. This isn't journaling for posterity — it's cognitive hygiene.
+          </p>
+        </div>
 
         {ndm.brainDump && (
           <div className={`p-4 rounded-xl mb-6 ${

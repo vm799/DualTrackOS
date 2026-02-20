@@ -122,9 +122,15 @@ const NutritionDetailModal = ({ show, onClose }) => {
               </h3>
             </div>
 
-            <p className={`mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`mb-3 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               Track your protein. <span className="font-bold text-amber-500">Floor: {proteinTarget}g</span> (Perimenopause Requirement)
             </p>
+
+            <div className={`p-3 rounded-xl mb-4 ${darkMode ? 'bg-green-500/10 border border-green-500/20' : 'bg-green-50 border border-green-200'}`}>
+              <p className={`text-xs leading-relaxed ${darkMode ? 'text-green-300' : 'text-green-700'}`}>
+                <strong>The leucine trigger:</strong> Muscle protein synthesis doesn't start from just eating protein — it requires the amino acid leucine to cross a 2.5-3g threshold per meal. High-leucine sources (meat, soy, pea isolate) hit this trigger; plant proteins alone (beans, grains) often don't. That's why we flag "HI-LEUCINE" items — each one guarantees your muscles get the signal to build and repair. Spread {proteinTarget}g across 4 meals for 4 synthesis windows daily.
+              </p>
+            </div>
 
             {/* Protein Progress */}
             <div className={`p-5 rounded-xl mb-6 ${darkMode ? 'bg-gray-800/50 border-2 border-gray-700' : 'bg-gray-50 border-2 border-gray-200'

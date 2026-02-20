@@ -223,24 +223,24 @@ const useCycleStore = create(
 
         const tips = {
           Menstrual: [
-            'Your body is doing incredible work right now. Rest is not laziness — it is recovery.',
-            'This is your inner winter. Slow down, reflect, and let your body reset.',
-            'Iron-rich foods and gentle movement are your best friends this week.',
+            'Both estrogen and progesterone are at their lowest. Your body is shedding the uterine lining and regenerating — this takes real energy. Rest is not laziness, it is recovery. Honor this inner winter.',
+            'Iron levels drop during menstruation (you lose 30-40ml of blood). Prioritize iron-rich foods (red meat, spinach, lentils) paired with vitamin C for absorption. Replenishing iron prevents fatigue and brain fog.',
+            'Your inflammatory markers are naturally higher right now. Anti-inflammatory foods (turmeric, ginger, omega-3s) and gentle movement reduce prostaglandins — the molecules that cause cramps. Intense exercise increases inflammation; gentle yoga reduces it.',
           ],
           Follicular: [
-            'Estrogen is rising — your brain is primed for learning new skills and tackling hard problems.',
-            'This is your power phase! Push for PRs, start new projects, and take on challenges.',
-            'Your pain tolerance is higher now. Perfect time for intense training.',
+            'Estrogen is rising rapidly, increasing BDNF (brain-derived neurotrophic factor) — literally fertilizer for new brain cells. Your brain is primed for learning, creative thinking, and tackling novel problems. Start new projects now.',
+            'Rising estrogen increases pain tolerance, reaction time, and muscle recovery. Your body can handle more training volume and intensity than any other phase. Push for PRs, try new movements, and go heavy — your biology is optimized for it.',
+            'Estrogen boosts serotonin and dopamine, making you naturally more optimistic and social. This is your power phase for networking, pitching ideas, and having difficult conversations — your communication cortex is firing on all cylinders.',
           ],
           Ovulatory: [
-            'You are at your communicative and social peak. Schedule important meetings and pitches now.',
-            'Energy is at its highest — capitalize on this window for your biggest goals.',
-            'Your body temperature rises slightly. Stay hydrated and fuel performance.',
+            'This is your biological peak: estrogen hits maximum, triggering an LH surge. You are at your most communicative, confident, and socially magnetic. Schedule important meetings, presentations, and pitches in this 2-3 day window.',
+            'Testosterone briefly spikes alongside peak estrogen, giving you maximum strength and power output. This is the ideal time for PR attempts, competitions, and high-intensity training. Your body can take it.',
+            'Your basal body temperature rises 0.5-1°F after ovulation due to progesterone beginning to rise. Stay hydrated, increase electrolytes, and fuel with antioxidant-rich foods (berries, leafy greens) to support peak performance.',
           ],
           Luteal: [
-            'Progesterone is dominant. You may crave carbs — choose complex ones for steady energy.',
-            'Detail-oriented work suits this phase. Editing, organizing, and planning thrive now.',
-            'Be patient with yourself. PMS symptoms peak in the late luteal phase — magnesium helps.',
+            'Progesterone is now dominant, increasing GABA activity in your brain — a natural calming neurotransmitter. You may crave carbs because your body needs serotonin. Choose complex carbs (sweet potatoes, oats) for steady energy without the crash.',
+            'Your brain shifts from creative-divergent to detail-focused thinking. Editing, organizing, planning, and analytical work suit this phase perfectly. Lean into it — luteal productivity is different, not less.',
+            'PMS symptoms peak in late luteal as both hormones drop sharply. Magnesium (200-400mg glycinate) reduces cramps, anxiety, and insomnia. Calcium (1200mg) reduces PMS symptoms by up to 48%. Be patient with yourself — this phase ends.',
           ],
         };
 

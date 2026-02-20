@@ -4,10 +4,10 @@ import useStore from '../store/useStore';
 import InfoTooltip from './InfoTooltip';
 
 const movements = [
-    { id: 'bounce', label: 'Bouncing / Lymph', icon: '🐰', desc: '5 mins soft bouncing' },
-    { id: 'fascia', label: 'Fascia Stretch', icon: '🧘‍♀️', desc: 'Deep tissue release' },
-    { id: 'animal', label: 'Animal Moves', icon: '🦍', desc: 'Bear/Gorilla walks' },
-    { id: 'dance', label: 'Dance Break', icon: '💃', desc: '1 song full out' },
+    { id: 'bounce', label: 'Bouncing / Lymph', icon: '🐰', desc: 'Your lymph system has no pump — bouncing flushes toxins and boosts immunity' },
+    { id: 'fascia', label: 'Fascia Stretch', icon: '🧘‍♀️', desc: 'Slow stretching rehydrates connective tissue via the "sponge effect"' },
+    { id: 'animal', label: 'Animal Moves', icon: '🦍', desc: 'Bear crawls activate cross-body coordination, core, and hip mobility' },
+    { id: 'dance', label: 'Dance Break', icon: '💃', desc: 'Releases endorphins, serotonin, and oxytocin — boosts mood in minutes' },
 ];
 
 const NonZeroDayWidget = () => {

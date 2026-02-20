@@ -14,9 +14,9 @@ const PROTOCOL_SETS = [
     title: 'Day 1 Protocols',
     subtitle: 'Foundation Setup',
     items: [
-      { key: 'bmr', label: 'Calculate BMR & TDEE', subtext: 'Know your baseline numbers.' },
-      { key: 'protein', label: 'Commit to 135g Protein Floor', subtext: 'Non-negotiable for muscle retention.' },
-      { key: 'creatine', label: 'Buy Creatine Monohydrate', subtext: '5g daily for brain & body power.' },
+      { key: 'bmr', label: 'Calculate BMR & TDEE', subtext: 'Your Basal Metabolic Rate tells you how many calories your body burns at rest. Knowing this removes guesswork from nutrition — you eat with purpose, not hope.' },
+      { key: 'protein', label: 'Commit to 135g Protein Floor', subtext: 'After 30, women lose 3-8% muscle per decade. 135g daily triggers muscle protein synthesis via the mTOR pathway and prevents sarcopenia — the single most protective nutritional habit for longevity.' },
+      { key: 'creatine', label: 'Buy Creatine Monohydrate', subtext: 'The most studied supplement in history. 5g daily increases phosphocreatine stores in muscles and brain — improving strength 5-10%, cognitive function under stress, and bone density. Especially powerful for women when natural production drops with age.' },
     ],
   },
   {
@@ -24,9 +24,9 @@ const PROTOCOL_SETS = [
     title: 'Day 2 Protocols',
     subtitle: 'Movement & Mindset',
     items: [
-      { key: 'walk', label: '10-min Morning Walk', subtext: 'Cortisol regulation + circadian reset.' },
-      { key: 'water', label: 'Drink 500ml Water Before Coffee', subtext: 'Rehydrate after sleep.' },
-      { key: 'journal', label: '5-min Brain Dump Journal', subtext: 'Clear mental clutter before the day.' },
+      { key: 'walk', label: '10-min Morning Walk', subtext: 'Morning sunlight within 60 min of waking sets your circadian clock via melanopsin receptors. This lowers cortisol at the right time, improves sleep 14 hours later, and boosts serotonin — what no supplement can do.' },
+      { key: 'water', label: 'Drink 500ml Water Before Coffee', subtext: 'You lose 500-1000ml overnight through breathing and perspiration. Water before coffee prevents dehydration on an empty system and supports cognitive clarity, kidney function, and metabolism.' },
+      { key: 'journal', label: '5-min Brain Dump Journal', subtext: 'Psychologist James Pennebaker found that expressive writing reduces anxiety 20-30%. Getting thoughts out of working memory frees cognitive bandwidth — your brain stops "background processing" worries.' },
     ],
   },
   {
@@ -34,9 +34,9 @@ const PROTOCOL_SETS = [
     title: 'Day 3 Protocols',
     subtitle: 'Nutrition Focus',
     items: [
-      { key: 'meal_prep', label: 'Prep 2 High-Protein Meals', subtext: 'Reduce decision fatigue later.' },
-      { key: 'supplements', label: 'Take Supplements (Creatine, Mg, D3)', subtext: 'Stack your essentials.' },
-      { key: 'no_sugar', label: 'No Added Sugar Before Noon', subtext: 'Stable glucose = stable energy.' },
+      { key: 'meal_prep', label: 'Prep 2 High-Protein Meals', subtext: 'Decision fatigue is real — by afternoon, your prefrontal cortex is depleted. Pre-prepped meals remove food decisions and guarantee you hit your protein floor. Eliminate trivial choices to preserve willpower.' },
+      { key: 'supplements', label: 'Take Supplements (Creatine, Mg, D3)', subtext: 'Creatine (5g): fuels ATP for brain + muscles. Magnesium glycinate (200-400mg): supports 300+ enzyme reactions, reduces anxiety — 50% of women are deficient. Vitamin D3 (2000-4000 IU): hormone precursor, bone density, immune function.' },
+      { key: 'no_sugar', label: 'No Added Sugar Before Noon', subtext: 'Sugar on an empty stomach spikes glucose, triggers a reactive insulin crash, and creates an energy rollercoaster. Delaying sugar until after protein blunts the glycemic response by up to 40%.' },
     ],
   },
   {
@@ -44,9 +44,9 @@ const PROTOCOL_SETS = [
     title: 'Day 4 Protocols',
     subtitle: 'Recovery & Resilience',
     items: [
-      { key: 'stretch', label: '10-min Fascia Stretch / Yoga', subtext: 'Mobility is longevity.' },
-      { key: 'sleep_prep', label: 'Set Phone to DND by 9pm', subtext: 'Protect sleep architecture.' },
-      { key: 'gratitude', label: 'Write 3 Gratitude Items', subtext: 'Rewire your brain for positivity.' },
+      { key: 'stretch', label: '10-min Fascia Stretch / Yoga', subtext: 'Fascia is connective tissue wrapping every muscle and organ. Without movement, it dehydrates and stiffens — causing pain and restricted motion. 10 minutes of stretching rehydrates fascia via the "sponge effect": compress, release, absorb.' },
+      { key: 'sleep_prep', label: 'Set Phone to DND by 9pm', subtext: 'Blue light suppresses melatonin by up to 50%, but notifications are worse — they trigger dopamine micro-hits that keep your brain in "alert mode." DND by 9pm gives your nervous system 1-2 hours to downshift into parasympathetic rest mode.' },
+      { key: 'gratitude', label: 'Write 3 Gratitude Items', subtext: 'Researcher Robert Emmons found that writing 3 gratitudes daily for 10 weeks made people 25% happier. It rewires neural pathways: strengthening the prefrontal cortex (decision-making) and reducing amygdala reactivity (anxiety).' },
     ],
   },
   {
@@ -54,9 +54,9 @@ const PROTOCOL_SETS = [
     title: 'Day 5 Protocols',
     subtitle: 'Strength & Power',
     items: [
-      { key: 'lift', label: 'Resistance Training Session', subtext: 'Build muscle, protect bones.' },
-      { key: 'protein_hit', label: 'Hit 135g Protein Target', subtext: 'Track and close the gap.' },
-      { key: 'cold', label: '30-sec Cold Water Finish (Shower)', subtext: 'Dopamine + resilience training.' },
+      { key: 'lift', label: 'Resistance Training Session', subtext: 'Resistance training is the #1 intervention against age-related muscle and bone loss. It boosts resting metabolic rate 7-8%, improves insulin sensitivity, and releases myokines — molecules that reduce inflammation and improve brain function. Lifting is medicine.' },
+      { key: 'protein_hit', label: 'Hit 135g Protein Target', subtext: 'Muscle protein synthesis requires leucine to cross a 2.5-3g threshold per meal. At 135g daily across 4 meals, you hit this threshold every time. Below this floor, your body breaks down existing muscle for amino acids. Track it.' },
+      { key: 'cold', label: '30-sec Cold Water Finish (Shower)', subtext: 'Cold exposure triggers a 200-300% increase in norepinephrine and dopamine lasting 2-3 hours — a sustained, non-addictive energy boost. It also activates brown fat, reduces inflammation, and trains your vagus nerve to recover faster from stress.' },
     ],
   },
   {
@@ -64,9 +64,9 @@ const PROTOCOL_SETS = [
     title: 'Day 6 Protocols',
     subtitle: 'Social & Mental Load',
     items: [
-      { key: 'delegate', label: 'Delegate or Drop 1 Task', subtext: 'Reduce invisible mental load.' },
-      { key: 'connect', label: 'Reach Out to 1 Friend', subtext: 'Social connection = health.' },
-      { key: 'boundary', label: 'Set 1 Boundary Today', subtext: 'Protect your energy for what matters.' },
+      { key: 'delegate', label: 'Delegate or Drop 1 Task', subtext: 'Working memory holds only 4-7 items. Every undone task occupies a "slot" via the Zeigarnik effect — your brain keeps unfinished business on loop. Delegating just ONE task frees bandwidth and reduces the invisible weight causing burnout.' },
+      { key: 'connect', label: 'Reach Out to 1 Friend', subtext: 'Harvard\'s 85-year Grant Study — the longest study of human happiness — found that the #1 predictor of health and longevity isn\'t diet or wealth. It\'s the quality of your relationships. One meaningful connection per day matters as much as quitting smoking.' },
+      { key: 'boundary', label: 'Set 1 Boundary Today', subtext: 'Boundaries aren\'t selfish — they\'re self-preservation. Research shows people with clear boundaries have 40% lower burnout rates. Every "yes" to something unimportant is a "no" to something that matters. Practice: "I can\'t take that on right now."' },
     ],
   },
   {
@@ -74,9 +74,9 @@ const PROTOCOL_SETS = [
     title: 'Day 7 Protocols',
     subtitle: 'Reflect & Reset',
     items: [
-      { key: 'review', label: 'Review This Week\'s Wins', subtext: 'Celebrate progress, not perfection.' },
-      { key: 'plan', label: 'Plan 3 Priorities for Next Week', subtext: 'Clarity reduces anxiety.' },
-      { key: 'rest', label: 'Take 1 Hour of True Rest', subtext: 'No screens, no productivity. Just be.' },
+      { key: 'review', label: 'Review This Week\'s Wins', subtext: 'The brain has a negativity bias — it remembers failures 3x more than successes. Weekly win reviews counteract this by strengthening positive neural pathways. Even small wins (hit protein, said no) build self-efficacy: the belief you CAN follow through.' },
+      { key: 'plan', label: 'Plan 3 Priorities for Next Week', subtext: 'The Ivy Lee Method (used by top executives since 1918): write your 3 most important tasks the night before. Your subconscious problem-solves while you sleep. People who plan priorities are 42% more likely to achieve their goals.' },
+      { key: 'rest', label: 'Take 1 Hour of True Rest', subtext: 'Rest is when your brain consolidates memories, processes emotions, and regenerates. The Default Mode Network activates during rest, enabling creativity and insight. Burnout doesn\'t come from working hard — it comes from never stopping.' },
     ],
   },
 ];
