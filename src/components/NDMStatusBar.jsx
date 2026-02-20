@@ -32,11 +32,18 @@ const NDMStatusBar = ({ ndm, darkMode, openNutrition, openMovement, openMindfulM
             Today's Non-Negotiables
             <InfoTooltip
               title="Your 4 Non-Negotiables"
-              text="These are 4 daily habits that form the foundation of your wellbeing. The idea: no matter how busy or chaotic your day gets, these 4 things are non-negotiable. Tap each one to log it. Complete all 4 to build your streak. They reset at midnight."
               darkMode={darkMode}
               dismissKey="ndm-explain"
               size={12}
-            />
+            >
+              <div className={`text-xs space-y-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                <p>No matter how chaotic your day gets, these 4 things are non-negotiable. They reset at midnight.</p>
+                <p><span className="font-semibold">🍽️ Nutrition:</span> Protein triggers muscle protein synthesis via the mTOR pathway. Without it, your body breaks down existing muscle for amino acids — especially after 30.</p>
+                <p><span className="font-semibold">🏃 Movement:</span> Even 10 minutes of exercise releases BDNF (brain-derived neurotrophic factor) — literally fertilizer for new brain cells. It also rehydrates fascia and improves insulin sensitivity for hours.</p>
+                <p><span className="font-semibold">🧘 Mindfulness:</span> Box breathing activates the vagus nerve, shifting your nervous system from fight-or-flight to rest-and-digest. 4 cycles lower cortisol by up to 20% and improve decision-making under pressure.</p>
+                <p><span className="font-semibold">📝 Brain Dump:</span> The Zeigarnik effect shows your brain loops unfinished tasks constantly. Writing them down signals "captured" — freeing working memory and reducing anxiety by 20-30% (Pennebaker research).</p>
+              </div>
+            </InfoTooltip>
           </span>
           <span className={`text-sm font-bold px-2 py-1 rounded ${
             completedCount === 4

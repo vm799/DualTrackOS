@@ -53,6 +53,11 @@ const ProteinTracker = ({ openNutrition }) => {
           <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             Based on your weight ({userProfile.weight || '?'} lbs), aim for {getProteinTarget()}g daily.
           </p>
+          <div className={`p-3 rounded-lg ${darkMode ? 'bg-amber-500/10 border border-amber-500/20' : 'bg-amber-50 border border-amber-200'}`}>
+            <p className={`text-xs leading-relaxed ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}>
+              <strong>Why {getProteinTarget()}g?</strong> After 30, women lose 3-8% muscle mass per decade (sarcopenia). Declining estrogen accelerates this, especially in perimenopause. Protein triggers the mTOR pathway for muscle protein synthesis, but only when you hit the leucine threshold (2.5-3g) per meal. At {getProteinTarget()}g across 4 meals, you trigger this response every time — protecting muscle, bone density, and metabolic rate.
+            </p>
+          </div>
           {userProfile.weight && (
             <div className={`mt-2 p-2 rounded flex justify-between items-center ${darkMode ? 'bg-gray-800/60' : 'bg-white/80'
               }`}>
