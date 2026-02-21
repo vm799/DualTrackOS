@@ -1,23 +1,73 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Info, X } from 'lucide-react';
 
 const InfoTooltip = ({ title, text, children, darkMode, dismissKey, size = 16 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [wasDismissed, setWasDismissed] = useState(false);
+  const [hasBeenSeen, setHasBeenSeen] = useState(false);
   const tooltipRef = useRef(null);
+  const buttonRef = useRef(null);
+  const panelRef = useRef(null);
 
   useEffect(() => {
     if (dismissKey) {
       const dismissed = localStorage.getItem(`tooltip-dismissed-${dismissKey}`);
       if (dismissed) setWasDismissed(true);
+      const seen = localStorage.getItem(`tooltip-seen-${dismissKey}`);
+      if (seen) setHasBeenSeen(true);
     }
   }, [dismissKey]);
+
+  // Position the tooltip panel within viewport bounds
+  const positionPanel = useCallback(() => {
+    if (!panelRef.current || !buttonRef.current) return;
+    const panel = panelRef.current;
+    const btn = buttonRef.current.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const panelWidth = Math.min(288, vw - 24); // w-72 = 288px, leave 12px margin each side
+
+    panel.style.width = `${panelWidth}px`;
+
+    // Horizontal: center on button, but clamp to viewport
+    let idealLeft = btn.left + btn.width / 2 - panelWidth / 2;
+    const minLeft = 12;
+    const maxLeft = vw - panelWidth - 12;
+    const clampedLeft = Math.max(minLeft, Math.min(idealLeft, maxLeft));
+
+    panel.style.position = 'fixed';
+    panel.style.left = `${clampedLeft}px`;
+    panel.style.top = `${btn.bottom + 8}px`;
+
+    // If it would go below viewport, show above instead
+    const panelRect = panel.getBoundingClientRect();
+    if (panelRect.bottom > window.innerHeight - 12) {
+      panel.style.top = `${btn.top - panelRect.height - 8}px`;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    // Mark as seen on first open
+    if (!hasBeenSeen && dismissKey) {
+      setHasBeenSeen(true);
+      localStorage.setItem(`tooltip-seen-${dismissKey}`, 'true');
+    }
+    // Position immediately and on scroll/resize
+    requestAnimationFrame(positionPanel);
+    window.addEventListener('scroll', positionPanel, true);
+    window.addEventListener('resize', positionPanel);
+    return () => {
+      window.removeEventListener('scroll', positionPanel, true);
+      window.removeEventListener('resize', positionPanel);
+    };
+  }, [isOpen, positionPanel, hasBeenSeen, dismissKey]);
 
   // Close on outside click
   useEffect(() => {
     if (!isOpen) return;
     const handleClick = (e) => {
-      if (tooltipRef.current && !tooltipRef.current.contains(e.target)) {
+      if (tooltipRef.current && !tooltipRef.current.contains(e.target) &&
+          panelRef.current && !panelRef.current.contains(e.target)) {
         setIsOpen(false);
       }
     };
@@ -33,29 +83,56 @@ const InfoTooltip = ({ title, text, children, darkMode, dismissKey, size = 16 })
     }
   };
 
+  // Show pulse affordance if not yet dismissed and not yet seen
+  const showAffordance = !wasDismissed && !hasBeenSeen;
+
   return (
     <span className="relative inline-flex items-center" ref={tooltipRef}>
       <button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className={`p-0.5 rounded-full transition-all hover:scale-110 ${
+        className={`relative p-0.5 rounded-full transition-all hover:scale-110 ${
           darkMode
             ? 'text-gray-500 hover:text-purple-400 hover:bg-purple-500/10'
             : 'text-gray-400 hover:text-purple-600 hover:bg-purple-50'
         }`}
-        title={wasDismissed ? `${title} (click to show again)` : title}
+        title={wasDismissed ? `${title} (tap to show again)` : title}
         aria-label={`Info: ${title}`}
       >
         <Info size={size} />
+        {/* Pulse ring affordance for undiscovered tooltips */}
+        {showAffordance && (
+          <span
+            className="absolute inset-0 rounded-full animate-info-ping"
+            style={{
+              boxShadow: darkMode
+                ? '0 0 0 0 rgba(168, 85, 247, 0.5)'
+                : '0 0 0 0 rgba(147, 51, 234, 0.4)',
+            }}
+          />
+        )}
       </button>
+
+      {/* First-time hint label */}
+      {showAffordance && !isOpen && (
+        <span
+          className={`absolute left-full ml-1 whitespace-nowrap text-[9px] font-semibold pointer-events-none animate-info-fade ${
+            darkMode ? 'text-purple-400/70' : 'text-purple-500/70'
+          }`}
+        >
+          tap
+        </span>
+      )}
 
       {isOpen && (
         <div
-          className={`absolute z-50 left-1/2 -translate-x-1/2 top-full mt-2 w-72 rounded-xl shadow-2xl border p-4 transition-all ${
+          ref={panelRef}
+          className={`fixed z-[60] rounded-xl shadow-2xl border p-4 ${
             darkMode
               ? 'bg-gray-800 border-gray-700 shadow-purple-500/10'
               : 'bg-white border-gray-200 shadow-lg'
           }`}
-          style={{ animation: 'fadeIn 0.2s ease-out' }}
+          style={{ animation: 'tooltipFadeIn 0.2s ease-out', maxHeight: 'calc(100vh - 24px)', overflowY: 'auto' }}
         >
           <div className="flex items-start justify-between gap-2 mb-2">
             <h4 className={`text-sm font-bold ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
@@ -83,9 +160,24 @@ const InfoTooltip = ({ title, text, children, darkMode, dismissKey, size = 16 })
       )}
 
       <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateX(-50%) translateY(-4px); }
-          to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        @keyframes tooltipFadeIn {
+          from { opacity: 0; transform: translateY(-4px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes info-ping {
+          0% { box-shadow: 0 0 0 0 ${darkMode ? 'rgba(168, 85, 247, 0.5)' : 'rgba(147, 51, 234, 0.4)'}; }
+          70% { box-shadow: 0 0 0 ${size * 0.5}px transparent; }
+          100% { box-shadow: 0 0 0 0 transparent; }
+        }
+        .animate-info-ping {
+          animation: info-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        @keyframes info-fade {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 1; }
+        }
+        .animate-info-fade {
+          animation: info-fade 3s ease-in-out infinite;
         }
       `}</style>
     </span>
