@@ -91,10 +91,10 @@ const InfoTooltip = ({ title, text, children, darkMode, dismissKey, size = 16 })
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className={`relative p-0.5 rounded-full transition-all hover:scale-110 ${
+        className={`relative flex items-center justify-center min-w-[28px] min-h-[28px] p-1.5 rounded-full transition-all hover:scale-110 active:scale-95 ${
           darkMode
-            ? 'text-gray-500 hover:text-purple-400 hover:bg-purple-500/10'
-            : 'text-gray-400 hover:text-purple-600 hover:bg-purple-50'
+            ? 'text-amber-400 bg-amber-500/15 hover:bg-amber-500/25 ring-1 ring-amber-500/30'
+            : 'text-amber-600 bg-amber-50 hover:bg-amber-100 ring-1 ring-amber-300/50'
         }`}
         title={wasDismissed ? `${title} (tap to show again)` : title}
         aria-label={`Info: ${title}`}
@@ -106,8 +106,8 @@ const InfoTooltip = ({ title, text, children, darkMode, dismissKey, size = 16 })
             className="absolute inset-0 rounded-full animate-info-ping"
             style={{
               boxShadow: darkMode
-                ? '0 0 0 0 rgba(168, 85, 247, 0.5)'
-                : '0 0 0 0 rgba(147, 51, 234, 0.4)',
+                ? '0 0 0 0 rgba(251, 191, 36, 0.5)'
+                : '0 0 0 0 rgba(245, 158, 11, 0.4)',
             }}
           />
         )}
@@ -116,11 +116,11 @@ const InfoTooltip = ({ title, text, children, darkMode, dismissKey, size = 16 })
       {/* First-time hint label */}
       {showAffordance && !isOpen && (
         <span
-          className={`absolute left-full ml-1 whitespace-nowrap text-[9px] font-semibold pointer-events-none animate-info-fade ${
-            darkMode ? 'text-purple-400/70' : 'text-purple-500/70'
+          className={`absolute left-full ml-1 whitespace-nowrap text-[10px] font-bold pointer-events-none animate-info-fade ${
+            darkMode ? 'text-amber-400' : 'text-amber-600'
           }`}
         >
-          tap
+          why?
         </span>
       )}
 
@@ -165,8 +165,8 @@ const InfoTooltip = ({ title, text, children, darkMode, dismissKey, size = 16 })
           to { opacity: 1; transform: translateY(0); }
         }
         @keyframes info-ping {
-          0% { box-shadow: 0 0 0 0 ${darkMode ? 'rgba(168, 85, 247, 0.5)' : 'rgba(147, 51, 234, 0.4)'}; }
-          70% { box-shadow: 0 0 0 ${size * 0.5}px transparent; }
+          0% { box-shadow: 0 0 0 0 ${darkMode ? 'rgba(251, 191, 36, 0.5)' : 'rgba(245, 158, 11, 0.4)'}; }
+          70% { box-shadow: 0 0 0 ${size * 0.6}px transparent; }
           100% { box-shadow: 0 0 0 0 transparent; }
         }
         .animate-info-ping {
