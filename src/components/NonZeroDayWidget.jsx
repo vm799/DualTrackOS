@@ -4,10 +4,10 @@ import useStore from '../store/useStore';
 import InfoTooltip from './InfoTooltip';
 
 const movements = [
-    { id: 'bounce', label: 'Bouncing / Lymph', icon: '🐰', desc: 'Your lymph system has no pump — bouncing flushes toxins and boosts immunity' },
-    { id: 'fascia', label: 'Fascia Stretch', icon: '🧘‍♀️', desc: 'Slow stretching rehydrates connective tissue via the "sponge effect"' },
-    { id: 'animal', label: 'Animal Moves', icon: '🦍', desc: 'Bear crawls activate cross-body coordination, core, and hip mobility' },
-    { id: 'dance', label: 'Dance Break', icon: '💃', desc: 'Releases endorphins, serotonin, and oxytocin — boosts mood in minutes' },
+    { id: 'bounce', label: 'Bouncing / Lymph', icon: '🐰', desc: '5 mins soft bouncing', why: 'Your lymphatic system has no pump — it relies entirely on movement to circulate. Gentle bouncing flushes toxins, boosts immune cell transport, and rehydrates fascia throughout the body.' },
+    { id: 'fascia', label: 'Fascia Stretch', icon: '🧘‍♀️', desc: 'Deep tissue release', why: 'Fascia dehydrates when still, causing stiffness and pain. Slow stretching triggers the "sponge effect" — compress, release, absorb fluid — keeping connective tissue supple and mobile.' },
+    { id: 'animal', label: 'Animal Moves', icon: '🦍', desc: 'Bear/Gorilla walks', why: 'Bear crawls and gorilla walks activate cross-body coordination, engaging core stability, hip mobility, and shoulder strength simultaneously — primal movement patterns your body was designed for.' },
+    { id: 'dance', label: 'Dance Break', icon: '💃', desc: '1 song full out', why: 'Dancing releases endorphins, serotonin, and oxytocin in one burst. It improves proprioception, reduces cortisol, and activates the cerebellum — boosting mood, balance, and cognitive flexibility.' },
 ];
 
 const NonZeroDayWidget = () => {
@@ -88,8 +88,19 @@ const NonZeroDayWidget = () => {
                                     }`}>
                                     {move.label}
                                 </p>
-                                <p className="text-[10px] text-gray-500">
+                                <p className="text-[10px] text-gray-500 flex items-center gap-1">
                                     {move.desc}
+                                    {move.why && (
+                                        <span onClick={(e) => e.stopPropagation()}>
+                                            <InfoTooltip
+                                                title={move.label}
+                                                text={move.why}
+                                                darkMode={darkMode}
+                                                dismissKey={`nzd-${move.id}`}
+                                                size={10}
+                                            />
+                                        </span>
+                                    )}
                                 </p>
                             </div>
                         </div>

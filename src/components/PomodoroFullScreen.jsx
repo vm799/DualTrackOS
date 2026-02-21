@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pause, RotateCcw, X } from 'lucide-react';
 import usePomodoroStore from '../store/usePomodoroStore';
+import InfoTooltip from './InfoTooltip';
 
 /**
  * PomodoroFullScreen - Immersive Focus Mode Overlay
@@ -43,15 +44,15 @@ const PomodoroFullScreen = ({ _darkMode }) => {
         </div>
 
         {/* Status */}
-        <div className="text-2xl text-gray-300 mb-6">
+        <div className="text-2xl text-gray-300 mb-16 flex items-center justify-center gap-2">
           🎯 Deep Focus Mode Active
-        </div>
-
-        {/* Why this works */}
-        <div className="max-w-lg mx-auto mb-12">
-          <p className="text-sm text-gray-500 leading-relaxed">
-            Research shows it takes 23 minutes to regain focus after a distraction. A single focused block protects your flow state — when prefrontal cortex activity peaks and creative output increases 500%. Every interruption you block right now is an investment in your best work.
-          </p>
+          <InfoTooltip
+            title="Why Deep Focus Works"
+            text="Research shows it takes 23 minutes to regain focus after a distraction. A single focused block protects your flow state — when prefrontal cortex activity peaks and creative output increases 500%. Every interruption you block right now is an investment in your best work."
+            darkMode={true}
+            dismissKey="pomodoro-science"
+            size={16}
+          />
         </div>
 
         {/* Controls */}
