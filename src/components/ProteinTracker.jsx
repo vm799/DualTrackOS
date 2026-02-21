@@ -2,6 +2,7 @@ import React from 'react';
 import { Activity } from 'lucide-react';
 import useNutritionStore from '../store/useNutritionStore';
 import useStore from '../store/useStore';
+import InfoTooltip from './InfoTooltip';
 
 const ProteinTracker = ({ openNutrition }) => {
   const darkMode = useStore((state) => state.darkMode);
@@ -50,14 +51,16 @@ const ProteinTracker = ({ openNutrition }) => {
 
       {expandedTile === 'protein' && (
         <div className="space-y-2 mt-4">
-          <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          <p className={`text-xs flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             Based on your weight ({userProfile.weight || '?'} lbs), aim for {getProteinTarget()}g daily.
+            <InfoTooltip
+              title={`Why ${getProteinTarget()}g?`}
+              text={`After 30, women lose 3-8% muscle mass per decade (sarcopenia). Declining estrogen accelerates this, especially in perimenopause. Protein triggers the mTOR pathway for muscle protein synthesis, but only when you hit the leucine threshold (2.5-3g) per meal. At ${getProteinTarget()}g across 4 meals, you trigger this response every time — protecting muscle, bone density, and metabolic rate.`}
+              darkMode={darkMode}
+              dismissKey="protein-target-why"
+              size={12}
+            />
           </p>
-          <div className={`p-3 rounded-lg ${darkMode ? 'bg-amber-500/10 border border-amber-500/20' : 'bg-amber-50 border border-amber-200'}`}>
-            <p className={`text-xs leading-relaxed ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}>
-              <strong>Why {getProteinTarget()}g?</strong> After 30, women lose 3-8% muscle mass per decade (sarcopenia). Declining estrogen accelerates this, especially in perimenopause. Protein triggers the mTOR pathway for muscle protein synthesis, but only when you hit the leucine threshold (2.5-3g) per meal. At {getProteinTarget()}g across 4 meals, you trigger this response every time — protecting muscle, bone density, and metabolic rate.
-            </p>
-          </div>
           {userProfile.weight && (
             <div className={`mt-2 p-2 rounded flex justify-between items-center ${darkMode ? 'bg-gray-800/60' : 'bg-white/80'
               }`}>
