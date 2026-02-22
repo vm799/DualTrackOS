@@ -32,11 +32,11 @@ const SectionContainer = ({
   // Allow parent to force-expand via defaultCollapsed changing
   useEffect(() => {
     if (!defaultCollapsed && collapsed) {
-      const stored = localStorage.getItem(storageKey);
+      const stored = storageKey ? localStorage.getItem(storageKey) : null;
       // Only auto-expand if user hasn't manually collapsed it
       if (stored === null) setCollapsed(false);
     }
-  }, [defaultCollapsed, storageKey]);
+  }, [defaultCollapsed, storageKey, collapsed]);
 
   const colorClasses = {
     purple: {
