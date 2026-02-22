@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, Pause, RotateCcw, TrendingUp, Settings, LogOut, User, Sparkles, Clock, Battery, Utensils, Mic, BookOpen, Trello } from 'lucide-react';
+import { Play, Pause, RotateCcw, TrendingUp, Settings, LogOut, User, Sparkles, Clock, Battery, Utensils, Mic, BookOpen, Trello, ChevronDown } from 'lucide-react';
 import { signOut } from '../services/dataService';
 import usePomodoroStore from '../store/usePomodoroStore';
 import useStore from '../store/useStore';
@@ -34,6 +34,7 @@ import NonZeroDayWidget from '../components/NonZeroDayWidget';
 import useCycleStore from '../store/useCycleStore';
 import DayOneChecklist from '../components/DayOneChecklist';
 import MojoCycleChart from '../components/MojoCycleChart';
+import WelcomeGuide from '../components/WelcomeGuide';
 import { ACTIVE_HOURS_START, ACTIVE_HOURS_END, POMODORO_DURATION_SECONDS } from '../constants';
 
 const Dashboard = () => {
@@ -77,6 +78,12 @@ const Dashboard = () => {
   const [showNutritionModal, setShowNutritionModal] = useState(false);
   const [showBrainDumpModal, setShowBrainDumpModal] = useState(false);
   const [hasCheckedNDM, setHasCheckedNDM] = useState(false);
+
+  // Progressive disclosure — detect if user has started engaging today
+  const hasStartedToday = ndm.nutrition || ndm.movement || ndm.mindfulness || ndm.brainDump;
+  const [showMoreSections, setShowMoreSections] = useState(() => {
+    return localStorage.getItem('dashboard-show-more') === 'true';
+  });
 
   // Story Bank - Daily Reminder System
   const {
@@ -305,8 +312,8 @@ const Dashboard = () => {
       }
     };
 
-    // Wait 5 seconds after page load before first check
-    const initialTimer = setTimeout(checkReminder, 5000);
+    // Wait 90 seconds after page load — let user orient first
+    const initialTimer = setTimeout(checkReminder, 90000);
 
     // Check every 30 minutes
     const interval = setInterval(checkReminder, 30 * 60 * 1000);
@@ -336,6 +343,21 @@ const Dashboard = () => {
   const handleDismissReminder = () => {
     dismissReminderToday();
     setShowStoryReminder(false);
+  };
+
+  // WelcomeGuide — scroll to section when user clicks a step
+  const handleGuideStepClick = (sectionId) => {
+    const el = document.getElementById(sectionId);
+    if (el) {
+      const offset = 100;
+      const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  };
+
+  const handleShowMore = () => {
+    setShowMoreSections(true);
+    localStorage.setItem('dashboard-show-more', 'true');
   };
 
   const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
@@ -563,8 +585,20 @@ const Dashboard = () => {
       {/* MAIN CONTENT */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-6 pb-32 relative z-10">
+
+          {/* === WELCOME GUIDE — friendly "start here" for today === */}
+          <WelcomeGuide
+            darkMode={darkMode}
+            userName={userProfile.name}
+            onStepClick={handleGuideStepClick}
+          />
+
+          {/* === TIER 1: ALWAYS VISIBLE — the "do these now" core === */}
+
           {/* Day 1 Checklist */}
-          <DayOneChecklist />
+          <div id="protocols">
+            <DayOneChecklist />
+          </div>
 
           {/* Must-Dos Section */}
           <SectionContainer
@@ -574,6 +608,7 @@ const Dashboard = () => {
             description="Complete these 4 core habits - the foundation of your day"
             accentColor="emerald"
             darkMode={darkMode}
+            collapsible={false}
           >
             <NDMStatusBar
               ndm={ndm}
@@ -597,7 +632,8 @@ const Dashboard = () => {
             <HourlyTaskDisplay />
           </SectionContainer>
 
-          {/* Energy Section */}
+          {/* === TIER 2: COLLAPSED UNTIL USER HAS ENGAGED === */}
+
           <SectionContainer
             id="energy"
             icon={Battery}
@@ -606,6 +642,7 @@ const Dashboard = () => {
             badge="Preview Mode"
             accentColor="purple"
             darkMode={darkMode}
+            defaultCollapsed={!hasStartedToday}
           >
             <FeaturePreview
               feature="energyMoodTracking"
@@ -630,7 +667,6 @@ const Dashboard = () => {
             </FeaturePreview>
           </SectionContainer>
 
-          {/* Cycle Syncing & Mojo Section */}
           <SectionContainer
             id="cycle-sync"
             icon={Sparkles}
@@ -638,6 +674,7 @@ const Dashboard = () => {
             description="Align your training with your biology"
             accentColor="pink"
             darkMode={darkMode}
+            defaultCollapsed={!hasStartedToday}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <CycleSyncWidget />
@@ -646,7 +683,6 @@ const Dashboard = () => {
             <MojoCycleChart />
           </SectionContainer>
 
-          {/* Nutrition Section */}
           <SectionContainer
             id="nutrition"
             icon={Utensils}
@@ -654,65 +690,85 @@ const Dashboard = () => {
             description="Hit your 135g protein floor - no excuses"
             accentColor="orange"
             darkMode={darkMode}
+            defaultCollapsed={!hasStartedToday}
           >
             <ProteinTracker openNutrition={openNutrition} />
           </SectionContainer>
 
-          {/* Voice Section */}
-          <SectionContainer
-            id="voice"
-            icon={Mic}
-            title="Quick Voice Check-in"
-            description="Talk it out in 30 seconds - no typing needed"
-            badge="Free: 30s"
-            accentColor="pink"
-            darkMode={darkMode}
-          >
-            <FeaturePreview
-              feature="voiceTranscription"
-              requiredTier="starter"
-              previewLimits={{
-                maxDuration: 30,
-                maxEntries: 3,
-                description: "30s max, 3 entries"
-              }}
-              upgradeMessage={{
-                title: "Love Voice Diary?",
-                benefits: [
-                  "Unlimited recording time",
-                  "AI transcription",
-                  "Full history access"
-                ],
-                cta: "Unlock for $4.99/mo"
-              }}
+          {/* === TIER 3: EXTRA TOOLS — hidden until "Explore more" === */}
+
+          {!showMoreSections && !hasStartedToday ? (
+            <button
+              onClick={handleShowMore}
+              className={`w-full flex items-center justify-center gap-2 py-4 rounded-2xl border-2 border-dashed transition-all ${
+                darkMode
+                  ? 'border-gray-700 text-gray-500 hover:border-gray-600 hover:text-gray-400 hover:bg-gray-800/30'
+                  : 'border-gray-300 text-gray-400 hover:border-gray-400 hover:text-gray-500 hover:bg-gray-50'
+              }`}
             >
-              <VoiceDiary />
-            </FeaturePreview>
-          </SectionContainer>
+              <ChevronDown size={18} />
+              <span className="text-sm font-medium">Explore more tools (Voice, Knowledge Hub, Kanban)</span>
+              <ChevronDown size={18} />
+            </button>
+          ) : (
+            <>
+              <SectionContainer
+                id="voice"
+                icon={Mic}
+                title="Quick Voice Check-in"
+                description="Talk it out in 30 seconds - no typing needed"
+                badge="Free: 30s"
+                accentColor="pink"
+                darkMode={darkMode}
+                defaultCollapsed={true}
+              >
+                <FeaturePreview
+                  feature="voiceTranscription"
+                  requiredTier="starter"
+                  previewLimits={{
+                    maxDuration: 30,
+                    maxEntries: 3,
+                    description: "30s max, 3 entries"
+                  }}
+                  upgradeMessage={{
+                    title: "Love Voice Diary?",
+                    benefits: [
+                      "Unlimited recording time",
+                      "AI transcription",
+                      "Full history access"
+                    ],
+                    cta: "Unlock for $4.99/mo"
+                  }}
+                >
+                  <VoiceDiary />
+                </FeaturePreview>
+              </SectionContainer>
 
-          {/* Library Section */}
-          <SectionContainer
-            id="library"
-            icon={BookOpen}
-            title="Your Knowledge Hub"
-            description="Save useful resources and ideas for later"
-            accentColor="amber"
-            darkMode={darkMode}
-          >
-            <LearningLibrary />
-          </SectionContainer>
+              <SectionContainer
+                id="library"
+                icon={BookOpen}
+                title="Your Knowledge Hub"
+                description="Save useful resources and ideas for later"
+                accentColor="amber"
+                darkMode={darkMode}
+                defaultCollapsed={true}
+              >
+                <LearningLibrary />
+              </SectionContainer>
 
-          {/* Tasks Section */}
-          <SectionContainer
-            id="tasks"
-            icon={Trello}
-            title="Organize Your Chaos"
-            description="Brain dump everything, then drag tasks where they belong"
-            accentColor="blue"
-            darkMode={darkMode}
-          >
-            <KanbanBoard />
-          </SectionContainer>
+              <SectionContainer
+                id="tasks"
+                icon={Trello}
+                title="Organize Your Chaos"
+                description="Brain dump everything, then drag tasks where they belong"
+                accentColor="blue"
+                darkMode={darkMode}
+                defaultCollapsed={true}
+              >
+                <KanbanBoard />
+              </SectionContainer>
+            </>
+          )}
         </div>
       </div>
 
