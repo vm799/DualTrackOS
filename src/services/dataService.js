@@ -47,11 +47,35 @@ export const signInWithGoogle = async () => {
 };
 
 export const signOut = async () => {
+  // Clear all app-related localStorage keys
+  const keysToRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (
+      key.startsWith('dualtrack') ||
+      key.startsWith('section-collapsed-') ||
+      key.startsWith('tooltip-dismissed-') ||
+      key.startsWith('tooltip-seen-') ||
+      key.startsWith('welcome-dismissed-') ||
+      key.startsWith('dashboard-') ||
+      key.startsWith('checkin_intent') ||
+      key.startsWith('protocol-') ||
+      key === 'darkMode' ||
+      key === 'last-good-path'
+    ) {
+      keysToRemove.push(key);
+    }
+  }
+  keysToRemove.forEach((key) => localStorage.removeItem(key));
+
   if (!isSupabaseConfigured()) {
-    console.error('Supabase is not configured. Cannot sign out.');
+    // Even without Supabase, force a page reload to reset all Zustand stores
+    window.location.href = '/';
     return;
   }
   await supabase.auth.signOut();
+  // Redirect to landing to fully reset in-memory state
+  window.location.href = '/';
 };
 
 export const onAuthStateChange = (callback) => {

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { ChevronDown } from 'lucide-react';
 
 const SectionContainer = ({
   id,
@@ -8,8 +9,35 @@ const SectionContainer = ({
   badge,
   accentColor = 'purple',
   children,
-  darkMode
+  darkMode,
+  defaultCollapsed = false,
+  collapsible = true,
 }) => {
+  const storageKey = id ? `section-collapsed-${id}` : null;
+
+  const [collapsed, setCollapsed] = useState(() => {
+    if (storageKey) {
+      const stored = localStorage.getItem(storageKey);
+      if (stored !== null) return stored === 'true';
+    }
+    return defaultCollapsed;
+  });
+
+  useEffect(() => {
+    if (storageKey) {
+      localStorage.setItem(storageKey, String(collapsed));
+    }
+  }, [collapsed, storageKey]);
+
+  // Allow parent to force-expand via defaultCollapsed changing
+  useEffect(() => {
+    if (!defaultCollapsed && collapsed) {
+      const stored = localStorage.getItem(storageKey);
+      // Only auto-expand if user hasn't manually collapsed it
+      if (stored === null) setCollapsed(false);
+    }
+  }, [defaultCollapsed, storageKey]);
+
   const colorClasses = {
     purple: {
       border: 'border-purple-500/30',
@@ -57,30 +85,39 @@ const SectionContainer = ({
 
   const colors = colorClasses[accentColor] || colorClasses.purple;
 
+  const handleToggle = () => {
+    if (collapsible) setCollapsed(!collapsed);
+  };
+
   return (
     <div
       id={id}
-      className={`scroll-mt-20 rounded-2xl border-2 ${colors.border} ${colors.bg} p-6 ${
+      className={`scroll-mt-20 rounded-2xl border-2 ${colors.border} ${colors.bg} ${collapsed ? 'p-4' : 'p-6'} ${
         darkMode ? 'backdrop-blur-sm' : ''
       } transition-all hover:shadow-lg`}
     >
-      {/* Section Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-start gap-3 flex-1">
+      {/* Section Header — clickable to toggle */}
+      <div
+        className={`flex items-center justify-between ${collapsible ? 'cursor-pointer select-none' : ''} ${collapsed ? '' : 'mb-4'}`}
+        onClick={handleToggle}
+        role={collapsible ? 'button' : undefined}
+        aria-expanded={collapsible ? !collapsed : undefined}
+      >
+        <div className="flex items-center gap-3 flex-1 min-w-0">
           {Icon && (
             <div className={`p-2 rounded-xl ${colors.icon} ${
               darkMode ? 'bg-gray-800/50' : 'bg-white'
             }`}>
-              <Icon size={24} strokeWidth={2.5} />
+              <Icon size={collapsed ? 20 : 24} strokeWidth={2.5} />
             </div>
           )}
-          <div className="flex-1">
-            <h2 className={`text-xl font-bold mb-1 ${
+          <div className="flex-1 min-w-0">
+            <h2 className={`${collapsed ? 'text-base' : 'text-xl'} font-bold ${collapsed ? 'mb-0' : 'mb-1'} ${
               darkMode ? 'text-gray-100' : 'text-gray-900'
             }`}>
               {title}
             </h2>
-            {description && (
+            {!collapsed && description && (
               <p className={`text-sm ${
                 darkMode ? 'text-gray-400' : 'text-gray-600'
               }`}>
@@ -90,17 +127,29 @@ const SectionContainer = ({
           </div>
         </div>
 
-        {badge && (
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colors.badge}`}>
-            {badge}
-          </span>
-        )}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {badge && (
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colors.badge}`}>
+              {badge}
+            </span>
+          )}
+          {collapsible && (
+            <ChevronDown
+              size={20}
+              className={`transition-transform duration-200 ${darkMode ? 'text-gray-500' : 'text-gray-400'} ${
+                collapsed ? '' : 'rotate-180'
+              }`}
+            />
+          )}
+        </div>
       </div>
 
-      {/* Section Content */}
-      <div className="mt-4">
-        {children}
-      </div>
+      {/* Section Content — smooth collapse */}
+      {!collapsed && (
+        <div className="mt-4">
+          {children}
+        </div>
+      )}
     </div>
   );
 };
